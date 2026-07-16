@@ -1,0 +1,27 @@
+nome,plataforma,ambiente,formato,estrutura,modelo_comercial,modalidade_compra,unidade_compra,descricao
+
+Instagram Feed Ads,Instagram,Social,Feed,Direta,Comercial Simples,CPM,Impressão,Inventário Feed Instagram
+
+Instagram Stories Ads,Instagram,Social,Stories,Direta,Comercial Simples,CPM,Impressão,Inventário Stories Instagram
+
+Instagram Reels Ads,Instagram,Social,Reels,Direta,Comercial Simples,CPM,Impressão,Inventário Reels Instagram
+
+Facebook Feed Ads,Facebook,Social,Feed,Direta,Comercial Simples,CPM,Impressão,Inventário Feed Facebook
+
+Google Search Ads,Google Search,Search,Texto,Direta,Comercial Simples,CPC,Clique,Pesquisa patrocinada Google
+
+Google Responsive Search Ads,Google Search,Search,Responsivo,Direta,Comercial Simples,CPC,Clique,Busca responsiva Google
+
+Google Display Banner,Google Display Network,Sites,Banner,Direta,Comercial Simples,CPM,Impressão,Display Google
+
+YouTube In-stream,YouTube,Streaming Vídeo,In-stream,Direta,Comercial Simples,CPV,View,Anúncio In-stream Youtube
+
+YouTube Bumper,YouTube,Streaming Vídeo,Bumper,Direta,Comercial Simples,CPM,Impressão,Anúncio Bumper Youtube
+
+GloboPlay AVOD,GloboPlay,CTV,CTV AVOD,Direta,Comercial Simples,CPM,Impressão,Inventário AVOD GloboPlay
+
+Mercado Livre Retail Display,Mercado Livre,Retail,Retail Display,Direta,Comercial Simples,CPM,Impressão,Retail Display Mercado Livre
+
+Mercado Livre Retail Search,Mercado Livre,Retail,Retail Search,Direta,Comercial Simples,CPC,Clique,Retail Search Mercado Livre
+
+Mercado Livre Retail Vídeo,Mercado Livre,Retail,Retail Vídeo,Direta,Comercial Simples,CPM,Impressão,Retail Vídeo Mercado Livre

@@ -1,8 +1,42 @@
-streamlit
-pandas
-numpy
-plotly
-supabase
-openpyxl
-reportlab
-python-dotenv
+# ==========================================================
+# SDM - Sistema de Diagnóstico de Mídia
+# ==========================================================
+
+# Interface
+streamlit>=1.41.0
+
+# Banco de dados
+supabase>=2.9.1
+postgrest>=0.17.2
+
+# Dados
+pandas>=2.2.3
+numpy>=2.2.0
+openpyxl>=3.1.5
+
+# Visualização
+matplotlib>=3.10.0
+
+# Modelos
+pydantic>=2.10.3
+
+# Variáveis de ambiente
+python-dotenv>=1.0.1
+
+# HTTP
+httpx>=0.28.1
+
+# Datas
+python-dateutil>=2.9.0
+
+# Utilidades
+typing_extensions>=4.12.2
+
+# Testes
+pytest>=8.3.4
+pytest-cov>=6.0.0
+
+# Qualidade
+black>=24.10.0
+flake8>=7.1.1
+isort>=5.13.2

@@ -1,0 +1,68 @@
+"""
+SDM
+Esquema lógico do banco de dados.
+
+Toda referência a tabelas deve utilizar este módulo.
+
+Nunca utilizar nomes literais ("inventarios_v3", etc.)
+diretamente nos repositories.
+"""
+
+
+# ==========================================================
+# CATÁLOGOS
+# ==========================================================
+
+CANAIS = "canais_v3"
+
+AMBIENTES = "ambientes_v3"
+
+ESTRUTURAS = "estruturas_v3"
+
+FORMATOS = "formatos_v3"
+
+TECNOLOGIAS = "tecnologias_v3"
+
+# Não existe perfis_v3
+PERFIS = "perfis_editoriais"
+
+MODALIDADES = "modalidades_compra_v3"
+
+UNIDADES = "unidades_compra_v3"
+
+PLATAFORMAS = "plataformas_v3"
+
+
+# ==========================================================
+# PLANEJAMENTO
+# ==========================================================
+
+BRIEFINGS = "briefings_v3"
+
+AUDIENCIAS = "audiencias_v3"
+
+BRIEFING_AUDIENCIAS = "briefing_audiencias_v3"
+
+OBJETIVOS = "objetivos_campanha_v3"
+
+KPIS = "kpis_v3"
+
+
+# ==========================================================
+# INVENTÁRIOS
+# ==========================================================
+
+INVENTARIOS = "inventarios_v3"
+
+INVENTARIOS_OBJETIVOS = "inventarios_objetivos_v3"
+
+INVENTARIOS_KPIS = "inventarios_kpis_v3"
+
+INVENTARIOS_METRICAS = "inventarios_metricas_v3"
+
+
+# ==========================================================
+# CONSUMO
+# ==========================================================
+
+CONSUMO = "consumo_midia_v3"

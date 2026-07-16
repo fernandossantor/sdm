@@ -1,2 +1,0 @@
-# sdm
-PPM App

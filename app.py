@@ -1,24 +1,63 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="SDM",
-    layout="wide"
+from application.services.workflow_service import (
+    WorkflowService
 )
 
-st.title("SDM")
-st.subheader("Sistema de Diagnóstico de Mídia")
+from components.home.hero import render as hero
+from components.home.workflow_card import render as workflow_card
+from components.home.projects_card import render as projects_card
+from components.home.knowledge_card import render as knowledge_card
+from components.home.navigation_card import render as navigation_card
 
-st.markdown("---")
+# ==========================================================
+# CONFIGURAÇÃO
+# ==========================================================
 
-st.markdown("""
-### Bem-vindo ao SDM
+st.set_page_config(
 
-Utilize o menu lateral para acessar:
+    page_title="SDM",
 
-- 📚 Catálogos
-- 👥 Públicos
-- 📊 Cenários
-- 📋 Planejamento
-- 📈 Simulações
-- 📑 Resultados
-""")
+    page_icon="📊",
+
+    layout="wide",
+
+    initial_sidebar_state="expanded"
+
+)
+
+# ==========================================================
+# WORKFLOW
+# ==========================================================
+
+workflow = WorkflowService()
+
+estado = workflow.estado(
+
+    st.session_state
+
+)
+
+# ==========================================================
+# HOME
+# ==========================================================
+
+hero()
+
+workflow_card(
+
+    estado
+
+)
+
+st.divider()
+
+projects_card()
+
+st.divider()
+
+navigation_card()
+
+st.divider()
+
+knowledge_card()
