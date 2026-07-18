@@ -9,17 +9,18 @@ def render():
 
     )
 
-    st.subheader(
+    st.caption(
 
-        "Sistema de Diagnóstico de Mídia"
+        "Sistema Especialista para Planejamento Estratégico de Mídia"
 
     )
 
-    st.markdown(
+    st.info(
 
         """
-Planejamento estratégico de mídia baseado em conhecimento,
-motores de decisão e workflow inteligente.
+Bem-vindo ao SDM.
+
+Utilize a Central de Operações para criar uma nova campanha ou continuar um planejamento existente.
 """
     )
 

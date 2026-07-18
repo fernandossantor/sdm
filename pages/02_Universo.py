@@ -5,7 +5,13 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🌎 Universo e Segmentação")
+st.title("🎯 Audiências")
+
+st.caption(
+    "Universos e Segmentos compõem a classificação das audiências utilizadas no planejamento."
+)
+
+st.divider()
 
 st.markdown("---")
 

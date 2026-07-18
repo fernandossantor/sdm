@@ -1,162 +1,119 @@
-from engine.models import PlanoMidia
+from engine.decision_engine import DecisionEngine
 
-from engine.briefing_engine import (
-
-    obter_briefing,
-
-    obter_objetivo,
-
-    obter_audiencias
-
-)
-
-from engine.score_engine import (
-
-    calcular_scores
-
-)
-
-from engine.allocation_engine import (
-
-    AllocationEngine
-
+from engine.models import (
+    AmbientePlano,
+    DecisionResult,
+    InventarioPlano,
 )
 
 
 class PlannerEngine:
 
+    """
+    Responsável apenas pelo planejamento.
+
+    Toda a inteligência fica no DecisionEngine.
+    """
+
+    def __init__(self):
+
+        self.decision_engine = DecisionEngine()
+
+    # =====================================================
+    # GERAÇÃO DO PLANO
+    # =====================================================
 
     def gerar_plano(
-
-
         self,
-
-        nome_briefing
-
+        briefing_id,
     ):
 
-
-        briefing = obter_briefing(
-
-            nome_briefing
-
+        resultado = self.decision_engine.decidir(
+            briefing_id
         )
 
+        return self._montar_plano(resultado)
 
-        objetivo = obter_objetivo(
+    # =====================================================
+    # PLANO
+    # =====================================================
 
-            briefing.objetivo_id
+    def _montar_plano(
+        self,
+        resultado: DecisionResult,
+    ):
 
-        )
+        ambientes = {}
 
+        inventarios = []
 
-        audiencias = obter_audiencias(
+        verba_total = resultado.verba_total
 
-            briefing.id
+        for decisao in resultado.decisoes:
 
-        )
+            inventario = InventarioPlano(
 
+                inventario=decisao.inventario,
 
-        ranking = calcular_scores(
+                plataforma=decisao.plataforma,
 
-            objetivo,
+                ambiente=decisao.ambiente,
 
-            audiencias
+                score=decisao.score,
 
-        )
+                percentual=decisao.percentual,
 
+                verba=decisao.verba,
 
-        allocation = AllocationEngine()
+                papel=decisao.papel,
 
+                justificativas=decisao.justificativas,
 
-        distribuicao = allocation.distribuir(
+            )
 
-            ranking,
+            inventarios.append(inventario)
 
-            briefing.orcamento
+            if decisao.ambiente not in ambientes:
 
-        )
+                ambientes[decisao.ambiente] = AmbientePlano(
 
+                    ambiente=decisao.ambiente,
 
-        plano = PlanoMidia(
+                    score=0,
 
-            briefing=briefing,
+                    percentual=0,
 
-            objetivo=objetivo,
+                    verba=0,
 
-            audiencias=audiencias,
-
-            ambientes=distribuicao
-
-        )
-
-
-        plano.indicadores = {
-
-            "verba_total":
-
-                briefing.orcamento,
-
-            "principal":
-
-                len(
-
-                    [
-
-                        a
-
-                        for a in distribuicao
-
-                        if a.papel == "PRINCIPAL"
-
-                    ]
-
-                ),
-
-            "complementar":
-
-                len(
-
-                    [
-
-                        a
-
-                        for a in distribuicao
-
-                        if a.papel == "COMPLEMENTAR"
-
-                    ]
-
-                ),
-
-            "apoio":
-
-                len(
-
-                    [
-
-                        a
-
-                        for a in distribuicao
-
-                        if a.papel == "APOIO"
-
-                    ]
+                    papel=decisao.papel,
 
                 )
 
+            ambiente = ambientes[decisao.ambiente]
+
+            ambiente.verba += decisao.verba
+
+            ambiente.percentual += decisao.percentual
+
+            ambiente.score = max(
+                ambiente.score,
+                decisao.score,
+            )
+
+        return {
+
+            "inventarios": inventarios,
+
+            "ambientes": list(ambientes.values()),
+
+            "verba_total": verba_total,
+
+            "score_global": resultado.score_global,
+
+            "observacoes": resultado.observacoes,
+
+            "alertas": resultado.alertas,
+
+            "erros": resultado.erros,
+
         }
-
-
-        plano.justificativas = [
-
-            "Distribuição baseada na aderência ao objetivo da campanha.",
-
-            "Considerado o perfil de consumo da audiência.",
-
-            "Os percentuais representam um cenário estratégico inicial."
-
-        ]
-
-
-        return plano

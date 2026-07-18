@@ -383,3 +383,9 @@ st.caption(
     "SDM • Cadastro Estratégico de Segmentos"
 
 )
+
+st.caption(
+    "Segmentos refinam a classificação das audiências."
+)
+
+st.divider()

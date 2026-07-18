@@ -6,7 +6,7 @@ from application.services.workflow_service import (
 
 from components.home.hero import render as hero
 from components.home.workflow_card import render as workflow_card
-from components.home.projects_card import render as projects_card
+from components.home.campaign_card import render as campaign_card
 from components.home.knowledge_card import render as knowledge_card
 from components.home.navigation_card import render as navigation_card
 
@@ -52,7 +52,7 @@ workflow_card(
 
 st.divider()
 
-projects_card()
+campaign_card()
 
 st.divider()
 

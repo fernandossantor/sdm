@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 # ==========================================================
@@ -8,22 +8,25 @@ from typing import List, Optional
 
 @dataclass
 class DecisionContext:
+    briefing: Dict[str, Any]
 
-    briefing: dict
+    objetivo: Dict[str, Any]
 
-    objetivo: dict
+    audiencias: List[Dict[str, Any]]
 
-    audiencias: list
+    inventarios: List[Dict[str, Any]]
 
-    inventarios: list
+    inventarios_objetivos: List[Dict[str, Any]]
 
-    inventarios_objetivos: list
+    inventarios_kpis: List[Dict[str, Any]]
 
-    inventarios_kpis: list
+    metricas: List[Dict[str, Any]]
 
-    metricas: list
+    consumo: List[Dict[str, Any]]
 
-    consumo: list
+    parametros: Dict[str, Any] = field(default_factory=dict)
+
+    restricoes: List[Dict[str, Any]] = field(default_factory=list)
 
 
 # ==========================================================
@@ -32,7 +35,6 @@ class DecisionContext:
 
 @dataclass
 class AmbientePlano:
-
     ambiente: str
 
     score: float
@@ -50,7 +52,6 @@ class AmbientePlano:
 
 @dataclass
 class InventarioPlano:
-
     inventario: str
 
     plataforma: str
@@ -69,6 +70,42 @@ class InventarioPlano:
 
 
 # ==========================================================
+# ITEM DE DECISÃO
+# ==========================================================
+
+@dataclass
+class DecisionItem:
+
+    inventario: str
+
+    plataforma: str
+
+    ambiente: str
+
+    score: float
+
+    papel: str
+
+    prioridade: int
+
+    verba: float = 0.0
+
+    percentual: float = 0.0
+
+    confianca: float = 0.0
+
+    justificativas: List[str] = field(default_factory=list)
+
+    riscos: List[str] = field(default_factory=list)
+
+    restricoes: List[str] = field(default_factory=list)
+
+    observacoes: List[str] = field(default_factory=list)
+
+    metadados: Dict[str, Any] = field(default_factory=dict)
+
+
+# ==========================================================
 # RESULTADO DA DECISÃO
 # ==========================================================
 
@@ -77,6 +114,14 @@ class DecisionResult:
 
     inventarios: List[InventarioPlano] = field(default_factory=list)
 
+    decisoes: List[DecisionItem] = field(default_factory=list)
+
     verba_total: float = 0.0
 
+    score_global: float = 0.0
+
     observacoes: List[str] = field(default_factory=list)
+
+    alertas: List[str] = field(default_factory=list)
+
+    erros: List[str] = field(default_factory=list)

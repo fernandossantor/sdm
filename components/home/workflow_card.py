@@ -9,9 +9,15 @@ def render(
 
     st.subheader(
 
-        "Workflow"
+        "📍 Progresso da Campanha"
 
     )
+
+    st.caption(
+
+    "Acompanhe o progresso da campanha."
+
+)
 
     c1, c2, c3 = st.columns(3)
 

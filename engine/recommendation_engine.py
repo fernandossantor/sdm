@@ -1,341 +1,221 @@
 class RecommendationEngine:
 
-    # ==========================================================
+    """
+    Geração de recomendações estratégicas,
+    resumo executivo e análise de riscos.
+    """
+
+    # =====================================================
     # RECOMENDAÇÕES
-    # ==========================================================
+    # =====================================================
 
-    def recomendar(
-
-        self,
-
-        item
-
-    ):
+    def recomendar(self, decisao):
 
         recomendacoes = []
 
-        #
-        # Objetivo
-        #
+        # ---------------------------------------------
+        # Score
+        # ---------------------------------------------
 
-        if item["objetivo"] >= 90:
+        if decisao.score >= 90:
 
             recomendacoes.append(
-
-                "Elevada aderência ao objetivo da campanha."
-
+                "Inventário altamente recomendado para este planejamento."
             )
 
-        elif item["objetivo"] >= 70:
+        elif decisao.score >= 75:
 
             recomendacoes.append(
-
-                "Boa aderência ao objetivo."
-
+                "Inventário recomendado para compor o plano."
             )
 
         else:
 
             recomendacoes.append(
-
-                "Contribuição limitada para o objetivo."
-
+                "Utilização recomendada apenas em situações específicas."
             )
 
-        #
-        # KPI
-        #
-
-        if item["kpi"] >= 90:
-
-            recomendacoes.append(
-
-                "Excelente potencial para o KPI principal."
-
-            )
-
-        elif item["kpi"] >= 70:
-
-            recomendacoes.append(
-
-                "Bom desempenho esperado para o KPI."
-
-            )
-
-        else:
-
-            recomendacoes.append(
-
-                "Impacto reduzido sobre o KPI."
-
-            )
-
-        #
-        # Audiência
-        #
-
-        if item["audiencia"] >= 90:
-
-            recomendacoes.append(
-
-                "Excelente afinidade com a audiência."
-
-            )
-
-        elif item["audiencia"] >= 70:
-
-            recomendacoes.append(
-
-                "Boa cobertura da audiência."
-
-            )
-
-        else:
-
-            recomendacoes.append(
-
-                "Cobertura limitada da audiência."
-
-            )
-
-        #
-        # Métricas
-        #
-
-        if item["metricas"] >= 105:
-
-            recomendacoes.append(
-
-                "Indicadores operacionais acima da média."
-
-            )
-
-        elif item["metricas"] >= 100:
-
-            recomendacoes.append(
-
-                "Boas métricas operacionais."
-
-            )
-
-        else:
-
-            recomendacoes.append(
-
-                "Métricas operacionais medianas."
-
-            )
-
-        #
+        # ---------------------------------------------
         # Papel
-        #
+        # ---------------------------------------------
 
-        papel = item["papel"]
+        papel = decisao.papel.upper()
 
         if papel == "PRINCIPAL":
 
             recomendacoes.append(
-
-                "Recomendado como canal principal do plano."
-
+                "Priorizar investimento neste inventário."
             )
 
         elif papel == "COMPLEMENTAR":
 
             recomendacoes.append(
-
-                "Recomendado para ampliar cobertura e frequência."
-
+                "Utilizar para ampliar cobertura e frequência."
             )
 
         elif papel == "APOIO":
 
             recomendacoes.append(
-
                 "Utilizar como reforço tático."
-
             )
 
-        else:
+        elif papel == "TATICO":
 
             recomendacoes.append(
-
-                "Utilização opcional."
-
+                "Aplicação recomendada em ações específicas."
             )
+
+        # ---------------------------------------------
+        # Confiança
+        # ---------------------------------------------
+
+        if decisao.confianca >= 90:
+
+            recomendacoes.append(
+                "Elevado grau de confiança na recomendação."
+            )
+
+        elif decisao.confianca < 60:
+
+            recomendacoes.append(
+                "Recomendação sujeita a maior incerteza."
+            )
+
+        # ---------------------------------------------
+        # Riscos
+
+        # ---------------------------------------------
+
+        if decisao.riscos:
+
+            recomendacoes.extend(decisao.riscos)
 
         return recomendacoes
 
-    # ==========================================================
+    # =====================================================
     # RESUMO EXECUTIVO
-    # ==========================================================
+    # =====================================================
 
-    def resumo(
+    def resumo(self, resultado):
 
-        self,
+        decisoes = resultado.decisoes
 
-        ranking
+        if not decisoes:
 
-    ):
-
-        principais = len(
-
-            [
-
-                i
-
-                for i in ranking
-
-                if i["papel"] == "PRINCIPAL"
-
+            return [
+                "Nenhum inventário recomendado."
             ]
-
-        )
-
-        complementares = len(
-
-            [
-
-                i
-
-                for i in ranking
-
-                if i["papel"] == "COMPLEMENTAR"
-
-            ]
-
-        )
 
         media = round(
-
             sum(
-
-                i["score"]
-
-                for i in ranking
-
+                d.score
+                for d in decisoes
             )
-
-            /
-
-            len(ranking),
-
-            2
-
+            / len(decisoes),
+            2,
         )
 
-        texto = []
+        principais = len([
+            d
+            for d in decisoes
+            if d.papel.upper() == "PRINCIPAL"
+        ])
 
-        texto.append(
+        complementares = len([
+            d
+            for d in decisoes
+            if d.papel.upper() == "COMPLEMENTAR"
+        ])
 
-            f"Score médio do plano: {media}."
+        texto = [
 
-        )
+            f"Score médio do plano: {media}.",
 
-        texto.append(
-
-            f"{principais} inventários classificados como PRINCIPAIS."
-
-        )
-
-        texto.append(
+            f"{principais} inventários classificados como PRINCIPAIS.",
 
             f"{complementares} inventários classificados como COMPLEMENTARES."
 
-        )
+        ]
 
         if media >= 90:
 
             texto.append(
-
-                "Plano altamente recomendado."
-
+                "Plano altamente consistente."
             )
 
         elif media >= 75:
 
             texto.append(
-
                 "Plano consistente."
-
             )
 
         else:
 
             texto.append(
-
                 "Plano necessita otimização."
-
             )
 
         return texto
 
-    # ==========================================================
+    # =====================================================
     # RISCOS
-    # ==========================================================
+    # =====================================================
 
-    def riscos(
+    def riscos(self, resultado):
 
-        self,
-
-        ranking
-
-    ):
+        decisoes = resultado.decisoes
 
         riscos = []
 
-        if len(ranking) < 3:
+        if not decisoes:
 
             riscos.append(
-
-                "Baixa diversidade de inventários."
-
+                "Nenhum inventário selecionado."
             )
 
-        principais = len(
+            return riscos
 
-            [
-
-                i
-
-                for i in ranking
-
-                if i["papel"] == "PRINCIPAL"
-
-            ]
-
-        )
+        principais = len([
+            d
+            for d in decisoes
+            if d.papel.upper() == "PRINCIPAL"
+        ])
 
         if principais == 1:
 
             riscos.append(
+                "Dependência excessiva de um único canal principal."
+            )
 
-                "Dependência excessiva de um único canal."
+        if len(decisoes) < 3:
 
+            riscos.append(
+                "Baixa diversidade de inventários."
             )
 
         media = (
-
             sum(
-
-                i["score"]
-
-                for i in ranking
-
+                d.score
+                for d in decisoes
             )
-
-            /
-
-            len(ranking)
-
+            / len(decisoes)
         )
 
         if media < 70:
 
             riscos.append(
-
                 "Baixa aderência estratégica do plano."
+            )
 
+        alta_concentracao = any(
+            d.percentual >= 50
+            for d in decisoes
+        )
+
+        if alta_concentracao:
+
+            riscos.append(
+                "Alta concentração de investimento em um único inventário."
             )
 
         return riscos

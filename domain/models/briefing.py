@@ -1,244 +1,42 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
-from typing import List, Optional
 
-
-# ==========================================================
-# BRIEFING
-# ==========================================================
 
 @dataclass
 class Briefing:
 
-    # ------------------------------------------------------
-    # IDENTIFICAÇÃO
-    # ------------------------------------------------------
+    id: str = None
 
-    cliente: str
+    campaign_id: str = None
 
-    campanha: str
+    company: str = ""
 
-    objetivo_id: str
+    market: str = ""
 
-    objetivo: str
+    product: str = ""
 
-    kpi: str
+    category: str = ""
 
-    orcamento: float
+    positioning: str = ""
 
-    # ------------------------------------------------------
-    # NOVOS CAMPOS (Sprint 3)
-    # ------------------------------------------------------
+    differential: str = ""
 
-    marca: str = ""
+    objectives: str = ""
 
-    produto: str = ""
+    communication_problem: str = ""
 
-    objetivos_secundarios: List[str] = field(
-        default_factory=list
-    )
+    target_audience: str = ""
 
-    #
-    # Mantém compatibilidade com o campo "kpi"
-    #
+    competitors: str = ""
 
-    kpis: List[dict] = field(
-        default_factory=list
-    )
+    budget: float = 0
 
-    # ------------------------------------------------------
-    # PLANEJAMENTO
-    # ------------------------------------------------------
+    start_date: date = None
 
-    inicio: Optional[date] = None
+    end_date: date = None
 
-    fim: Optional[date] = None
+    observations: str = ""
 
-    #
-    # Flight
-    #
+    created_at: str = None
 
-    tipo_flight: str = "CONTINUO"
-
-    frequencia_objetivo: Optional[str] = None
-
-    praca: Optional[str] = None
-
-    universo: Optional[str] = None
-
-    segmento: Optional[str] = None
-
-    #
-    # Compatibilidade
-    #
-
-    audiencia_id: Optional[str] = None
-
-    #
-    # Novo modelo
-    #
-
-    publicos: List[dict] = field(
-        default_factory=list
-    )
-
-    jornada: Optional[str] = None
-
-    observacoes: str = ""
-
-    # ------------------------------------------------------
-    # RESTRIÇÕES
-    # ------------------------------------------------------
-
-    inventarios_obrigatorios: List[str] = field(
-        default_factory=list
-    )
-
-    inventarios_proibidos: List[str] = field(
-        default_factory=list
-    )
-
-    plataformas_obrigatorias: List[str] = field(
-        default_factory=list
-    )
-
-    plataformas_proibidas: List[str] = field(
-        default_factory=list
-    )
-
-    ambientes_obrigatorios: List[str] = field(
-        default_factory=list
-    )
-
-    ambientes_proibidos: List[str] = field(
-        default_factory=list
-    )
-
-    tecnologias_obrigatorias: List[str] = field(
-        default_factory=list
-    )
-
-    tecnologias_proibidas: List[str] = field(
-        default_factory=list
-    )
-
-    verba_teste: float = 0.0
-
-    # ======================================================
-    # VALIDAÇÃO
-    # ======================================================
-
-    def validar(self):
-
-        erros = []
-
-        if not self.cliente:
-
-            erros.append(
-                "Cliente é obrigatório."
-            )
-
-        if not self.campanha:
-
-            erros.append(
-                "Campanha é obrigatória."
-            )
-
-        if not self.objetivo_id:
-
-            erros.append(
-                "Objetivo é obrigatório."
-            )
-
-        #
-        # Compatibilidade entre KPI único e múltiplos KPIs
-        #
-
-        possui_kpi = bool(self.kpi)
-
-        possui_lista = len(self.kpis) > 0
-
-        if not possui_kpi and not possui_lista:
-
-            erros.append(
-                "Pelo menos um KPI deve ser informado."
-            )
-
-        if self.orcamento <= 0:
-
-            erros.append(
-                "Orçamento deve ser maior que zero."
-            )
-
-        #
-        # Flight
-        #
-
-        if self.inicio and self.fim:
-
-            if self.fim < self.inicio:
-
-                erros.append(
-                    "Data final anterior à data inicial."
-                )
-
-        #
-        # Frequência
-        #
-
-        frequencias = [
-
-            None,
-
-            "LIVRE",
-
-            "1-2",
-
-            "3-5",
-
-            "6+"
-
-        ]
-
-        if self.frequencia_objetivo not in frequencias:
-
-            erros.append(
-                "Frequência inválida."
-            )
-
-        return erros
-
-    # ======================================================
-    # STATUS
-    # ======================================================
-
-    @property
-    def valido(self):
-
-        return len(
-
-            self.validar()
-
-        ) == 0
-
-    # ======================================================
-    # COMPATIBILIDADE
-    # ======================================================
-
-    @property
-    def possui_multiplos_kpis(self):
-
-        return len(
-
-            self.kpis
-
-        ) > 0
-
-    @property
-    def possui_publicos(self):
-
-        return len(
-
-            self.publicos
-
-        ) > 0
+    updated_at: str = None

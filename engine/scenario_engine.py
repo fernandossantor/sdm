@@ -1,4 +1,5 @@
 from copy import deepcopy
+from statistics import mean
 
 
 class ScenarioEngine:
@@ -6,75 +7,45 @@ class ScenarioEngine:
     CENARIOS = {
 
         "CONSERVADOR": {
-
             "PRINCIPAL": 1.30,
-
             "COMPLEMENTAR": 0.90,
-
             "APOIO": 0.70,
-
             "OPCIONAL": 0.40
-
         },
 
         "EQUILIBRADO": {
-
             "PRINCIPAL": 1.00,
-
             "COMPLEMENTAR": 1.00,
-
             "APOIO": 1.00,
-
             "OPCIONAL": 1.00
-
         },
 
         "AGRESSIVO": {
-
             "PRINCIPAL": 1.50,
-
             "COMPLEMENTAR": 1.10,
-
             "APOIO": 0.80,
-
             "OPCIONAL": 0.30
-
         },
 
         "BRANDING": {
-
             "PRINCIPAL": 1.20,
-
             "COMPLEMENTAR": 1.10,
-
             "APOIO": 1.00,
-
             "OPCIONAL": 0.80
-
         },
 
         "PERFORMANCE": {
-
             "PRINCIPAL": 1.40,
-
             "COMPLEMENTAR": 1.00,
-
             "APOIO": 0.80,
-
             "OPCIONAL": 0.50
-
         },
 
         "OMNICHANNEL": {
-
             "PRINCIPAL": 1.00,
-
             "COMPLEMENTAR": 1.20,
-
             "APOIO": 1.10,
-
             "OPCIONAL": 0.90
-
         }
 
     }
@@ -85,9 +56,19 @@ class ScenarioEngine:
 
     def listar(self):
 
-        return list(
+        return sorted(self.CENARIOS.keys())
 
-            self.CENARIOS.keys()
+    # =====================================================
+    # PESOS
+    # =====================================================
+
+    def pesos(self, cenario):
+
+        return self.CENARIOS.get(
+
+            cenario.upper(),
+
+            self.CENARIOS["EQUILIBRADO"]
 
         )
 
@@ -105,23 +86,13 @@ class ScenarioEngine:
 
     ):
 
-        ranking = deepcopy(
+        pesos = self.pesos(cenario)
 
-            ranking
+        resultado = deepcopy(ranking)
 
-        )
+        for item in resultado:
 
-        pesos = self.CENARIOS.get(
-
-            cenario.upper(),
-
-            self.CENARIOS["EQUILIBRADO"]
-
-        )
-
-        for item in ranking:
-
-            peso = pesos.get(
+            fator = pesos.get(
 
                 item["papel"],
 
@@ -129,15 +100,19 @@ class ScenarioEngine:
 
             )
 
+            item["score_original"] = item["score"]
+
+            item["fator_cenario"] = fator
+
             item["score"] = round(
 
-                item["score"] * peso,
+                item["score"] * fator,
 
                 2
 
             )
 
-        ranking.sort(
+        resultado.sort(
 
             key=lambda x: x["score"],
 
@@ -145,10 +120,10 @@ class ScenarioEngine:
 
         )
 
-        return ranking
+        return resultado
 
     # =====================================================
-    # COMPARAÇÃO
+    # COMPARAR
     # =====================================================
 
     def comparar(
@@ -159,11 +134,9 @@ class ScenarioEngine:
 
     ):
 
-        resultado = {}
+        return {
 
-        for nome in self.listar():
-
-            resultado[nome] = self.aplicar(
+            nome: self.resumo(
 
                 ranking,
 
@@ -171,7 +144,9 @@ class ScenarioEngine:
 
             )
 
-        return resultado
+            for nome in self.listar()
+
+        }
 
     # =====================================================
     # RESUMO
@@ -195,50 +170,126 @@ class ScenarioEngine:
 
         )
 
-        media = round(
+        scores = [
 
-            sum(
+            item["score"]
 
-                i["score"]
+            for item in dados
 
-                for i in dados
+        ]
 
-            )
+        papeis = {
 
-            /
+            "PRINCIPAL": 0,
 
-            len(dados),
+            "COMPLEMENTAR": 0,
 
-            2
+            "APOIO": 0,
 
-        )
+            "OPCIONAL": 0
 
-        principais = len(
+        }
 
-            [
+        for item in dados:
 
-                i
+            papel = item["papel"]
 
-                for i in dados
-
-                if i["papel"] == "PRINCIPAL"
-
-            ]
-
-        )
+            papeis[papel] += 1
 
         return {
 
             "cenario": cenario,
 
-            "score_medio": media,
+            "inventarios": len(dados),
 
-            "principais": principais,
+            "score_medio": round(mean(scores), 2) if scores else 0,
 
-            "inventarios": len(
+            "score_maximo": max(scores) if scores else 0,
 
-                dados
+            "score_minimo": min(scores) if scores else 0,
+
+            "principais": papeis["PRINCIPAL"],
+
+            "complementares": papeis["COMPLEMENTAR"],
+
+            "apoio": papeis["APOIO"],
+
+            "opcionais": papeis["OPCIONAL"],
+
+            "ranking": dados
+
+        }
+
+    # =====================================================
+    # MELHOR CENÁRIO
+    # =====================================================
+
+    def melhor(
+
+        self,
+
+        ranking
+
+    ):
+
+        cenarios = self.comparar(
+
+            ranking
+
+        )
+
+        return max(
+
+            cenarios.values(),
+
+            key=lambda c: c["score_medio"]
+
+        )
+
+    # =====================================================
+    # CENÁRIO CUSTOMIZADO
+    # =====================================================
+
+    def personalizado(
+
+        self,
+
+        ranking,
+
+        pesos
+
+    ):
+
+        resultado = deepcopy(ranking)
+
+        for item in resultado:
+
+            fator = pesos.get(
+
+                item["papel"],
+
+                1.0
 
             )
 
-        }
+            item["score_original"] = item["score"]
+
+            item["fator_cenario"] = fator
+
+            item["score"] = round(
+
+                item["score"] * fator,
+
+                2
+
+            )
+
+        resultado.sort(
+
+            key=lambda x: x["score"],
+
+            reverse=True
+
+        )
+
+        return resultado

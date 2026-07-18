@@ -12,7 +12,13 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🎯 MCP - Motor de Classificação dos Papéis")
+st.title("👥 Papéis de Compra")
+
+st.caption(
+    "Gerencie os papéis desempenhados pelos participantes do processo de decisão de compra."
+)
+
+st.divider()
 
 st.markdown("---")
 
