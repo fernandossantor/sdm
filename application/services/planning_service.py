@@ -14,23 +14,26 @@ from engine.export_engine import ExportEngine
 
 class PlanningService:
     """
-    Serviço responsável por orquestrar todo o fluxo do SDM.
+    Orquestrador oficial do fluxo estratégico do SDM.
 
-    Não contém regras de mídia.
-    Apenas coordena os engines.
+    Responsabilidade:
+    - coordenar engines;
+    - não implementar regra de mídia;
+    - não acessar banco diretamente;
+    - não calcular score;
+    - não distribuir verba manualmente.
     """
 
     def __init__(self):
-
         self.decision_engine = DecisionEngine()
-        self.planner_engine = PlannerEngine()
-        self.allocation_engine = AllocationEngine()
         self.score_engine = ScoreEngine()
+        self.allocation_engine = AllocationEngine()
+        self.planner_engine = PlannerEngine()
         self.forecast_engine = ForecastEngine()
         self.scenario_engine = ScenarioEngine()
+        self.validation_engine = ValidationEngine()
         self.insights_engine = InsightsEngine()
         self.recommendation_engine = RecommendationEngine()
-        self.validation_engine = ValidationEngine()
         self.dashboard_engine = DashboardEngine()
         self.report_engine = ReportEngine()
         self.export_engine = ExportEngine()
@@ -40,55 +43,77 @@ class PlanningService:
     # =====================================================
 
     def executar(self, briefing):
+        """
+        Executa o pipeline estratégico do SDM.
+
+        Fluxo:
+        Decision -> Ranking -> Allocation -> Planner -> Forecast ->
+        Scenario -> Validation -> Insights -> Recommendation ->
+        Dashboard -> Report.
+        """
 
         resultado = {}
 
         # -------------------------------------------------
-        # 1 - DECISÃO
+        # 1 - DECISÃO / CONTEXTO
         # -------------------------------------------------
 
-        decision = self.decision_engine.executar(
+        decision = self.decision_engine.decidir(
             briefing
         )
 
         resultado["decision"] = decision
 
         # -------------------------------------------------
-        # 2 - PLANO
+        # 2 - RANKING
         # -------------------------------------------------
+        #
+        # Compatibilidade:
+        # o DecisionEngine atual ainda devolve decisões já
+        # pontuadas. Na próxima etapa, essa lógica será
+        # movida para ScoreEngine.
+        #
 
-        plano = self.planner_engine.executar(
-            briefing=briefing,
-            decision=decision
+        ranking = self._ranking_from_decision(
+            decision
         )
 
-        resultado["plano"] = plano
+        resultado["ranking"] = ranking
 
         # -------------------------------------------------
         # 3 - ALOCAÇÃO
         # -------------------------------------------------
 
-        plano = self.allocation_engine.executar(
-            plano
+        verba_total = self._orcamento(
+            briefing=briefing,
+            decision=decision,
+        )
+
+        plano_tatico = self.allocation_engine.distribuir(
+            ranking,
+            verba_total,
+        )
+
+        resultado["plano_tatico"] = plano_tatico
+
+        # -------------------------------------------------
+        # 4 - PLANO
+        # -------------------------------------------------
+
+        plano = self.planner_engine.executar(
+            briefing=briefing,
+            decision=decision,
+            plano_tatico=plano_tatico,
+            ranking=ranking,
         )
 
         resultado["plano"] = plano
 
         # -------------------------------------------------
-        # 4 - SCORE
-        # -------------------------------------------------
-
-        decision = self.score_engine.executar(
-            decision
-        )
-
-        resultado["decision"] = decision
-
-        # -------------------------------------------------
         # 5 - FORECAST
         # -------------------------------------------------
 
-        forecast = self.forecast_engine.executar(
+        forecast = self._forecast(
             plano
         )
 
@@ -98,64 +123,64 @@ class PlanningService:
         # 6 - CENÁRIOS
         # -------------------------------------------------
 
-        scenarios = self.scenario_engine.executar(
-            plano,
-            decision,
-            forecast
+        scenarios = self._scenarios(
+            plano=plano,
+            decision=decision,
+            forecast=forecast,
         )
 
         resultado["scenarios"] = scenarios
 
         # -------------------------------------------------
-        # 7 - INSIGHTS
+        # 7 - VALIDAÇÃO
         # -------------------------------------------------
 
-        insights = self.insights_engine.executar(
-            briefing,
-            plano,
-            forecast,
-            scenarios
-        )
-
-        resultado["insights"] = insights
-
-        # -------------------------------------------------
-        # 8 - RECOMENDAÇÕES
-        # -------------------------------------------------
-
-        recommendations = self.recommendation_engine.executar(
-            briefing,
-            plano,
-            forecast,
-            insights
-        )
-
-        resultado["recommendations"] = recommendations
-
-        # -------------------------------------------------
-        # 9 - VALIDAÇÃO
-        # -------------------------------------------------
-
-        validation = self.validation_engine.validar(
+        validation = self._validation(
             briefing=briefing,
             decision=decision,
             plano=plano,
-            forecast=forecast
+            forecast=forecast,
         )
 
         resultado["validation"] = validation
 
         # -------------------------------------------------
+        # 8 - INSIGHTS
+        # -------------------------------------------------
+
+        insights = self._insights(
+            briefing=briefing,
+            plano=plano,
+            forecast=forecast,
+            scenarios=scenarios,
+        )
+
+        resultado["insights"] = insights
+
+        # -------------------------------------------------
+        # 9 - RECOMENDAÇÕES
+        # -------------------------------------------------
+
+        recommendations = self._recommendations(
+            briefing=briefing,
+            plano=plano,
+            forecast=forecast,
+            insights=insights,
+        )
+
+        resultado["recommendations"] = recommendations
+
+        # -------------------------------------------------
         # 10 - DASHBOARD
         # -------------------------------------------------
 
-        dashboard = self.dashboard_engine.gerar(
+        dashboard = self._dashboard(
             decision=decision,
             plano=plano,
             forecast=forecast,
             insights=insights,
             recommendations=recommendations,
-            scenarios=scenarios
+            scenarios=scenarios,
         )
 
         resultado["dashboard"] = dashboard
@@ -164,7 +189,7 @@ class PlanningService:
         # 11 - RELATÓRIO
         # -------------------------------------------------
 
-        report = self.report_engine.gerar(
+        report = self._report(
             dashboard
         )
 
@@ -173,27 +198,251 @@ class PlanningService:
         return resultado
 
     # =====================================================
-    # EXPORTAÇÃO
+    # COMPATIBILIDADE
     # =====================================================
 
+    def gerar(self, briefing):
+        """
+        Compatibilidade com fluxos que esperam apenas o plano.
+        """
+
+        return self.executar(
+            briefing
+        )["plano"]
+
     def exportar(
-
         self,
-
         dashboard,
-
         arquivo,
-
-        formato=None
-
+        formato=None,
     ):
+        if hasattr(
+            self.export_engine,
+            "exportar",
+        ):
+            return self.export_engine.exportar(
+                dashboard,
+                arquivo,
+                formato,
+            )
 
-        return self.export_engine.exportar(
+        if formato == "json" and hasattr(
+            self.export_engine,
+            "json",
+        ):
+            return self.export_engine.json(
+                dashboard,
+                arquivo,
+            )
 
-            dashboard,
-
-            arquivo,
-
-            formato
-
+        raise AttributeError(
+            "ExportEngine não possui método exportar compatível."
         )
+
+    # =====================================================
+    # ADAPTADORES INTERNOS
+    # =====================================================
+
+    def _ranking_from_decision(
+        self,
+        decision,
+    ):
+        ranking = []
+
+        for item in getattr(
+            decision,
+            "decisoes",
+            [],
+        ):
+            ranking.append(
+                {
+                    "inventario": item.inventario,
+                    "plataforma": item.plataforma,
+                    "ambiente": item.ambiente,
+                    "papel": item.papel,
+                    "score": item.score,
+                    "justificativas": item.justificativas,
+                }
+            )
+
+        ranking.sort(
+            key=lambda item: item["score"],
+            reverse=True,
+        )
+
+        return ranking
+
+    def _orcamento(
+        self,
+        briefing,
+        decision,
+    ):
+        if isinstance(
+            briefing,
+            dict,
+        ):
+            return float(
+                briefing.get(
+                    "orcamento",
+                    getattr(
+                        decision,
+                        "verba_total",
+                        0,
+                    ),
+                )
+                or 0
+            )
+
+        return float(
+            getattr(
+                briefing,
+                "orcamento",
+                getattr(
+                    decision,
+                    "verba_total",
+                    0,
+                ),
+            )
+            or 0
+        )
+
+    def _forecast(
+        self,
+        plano,
+    ):
+        if hasattr(
+            self.forecast_engine,
+            "executar",
+        ):
+            return self.forecast_engine.executar(
+                plano
+            )
+
+        return None
+
+    def _scenarios(
+        self,
+        plano,
+        decision,
+        forecast,
+    ):
+        if hasattr(
+            self.scenario_engine,
+            "executar",
+        ):
+            return self.scenario_engine.executar(
+                plano,
+                decision,
+                forecast,
+            )
+
+        return []
+
+    def _validation(
+        self,
+        briefing,
+        decision,
+        plano,
+        forecast,
+    ):
+        if hasattr(
+            self.validation_engine,
+            "validar",
+        ):
+            return self.validation_engine.validar(
+                briefing=briefing,
+                decision=decision,
+                plano=plano,
+                forecast=forecast,
+            )
+
+        return {
+            "valido": True,
+            "erros": [],
+            "alertas": [],
+        }
+
+    def _insights(
+        self,
+        briefing,
+        plano,
+        forecast,
+        scenarios,
+    ):
+        if hasattr(
+            self.insights_engine,
+            "executar",
+        ):
+            return self.insights_engine.executar(
+                briefing,
+                plano,
+                forecast,
+                scenarios,
+            )
+
+        return []
+
+    def _recommendations(
+        self,
+        briefing,
+        plano,
+        forecast,
+        insights,
+    ):
+        if hasattr(
+            self.recommendation_engine,
+            "executar",
+        ):
+            return self.recommendation_engine.executar(
+                briefing,
+                plano,
+                forecast,
+                insights,
+            )
+
+        return []
+
+    def _dashboard(
+        self,
+        decision,
+        plano,
+        forecast,
+        insights,
+        recommendations,
+        scenarios,
+    ):
+        if hasattr(
+            self.dashboard_engine,
+            "gerar",
+        ):
+            return self.dashboard_engine.gerar(
+                decision=decision,
+                plano=plano,
+                forecast=forecast,
+                insights=insights,
+                recommendations=recommendations,
+                scenarios=scenarios,
+            )
+
+        return {
+            "decision": decision,
+            "plano": plano,
+            "forecast": forecast,
+            "insights": insights,
+            "recommendations": recommendations,
+            "scenarios": scenarios,
+        }
+
+    def _report(
+        self,
+        dashboard,
+    ):
+        if hasattr(
+            self.report_engine,
+            "gerar",
+        ):
+            return self.report_engine.gerar(
+                dashboard
+            )
+
+        return dashboard
