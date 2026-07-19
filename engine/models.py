@@ -125,3 +125,43 @@ class DecisionResult:
     alertas: List[str] = field(default_factory=list)
 
     erros: List[str] = field(default_factory=list)
+
+# ==========================================================
+# MODELOS LEGADOS DE COMPATIBILIDADE
+# ==========================================================
+#
+# Mantidos para compatibilidade com engine.briefing_engine e
+# scripts/fluxos antigos enquanto o pipeline é migrado para
+# os modelos de domínio novos em domain/models/.
+#
+
+from dataclasses import dataclass
+
+
+@dataclass
+class Briefing:
+    id: str
+    nome: str
+    anunciante: str
+    objetivo_id: str
+    orcamento: float
+    publico: str = ""
+    faixa_etaria: str = ""
+    praca: str = ""
+    periodo_inicio: str = ""
+    periodo_fim: str = ""
+    kpi: str = ""
+    observacoes: str = ""
+
+
+@dataclass
+class Objetivo:
+    id: str
+    nome: str
+    descricao: str = ""
+
+
+@dataclass
+class AudienciaBriefing:
+    audiencia_id: str
+    peso: float = 100.0
