@@ -405,6 +405,19 @@ class PlanningService:
         recommendations,
         scenarios,
     ):
+        if isinstance(
+            plano,
+            dict,
+        ):
+            return {
+                "decision": decision,
+                "plano": plano,
+                "forecast": forecast,
+                "insights": insights,
+                "recommendations": recommendations,
+                "scenarios": scenarios,
+            }
+
         if hasattr(
             self.dashboard_engine,
             "gerar",
@@ -431,6 +444,12 @@ class PlanningService:
         self,
         dashboard,
     ):
+        if isinstance(
+            dashboard,
+            dict,
+        ):
+            return dashboard
+
         if hasattr(
             self.report_engine,
             "gerar",
