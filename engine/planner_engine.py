@@ -1,5 +1,3 @@
-from engine.decision_engine import DecisionEngine
-
 from engine.models import (
     AmbientePlano,
     DecisionResult,
@@ -8,92 +6,143 @@ from engine.models import (
 
 
 class PlannerEngine:
-
     """
-    Responsável apenas pelo planejamento.
+    Responsável apenas pela montagem do plano.
 
-    Toda a inteligência fica no DecisionEngine.
+    Não carrega briefing.
+    Não chama DecisionEngine.
+    Não calcula score.
+    Não distribui orçamento.
     """
-
-    def __init__(self):
-
-        self.decision_engine = DecisionEngine()
 
     # =====================================================
-    # GERAÇÃO DO PLANO
+    # API PRINCIPAL
+    # =====================================================
+
+    def executar(
+        self,
+        briefing=None,
+        decision=None,
+        plano_tatico=None,
+        ranking=None,
+    ):
+        """
+        Monta uma estrutura de plano a partir de resultados já calculados.
+
+        Compatibilidade:
+        - PlanningService atual chama executar(briefing=..., decision=...).
+        - Fluxos futuros poderão chamar com plano_tatico/ranking.
+        """
+
+        if plano_tatico is not None:
+            return self._montar_plano_tatico(
+                plano_tatico=plano_tatico,
+                decision=decision,
+                briefing=briefing,
+                ranking=ranking,
+            )
+
+        if decision is not None:
+            return self._montar_plano_decision(
+                decision
+            )
+
+        raise ValueError(
+            "PlannerEngine precisa receber decision ou plano_tatico."
+        )
+
+    # =====================================================
+    # COMPATIBILIDADE
     # =====================================================
 
     def gerar_plano(
         self,
-        briefing_id,
+        resultado,
     ):
+        """
+        Compatibilidade com chamadas legadas.
 
-        resultado = self.decision_engine.decidir(
-            briefing_id
+        Antes este método recebia briefing_id e chamava DecisionEngine.
+        Agora recebe um DecisionResult já produzido por outro componente.
+        """
+
+        if isinstance(
+            resultado,
+            DecisionResult,
+        ):
+            return self._montar_plano_decision(
+                resultado
+            )
+
+        raise TypeError(
+            "PlannerEngine.gerar_plano agora espera um DecisionResult. "
+            "Use PlanningService para orquestrar o fluxo completo."
         )
 
-        return self._montar_plano(resultado)
-
     # =====================================================
-    # PLANO
+    # MONTAGEM A PARTIR DE DECISION RESULT
     # =====================================================
 
-    def _montar_plano(
+    def _montar_plano_decision(
         self,
         resultado: DecisionResult,
     ):
-
         ambientes = {}
 
         inventarios = []
 
-        verba_total = resultado.verba_total
+        verba_total = getattr(
+            resultado,
+            "verba_total",
+            0,
+        )
 
-        for decisao in resultado.decisoes:
-
-            inventario = InventarioPlano(
-
-                inventario=decisao.inventario,
-
-                plataforma=decisao.plataforma,
-
-                ambiente=decisao.ambiente,
-
-                score=decisao.score,
-
-                percentual=decisao.percentual,
-
-                verba=decisao.verba,
-
-                papel=decisao.papel,
-
-                justificativas=decisao.justificativas,
-
+        for decisao in getattr(
+            resultado,
+            "decisoes",
+            [],
+        ):
+            percentual = getattr(
+                decisao,
+                "percentual",
+                0,
             )
 
-            inventarios.append(inventario)
+            verba = getattr(
+                decisao,
+                "verba",
+                0,
+            )
+
+            inventario = InventarioPlano(
+                inventario=decisao.inventario,
+                plataforma=decisao.plataforma,
+                ambiente=decisao.ambiente,
+                score=decisao.score,
+                percentual=percentual,
+                verba=verba,
+                papel=decisao.papel,
+                justificativas=decisao.justificativas,
+            )
+
+            inventarios.append(
+                inventario
+            )
 
             if decisao.ambiente not in ambientes:
-
                 ambientes[decisao.ambiente] = AmbientePlano(
-
                     ambiente=decisao.ambiente,
-
                     score=0,
-
                     percentual=0,
-
                     verba=0,
-
                     papel=decisao.papel,
-
                 )
 
             ambiente = ambientes[decisao.ambiente]
 
-            ambiente.verba += decisao.verba
+            ambiente.verba += verba
 
-            ambiente.percentual += decisao.percentual
+            ambiente.percentual += percentual
 
             ambiente.score = max(
                 ambiente.score,
@@ -101,19 +150,122 @@ class PlannerEngine:
             )
 
         return {
-
             "inventarios": inventarios,
-
-            "ambientes": list(ambientes.values()),
-
+            "ambientes": list(
+                ambientes.values()
+            ),
             "verba_total": verba_total,
-
-            "score_global": resultado.score_global,
-
-            "observacoes": resultado.observacoes,
-
-            "alertas": resultado.alertas,
-
-            "erros": resultado.erros,
-
+            "score_global": getattr(
+                resultado,
+                "score_global",
+                0,
+            ),
+            "observacoes": getattr(
+                resultado,
+                "observacoes",
+                [],
+            ),
+            "alertas": getattr(
+                resultado,
+                "alertas",
+                [],
+            ),
+            "erros": getattr(
+                resultado,
+                "erros",
+                [],
+            ),
         }
+
+    # =====================================================
+    # MONTAGEM A PARTIR DE PLANO TÁTICO
+    # =====================================================
+
+    def _montar_plano_tatico(
+        self,
+        plano_tatico,
+        decision=None,
+        briefing=None,
+        ranking=None,
+    ):
+        ambientes = {}
+
+        inventarios = []
+
+        for item in getattr(
+            plano_tatico,
+            "itens",
+            [],
+        ):
+            inventario = InventarioPlano(
+                inventario=item.inventario,
+                plataforma=item.plataforma,
+                ambiente=item.ambiente,
+                score=item.score,
+                percentual=item.percentual,
+                verba=item.verba,
+                papel=item.papel,
+                justificativas=[],
+            )
+
+            inventarios.append(
+                inventario
+            )
+
+            if item.ambiente not in ambientes:
+                ambientes[item.ambiente] = AmbientePlano(
+                    ambiente=item.ambiente,
+                    score=0,
+                    percentual=0,
+                    verba=0,
+                    papel=item.papel,
+                )
+
+            ambiente = ambientes[item.ambiente]
+
+            ambiente.verba += item.verba
+
+            ambiente.percentual += item.percentual
+
+            ambiente.score = max(
+                ambiente.score,
+                item.score,
+            )
+
+        return {
+            "inventarios": inventarios,
+            "ambientes": list(
+                ambientes.values()
+            ),
+            "verba_total": getattr(
+                plano_tatico,
+                "verba_total",
+                0,
+            ),
+            "score_global": self._score_global(
+                inventarios
+            ),
+            "observacoes": [],
+            "alertas": [],
+            "erros": [],
+        }
+
+    # =====================================================
+    # APOIO
+    # =====================================================
+
+    @staticmethod
+    def _score_global(
+        inventarios,
+    ):
+        if not inventarios:
+            return 0
+
+        return round(
+            sum(
+                item.score
+                for item in inventarios
+            )
+            / len(inventarios),
+            2,
+        )
