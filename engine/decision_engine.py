@@ -1,12 +1,12 @@
 from typing import List
 
-from sdm.engine.briefing_engine import (
+from engine.briefing_engine import (
     obter_audiencias,
     obter_briefing,
     obter_objetivo,
 )
 
-from sdm.engine.models import (
+from engine.models import (
     DecisionContext,
     DecisionItem,
     DecisionResult,
