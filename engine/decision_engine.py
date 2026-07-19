@@ -1,5 +1,3 @@
-from typing import List
-
 from engine.briefing_engine import (
     obter_audiencias,
     obter_briefing,
@@ -8,194 +6,191 @@ from engine.briefing_engine import (
 
 from engine.models import (
     DecisionContext,
-    DecisionItem,
-    DecisionResult,
 )
 
 
 class DecisionEngine:
     """
-    Motor central de decisão do SDM.
+    Responsável apenas por construir o contexto de decisão.
 
-    Responsabilidades:
-
-    - montar o contexto da decisão
-    - calcular scores
-    - ordenar inventários
-    - produzir justificativas
-    - entregar um DecisionResult
+    Não calcula score.
+    Não ordena ranking.
+    Não distribui verba.
+    Não monta plano.
     """
 
-    def __init__(self):
-        pass
+    # ==========================================================
+    # API PRINCIPAL
+    # ==========================================================
+
+    def executar(
+        self,
+        briefing,
+    ) -> DecisionContext:
+        return self.construir_contexto(
+            briefing
+        )
+
+    # ==========================================================
+    # COMPATIBILIDADE
+    # ==========================================================
+
+    def decidir(
+        self,
+        briefing,
+    ) -> DecisionContext:
+        """
+        Compatibilidade temporária com fluxos antigos.
+
+        Antes retornava DecisionResult.
+        Agora retorna DecisionContext.
+        """
+
+        return self.construir_contexto(
+            briefing
+        )
 
     # ==========================================================
     # CONTEXTO
     # ==========================================================
 
-    def construir_contexto(self, briefing_id) -> DecisionContext:
-
-        briefing = obter_briefing(briefing_id)
-
-        objetivo = obter_objetivo(briefing)
-
-        audiencias = obter_audiencias(briefing)
-
-        inventarios = briefing.get("inventarios", [])
-
-        inventarios_objetivos = briefing.get(
-            "inventarios_objetivos", []
+    def construir_contexto(
+        self,
+        briefing,
+    ) -> DecisionContext:
+        briefing_data = self._carregar_briefing(
+            briefing
         )
 
-        inventarios_kpis = briefing.get(
-            "inventarios_kpis", []
+        objetivo_id = self._valor(
+            briefing_data,
+            "objetivo_id",
         )
 
-        metricas = briefing.get("metricas", [])
-
-        consumo = briefing.get("consumo", [])
-
-        parametros = briefing.get("parametros", {})
-
-        restricoes = briefing.get("restricoes", [])
-
-        return DecisionContext(
-            briefing=briefing,
-            objetivo=objetivo,
-            audiencias=audiencias,
-            inventarios=inventarios,
-            inventarios_objetivos=inventarios_objetivos,
-            inventarios_kpis=inventarios_kpis,
-            metricas=metricas,
-            consumo=consumo,
-            parametros=parametros,
-            restricoes=restricoes,
+        briefing_id = self._valor(
+            briefing_data,
+            "id",
         )
 
-    # ==========================================================
-    # SCORE
-    # ==========================================================
+        objetivo = self._carregar_objetivo(
+            objetivo_id
+        )
 
-    def calcular_score(
-        self,
-        inventario: dict,
-        contexto: DecisionContext,
-    ) -> float:
-
-        score = 0.0
-
-        score += inventario.get("score_objetivo", 0)
-
-        score += inventario.get("score_kpi", 0)
-
-        score += inventario.get("score_publico", 0)
-
-        score += inventario.get("score_contexto", 0)
-
-        score += inventario.get("score_consumo", 0)
-
-        score += inventario.get("score_sinergia", 0)
-
-        score -= inventario.get("penalidade", 0)
-
-        return round(score, 2)
-
-    # ==========================================================
-    # JUSTIFICATIVAS
-    # ==========================================================
-
-    def gerar_justificativas(
-        self,
-        inventario: dict,
-    ) -> List[str]:
-
-        justificativas = []
-
-        if inventario.get("score_publico", 0) > 15:
-            justificativas.append(
-                "Alta aderência ao público."
-            )
-
-        if inventario.get("score_objetivo", 0) > 15:
-            justificativas.append(
-                "Compatível com o objetivo da campanha."
-            )
-
-        if inventario.get("score_kpi", 0) > 15:
-            justificativas.append(
-                "Favorece o KPI principal."
-            )
-
-        if inventario.get("score_sinergia", 0) > 0:
-            justificativas.append(
-                "Possui boa sinergia com outros canais."
-            )
-
-        return justificativas
-
-    # ==========================================================
-    # DECISÃO
-    # ==========================================================
-
-    def decidir(
-        self,
-        briefing_id,
-    ) -> DecisionResult:
-
-        contexto = self.construir_contexto(
+        audiencias = self._carregar_audiencias(
             briefing_id
         )
 
-        decisoes = []
-
-        for inventario in contexto.inventarios:
-
-            score = self.calcular_score(
-                inventario,
-                contexto,
-            )
-
-            decisoes.append(
-                DecisionItem(
-                    inventario=inventario["nome"],
-                    plataforma=inventario.get(
-                        "plataforma",
-                        "",
-                    ),
-                    ambiente=inventario.get(
-                        "ambiente",
-                        "",
-                    ),
-                    score=score,
-                    papel="Recomendado",
-                    prioridade=0,
-                    confianca=min(score, 100),
-                    justificativas=self.gerar_justificativas(
-                        inventario
-                    ),
-                )
-            )
-
-        decisoes.sort(
-            key=lambda x: x.score,
-            reverse=True,
+        return DecisionContext(
+            briefing=briefing_data,
+            objetivo=objetivo,
+            audiencias=audiencias,
+            inventarios=self._valor(
+                briefing_data,
+                "inventarios",
+                [],
+            ),
+            inventarios_objetivos=self._valor(
+                briefing_data,
+                "inventarios_objetivos",
+                [],
+            ),
+            inventarios_kpis=self._valor(
+                briefing_data,
+                "inventarios_kpis",
+                [],
+            ),
+            metricas=self._valor(
+                briefing_data,
+                "metricas",
+                [],
+            ),
+            consumo=self._valor(
+                briefing_data,
+                "consumo",
+                [],
+            ),
+            parametros=self._valor(
+                briefing_data,
+                "parametros",
+                {},
+            ),
+            restricoes=self._valor(
+                briefing_data,
+                "restricoes",
+                [],
+            ),
         )
 
-        for indice, decisao in enumerate(
-            decisoes,
-            start=1,
-        ):
-            decisao.prioridade = indice
+    # ==========================================================
+    # CARREGAMENTO
+    # ==========================================================
 
-        return DecisionResult(
-            decisoes=decisoes,
-            score_global=(
-                sum(d.score for d in decisoes)
-                / len(decisoes)
-                if decisoes
-                else 0
-            ),
-            observacoes=[],
-            alertas=[],
-            erros=[],
+    def _carregar_briefing(
+        self,
+        briefing,
+    ):
+        if isinstance(
+            briefing,
+            dict,
+        ):
+            return briefing
+
+        if hasattr(
+            briefing,
+            "__dict__",
+        ) and not isinstance(
+            briefing,
+            str,
+        ):
+            return briefing
+
+        return obter_briefing(
+            briefing
+        )
+
+    def _carregar_objetivo(
+        self,
+        objetivo_id,
+    ):
+        if not objetivo_id:
+            return {}
+
+        return obter_objetivo(
+            objetivo_id
+        )
+
+    def _carregar_audiencias(
+        self,
+        briefing_id,
+    ):
+        if not briefing_id:
+            return []
+
+        return obter_audiencias(
+            briefing_id
+        )
+
+    # ==========================================================
+    # UTIL
+    # ==========================================================
+
+    @staticmethod
+    def _valor(
+        objeto,
+        chave,
+        padrao=None,
+    ):
+        if isinstance(
+            objeto,
+            dict,
+        ):
+            return objeto.get(
+                chave,
+                padrao,
+            )
+
+        return getattr(
+            objeto,
+            chave,
+            padrao,
         )

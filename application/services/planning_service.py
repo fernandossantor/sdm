@@ -58,24 +58,18 @@ class PlanningService:
         # 1 - DECISÃO / CONTEXTO
         # -------------------------------------------------
 
-        decision = self.decision_engine.decidir(
+        contexto = self.decision_engine.executar(
             briefing
         )
 
-        resultado["decision"] = decision
+        resultado["contexto"] = contexto
 
         # -------------------------------------------------
         # 2 - RANKING
         # -------------------------------------------------
-        #
-        # Compatibilidade:
-        # o DecisionEngine atual ainda devolve decisões já
-        # pontuadas. Na próxima etapa, essa lógica será
-        # movida para ScoreEngine.
-        #
 
-        ranking = self._ranking_from_decision(
-            decision
+        ranking = self.score_engine.executar(
+            contexto
         )
 
         resultado["ranking"] = ranking
@@ -86,7 +80,7 @@ class PlanningService:
 
         verba_total = self._orcamento(
             briefing=briefing,
-            decision=decision,
+            decision=contexto,
         )
 
         plano_tatico = self.allocation_engine.distribuir(
@@ -102,7 +96,7 @@ class PlanningService:
 
         plano = self.planner_engine.executar(
             briefing=briefing,
-            decision=decision,
+            decision=contexto,
             plano_tatico=plano_tatico,
             ranking=ranking,
         )
@@ -125,7 +119,7 @@ class PlanningService:
 
         scenarios = self._scenarios(
             plano=plano,
-            decision=decision,
+            decision=contexto,
             forecast=forecast,
         )
 
@@ -137,7 +131,7 @@ class PlanningService:
 
         validation = self._validation(
             briefing=briefing,
-            decision=decision,
+            decision=contexto,
             plano=plano,
             forecast=forecast,
         )
@@ -175,7 +169,7 @@ class PlanningService:
         # -------------------------------------------------
 
         dashboard = self._dashboard(
-            decision=decision,
+            decision=contexto,
             plano=plano,
             forecast=forecast,
             insights=insights,
@@ -351,7 +345,7 @@ class PlanningService:
         ):
             return self.validation_engine.validar(
                 briefing=briefing,
-                decision=decision,
+                decision=contexto,
                 plano=plano,
                 forecast=forecast,
             )
@@ -416,7 +410,7 @@ class PlanningService:
             "gerar",
         ):
             return self.dashboard_engine.gerar(
-                decision=decision,
+                decision=contexto,
                 plano=plano,
                 forecast=forecast,
                 insights=insights,
