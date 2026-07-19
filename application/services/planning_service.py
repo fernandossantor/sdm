@@ -345,7 +345,7 @@ class PlanningService:
         ):
             return self.validation_engine.validar(
                 briefing=briefing,
-                decision=contexto,
+                decision=decision,
                 plano=plano,
                 forecast=forecast,
             )
@@ -410,7 +410,7 @@ class PlanningService:
             "gerar",
         ):
             return self.dashboard_engine.gerar(
-                decision=contexto,
+                decision=decision,
                 plano=plano,
                 forecast=forecast,
                 insights=insights,
