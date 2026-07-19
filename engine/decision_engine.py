@@ -72,13 +72,27 @@ class DecisionEngine:
             "id",
         )
 
-        objetivo = self._carregar_objetivo(
-            objetivo_id
+        objetivo = self._valor(
+            briefing_data,
+            "objetivo",
+            None,
         )
 
-        audiencias = self._carregar_audiencias(
-            briefing_id
+        if objetivo is None:
+            objetivo = self._carregar_objetivo(
+                objetivo_id
+            )
+
+        audiencias = self._valor(
+            briefing_data,
+            "audiencias",
+            None,
         )
+
+        if audiencias is None:
+            audiencias = self._carregar_audiencias(
+                briefing_id
+            )
 
         return DecisionContext(
             briefing=briefing_data,
