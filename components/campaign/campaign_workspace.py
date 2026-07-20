@@ -1,5 +1,7 @@
 import streamlit as st
 
+from components.workspace.ui_state import show_workspace_notice
+
 from application.session import Session
 
 
@@ -31,15 +33,10 @@ def render():
 
         ("estrategia", "🧭 Estratégia"),
 
-        ("planejamento", "📅 Planejamento"),
 
-        ("inventarios", "📺 Inventários"),
 
-        ("forecast", "📈 Forecast"),
 
-        ("cronograma", "🗓 Cronograma"),
 
-        ("kpis", "📌 KPIs"),
 
         ("relatorios", "📄 Relatórios")
 
@@ -64,3 +61,6 @@ def render():
             st.session_state.workspace_module = key
 
             st.rerun()
+
+
+show_workspace_notice()

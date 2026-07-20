@@ -1,5 +1,7 @@
 import streamlit as st
 
+from components.workspace.ui_state import show_saved_state
+
 from application.session import Session
 
 from application.services.campaign_objective_service import CampaignObjectiveService
@@ -97,6 +99,8 @@ def render():
         values = {}
 
     values = dict(values)
+
+    show_saved_state("Objetivos", values)
 
     with st.form("campaign_objectives"):
 

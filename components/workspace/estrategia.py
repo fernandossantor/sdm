@@ -1,5 +1,7 @@
 import streamlit as st
 
+from components.workspace.ui_state import show_saved_state
+
 from application.session import Session
 from application.services.media_strategy_service import MediaStrategyService
 
@@ -66,6 +68,8 @@ def render():
         values = {}
 
     values = dict(values)
+
+    show_saved_state("Estratégia", values)
 
     with st.form("media_strategy"):
 
