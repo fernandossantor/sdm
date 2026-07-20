@@ -1,6 +1,6 @@
 create extension if not exists pgcrypto;
 
-create table if not exists media_strategies (
+create table if not exists media_strategy (
 
     id uuid primary key default gen_random_uuid(),
 
@@ -35,4 +35,4 @@ create table if not exists media_strategies (
 );
 
 create index idx_media_strategy_campaign
-on media_strategies(campaign_id);
+on media_strategy(campaign_id);
