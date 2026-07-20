@@ -19,9 +19,11 @@ class ForecastEngine:
     ):
 
         metricas_indexadas = {
-            m["inventario"]: m
+            m.get("inventario"): m
             for m in metricas
         }
+
+        metricas = metricas or []
 
         resultado = []
 

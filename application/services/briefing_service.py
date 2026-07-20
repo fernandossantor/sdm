@@ -108,6 +108,68 @@ class BriefingService:
         return briefing
 
 
+    def validar(
+        self,
+        briefing,
+    ):
+        """Valida um briefing criado pela UI legada.
+
+        Retorna uma lista de erros, como esperado por pages/00_Briefing.py.
+        """
+
+        erros = []
+
+        cliente = getattr(
+            briefing,
+            "cliente",
+            getattr(
+                briefing,
+                "company",
+                "",
+            ),
+        )
+
+        campanha = getattr(
+            briefing,
+            "campanha",
+            "",
+        )
+
+        objetivo = getattr(
+            briefing,
+            "objetivo",
+            getattr(
+                briefing,
+                "objectives",
+                "",
+            ),
+        )
+
+        orcamento = getattr(
+            briefing,
+            "orcamento",
+            getattr(
+                briefing,
+                "budget",
+                0,
+            ),
+        )
+
+        if not cliente:
+            erros.append("Informe o cliente.")
+
+        if not campanha:
+            erros.append("Informe a campanha.")
+
+        if not objetivo:
+            erros.append("Informe o objetivo.")
+
+        if not orcamento or orcamento <= 0:
+            erros.append("Informe um orçamento maior que zero.")
+
+        return erros
+
+
     # =====================================================
     # SESSION STATE / COMPATIBILIDADE UI
     # =====================================================
