@@ -10,6 +10,15 @@ class CampaignRepository(BaseRepository):
         super().__init__("campaigns")
 
 
+    def _serialize(self, value):
+
+        if hasattr(value, "isoformat"):
+
+            return value.isoformat()
+
+        return value
+
+
     def save(self, campaign):
 
         response = (
@@ -34,9 +43,9 @@ class CampaignRepository(BaseRepository):
 
                     "objective": campaign.objective,
 
-                    "start_date": campaign.start_date,
+                    "start_date": self._serialize(campaign.start_date),
 
-                    "end_date": campaign.end_date,
+                    "end_date": self._serialize(campaign.end_date),
 
                     "notes": campaign.notes,
 

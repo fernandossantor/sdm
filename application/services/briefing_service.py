@@ -45,6 +45,69 @@ class BriefingService:
 
         )
 
+
+    def criar(
+        self,
+        **kwargs,
+    ):
+        """Cria um Briefing a partir da interface legada.
+
+        A UI antiga usa nomes em português, enquanto o modelo novo usa nomes
+        em inglês. Este método preserva compatibilidade e mantém atributos
+        legados no objeto retornado para os serviços antigos.
+        """
+
+        briefing = Briefing(
+            campaign_id=kwargs.get("campaign_id"),
+            company=kwargs.get("cliente", kwargs.get("company", "")),
+            product=kwargs.get("produto", kwargs.get("product", "")),
+            objectives=kwargs.get("objetivo", kwargs.get("objectives", "")),
+            target_audience=kwargs.get("publico", kwargs.get("target_audience", "")),
+            budget=kwargs.get("orcamento", kwargs.get("budget", 0)),
+            start_date=kwargs.get("inicio", kwargs.get("start_date")),
+            end_date=kwargs.get("fim", kwargs.get("end_date")),
+            observations=kwargs.get("observacoes", kwargs.get("observations", "")),
+        )
+
+        # Atributos esperados pelo fluxo legado de planejamento.
+        for key, value in kwargs.items():
+            setattr(
+                briefing,
+                key,
+                value,
+            )
+
+        briefing.cliente = kwargs.get(
+            "cliente",
+            briefing.company,
+        )
+        briefing.campanha = kwargs.get(
+            "campanha",
+            "",
+        )
+        briefing.objetivo_id = kwargs.get(
+            "objetivo_id",
+        )
+        briefing.objetivo = kwargs.get(
+            "objetivo",
+            briefing.objectives,
+        )
+        briefing.orcamento = kwargs.get(
+            "orcamento",
+            briefing.budget,
+        )
+        briefing.inicio = kwargs.get(
+            "inicio",
+            briefing.start_date,
+        )
+        briefing.fim = kwargs.get(
+            "fim",
+            briefing.end_date,
+        )
+
+        return briefing
+
+
     # =====================================================
     # SESSION STATE / COMPATIBILIDADE UI
     # =====================================================

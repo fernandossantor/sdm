@@ -9,21 +9,69 @@ class RecommendationEngine:
     # RECOMENDAÇÕES
     # =====================================================
 
+    def _valor(
+        self,
+        item,
+        campo,
+        default=None,
+    ):
+
+        if isinstance(
+            item,
+            dict,
+        ):
+
+            return item.get(
+                campo,
+                default,
+            )
+
+        return getattr(
+            item,
+            campo,
+            default,
+        )
+
+
     def recomendar(self, decisao):
 
         recomendacoes = []
+
+        score = self._valor(
+            decisao,
+            "score",
+            0,
+        )
+
+        papel = self._valor(
+            decisao,
+            "papel",
+            "",
+        )
+
+        confianca = self._valor(
+            decisao,
+            "confianca",
+            score,
+        )
+
+        riscos = self._valor(
+            decisao,
+            "riscos",
+            [],
+        ) or []
 
         # ---------------------------------------------
         # Score
         # ---------------------------------------------
 
-        if decisao.score >= 90:
+        if score >= 90:
 
             recomendacoes.append(
                 "Inventário altamente recomendado para este planejamento."
             )
 
-        elif decisao.score >= 75:
+        elif score >= 75:
 
             recomendacoes.append(
                 "Inventário recomendado para compor o plano."
@@ -39,7 +87,7 @@ class RecommendationEngine:
         # Papel
         # ---------------------------------------------
 
-        papel = decisao.papel.upper()
+        papel = str(papel).upper()
 
         if papel == "PRINCIPAL":
 
@@ -69,13 +117,13 @@ class RecommendationEngine:
         # Confiança
         # ---------------------------------------------
 
-        if decisao.confianca >= 90:
+        if confianca >= 90:
 
             recomendacoes.append(
                 "Elevado grau de confiança na recomendação."
             )
 
-        elif decisao.confianca < 60:
+        elif confianca < 60:
 
             recomendacoes.append(
                 "Recomendação sujeita a maior incerteza."
@@ -86,9 +134,9 @@ class RecommendationEngine:
 
         # ---------------------------------------------
 
-        if decisao.riscos:
+        if riscos:
 
-            recomendacoes.extend(decisao.riscos)
+            recomendacoes.extend(riscos)
 
         return recomendacoes
 

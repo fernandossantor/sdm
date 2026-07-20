@@ -41,6 +41,15 @@ class PlanejamentoService:
 
     ):
 
+        if isinstance(
+            briefing,
+            str,
+        ) and nome_briefing is None:
+
+            nome_briefing = briefing
+
+            briefing = None
+
         if briefing is None:
 
             contexto = self.context_service.carregar(
