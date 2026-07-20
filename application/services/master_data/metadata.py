@@ -12,6 +12,7 @@ class Field:
     type: str = "text"
 
     required: bool = False
+    default: object = None
 
     options: Optional[list] = None
 

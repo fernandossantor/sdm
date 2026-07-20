@@ -42,6 +42,8 @@ if not universos:
 
     st.stop()
 
+    raise SystemExit
+
 mapa_universos = {
 
     u["nome"]: u
@@ -73,6 +75,10 @@ with st.expander(
         )
 
     )
+
+    if universo_nome is None:
+
+        universo_nome = next(iter(mapa_universos))
 
     universo = mapa_universos[
 

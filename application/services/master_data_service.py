@@ -9,7 +9,16 @@ class MasterDataService:
 
     def list(self):
 
-        return self.repository.list_all()
+        try:
+            return self.repository.list_all()
+        except Exception as exc:
+            if (
+                exc.__class__.__name__ == "APIError"
+                and "PGRST205" in str(exc)
+            ):
+                return []
+
+            raise
 
     def get(self, record_id):
 
