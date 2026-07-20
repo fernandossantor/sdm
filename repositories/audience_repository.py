@@ -32,7 +32,7 @@ class AudienceRepository(BaseRepository):
 
     def save(self, audience):
 
-        values = audience.__dict__
+        values = self.clean_data(audience.__dict__)
 
         existing = self.get_by_campaign(
             audience.campaign_id

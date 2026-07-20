@@ -235,3 +235,46 @@ class BaseRepository:
             )
             .execute()
         )
+
+
+    def serialize_value(
+        self,
+        value,
+    ):
+
+        if hasattr(
+            value,
+            "isoformat",
+        ):
+
+            return value.isoformat()
+
+        return value
+
+
+    def clean_data(
+        self,
+        data,
+    ):
+
+        ignored = {
+            "id",
+            "created_at",
+            "updated_at",
+        }
+
+        cleaned = {}
+
+        for key, value in data.items():
+
+            if key in ignored:
+                continue
+
+            if value is None:
+                continue
+
+            cleaned[key] = self.serialize_value(
+                value
+            )
+
+        return cleaned

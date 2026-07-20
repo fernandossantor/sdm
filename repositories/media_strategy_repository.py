@@ -7,7 +7,7 @@ class MediaStrategyRepository(BaseRepository):
 
     def __init__(self):
 
-        super().__init__("media_strategies")
+        super().__init__("media_strategy")
 
     def get_by_campaign(self, campaign_id):
 
@@ -35,7 +35,7 @@ class MediaStrategyRepository(BaseRepository):
 
     def save(self, strategy):
 
-        values = strategy.__dict__
+        values = self.clean_data(strategy.__dict__)
 
         existing = self.get_by_campaign(
             strategy.campaign_id

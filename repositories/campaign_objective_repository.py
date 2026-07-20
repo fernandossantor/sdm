@@ -35,7 +35,7 @@ class CampaignObjectiveRepository(BaseRepository):
 
     def save(self, objective):
 
-        values = objective.__dict__
+        values = self.clean_data(objective.__dict__)
 
         existing = self.get_by_campaign(
 

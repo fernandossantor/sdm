@@ -89,6 +89,8 @@ class BriefingRepository(BaseRepository):
 
         }
 
+        values = self.clean_data(values)
+
         if existing:
 
             return (
