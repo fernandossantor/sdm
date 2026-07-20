@@ -1,6 +1,19 @@
 class ScoreEngine:
 
     # ==========================================================
+    # RANKING
+    # ==========================================================
+
+    def executar(
+        self,
+        contexto,
+    ):
+        return _score_engine_ranking(
+            contexto
+        )
+
+
+    # ==========================================================
     # OBJETIVO
     # ==========================================================
 
@@ -454,3 +467,183 @@ class ScoreEngine:
 # ==========================================================
 # FIM DO ARQUIVO
 # ==========================================================
+
+
+# ==========================================================
+# RANKING - FUNÇÕES DE APOIO
+# ==========================================================
+
+def _score_engine_valor(
+    objeto,
+    chave,
+    padrao=None,
+):
+    if isinstance(
+        objeto,
+        dict,
+    ):
+        return objeto.get(
+            chave,
+            padrao,
+        )
+
+    return getattr(
+        objeto,
+        chave,
+        padrao,
+    )
+
+
+def _score_engine_papel(
+    score,
+):
+    if score >= 85:
+        return "PRINCIPAL"
+
+    if score >= 70:
+        return "COMPLEMENTAR"
+
+    if score >= 50:
+        return "APOIO"
+
+    return "OPCIONAL"
+
+
+def _score_engine_justificativas(
+    inventario,
+):
+    justificativas = []
+
+    if inventario.get(
+        "score_publico",
+        0,
+    ) > 15:
+        justificativas.append(
+            "Alta aderência ao público."
+        )
+
+    if inventario.get(
+        "score_objetivo",
+        0,
+    ) > 15:
+        justificativas.append(
+            "Compatível com o objetivo da campanha."
+        )
+
+    if inventario.get(
+        "score_kpi",
+        0,
+    ) > 15:
+        justificativas.append(
+            "Favorece o KPI principal."
+        )
+
+    if inventario.get(
+        "score_sinergia",
+        0,
+    ) > 0:
+        justificativas.append(
+            "Possui boa sinergia com outros canais."
+        )
+
+    return justificativas
+
+
+def _score_engine_score(
+    inventario,
+):
+    score = 0.0
+
+    score += inventario.get(
+        "score_objetivo",
+        0,
+    )
+
+    score += inventario.get(
+        "score_kpi",
+        0,
+    )
+
+    score += inventario.get(
+        "score_publico",
+        0,
+    )
+
+    score += inventario.get(
+        "score_contexto",
+        0,
+    )
+
+    score += inventario.get(
+        "score_consumo",
+        0,
+    )
+
+    score += inventario.get(
+        "score_sinergia",
+        0,
+    )
+
+    score -= inventario.get(
+        "penalidade",
+        0,
+    )
+
+    return round(
+        score,
+        2,
+    )
+
+
+def _score_engine_ranking(
+    contexto,
+):
+    inventarios = _score_engine_valor(
+        contexto,
+        "inventarios",
+        [],
+    )
+
+    ranking = []
+
+    for inventario in inventarios:
+        score = _score_engine_score(
+            inventario
+        )
+
+        ranking.append(
+            {
+                "inventario": inventario.get(
+                    "nome",
+                    "",
+                ),
+                "plataforma": inventario.get(
+                    "plataforma",
+                    inventario.get(
+                        "plataforma_nome",
+                        "",
+                    ),
+                ),
+                "ambiente": inventario.get(
+                    "ambiente",
+                    inventario.get(
+                        "ambiente_nome",
+                        "",
+                    ),
+                ),
+                "papel": _score_engine_papel(
+                    score
+                ),
+                "score": score,
+                "justificativas": _score_engine_justificativas(
+                    inventario
+                ),
+            }
+        )
+
+    ranking.sort(
+        key=lambda item: item["score"],
+        reverse=True,
+    )
+
+    return ranking

@@ -1,214 +1,153 @@
-from domain.models.forecast import (
-    ForecastItem
-)
+from domain.models.forecast import ForecastItem
 
 
 class ForecastEngine:
+
+    """
+    Projeta os principais indicadores da campanha
+    a partir do plano de mídia.
+    """
 
     # =====================================================
     # FORECAST
     # =====================================================
 
     def calcular(
-
         self,
-
         plano,
-
-        metricas
-
+        metricas,
     ):
 
-        idx = {
-
-            m["inventario_id"]: m
-
+        metricas_indexadas = {
+            m.get("inventario"): m
             for m in metricas
-
         }
+
+        metricas = metricas or []
 
         resultado = []
 
         for item in plano.itens:
 
-            m = None
+            m = metricas_indexadas.get(
+                item.inventario
+            )
 
-            for metrica in metricas:
-
-                if (
-
-                    metrica.get("inventario")
-
-                    == item.inventario
-
-                ):
-
-                    m = metrica
-
-                    break
-
-            if m is None:
-
+            if not m:
                 continue
 
-            verba = item.verba
-
-            cpm = float(
-
-                m.get("cpm", 1)
-
+            forecast = self._calcular_item(
+                item,
+                m,
             )
 
-            ctr = float(
-
-                m.get("ctr", 1)
-
-            )
-
-            taxa = float(
-
-                m.get(
-
-                    "taxa_conversao",
-
-                    0.02
-
-                )
-
-            )
-
-            impressoes = (
-
-                verba
-
-                / cpm
-
-            ) * 1000
-
-            cliques = (
-
-                impressoes
-
-                * ctr
-
-                / 100
-
-            )
-
-            conversoes = (
-
-                cliques
-
-                * taxa
-
-            )
-
-            alcance = (
-
-                impressoes
-
-                /
-
-                max(
-
-                    1,
-
-                    float(
-
-                        m.get(
-
-                            "frequencia_media",
-
-                            2
-
-                        )
-
-                    )
-
-                )
-
-            )
-
-            resultado.append(
-
-                ForecastItem(
-
-                    inventario=item.inventario,
-
-                    verba=round(
-
-                        verba,
-
-                        2
-
-                    ),
-
-                    impressoes=round(
-
-                        impressoes
-
-                    ),
-
-                    alcance=round(
-
-                        alcance
-
-                    ),
-
-                    cliques=round(
-
-                        cliques
-
-                    ),
-
-                    conversoes=round(
-
-                        conversoes
-
-                    ),
-
-                    ctr=ctr,
-
-                    cpm=cpm,
-
-                    cpc=round(
-
-                        verba
-
-                        /
-
-                        max(
-
-                            cliques,
-
-                            1
-
-                        ),
-
-                        2
-
-                    ),
-
-                    cpa=round(
-
-                        verba
-
-                        /
-
-                        max(
-
-                            conversoes,
-
-                            1
-
-                        ),
-
-                        2
-
-                    )
-
-                )
-
-            )
+            resultado.append(forecast)
 
         return resultado
+
+    # =====================================================
+    # ITEM
+    # =====================================================
+
+    def _calcular_item(
+        self,
+        item,
+        metrica,
+    ):
+
+        verba = float(item.verba)
+
+        cpm = max(
+            float(
+                metrica.get(
+                    "cpm",
+                    1,
+                )
+            ),
+            0.01,
+        )
+
+        ctr = max(
+            float(
+                metrica.get(
+                    "ctr",
+                    0,
+                )
+            ),
+            0,
+        )
+
+        taxa = max(
+            float(
+                metrica.get(
+                    "taxa_conversao",
+                    0.02,
+                )
+            ),
+            0,
+        )
+
+        frequencia = max(
+            float(
+                metrica.get(
+                    "frequencia_media",
+                    2,
+                )
+            ),
+            1,
+        )
+
+        impressoes = (
+            verba / cpm
+        ) * 1000
+
+        alcance = (
+            impressoes / frequencia
+        )
+
+        cliques = (
+            impressoes
+            * ctr
+            / 100
+        )
+
+        conversoes = (
+            cliques
+            * taxa
+        )
+
+        cpc = (
+            verba / cliques
+            if cliques > 0
+            else 0
+        )
+
+        cpa = (
+            verba / conversoes
+            if conversoes > 0
+            else 0
+        )
+
+        return ForecastItem(
+
+            inventario=item.inventario,
+
+            verba=round(verba, 2),
+
+            impressoes=round(impressoes),
+
+            alcance=round(alcance),
+
+            cliques=round(cliques),
+
+            conversoes=round(conversoes),
+
+            ctr=round(ctr, 2),
+
+            cpm=round(cpm, 2),
+
+            cpc=round(cpc, 2),
+
+            cpa=round(cpa, 2),
+
+        )

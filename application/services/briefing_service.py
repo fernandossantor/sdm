@@ -1,318 +1,210 @@
 from domain.models.briefing import Briefing
 
+from repositories.briefing_repository import BriefingRepository
+
 
 class BriefingService:
 
-    # =====================================================
-    # CONSTRUÇÃO
-    # =====================================================
+    def __init__(self):
 
-    def criar(
+        self.repository = BriefingRepository()
+
+
+    def load(
 
         self,
 
-        cliente,
-
-        campanha,
-
-        objetivo_id,
-
-        objetivo,
-
-        kpi,
-
-        orcamento,
-
-        inicio=None,
-
-        fim=None,
-
-        praca=None,
-
-        universo=None,
-
-        segmento=None,
-
-        audiencia_id=None,
-
-        jornada=None,
-
-        observacoes="",
-
-        inventarios_obrigatorios=None,
-
-        inventarios_proibidos=None,
-
-        plataformas_obrigatorias=None,
-
-        ambientes_obrigatorios=None,
-
-        tecnologias_obrigatorias=None,
-
-        verba_teste=0,
-
-        #
-        # Sprint 3
-        #
-
-        marca="",
-
-        produto="",
-
-        objetivos_secundarios=None,
-
-        kpis=None,
-
-        publicos=None,
-
-        tipo_flight="CONTINUO",
-
-        frequencia_objetivo=None,
-
-        plataformas_proibidas=None,
-
-        ambientes_proibidos=None,
-
-        tecnologias_proibidas=None
+        campaign_id
 
     ):
 
-        #
-        # Compatibilidade
-        #
+        return self.repository.get_by_campaign(
 
-        inventarios_obrigatorios = inventarios_obrigatorios or []
+            campaign_id
 
-        inventarios_proibidos = inventarios_proibidos or []
+        )
 
-        plataformas_obrigatorias = plataformas_obrigatorias or []
 
-        plataformas_proibidas = plataformas_proibidas or []
+    def save(
 
-        ambientes_obrigatorios = ambientes_obrigatorios or []
+        self,
 
-        ambientes_proibidos = ambientes_proibidos or []
+        **kwargs
 
-        tecnologias_obrigatorias = tecnologias_obrigatorias or []
-
-        tecnologias_proibidas = tecnologias_proibidas or []
-
-        objetivos_secundarios = objetivos_secundarios or []
-
-        kpis = kpis or []
-
-        publicos = publicos or []
-
-        #
-        # Compatibilidade entre KPI único e lista
-        #
-
-        if not kpis and kpi:
-
-            kpis = [
-
-                {
-
-                    "id": None,
-
-                    "nome": kpi,
-
-                    "peso": 100
-
-                }
-
-            ]
-
-        #
-        # Compatibilidade entre audiência única e públicos
-        #
-
-        if not publicos and audiencia_id:
-
-            publicos = [
-
-                {
-
-                    "audiencia_id": audiencia_id,
-
-                    "peso": 100
-
-                }
-
-            ]
+    ):
 
         briefing = Briefing(
 
-            cliente=cliente,
+            **kwargs
 
-            campanha=campanha,
+        )
 
-            objetivo_id=objetivo_id,
+        return self.repository.save(
 
-            objetivo=objetivo,
+            briefing
 
-            kpi=kpi,
+        )
 
-            orcamento=orcamento,
 
-            marca=marca,
+    def criar(
+        self,
+        **kwargs,
+    ):
+        """Cria um Briefing a partir da interface legada.
 
-            produto=produto,
+        A UI antiga usa nomes em português, enquanto o modelo novo usa nomes
+        em inglês. Este método preserva compatibilidade e mantém atributos
+        legados no objeto retornado para os serviços antigos.
+        """
 
-            objetivos_secundarios=objetivos_secundarios,
+        briefing = Briefing(
+            campaign_id=kwargs.get("campaign_id"),
+            company=kwargs.get("cliente", kwargs.get("company", "")),
+            product=kwargs.get("produto", kwargs.get("product", "")),
+            objectives=kwargs.get("objetivo", kwargs.get("objectives", "")),
+            target_audience=kwargs.get("publico", kwargs.get("target_audience", "")),
+            budget=kwargs.get("orcamento", kwargs.get("budget", 0)),
+            start_date=kwargs.get("inicio", kwargs.get("start_date")),
+            end_date=kwargs.get("fim", kwargs.get("end_date")),
+            observations=kwargs.get("observacoes", kwargs.get("observations", "")),
+        )
 
-            kpis=kpis,
+        # Atributos esperados pelo fluxo legado de planejamento.
+        for key, value in kwargs.items():
+            setattr(
+                briefing,
+                key,
+                value,
+            )
 
-            inicio=inicio,
-
-            fim=fim,
-
-            tipo_flight=tipo_flight,
-
-            frequencia_objetivo=frequencia_objetivo,
-
-            praca=praca,
-
-            universo=universo,
-
-            segmento=segmento,
-
-            audiencia_id=audiencia_id,
-
-            publicos=publicos,
-
-            jornada=jornada,
-
-            observacoes=observacoes,
-
-            inventarios_obrigatorios=inventarios_obrigatorios,
-
-            inventarios_proibidos=inventarios_proibidos,
-
-            plataformas_obrigatorias=plataformas_obrigatorias,
-
-            plataformas_proibidas=plataformas_proibidas,
-
-            ambientes_obrigatorios=ambientes_obrigatorios,
-
-            ambientes_proibidos=ambientes_proibidos,
-
-            tecnologias_obrigatorias=tecnologias_obrigatorias,
-
-            tecnologias_proibidas=tecnologias_proibidas,
-
-            verba_teste=verba_teste
-
+        briefing.cliente = kwargs.get(
+            "cliente",
+            briefing.company,
+        )
+        briefing.campanha = kwargs.get(
+            "campanha",
+            "",
+        )
+        briefing.objetivo_id = kwargs.get(
+            "objetivo_id",
+        )
+        briefing.objetivo = kwargs.get(
+            "objetivo",
+            briefing.objectives,
+        )
+        briefing.orcamento = kwargs.get(
+            "orcamento",
+            briefing.budget,
+        )
+        briefing.inicio = kwargs.get(
+            "inicio",
+            briefing.start_date,
+        )
+        briefing.fim = kwargs.get(
+            "fim",
+            briefing.end_date,
         )
 
         return briefing
 
-    # =====================================================
-    # VALIDAÇÃO
-    # =====================================================
 
     def validar(
-
         self,
-
-        briefing
-
+        briefing,
     ):
+        """Valida um briefing criado pela UI legada.
 
-        return briefing.validar()
+        Retorna uma lista de erros, como esperado por pages/00_Briefing.py.
+        """
+
+        erros = []
+
+        cliente = getattr(
+            briefing,
+            "cliente",
+            getattr(
+                briefing,
+                "company",
+                "",
+            ),
+        )
+
+        campanha = getattr(
+            briefing,
+            "campanha",
+            "",
+        )
+
+        objetivo = getattr(
+            briefing,
+            "objetivo",
+            getattr(
+                briefing,
+                "objectives",
+                "",
+            ),
+        )
+
+        orcamento = getattr(
+            briefing,
+            "orcamento",
+            getattr(
+                briefing,
+                "budget",
+                0,
+            ),
+        )
+
+        if not cliente:
+            erros.append("Informe o cliente.")
+
+        if not campanha:
+            erros.append("Informe a campanha.")
+
+        if not objetivo:
+            erros.append("Informe o objetivo.")
+
+        if not orcamento or orcamento <= 0:
+            erros.append("Informe um orçamento maior que zero.")
+
+        return erros
+
 
     # =====================================================
-    # SESSION
+    # SESSION STATE / COMPATIBILIDADE UI
     # =====================================================
 
     def salvar(
-
         self,
-
         session_state,
-
-        briefing
-
+        briefing,
     ):
+        """Salva o briefing no session_state para compatibilidade com a UI."""
 
         session_state["briefing"] = briefing
-
-    # =====================================================
-    # RECUPERAR
-    # =====================================================
+        return briefing
 
     def recuperar(
-
         self,
-
-        session_state
-
+        session_state,
     ):
+        """Recupera o briefing do session_state para compatibilidade com a UI."""
 
-        return session_state.get(
-
-            "briefing"
-
-        )
-
-    # =====================================================
-    # EXISTE
-    # =====================================================
+        return session_state.get("briefing")
 
     def existe(
-
         self,
-
-        session_state
-
+        session_state,
     ):
+        """Indica se há briefing carregado no session_state."""
 
-        return "briefing" in session_state
-
-    # =====================================================
-    # LIMPAR
-    # =====================================================
+        return session_state.get("briefing") is not None
 
     def limpar(
-
         self,
-
-        session_state
-
+        session_state,
     ):
+        """Remove o briefing do session_state para compatibilidade com a UI."""
 
-        if "briefing" in session_state:
+        session_state.pop("briefing", None)
 
-            del session_state["briefing"]
-
-    # =====================================================
-    # RESUMO
-    # =====================================================
-
-    def resumo(
-
-        self,
-
-        briefing
-
-    ):
-
-        return {
-
-            "cliente": briefing.cliente,
-
-            "campanha": briefing.campanha,
-
-            "objetivo": briefing.objetivo,
-
-            "orcamento": briefing.orcamento,
-
-            "kpis": len(briefing.kpis),
-
-            "publicos": len(briefing.publicos),
-
-            "flight": briefing.tipo_flight,
-
-            "frequencia": briefing.frequencia_objetivo
-
-        }

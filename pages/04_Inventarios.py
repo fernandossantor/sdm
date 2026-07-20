@@ -194,3 +194,9 @@ if st.button("Salvar Inventário"):
         }).execute()
 
     st.success("Inventário salvo com sucesso!")
+
+    st.caption(
+    "Inventários representam as oportunidades de mídia disponíveis para planejamento."
+)
+
+st.divider()

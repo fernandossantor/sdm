@@ -5,7 +5,7 @@ def render():
 
     st.subheader(
 
-        "Base de Conhecimento"
+        "Abrir Base de Conhecimento"
 
     )
 

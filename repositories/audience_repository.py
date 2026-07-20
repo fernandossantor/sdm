@@ -1,0 +1,70 @@
+from infrastructure.database.admin_client import admin
+from repositories.base_repository import BaseRepository
+
+
+class AudienceRepository(BaseRepository):
+
+    def __init__(self):
+        super().__init__("audiences")
+
+    def get_by_campaign(self, campaign_id):
+
+        response = (
+
+            admin
+
+            .table(self.table_name)
+
+            .select("*")
+
+            .eq("campaign_id", campaign_id)
+
+            .limit(1)
+
+            .execute()
+
+        )
+
+        if not response.data:
+            return None
+
+        return response.data[0]
+
+    def save(self, audience):
+
+        values = self.clean_data(audience.__dict__)
+
+        existing = self.get_by_campaign(
+            audience.campaign_id
+        )
+
+        if existing:
+
+            return (
+
+                admin
+
+                .table(self.table_name)
+
+                .update(values)
+
+                .eq(
+                    "campaign_id",
+                    audience.campaign_id
+                )
+
+                .execute()
+
+            ).data[0]
+
+        return (
+
+            admin
+
+            .table(self.table_name)
+
+            .insert(values)
+
+            .execute()
+
+        ).data[0]
