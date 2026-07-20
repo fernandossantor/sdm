@@ -9,6 +9,31 @@ class CampaignObjectiveRepository(BaseRepository):
 
         super().__init__("campaign_objectives")
 
+    def _clean_values(self, values):
+
+        ignored = {
+            "id",
+            "created_at",
+            "updated_at",
+        }
+
+        cleaned = {}
+
+        for key, value in values.items():
+
+            if key in ignored:
+                continue
+
+            if value is None:
+                continue
+
+            if hasattr(value, "isoformat"):
+                value = value.isoformat()
+
+            cleaned[key] = value
+
+        return cleaned
+
     def get_by_campaign(self, campaign_id):
 
         response = (
