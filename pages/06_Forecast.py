@@ -8,9 +8,10 @@ from application.services.forecast_service import (
     ForecastService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.context_service import (
+    ContextService
 )
+from application.services.workflow_service import WorkflowService
 
 
 # ==========================================================
@@ -31,13 +32,15 @@ st.title("📈 Forecast")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 planejamento = PlanejamentoService()
 
 forecast_service = ForecastService()
 
-briefings = repo.listar_briefings()
+workflow_service = WorkflowService()
+
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -61,7 +64,7 @@ if st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 ):
 
@@ -75,13 +78,15 @@ if st.button(
 
         plano,
 
-        repo.metricas()
+        contexto_service.metricas()
 
     )
 
-    st.session_state["forecast_plano"] = plano
+    workflow_service.registrar_briefing(st.session_state, briefing)
+    workflow_service.concluir(st.session_state, "planejamento", plano)
+    workflow_service.concluir(st.session_state, "forecast", forecast)
 
-    st.session_state["forecast"] = forecast
+    st.session_state["forecast_plano"] = plano
 
 
 # ==========================================================
@@ -150,7 +155,7 @@ if (
 
         hide_index=True,
 
-        use_container_width=True
+        width="stretch"
 
     )
 

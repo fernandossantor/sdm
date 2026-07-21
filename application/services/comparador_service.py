@@ -1,24 +1,4 @@
-from dataclasses import dataclass
-
-
-@dataclass
-class ComparacaoResultado:
-
-    vencedor: str
-
-    score_plano_1: float
-
-    score_plano_2: float
-
-    conversoes_plano_1: float
-
-    conversoes_plano_2: float
-
-    investimento_plano_1: float
-
-    investimento_plano_2: float
-
-    justificativa: str
+from domain.models.comparacao import ComparacaoResultado
 
 
 class ComparadorService:

@@ -178,6 +178,14 @@ class RecommendationEngine:
 
     ):
 
+        if not ranking:
+
+            return [
+
+                "Nenhum inventário disponível para análise."
+
+            ]
+
         principais = len(
 
             [
@@ -281,6 +289,14 @@ class RecommendationEngine:
         ranking
 
     ):
+
+        if not ranking:
+
+            return [
+
+                "Baixa diversidade de inventários."
+
+            ]
 
         riscos = []
 

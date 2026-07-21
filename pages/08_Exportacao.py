@@ -11,9 +11,10 @@ from application.services.exportacao_service import (
     ExportacaoService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.context_service import (
+    ContextService
 )
+from application.services.workflow_service import WorkflowService
 
 
 # ==========================================================
@@ -34,13 +35,15 @@ st.title("📤 Exportação")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 planejamento = PlanejamentoService()
 
 exportacao = ExportacaoService()
 
-briefings = repo.listar_briefings()
+workflow_service = WorkflowService()
+
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -64,7 +67,7 @@ if st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 ):
 
@@ -75,6 +78,10 @@ if st.button(
     )
 
     st.session_state["plano_exportacao"] = plano
+
+    workflow_service.registrar_briefing(st.session_state, briefing)
+    workflow_service.concluir(st.session_state, "planejamento", plano)
+    workflow_service.concluir(st.session_state, "exportacao", True)
 
 
 # ==========================================================
@@ -143,7 +150,7 @@ if "plano_exportacao" in st.session_state:
 
         hide_index=True,
 
-        use_container_width=True
+        width="stretch"
 
     )
 
@@ -183,7 +190,7 @@ if "plano_exportacao" in st.session_state:
 
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 
-        use_container_width=True
+        width="stretch"
 
     )
 
@@ -213,6 +220,6 @@ if "plano_exportacao" in st.session_state:
 
         mime="text/csv",
 
-        use_container_width=True
+        width="stretch"
 
     )

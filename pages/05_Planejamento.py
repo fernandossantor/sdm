@@ -9,9 +9,10 @@ from application.services.planejamento_service import (
     PlanejamentoService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.context_service import (
+    ContextService
 )
+from application.services.workflow_service import WorkflowService
 
 
 # ==========================================================
@@ -32,11 +33,13 @@ st.title("📋 Planejamento Estratégico")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 planejamento = PlanejamentoService()
 
 briefing_service = BriefingService()
+
+workflow_service = WorkflowService()
 
 
 # ==========================================================
@@ -49,7 +52,7 @@ tem_sessao = briefing_service.existe(
 
 )
 
-briefings_salvos = repo.listar_briefings()
+briefings_salvos = contexto_service.listar_briefings()
 
 opcoes = []
 
@@ -161,7 +164,7 @@ gerar = st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 )
 
@@ -194,7 +197,10 @@ if gerar:
 
             )
 
-    st.session_state["plano"] = plano
+    if modo == "Briefing Salvo":
+        workflow_service.registrar_briefing(st.session_state, nome_briefing)
+
+    workflow_service.concluir(st.session_state, "planejamento", plano)
 
 
 # ==========================================================
@@ -255,7 +261,7 @@ if "plano" in st.session_state:
 
             hide_index=True,
 
-            use_container_width=True
+            width="stretch"
 
         )
 

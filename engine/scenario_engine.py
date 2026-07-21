@@ -195,6 +195,15 @@ class ScenarioEngine:
 
         )
 
+        if not dados:
+
+            return {
+                "cenario": cenario.upper(),
+                "score_medio": 0,
+                "inventarios": 0,
+                "principais": 0,
+            }
+
         media = round(
 
             sum(

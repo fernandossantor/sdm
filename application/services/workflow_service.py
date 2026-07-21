@@ -8,6 +8,23 @@ from domain.models.workflow_state import (
 
 class WorkflowService:
 
+    ORDEM = (
+        "briefing",
+        "planejamento",
+        "diagnostico",
+        "forecast",
+        "dashboard",
+        "exportacao",
+    )
+
+    CHAVES = {
+        "planejamento": "plano",
+        "diagnostico": "diagnostico",
+        "forecast": "forecast",
+        "dashboard": "dashboard",
+        "exportacao": "exportacao",
+    }
+
     def __init__(self):
 
         self.briefing_service = BriefingService()
@@ -24,25 +41,33 @@ class WorkflowService:
 
     ):
 
-        possui_briefing = self.briefing_service.existe(
-
-            session_state
-
-        )
+        estado = self.estado(session_state)
 
         return {
-
-            "briefing": possui_briefing,
-
-            "planejamento": False,
-
-            "forecast": False,
-
-            "dashboard": False,
-
-            "exportacao": False
-
+            etapa: getattr(estado, etapa)
+            for etapa in self.ORDEM
         }
+
+    def registrar_briefing(self, session_state, referencia):
+
+        session_state["briefing_ref"] = referencia
+
+    def concluir(self, session_state, etapa, valor=True):
+
+        if etapa not in self.CHAVES:
+            raise ValueError(f"Etapa de workflow inválida: {etapa}")
+
+        session_state[self.CHAVES[etapa]] = valor
+
+    def pode_acessar(self, session_state, etapa):
+
+        if etapa not in self.ORDEM:
+            raise ValueError(f"Etapa de workflow inválida: {etapa}")
+
+        estado = self.status(session_state)
+        indice = self.ORDEM.index(etapa)
+
+        return all(estado[nome] for nome in self.ORDEM[:indice])
     
     # =====================================================
     # ESTADO GLOBAL
@@ -58,10 +83,9 @@ class WorkflowService:
 
         return WorkflowState(
 
-            briefing=self.briefing_service.existe(
-
-                session_state
-
+            briefing=(
+                self.briefing_service.existe(session_state)
+                or session_state.get("briefing_ref") is not None
             ),
 
             planejamento=session_state.get(

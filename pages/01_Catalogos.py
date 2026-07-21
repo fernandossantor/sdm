@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-from infrastructure.repositories.catalog_repository import (
-    CatalogRepository
+from application.services.base_conhecimento_service import (
+    BaseConhecimentoService
 )
 
 # ==========================================================
@@ -23,9 +23,9 @@ st.title("📚 Catálogos")
 
 st.divider()
 
-repo = CatalogRepository()
+service = BaseConhecimentoService()
 
-dados = repo.carregar_todos()
+dados = service.carregar_catalogos()
 
 abas = st.tabs(
 
@@ -81,7 +81,7 @@ def mostrar(df):
 
         hide_index=True,
 
-        use_container_width=True
+        width="stretch"
 
     )
 

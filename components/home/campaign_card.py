@@ -16,7 +16,7 @@ def render():
         st.page_link(
             "pages/00_Briefing.py",
             label="➕ Nova Campanha",
-            use_container_width=True
+            width="stretch"
         )
 
     with col2:
@@ -24,5 +24,5 @@ def render():
         st.button(
             "📂 Abrir Campanha",
             disabled=True,
-            use_container_width=True
+            width="stretch"
         )

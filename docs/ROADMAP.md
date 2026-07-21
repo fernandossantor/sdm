@@ -7,7 +7,7 @@
 - Diagnóstico
 - Forecast
 - Painel Executivo
-- Relatórios
+- Relatórios Excel/CSV
 
 ---
 

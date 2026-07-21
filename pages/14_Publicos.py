@@ -4,8 +4,8 @@ from application.services.public_service import (
     PublicService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.base_conhecimento_service import (
+    BaseConhecimentoService
 )
 
 
@@ -29,29 +29,19 @@ st.divider()
 
 service = PublicService()
 
-repo = DecisionRepository()
+base_conhecimento = BaseConhecimentoService()
 
 # ==========================================================
 # CATÁLOGOS
 # ==========================================================
 
-segmentos = repo.all(
+biblioteca = base_conhecimento.biblioteca_publicos()
 
-    "segmentos"
+segmentos = biblioteca["segmentos"]
 
-)
+interesses = biblioteca["interesses"]
 
-interesses = repo.all(
-
-    "interesses"
-
-)
-
-jornadas = repo.all(
-
-    "jornadas"
-
-)
+jornadas = biblioteca["jornadas"]
 
 # ==========================================================
 # FORMULÁRIO
@@ -135,7 +125,7 @@ with st.expander(
 
         type="primary",
 
-        use_container_width=True
+        width="stretch"
 
     )
 

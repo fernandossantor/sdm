@@ -19,7 +19,7 @@ def render():
 
         "➕ Novo Briefing",
 
-        use_container_width=True
+        width="stretch"
 
     ):
 
