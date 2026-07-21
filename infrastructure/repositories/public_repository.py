@@ -1,17 +1,25 @@
 from infrastructure.repositories.base_repository import (
     BaseRepository
 )
+from infrastructure.database.database_schema import (
+    BIBLIOTECA_PUBLICOS,
+    BIBLIOTECA_PUBLICOS_INTERESSES,
+    BIBLIOTECA_PUBLICOS_JORNADAS,
+    BIBLIOTECA_PUBLICOS_SEGMENTOS,
+)
 
 
 # =====================================================
 # TABELAS
 # =====================================================
 
-PUBLICOS = "publicos"
+PUBLICOS = BIBLIOTECA_PUBLICOS
 
-PUBLICOS_SEGMENTOS = "segmentos_publico"
+PUBLICOS_SEGMENTOS = BIBLIOTECA_PUBLICOS_SEGMENTOS
 
-PUBLICOS_INTERESSES = "segmento_interesse"
+PUBLICOS_INTERESSES = BIBLIOTECA_PUBLICOS_INTERESSES
+
+PUBLICOS_JORNADAS = BIBLIOTECA_PUBLICOS_JORNADAS
 
 
 class PublicRepository(BaseRepository):
@@ -124,6 +132,16 @@ class PublicRepository(BaseRepository):
 
         )
 
+        self.delete(
+
+            PUBLICOS_JORNADAS,
+
+            "publico_id",
+
+            publico_id
+
+        )
+
         #
         # Remove o público
         #
@@ -217,3 +235,35 @@ class PublicRepository(BaseRepository):
                 registros
 
             )
+
+    # =====================================================
+    # JORNADA
+    # =====================================================
+
+    def jornadas(self, publico_id):
+
+        return self.by_field(
+
+            PUBLICOS_JORNADAS,
+
+            "publico_id",
+
+            publico_id
+
+        )
+
+    def salvar_jornada(self, publico_id, jornada_id):
+
+        return self.insert(
+
+            PUBLICOS_JORNADAS,
+
+            {
+
+                "publico_id": publico_id,
+
+                "jornada_id": jornada_id
+
+            }
+
+        )

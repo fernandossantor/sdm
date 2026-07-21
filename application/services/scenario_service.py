@@ -136,7 +136,7 @@ class ScenarioService:
 
             f"Cenário estratégico: {cenario}.",
 
-            "Plano gerado automaticamente pelo SDM.",
+            "Plano gerado automaticamente pelo PMAH.",
 
             "Distribuição ajustada conforme o perfil estratégico do cenário."
 
@@ -167,6 +167,39 @@ class ScenarioService:
                 cenario
 
             )
+
+        return resultado
+
+    def gerar_todos_de_plano(self, plano_base):
+
+        ranking_base = [
+            {
+                "inventario": item.inventario,
+                "plataforma": item.plataforma,
+                "ambiente": item.ambiente,
+                "papel": item.papel,
+                "score": item.score,
+            }
+            for item in plano_base.itens
+        ]
+
+        resultado = {}
+        for cenario in self.listar():
+            ranking = self.scenario_engine.aplicar(ranking_base, cenario)
+            plano = self.planejamento._montar_plano(
+                cliente=plano_base.cliente,
+                campanha=plano_base.campanha,
+                objetivo=plano_base.objetivo,
+                verba=plano_base.orcamento,
+                ranking=ranking,
+                observacao=f"Cenário estratégico: {cenario}.",
+            )
+            plano.tipo_flight = plano_base.tipo_flight
+            plano.frequencia_objetivo = plano_base.frequencia_objetivo
+            plano.frequencia_alvo = plano_base.frequencia_alvo
+            plano.kpis = plano_base.kpis
+            plano.cronograma = plano_base.cronograma
+            resultado[cenario] = plano
 
         return resultado
 

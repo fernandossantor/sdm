@@ -5,13 +5,13 @@ def render():
 
     st.title(
 
-        "📊 SDM"
+        "📊 PMAH"
 
     )
 
     st.subheader(
 
-        "Sistema de Diagnóstico de Mídia"
+        "Planejador de Mídia Automatizado e Híbrido"
 
     )
 

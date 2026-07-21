@@ -57,6 +57,11 @@ briefing = st.selectbox(
 
 )
 
+usar_plano_atual = "plano" in st.session_state and st.checkbox(
+    "Usar o planejamento atual da sessão",
+    value=True,
+)
+
 executar = st.button(
 
     "Gerar Insights",
@@ -73,10 +78,10 @@ executar = st.button(
 
 if executar:
 
-    plano = planejamento.gerar(
-
-        briefing
-
+    plano = (
+        st.session_state["plano"]
+        if usar_plano_atual
+        else planejamento.gerar(nome_briefing=briefing)
     )
 
     forecast = forecast_service.gerar_itens(plano)

@@ -239,7 +239,7 @@ class InventoryEngine:
 
         audiencias_processadas = []
 
-        for audiencia in audiencias_processadas:
+        for audiencia in audiencias:
 
             #
             # Novo modelo (V3)
@@ -283,6 +283,8 @@ class InventoryEngine:
 
                 )
 
+        audiencias = audiencias_processadas
+
         idx_obj = self.indexar_objetivos(
 
             contexto["inventarios_objetivos"]
@@ -312,6 +314,21 @@ class InventoryEngine:
             contexto["kpis"]
 
         )
+
+        afinidades_interesses = contexto.get("interesses_afinidade", [])
+
+        idx_afinidades = {
+            (item["interesse_id"], item["ambiente_id"]): float(item["afinidade"])
+            for item in afinidades_interesses
+        }
+
+        precos = {}
+        for item in contexto.get("precos", []):
+            bruto = float(item.get("valor_bruto", 0))
+            desconto = float(item.get("desconto_percentual", 0))
+            item_preco = dict(item)
+            item_preco["valor_liquido"] = bruto * (1 - desconto / 100)
+            precos.setdefault(item["inventario_id"], item_preco)
 
         #
         # KPIs DO BRIEFING
@@ -429,6 +446,8 @@ class InventoryEngine:
 
         for inventario in inventarios:
 
+            preco = precos.get(inventario["id"])
+
             # --------------------------------------------------
             # SCORE DE PÚBLICOS
             # --------------------------------------------------
@@ -442,6 +461,18 @@ class InventoryEngine:
                 idx_consumo
 
             )
+
+            interesse_score = ScoreEngine.interesses(
+                inventario,
+                audiencias,
+                idx_afinidades,
+            )
+
+            if interesse_score is not None:
+                audiencia_score = round(
+                    audiencia_score * 0.75 + interesse_score * 0.25,
+                    2,
+                )
 
             # --------------------------------------------------
             # OBJETIVO
@@ -593,7 +624,13 @@ class InventoryEngine:
 
                         1
 
-                    )
+                    ),
+
+                    "preco_unitario": (
+                        round(preco["valor_liquido"], 4) if preco else None
+                    ),
+
+                    "unidade_compra": preco.get("unidade") if preco else None,
 
                 }
 

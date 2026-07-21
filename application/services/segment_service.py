@@ -143,11 +143,10 @@ class SegmentService:
 
             return False, erros
 
-        self.repository.salvar(
-
-            dados
-
-        )
+        try:
+            self.repository.salvar(dados)
+        except Exception as erro:
+            return False, [f"Não foi possível salvar o Segmento: {erro}"]
 
         return True, None
 
@@ -175,13 +174,10 @@ class SegmentService:
 
             return False, erros
 
-        self.repository.atualizar(
-
-            segmento_id,
-
-            dados
-
-        )
+        try:
+            self.repository.atualizar(segmento_id, dados)
+        except Exception as erro:
+            return False, [f"Não foi possível atualizar o Segmento: {erro}"]
 
         return True, None
 

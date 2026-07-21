@@ -1,6 +1,10 @@
 from infrastructure.repositories.public_repository import (
     PublicRepository
 )
+from infrastructure.repositories.segment_repository import SegmentRepository
+from infrastructure.repositories.universe_repository import UniverseRepository
+from infrastructure.repositories.catalog_repository import CatalogRepository
+from infrastructure.database.database_schema import INTERESSES, JORNADAS
 
 
 class PublicService:
@@ -9,6 +13,12 @@ class PublicService:
 
         self.repository = PublicRepository()
 
+        self.segmentos_repository = SegmentRepository()
+
+        self.universos_repository = UniverseRepository()
+
+        self.catalogos_repository = CatalogRepository()
+
     # =====================================================
     # LISTAGEM
     # =====================================================
@@ -16,6 +26,69 @@ class PublicService:
     def listar(self):
 
         return self.repository.listar()
+
+    def listar_detalhados(self):
+
+        publicos = self.listar()
+
+        segmentos = {
+            item["id"]: item
+            for item in self.segmentos_repository.listar()
+        }
+
+        universos = {
+            item["id"]: item
+            for item in self.universos_repository.listar()
+        }
+
+        interesses = {
+            item["id"]: item
+            for item in self.catalogos_repository.ordered(INTERESSES, "nome")
+        }
+
+        try:
+            lista_jornadas = self.catalogos_repository.ordered(JORNADAS, "ordem")
+        except Exception:
+            lista_jornadas = self.catalogos_repository.ordered(JORNADAS, "etapa")
+
+        jornadas = {item["id"]: item for item in lista_jornadas}
+
+        resultado = []
+
+        for publico in publicos:
+            item = dict(publico)
+            rel_segmentos = self.repository.segmentos(publico["id"])
+            rel_interesses = self.repository.interesses(publico["id"])
+            rel_jornadas = self.repository.jornadas(publico["id"])
+
+            item["segmentos"] = []
+            item["universos"] = []
+
+            for relacao in rel_segmentos:
+                segmento = segmentos.get(relacao.get("segmento_id"))
+                if not segmento:
+                    continue
+                item["segmentos"].append(segmento)
+                universo = universos.get(segmento.get("universo_id"))
+                if universo and universo not in item["universos"]:
+                    item["universos"].append(universo)
+
+            item["interesses"] = [
+                {
+                    **interesses[relacao["interesse_id"]],
+                    "peso": float(relacao.get("peso", 100)),
+                }
+                for relacao in rel_interesses
+                if relacao.get("interesse_id") in interesses
+            ]
+
+            item["jornada"] = None
+            if rel_jornadas:
+                item["jornada"] = jornadas.get(rel_jornadas[0].get("jornada_id"))
+
+            resultado.append(item)
+
+        return resultado
 
     # =====================================================
     # BUSCA
@@ -77,6 +150,9 @@ class PublicService:
 
             )
 
+        if "segmentos" in dados and not dados.get("segmentos"):
+            erros.append("Selecione pelo menos um Segmento.")
+
         return erros
 
     # =====================================================
@@ -101,25 +177,20 @@ class PublicService:
 
         interesses = interesses or []
 
-        erros = self.validar(
-
-            dados
-
-        )
+        dados_publico = dict(dados)
+        dados_validacao = {**dados_publico, "segmentos": segmentos}
+        erros = self.validar(dados_validacao)
 
         if erros:
 
             return False, erros
 
-        resposta = self.repository.salvar(
-
-            dados
-
-        )
-
-        publico = resposta.data[0]
-
-        publico_id = publico["id"]
+        try:
+            resposta = self.repository.salvar(dados_publico)
+            publico = resposta.data[0]
+            publico_id = publico["id"]
+        except Exception as erro:
+            return False, [f"Não foi possível salvar o Público: {erro}"]
 
         registros_segmentos = [
 
@@ -149,27 +220,19 @@ class PublicService:
 
         ]
 
-        self.repository.salvar_segmentos(
+        try:
+            self.repository.salvar_segmentos(registros_segmentos)
+            self.repository.salvar_interesses(registros_interesses)
 
-            registros_segmentos
-
-        )
-
-        self.repository.salvar_interesses(
-
-            registros_interesses
-
-        )
-
-        if jornada:
-
-            self.repository.salvar_jornada(
-
-                publico_id,
-
-                jornada
-
-            )
+            if jornada:
+                self.repository.salvar_jornada(publico_id, jornada)
+        except Exception:
+            # Evita deixar um público órfão quando uma relação falha.
+            self.repository.excluir(publico_id)
+            return False, [
+                "Não foi possível salvar as relações de Segmentos, "
+                "Interesses e Jornada do Público."
+            ]
 
         return True, publico
 

@@ -56,6 +56,11 @@ briefing = st.selectbox(
 
 )
 
+usar_plano_atual = "plano" in st.session_state and st.checkbox(
+    "Usar o planejamento atual da sessão",
+    value=True,
+)
+
 if st.button(
 
     "Gerar Diagnóstico",
@@ -66,10 +71,10 @@ if st.button(
 
 ):
 
-    plano = planejamento.gerar(
-
-        briefing
-
+    plano = (
+        st.session_state["plano"]
+        if usar_plano_atual
+        else planejamento.gerar(nome_briefing=briefing)
     )
 
     diagnostico = diagnostico_service.gerar(

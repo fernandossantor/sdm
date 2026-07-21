@@ -93,13 +93,13 @@ if st.button(
 
     plano1 = planejamento.gerar(
 
-        briefing1
+        nome_briefing=briefing1
 
     )
 
     plano2 = planejamento.gerar(
 
-        briefing2
+        nome_briefing=briefing2
 
     )
 

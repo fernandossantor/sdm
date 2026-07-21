@@ -7,6 +7,8 @@ from application.services.public_service import (
 from application.services.base_conhecimento_service import (
     BaseConhecimentoService
 )
+from application.services.universe_service import UniverseService
+from application.services.segment_service import SegmentService
 
 
 # ==========================================================
@@ -31,17 +33,25 @@ service = PublicService()
 
 base_conhecimento = BaseConhecimentoService()
 
+universo_service = UniverseService()
+
+segmento_service = SegmentService()
+
 # ==========================================================
 # CATÁLOGOS
 # ==========================================================
 
 biblioteca = base_conhecimento.biblioteca_publicos()
 
-segmentos = biblioteca["segmentos"]
+universos = [u for u in universo_service.listar() if u.get("ativo", True)]
 
 interesses = biblioteca["interesses"]
 
 jornadas = biblioteca["jornadas"]
+
+if not universos:
+    st.warning("Cadastre pelo menos um Universo antes de criar Públicos.")
+    st.stop()
 
 # ==========================================================
 # FORMULÁRIO
@@ -75,17 +85,29 @@ with st.expander(
 
     )
 
+    universo = st.selectbox(
+
+        "Universo",
+
+        options=universos,
+
+        format_func=lambda item: item["nome"]
+
+    )
+
+    segmentos = [
+        item
+        for item in segmento_service.listar_por_universo(universo["id"])
+        if item.get("ativo", True)
+    ]
+
     segmentos_sel = st.multiselect(
 
         "Segmentos",
 
-        options=[
+        options=segmentos,
 
-            s["nome"]
-
-            for s in segmentos
-
-        ]
+        format_func=lambda item: item["nome"]
 
     )
 
@@ -93,13 +115,9 @@ with st.expander(
 
         "Interesses",
 
-        options=[
+        options=interesses,
 
-            i["nome"]
-
-            for i in interesses
-
-        ]
+        format_func=lambda item: item["nome"]
 
     )
 
@@ -107,15 +125,16 @@ with st.expander(
 
         "Jornada",
 
-        [""] +
+        options=[None] + jornadas,
 
-        [
-
-            j["etapa"]
-
-            for j in jornadas
-
-        ]
+        format_func=lambda item: (
+            "Selecione uma etapa"
+            if item is None
+            else (
+                f"{item.get('ordem', '')}. {item['etapa']} "
+                f"({item.get('descricao', item['etapa'])})"
+            ).lstrip(". ")
+        )
 
     )
 
@@ -135,30 +154,6 @@ with st.expander(
 
 if salvar:
 
-    mapa_segmentos = {
-
-        s["nome"]: s["id"]
-
-        for s in segmentos
-
-    }
-
-    mapa_interesses = {
-
-        i["nome"]: i["id"]
-
-        for i in interesses
-
-    }
-
-    mapa_jornadas = {
-
-        j["etapa"]: j["id"]
-
-        for j in jornadas
-
-    }
-
     dados = {
 
         "nome": nome,
@@ -174,26 +169,20 @@ if salvar:
         dados=dados,
 
         segmentos=[
-
-            mapa_segmentos[x]
-
-            for x in segmentos_sel
+            item["id"] for item in segmentos_sel
 
         ],
 
         interesses=[
-
-            mapa_interesses[x]
-
-            for x in interesses_sel
+            item["id"] for item in interesses_sel
 
         ],
 
         jornada=(
 
-            mapa_jornadas[jornada_nome]
+            jornada_nome["id"]
 
-            if jornada_nome
+            if jornada_nome is not None
 
             else None
 
@@ -233,7 +222,7 @@ st.subheader(
 
 )
 
-publicos = service.listar()
+publicos = service.listar_detalhados()
 
 if not publicos:
 
@@ -271,6 +260,35 @@ else:
 
                     publico["descricao"]
 
+                )
+
+            trilhas = []
+            for segmento in publico.get("segmentos", []):
+                universo_rel = next(
+                    (
+                        item
+                        for item in publico.get("universos", [])
+                        if item["id"] == segmento.get("universo_id")
+                    ),
+                    None,
+                )
+                if universo_rel:
+                    trilhas.append(f"{universo_rel['nome']} › {segmento['nome']}")
+
+            if trilhas:
+                st.caption(" | ".join(trilhas))
+
+            if publico.get("jornada"):
+                etapa = publico["jornada"]
+                st.caption(
+                    f"Jornada: {etapa['etapa']} "
+                    f"({etapa.get('descricao', etapa['etapa'])})"
+                )
+
+            if publico.get("interesses"):
+                st.caption(
+                    "Interesses: "
+                    + ", ".join(item["nome"] for item in publico["interesses"])
                 )
 
         with c2:

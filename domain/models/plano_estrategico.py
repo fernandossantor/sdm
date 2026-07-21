@@ -25,6 +25,18 @@ class PlanoItem:
 
     justificativas: List[str] = field(default_factory=list)
 
+    inventario_id: str = ""
+
+    preco_unitario: float = 0.0
+
+    unidade_compra: str = ""
+
+    quantidade_estimada: float = 0.0
+
+    impressoes_estimadas: float = 0.0
+
+    alcance_estimado: float = 0.0
+
 
 # ==========================================================
 # PLANO ESTRATÉGICO
@@ -44,6 +56,16 @@ class PlanoEstrategico:
     itens: List[PlanoItem] = field(default_factory=list)
 
     observacoes: List[str] = field(default_factory=list)
+
+    tipo_flight: str = "LINEAR"
+
+    frequencia_objetivo: str = "MEDIA"
+
+    frequencia_alvo: int = 5
+
+    kpis: List[dict] = field(default_factory=list)
+
+    cronograma: List[dict] = field(default_factory=list)
 
     # ------------------------------------------------------
 

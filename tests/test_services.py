@@ -4,8 +4,24 @@ from unittest.mock import Mock, patch
 
 from application.services.scenario_service import ScenarioService
 from application.services.workflow_service import WorkflowService
+from application.services.planejamento_service import PlanejamentoService
+from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico
 from infrastructure.database import admin_client
+
+
+class TestPlanejamentoService(unittest.TestCase):
+
+    def test_flight_concentrado_aloca_apenas_o_inicio(self):
+
+        cronograma = PlanejamentoService._cronograma(
+            date(2026, 7, 1),
+            date(2026, 7, 28),
+            "CONCENTRADO",
+        )
+
+        self.assertEqual(sum(item["percentual"] for item in cronograma), 100)
+        self.assertEqual(cronograma[-1]["percentual"], 0)
 
 
 class TestAdminClient(unittest.TestCase):

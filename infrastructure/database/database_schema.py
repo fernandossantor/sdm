@@ -91,3 +91,9 @@ BIBLIOTECA_PUBLICOS_SEGMENTOS = "biblioteca_publicos_segmentos"
 BIBLIOTECA_PUBLICOS_INTERESSES = "biblioteca_publicos_interesses"
 
 BIBLIOTECA_PUBLICOS_JORNADAS = "biblioteca_publicos_jornadas"
+
+INTERESSES_AMBIENTES_AFINIDADE = "interesses_ambientes_afinidade"
+
+PRECOS_INVENTARIO = "precos_inventario"
+
+PLANEJAMENTOS = "planejamentos"

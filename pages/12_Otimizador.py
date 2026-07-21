@@ -47,6 +47,11 @@ briefing = st.selectbox(
 
 )
 
+usar_plano_atual = "plano" in st.session_state and st.checkbox(
+    "Usar o planejamento atual da sessão",
+    value=True,
+)
+
 # ==========================================================
 # PARÂMETROS
 # ==========================================================
@@ -113,9 +118,22 @@ executar = st.button(
 
 if executar:
 
-    contexto, ranking = contexto_service.ranking(briefing)
-
-    verba = contexto["briefing"]["orcamento"]
+    if usar_plano_atual:
+        plano_atual = st.session_state["plano"]
+        ranking = [
+            {
+                "inventario": item.inventario,
+                "plataforma": item.plataforma,
+                "ambiente": item.ambiente,
+                "papel": item.papel,
+                "score": item.score,
+            }
+            for item in plano_atual.itens
+        ]
+        verba = plano_atual.orcamento
+    else:
+        contexto, ranking = contexto_service.ranking(briefing)
+        verba = contexto["briefing"]["orcamento"]
 
     ambientes = {
 

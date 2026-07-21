@@ -157,11 +157,10 @@ class UniverseService:
 
             return False, erros
 
-        self.repository.salvar(
-
-            dados
-
-        )
+        try:
+            self.repository.salvar(dados)
+        except Exception as erro:
+            return False, [f"Não foi possível salvar o Universo: {erro}"]
 
         return True, None
 
@@ -189,13 +188,10 @@ class UniverseService:
 
             return False, erros
 
-        self.repository.atualizar(
-
-            universo_id,
-
-            dados
-
-        )
+        try:
+            self.repository.atualizar(universo_id, dados)
+        except Exception as erro:
+            return False, [f"Não foi possível atualizar o Universo: {erro}"]
 
         return True, None
 

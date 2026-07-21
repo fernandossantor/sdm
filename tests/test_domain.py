@@ -3,9 +3,26 @@ from datetime import date
 
 from domain.models.briefing import Briefing
 from domain.models.workflow_state import WorkflowState
+from application.services.briefing_service import BriefingService
 
 
 class TestBriefing(unittest.TestCase):
+
+    def test_frequencia_deve_respeitar_a_faixa(self):
+
+        briefing = BriefingService().criar(
+            cliente="Cliente",
+            campanha="Campanha",
+            objetivo_id="objetivo-1",
+            objetivo="Alcance",
+            kpi="Alcance",
+            orcamento=1000,
+            tipo_flight="ONDA",
+            frequencia_objetivo="MEDIA",
+            frequencia_alvo=3,
+        )
+
+        self.assertIn("Frequência média deve estar entre 4 e 7.", briefing.validar())
 
     def criar_briefing(self, **alteracoes):
 

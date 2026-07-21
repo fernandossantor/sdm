@@ -210,6 +210,20 @@ class DecisionRepository(BaseRepository):
 
         )
 
+    def interesses_afinidade(self):
+
+        try:
+            return self.all(INTERESSES_AMBIENTES_AFINIDADE)
+        except Exception:
+            return []
+
+    def precos(self):
+
+        try:
+            return self.by_field(PRECOS_INVENTARIO, "ativo", True)
+        except Exception:
+            return []
+
     # =====================================================
     # CONTEXTO
     # =====================================================
@@ -262,7 +276,11 @@ class DecisionRepository(BaseRepository):
 
             "consumo":
 
-                self.consumo()
+                self.consumo(),
+
+            "interesses_afinidade": self.interesses_afinidade(),
+
+            "precos": self.precos(),
 
         }
 
@@ -278,11 +296,17 @@ class DecisionRepository(BaseRepository):
 
     ):
 
-        objetivo = self.objetivo(
+        def valor(nome, padrao=None):
+            if isinstance(briefing, dict):
+                return briefing.get(nome, padrao)
+            return getattr(briefing, nome, padrao)
 
-            briefing.objetivo_id
+        objetivo_id = valor("objetivo_id")
 
-        )
+        if not objetivo_id:
+            raise ValueError("O briefing selecionado não possui objetivo_id.")
+
+        objetivo = self.objetivo(objetivo_id)
 
         audiencias = []
 
@@ -292,17 +316,13 @@ class DecisionRepository(BaseRepository):
         # Briefing antigo
         #
 
-        if hasattr(
+        audiencia_id = valor("audiencia_id")
 
-            briefing,
-
-            "audiencia_id"
-
-        ) and briefing.audiencia_id:
+        if audiencia_id:
 
             audiencia = self.audiencia(
 
-                briefing.audiencia_id
+                audiencia_id
 
             )
 
@@ -310,13 +330,8 @@ class DecisionRepository(BaseRepository):
 
                 audiencias.append(
                     {
-                        "audiencia_id": publico["id"],
-                        "peso": float(
-                            publico.get(
-                                "peso",
-                                100
-                            )
-                        )
+                        "audiencia_id": audiencia["id"],
+                        "peso": 100.0,
                     }
                 )
 
@@ -324,15 +339,11 @@ class DecisionRepository(BaseRepository):
         # Novo Briefing
         #
 
-        elif hasattr(
+        publicos = valor("publicos", []) or []
 
-            briefing,
+        if not audiencia_id:
 
-            "publicos"
-
-        ):
-
-            for publico in briefing.publicos:
+            for publico in publicos:
 
                 if isinstance(
 
@@ -344,8 +355,13 @@ class DecisionRepository(BaseRepository):
 
                     audiencias.append(
                         {
-                            "audiencia_id": audiencia["id"],
-                            "peso": 100.0
+                            "audiencia_id": publico.get(
+                                "audiencia_id",
+                                publico["id"],
+                            ),
+                            "peso": float(publico.get("peso", 100)),
+                            "interesses": publico.get("interesses", []),
+                            "jornada": publico.get("jornada"),
                         }
                     )
 
@@ -375,6 +391,10 @@ class DecisionRepository(BaseRepository):
 
             "consumo":
 
-                self.consumo()
+                self.consumo(),
+
+            "interesses_afinidade": self.interesses_afinidade(),
+
+            "precos": self.precos(),
 
         }

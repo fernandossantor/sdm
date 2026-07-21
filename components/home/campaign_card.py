@@ -6,7 +6,7 @@ def render():
     st.subheader("🎯 Campanhas")
 
     st.success(
-        "Comece criando uma nova campanha para que o SDM possa gerar um plano de mídia."
+        "Comece criando uma nova campanha para que o PMAH possa gerar um plano de mídia."
     )
 
     col1, col2 = st.columns(2)

@@ -179,6 +179,29 @@ class ScoreEngine:
 
         ) * 100
 
+    @staticmethod
+    def interesses(inventario, audiencias, idx_afinidades):
+
+        soma = 0.0
+        pesos = 0.0
+
+        for audiencia in audiencias:
+            for interesse in audiencia.get("interesses", []):
+                interesse_id = interesse.get("id") or interesse.get("interesse_id")
+                afinidade = idx_afinidades.get(
+                    (interesse_id, inventario.get("ambiente_id"))
+                )
+                if afinidade is None:
+                    continue
+                peso = float(interesse.get("peso", 100))
+                soma += afinidade * peso
+                pesos += peso
+
+        if pesos == 0:
+            return None
+
+        return soma / pesos
+
 # ==========================================================
 # CONTINUA NA PARTE 2
 # ==========================================================

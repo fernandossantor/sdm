@@ -46,7 +46,7 @@ objetivos = base_conhecimento.objetivos()
 
 kpis = base_conhecimento.kpis()
 
-publicos = public_service.listar()
+publicos = public_service.listar_detalhados()
 
 
 # ==========================================================
@@ -209,7 +209,9 @@ with c1:
 
     inicio = st.date_input(
 
-        "Data inicial"
+        "Data inicial",
+
+        format="DD/MM/YYYY"
 
     )
 
@@ -217,7 +219,9 @@ with c2:
 
     fim = st.date_input(
 
-        "Data final"
+        "Data final",
+
+        format="DD/MM/YYYY"
 
     )
 
@@ -229,13 +233,11 @@ with c3:
 
         [
 
-            "CONTINUO",
+            "LINEAR",
 
-            "PULSADO",
+            "ONDA",
 
-            "SAZONAL",
-
-            "ALWAYS_ON"
+            "CONCENTRADO"
 
         ]
 
@@ -248,16 +250,36 @@ frequencia = st.selectbox(
 
     [
 
-        "LIVRE",
+        "BAIXA",
 
-        "1-2",
+        "MEDIA",
 
-        "3-5",
+        "ALTA"
 
-        "6+"
+    ],
 
-    ]
+    format_func=lambda valor: {
+        "BAIXA": "Baixa (1–3)",
+        "MEDIA": "Média (4–7)",
+        "ALTA": "Alta (8+)",
+    }[valor]
 
+)
+
+limites_frequencia = {
+    "BAIXA": (1, 3, 2),
+    "MEDIA": (4, 7, 5),
+    "ALTA": (8, 30, 8),
+}
+
+freq_min, freq_max, freq_padrao = limites_frequencia[frequencia]
+
+frequencia_alvo = st.number_input(
+    "Frequência alvo",
+    min_value=freq_min,
+    max_value=freq_max,
+    value=freq_padrao,
+    help="Valor numérico usado nas projeções de alcance e orçamento.",
 )
 
 
@@ -273,35 +295,29 @@ st.header(
 
 )
 
-nomes_publicos = [
-
-    p["nome"]
-
-    for p in publicos
-
-]
-
 publicos_escolhidos = st.multiselect(
 
     "Biblioteca de Públicos",
 
-    nomes_publicos
+    options=publicos,
+
+    format_func=lambda publico: " / ".join(
+        [
+            " › ".join(
+                [universo["nome"], segmento["nome"]]
+            )
+            for segmento in publico.get("segmentos", [])
+            for universo in publico.get("universos", [])
+            if universo["id"] == segmento.get("universo_id")
+        ]
+        + [publico["nome"]]
+    )
 
 )
 
 publicos_modelo = []
 
-for nome in publicos_escolhidos:
-
-    publico = next(
-
-        p
-
-        for p in publicos
-
-        if p["nome"] == nome
-
-    )
+for publico in publicos_escolhidos:
 
     publicos_modelo.append(
 
@@ -312,6 +328,10 @@ for nome in publicos_escolhidos:
             "nome": publico["nome"],
 
             "peso": 100
+
+            ,"interesses": publico.get("interesses", [])
+
+            ,"jornada": publico.get("jornada")
 
         }
 
@@ -443,6 +463,8 @@ if salvar:
         tipo_flight=tipo_flight,
 
         frequencia_objetivo=frequencia,
+
+        frequencia_alvo=int(frequencia_alvo),
 
         publicos=publicos_modelo,
 

@@ -73,16 +73,21 @@ with col2:
 
     )
 
+usar_plano_atual = "plano" in st.session_state and st.checkbox(
+    "Usar o planejamento atual da sessão",
+    value=True,
+)
+
 # ==========================================================
 # GERAÇÃO
 # ==========================================================
 
 if gerar:
 
-    cenarios = service.gerar_todos(
-
-        briefing
-
+    cenarios = (
+        service.gerar_todos_de_plano(st.session_state["plano"])
+        if usar_plano_atual
+        else service.gerar_todos(briefing)
     )
 
     st.session_state["cenarios"] = cenarios

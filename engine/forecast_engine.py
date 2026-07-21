@@ -31,9 +31,9 @@ class ForecastEngine:
 
         for item in plano.itens:
 
-            m = None
+            m = idx.get(getattr(item, "inventario_id", ""))
 
-            for metrica in metricas:
+            for metrica in metricas if m is None else []:
 
                 if (
 
@@ -55,13 +55,13 @@ class ForecastEngine:
 
             cpm = float(
 
-                m.get("cpm", 1)
+                m.get("cpm") or 1
 
             )
 
             ctr = float(
 
-                m.get("ctr", 1)
+                m.get("ctr") or 0
 
             )
 
@@ -73,7 +73,7 @@ class ForecastEngine:
 
                     0.02
 
-                )
+                ) or 0.02
 
             )
 
@@ -103,6 +103,14 @@ class ForecastEngine:
 
             )
 
+            frequencia_plano = float(
+                getattr(plano, "frequencia_alvo", 0) or 0
+            )
+
+            frequencia = frequencia_plano or float(
+                m.get("frequencia_media") or 2
+            )
+
             alcance = (
 
                 impressoes
@@ -113,17 +121,7 @@ class ForecastEngine:
 
                     1,
 
-                    float(
-
-                        m.get(
-
-                            "frequencia_media",
-
-                            2
-
-                        )
-
-                    )
+                    frequencia
 
                 )
 

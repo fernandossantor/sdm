@@ -30,10 +30,19 @@ class BaseConhecimentoService:
 
     def biblioteca_publicos(self):
 
+        try:
+            jornadas = self.catalogos.ordered(JORNADAS, "ordem")
+        except Exception:
+            jornadas = self.catalogos.ordered(JORNADAS, "etapa")
+
         return {
             "segmentos": self.catalogos.ordered(SEGMENTOS, "nome"),
             "interesses": self.catalogos.ordered(INTERESSES, "nome"),
-            "jornadas": self.catalogos.ordered(JORNADAS, "etapa"),
+            "jornadas": [
+                item
+                for item in jornadas
+                if item.get("ativo", True)
+            ],
         }
 
     def catalogos_inventario(self):
@@ -51,3 +60,10 @@ class BaseConhecimentoService:
             raise ValueError("Nome do inventário é obrigatório.")
 
         return self.inventarios.salvar(dados)
+
+    def salvar_preco_inventario(self, dados):
+
+        if float(dados.get("valor_bruto", -1)) < 0:
+            raise ValueError("O preço não pode ser negativo.")
+
+        return self.inventarios.salvar_preco(dados)

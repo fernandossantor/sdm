@@ -16,7 +16,7 @@ from components.home.navigation_card import render as navigation_card
 
 st.set_page_config(
 
-    page_title="SDM",
+    page_title="PMAH — Planejador de Mídia Automatizado e Híbrido",
 
     page_icon="📊",
 
@@ -60,7 +60,7 @@ def pagina_inicial():
 navegacao = st.navigation(
 
     {
-        "SDM": [
+        "PMAH": [
             st.Page(
                 pagina_inicial,
                 title="Início",
@@ -86,9 +86,9 @@ navegacao = st.navigation(
             st.Page("pages/01_Catalogos.py", title="Catálogos", icon="🗂️"),
             st.Page("pages/03_MCP_Papeis.py", title="Papéis de mídia", icon="🧩"),
             st.Page("pages/04_Inventarios.py", title="Inventários", icon="📦"),
-            st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"),
             st.Page("pages/15_Universos.py", title="Universos", icon="🌎"),
             st.Page("pages/16_Segmentos.py", title="Segmentos", icon="🧭"),
+            st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"),
         ],
     }
 

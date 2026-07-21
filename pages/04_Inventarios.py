@@ -27,6 +27,8 @@ catalogos = service.catalogos_inventario()
 
 canais = catalogos["canais"]
 
+plataformas = catalogos["plataformas"]
+
 ambientes = catalogos["ambientes"]
 
 estruturas = catalogos["estruturas"]
@@ -34,6 +36,10 @@ estruturas = catalogos["estruturas"]
 modelos = catalogos["modelos_comerciais"]
 
 formatos = catalogos["formatos"]
+
+modalidades = catalogos["modalidades"]
+
+unidades = catalogos["unidades"]
 
 st.write("Canais:", len(canais))
 
@@ -51,11 +57,11 @@ nome = st.text_input(
     "Nome do Inventário"
 )
 
-canal = st.selectbox(
+plataforma = st.selectbox(
 
-    "Canal",
+    "Plataforma",
 
-    options=canais,
+    options=plataformas,
 
     format_func=lambda x: x["nome"]
 
@@ -101,11 +107,42 @@ formato = st.selectbox(
 
 )
 
+modalidade = st.selectbox(
+    "Modalidade de compra",
+    options=modalidades,
+    format_func=lambda x: x["nome"],
+)
+
+unidade = st.selectbox(
+    "Unidade de compra",
+    options=unidades,
+    format_func=lambda x: x["nome"],
+)
+
+st.subheader("Preço da mídia")
+
+valor_bruto = st.number_input(
+    "Valor bruto da unidade",
+    min_value=0.0,
+    value=0.0,
+    step=1.0,
+)
+
+desconto = st.number_input(
+    "Desconto negociado (%)",
+    min_value=0.0,
+    max_value=100.0,
+    value=0.0,
+)
+
+inicio_vigencia = st.date_input("Início da vigência", format="DD/MM/YYYY")
+fim_vigencia = st.date_input("Fim da vigência", format="DD/MM/YYYY")
+
 st.markdown("---")
 
 st.write("Inventário:", nome)
 
-st.write("Canal:", canal["nome"])
+st.write("Plataforma:", plataforma["nome"])
 
 st.write("Ambiente:", ambiente["nome"])
 
@@ -119,11 +156,11 @@ st.markdown("---")
 
 if st.button("Salvar Inventário"):
 
-    service.salvar_inventario({
+    resposta = service.salvar_inventario({
 
         "nome": nome,
 
-        "canal_id": canal["id"],
+        "plataforma_id": plataforma["id"],
 
         "ambiente_id": ambiente["id"],
 
@@ -131,8 +168,26 @@ if st.button("Salvar Inventário"):
 
         "modelo_comercial_id": modelo["id"],
 
-        "formato_id": formato["id"]
+        "formato_id": formato["id"],
 
+        "modalidade_compra_id": modalidade["id"],
+
+        "unidade_compra_id": unidade["id"],
+
+        "ativo": True,
+
+        })
+
+    inventario_id = resposta.data[0]["id"]
+
+    if valor_bruto > 0:
+        service.salvar_preco_inventario({
+            "inventario_id": inventario_id,
+            "unidade": unidade["nome"],
+            "valor_bruto": float(valor_bruto),
+            "desconto_percentual": float(desconto),
+            "inicio_vigencia": inicio_vigencia.isoformat(),
+            "fim_vigencia": fim_vigencia.isoformat(),
         })
 
     st.success("Inventário salvo com sucesso!")

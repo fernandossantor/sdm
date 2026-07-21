@@ -135,6 +135,23 @@ class TestForecastEngine(unittest.TestCase):
         self.assertEqual(resultado[0].cliques, 2000)
         self.assertEqual(resultado[0].conversoes, 100)
 
+    def test_frequencia_do_plano_controla_o_alcance(self):
+
+        plano = self.criar_plano()
+        plano.frequencia_alvo = 5
+        resultado = ForecastEngine().calcular(
+            plano,
+            [{
+                "inventario_id": "tv-1",
+                "inventario": "TV",
+                "cpm": 10,
+                "ctr": 2,
+                "frequencia_media": 2,
+            }],
+        )
+
+        self.assertEqual(resultado[0].alcance, 20000)
+
     def test_ignora_inventario_sem_metrica(self):
 
         self.assertEqual(ForecastEngine().calcular(self.criar_plano(), []), [])
@@ -214,6 +231,16 @@ class TestBudgetOptimizer(unittest.TestCase):
 
 
 class TestScoreEngine(unittest.TestCase):
+
+    def test_interesses_ponderam_afinidade_com_o_ambiente(self):
+
+        score = ScoreEngine.interesses(
+            {"ambiente_id": "social"},
+            [{"interesses": [{"id": "games", "peso": 100}]}],
+            {("games", "social"): 90},
+        )
+
+        self.assertEqual(score, 90)
 
     def test_calcula_componentes_e_papel(self):
 

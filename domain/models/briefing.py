@@ -58,9 +58,11 @@ class Briefing:
     # Flight
     #
 
-    tipo_flight: str = "CONTINUO"
+    tipo_flight: str = "LINEAR"
 
     frequencia_objetivo: Optional[str] = None
+
+    frequencia_alvo: Optional[int] = None
 
     praca: Optional[str] = None
 
@@ -186,17 +188,20 @@ class Briefing:
         # Frequência
         #
 
+        flights = ["LINEAR", "ONDA", "CONCENTRADO"]
+
+        if self.tipo_flight not in flights:
+            erros.append("Flight inválido.")
+
         frequencias = [
 
             None,
 
-            "LIVRE",
+            "BAIXA",
 
-            "1-2",
+            "MEDIA",
 
-            "3-5",
-
-            "6+"
+            "ALTA"
 
         ]
 
@@ -205,6 +210,16 @@ class Briefing:
             erros.append(
                 "Frequência inválida."
             )
+
+        if self.frequencia_alvo is not None:
+            if self.frequencia_alvo < 1:
+                erros.append("A frequência alvo deve ser maior que zero.")
+            elif self.frequencia_objetivo == "BAIXA" and self.frequencia_alvo > 3:
+                erros.append("Frequência baixa deve estar entre 1 e 3.")
+            elif self.frequencia_objetivo == "MEDIA" and not 4 <= self.frequencia_alvo <= 7:
+                erros.append("Frequência média deve estar entre 4 e 7.")
+            elif self.frequencia_objetivo == "ALTA" and self.frequencia_alvo < 8:
+                erros.append("Frequência alta deve ser 8 ou mais.")
 
         return erros
 

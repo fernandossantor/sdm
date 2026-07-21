@@ -65,9 +65,11 @@ class BriefingService:
 
         publicos=None,
 
-        tipo_flight="CONTINUO",
+        tipo_flight="LINEAR",
 
         frequencia_objetivo=None,
+
+        frequencia_alvo=None,
 
         plataformas_proibidas=None,
 
@@ -170,6 +172,8 @@ class BriefingService:
             tipo_flight=tipo_flight,
 
             frequencia_objetivo=frequencia_objetivo,
+
+            frequencia_alvo=frequencia_alvo,
 
             praca=praca,
 
@@ -314,5 +318,7 @@ class BriefingService:
             "flight": briefing.tipo_flight,
 
             "frequencia": briefing.frequencia_objetivo
+
+            ,"frequencia_alvo": briefing.frequencia_alvo
 
         }
