@@ -72,4 +72,14 @@ docs/
 
 Versão atual:
 
-SDM 1.0 RC
+SDM 1.0 RC — homologação
+
+Validado atualmente:
+
+- fluxo completo offline de Briefing até exportação Excel/CSV;
+- renderização de todas as páginas registradas;
+- integração de leitura com o Supabase;
+- RLS com acesso público bloqueado e `service_role` funcional;
+- testes automatizados e CI sem dependência de segredos.
+
+Fora do escopo do 1.0: histórico persistente, usuários, PDF e PowerPoint.

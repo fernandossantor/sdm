@@ -32,6 +32,8 @@ UNIDADES = "unidades_compra_v3"
 
 PLATAFORMAS = "plataformas_v3"
 
+MODELOS_COMERCIAIS = "modelos_comerciais_v3"
+
 
 # ==========================================================
 # PLANEJAMENTO
@@ -66,3 +68,26 @@ INVENTARIOS_METRICAS = "inventarios_metricas_v3"
 # ==========================================================
 
 CONSUMO = "consumo_midia_v3"
+
+CENARIOS = "cenarios_v3"
+
+UNIVERSOS = "universos"
+
+
+# ==========================================================
+# BIBLIOTECA DE PÚBLICOS
+# ==========================================================
+
+SEGMENTOS = "segmentos"
+
+INTERESSES = "interesses"
+
+JORNADAS = "jornadas"
+
+BIBLIOTECA_PUBLICOS = "biblioteca_publicos"
+
+BIBLIOTECA_PUBLICOS_SEGMENTOS = "biblioteca_publicos_segmentos"
+
+BIBLIOTECA_PUBLICOS_INTERESSES = "biblioteca_publicos_interesses"
+
+BIBLIOTECA_PUBLICOS_JORNADAS = "biblioteca_publicos_jornadas"

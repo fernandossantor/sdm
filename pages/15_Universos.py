@@ -55,13 +55,25 @@ populacao = st.number_input(
 
 )
 
+publico_alvo = st.number_input(
+
+    "Público-alvo",
+
+    min_value=0,
+
+    value=0,
+
+    step=1000
+
+)
+
 salvar = st.button(
 
     "Salvar Universo",
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 )
 
@@ -78,6 +90,12 @@ if salvar:
     "populacao": int(
 
         populacao
+
+    ),
+
+    "publico_alvo": int(
+
+        publico_alvo
 
     ),
 

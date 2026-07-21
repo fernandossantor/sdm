@@ -19,7 +19,7 @@ def render():
 
             label="📋 Novo Briefing",
 
-            use_container_width=True
+            width="stretch"
 
         )
 
@@ -29,7 +29,7 @@ def render():
 
             label="🧠 Planejamento",
 
-            use_container_width=True
+            width="stretch"
 
         )
 
@@ -39,7 +39,7 @@ def render():
 
             label="📈 Forecast",
 
-            use_container_width=True
+            width="stretch"
 
         )
 
@@ -51,7 +51,7 @@ def render():
 
             label="📊 Dashboard",
 
-            use_container_width=True
+            width="stretch"
 
         )
 
@@ -61,7 +61,7 @@ def render():
 
             label="📄 Exportação",
 
-            use_container_width=True
+            width="stretch"
 
         )
 
@@ -71,6 +71,6 @@ def render():
 
             label="💡 Insights",
 
-            use_container_width=True
+            width="stretch"
 
         )

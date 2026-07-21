@@ -4,8 +4,8 @@ import streamlit as st
 from application.services.scenario_service import (
     ScenarioService
 )
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.context_service import (
+    ContextService
 )
 
 
@@ -27,11 +27,11 @@ st.title("🎭 Simulação de Cenários")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 service = ScenarioService()
 
-briefings = repo.listar_briefings()
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -69,7 +69,7 @@ with col2:
 
         type="primary",
 
-        use_container_width=True
+        width="stretch"
 
     )
 
@@ -155,7 +155,7 @@ if "cenarios" in st.session_state:
 
         hide_index=True,
 
-        use_container_width=True,
+        width="stretch",
 
         column_config={
 
@@ -233,7 +233,7 @@ if "cenarios" in st.session_state:
 
                 hide_index=True,
 
-                use_container_width=True,
+                width="stretch",
 
                 column_config={
 

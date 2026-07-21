@@ -4,11 +4,8 @@ import streamlit as st
 from application.services.budget_optimizer_service import (
     BudgetOptimizerService
 )
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
-)
-from engine.inventory_engine import (
-    InventoryEngine
+from application.services.context_service import (
+    ContextService
 )
 
 
@@ -30,9 +27,9 @@ st.title("💰 Otimizador de Orçamento")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
-briefings = repo.listar_briefings()
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -106,7 +103,7 @@ executar = st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 )
 
@@ -116,17 +113,7 @@ executar = st.button(
 
 if executar:
 
-    contexto = repo.carregar_contexto(
-
-        briefing
-
-    )
-
-    ranking = InventoryEngine().calcular(
-
-        contexto
-
-    )
+    contexto, ranking = contexto_service.ranking(briefing)
 
     verba = contexto["briefing"]["orcamento"]
 
@@ -236,7 +223,7 @@ if "otimizacao" in st.session_state:
 
         hide_index=True,
 
-        use_container_width=True,
+        width="stretch",
 
         column_config={
 
@@ -308,7 +295,7 @@ if "otimizacao" in st.session_state:
 
         hide_index=True,
 
-        use_container_width=True,
+        width="stretch",
 
         column_config={
 
@@ -356,7 +343,7 @@ if "otimizacao" in st.session_state:
 
         hide_index=True,
 
-        use_container_width=True,
+        width="stretch",
 
         column_config={
 

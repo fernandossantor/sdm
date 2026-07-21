@@ -48,7 +48,7 @@ class ScenarioService:
 
     ):
 
-        contexto = self.planejamento.repository.carregar_contexto(
+        contexto = self.planejamento.context_service.carregar(
 
             nome_briefing
 
@@ -216,7 +216,7 @@ class ScenarioService:
 
                         2
 
-                    ),
+                    ) if plano.itens else 0,
 
                     "investimento": plano.verba_total,
 

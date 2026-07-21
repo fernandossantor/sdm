@@ -5,6 +5,7 @@ from domain.models.forecast import (
 from engine.forecast_engine import (
     ForecastEngine
 )
+from application.services.context_service import ContextService
 
 
 class ForecastService:
@@ -12,6 +13,14 @@ class ForecastService:
     def __init__(self):
 
         self.engine = ForecastEngine()
+        self.context_service = ContextService()
+
+    def gerar_itens(self, plano, metricas=None):
+
+        if metricas is None:
+            metricas = self.context_service.metricas()
+
+        return self.engine.calcular(plano, metricas)
 
     # =====================================================
     # FORECAST
@@ -27,13 +36,7 @@ class ForecastService:
 
     ):
 
-        itens = self.engine.calcular(
-
-            plano,
-
-            metricas
-
-        )
+        itens = self.gerar_itens(plano, metricas)
 
         forecast = Forecast()
 

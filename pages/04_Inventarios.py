@@ -1,6 +1,8 @@
 import streamlit as st
 
-from infrastructure.database.supabase_client import supabase
+from application.services.base_conhecimento_service import (
+    BaseConhecimentoService
+)
 
 
 st.set_page_config(
@@ -19,79 +21,19 @@ st.markdown("---")
 
 st.subheader("Cadastrar novo inventário")
 
-canais = (
+service = BaseConhecimentoService()
 
-    supabase
+catalogos = service.catalogos_inventario()
 
-    .table("canais")
+canais = catalogos["canais"]
 
-    .select("*")
+ambientes = catalogos["ambientes"]
 
-    .order("nome")
+estruturas = catalogos["estruturas"]
 
-    .execute()
+modelos = catalogos["modelos_comerciais"]
 
-).data
-
-
-ambientes = (
-
-    supabase
-
-    .table("ambientes")
-
-    .select("*")
-
-    .order("nome")
-
-    .execute()
-
-).data
-
-
-estruturas = (
-
-    supabase
-
-    .table("estruturas")
-
-    .select("*")
-
-    .order("nome")
-
-    .execute()
-
-).data
-
-
-modelos = (
-
-    supabase
-
-    .table("modelos_comerciais")
-
-    .select("*")
-
-    .order("nome")
-
-    .execute()
-
-).data
-
-
-formatos = (
-
-    supabase
-
-    .table("formatos")
-
-    .select("*")
-
-    .order("nome")
-
-    .execute()
-
-).data
+formatos = catalogos["formatos"]
 
 st.write("Canais:", len(canais))
 
@@ -176,8 +118,8 @@ st.write("Formato:", formato["nome"])
 st.markdown("---")
 
 if st.button("Salvar Inventário"):
-    
-    supabase.table("inventarios").insert({
+
+    service.salvar_inventario({
 
         "nome": nome,
 
@@ -191,6 +133,6 @@ if st.button("Salvar Inventário"):
 
         "formato_id": formato["id"]
 
-        }).execute()
+        })
 
     st.success("Inventário salvo com sucesso!")

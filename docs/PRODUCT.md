@@ -94,6 +94,12 @@ Painel Executivo
 
 Relatórios
 
+Na versão 1.0, Relatórios oferece exportação em Excel e CSV. PDF e PowerPoint
+estão planejados para a versão 1.1.
+
+Além do fluxo principal, o produto oferece análises avançadas (Comparador,
+Cenários, Otimizador e Insights) e cadastros da base de conhecimento.
+
 ---
 
 # Diferenciais

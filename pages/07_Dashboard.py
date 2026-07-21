@@ -8,14 +8,11 @@ from application.services.planejamento_service import (
 from application.services.insights_service import (
     InsightsService
 )
-
-from engine.forecast_engine import (
-    ForecastEngine
+from application.services.context_service import ContextService
+from application.services.forecast_service import (
+    ForecastService
 )
-
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
-)
+from application.services.workflow_service import WorkflowService
 
 
 # ==========================================================
@@ -36,15 +33,17 @@ st.title("📊 Dashboard Executivo")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 planejamento = PlanejamentoService()
 
-forecast_engine = ForecastEngine()
+forecast_service = ForecastService()
 
 insights_service = InsightsService()
 
-briefings = repo.listar_briefings()
+workflow_service = WorkflowService()
+
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -68,7 +67,7 @@ if st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 ):
 
@@ -78,17 +77,20 @@ if st.button(
 
     )
 
-    forecast = forecast_engine.calcular(
-
-        plano,
-
-        repo.metricas()
-
-    )
+    forecast = forecast_service.gerar_itens(plano)
 
     st.session_state["dashboard_plano"] = plano
 
     st.session_state["dashboard_forecast"] = forecast
+
+    workflow_service.registrar_briefing(st.session_state, briefing)
+    workflow_service.concluir(st.session_state, "planejamento", plano)
+    workflow_service.concluir(st.session_state, "forecast", forecast)
+    workflow_service.concluir(
+        st.session_state,
+        "dashboard",
+        {"plano": plano, "forecast": forecast},
+    )
 
 
 # ==========================================================
@@ -283,7 +285,7 @@ if (
 
         hide_index=True,
 
-        use_container_width=True
+        width="stretch"
 
     )
 
@@ -351,7 +353,7 @@ if (
 
         hide_index=True,
 
-        use_container_width=True,
+        width="stretch",
 
         column_config={
 

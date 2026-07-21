@@ -8,8 +8,8 @@ from application.services.planejamento_service import (
     PlanejamentoService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository)
+from application.services.context_service import ContextService
+from application.services.workflow_service import WorkflowService
 
 
 # ==========================================================
@@ -30,13 +30,15 @@ st.title("🩺 Diagnóstico Estratégico")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 planejamento = PlanejamentoService()
 
 diagnostico_service = DiagnosticoService()
 
-briefings = repo.listar_briefings()
+workflow_service = WorkflowService()
+
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -60,7 +62,7 @@ if st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 ):
 
@@ -76,7 +78,9 @@ if st.button(
 
     )
 
-    st.session_state["diagnostico"] = diagnostico
+    workflow_service.registrar_briefing(st.session_state, briefing)
+    workflow_service.concluir(st.session_state, "planejamento", plano)
+    workflow_service.concluir(st.session_state, "diagnostico", diagnostico)
 
 
 # ==========================================================

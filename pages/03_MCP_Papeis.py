@@ -1,11 +1,8 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="MCP",
-    layout="wide"
+from application.services.classificacao_papeis_service import (
+    ClassificacaoPapeisService,
 )
-
-import streamlit as st
 
 st.set_page_config(
     page_title="MCP",
@@ -47,19 +44,9 @@ meios = [
 
 ]
 
-pesos = {
-
-    "afinidade":0.35,
-
-    "cobertura":0.30,
-
-    "consumo":0.20,
-
-    "objetivo":0.15
-
-}
-
 scores = {}
+
+service = ClassificacaoPapeisService()
 
 for meio in meios:
 
@@ -127,22 +114,11 @@ for meio in meios:
 
         )
 
-    score = (
-
-        afinidade * pesos["afinidade"]
-
-        +
-
-        cobertura * pesos["cobertura"]
-
-        +
-
-        consumo * pesos["consumo"]
-
-        +
-
-        objetivo * pesos["objetivo"]
-
+    score = service.calcular_score(
+        afinidade,
+        cobertura,
+        consumo,
+        objetivo,
     )
 
     scores[meio] = round(score,2)
@@ -158,43 +134,14 @@ for meio in meios:
     st.markdown("---")
 
 
-ranking = sorted(
-
-    scores.items(),
-
-    key=lambda x: x[1],
-
-    reverse=True
-
-)
+ranking = service.classificar(scores)
 
 
 st.header("🏆 Ranking Estratégico")
 
 
-for posicao,(meio,valor) in enumerate(
-
-    ranking,
-
-    start=1
-
-):
-
-    if posicao == 1:
-
-        papel = "Principal"
-
-    elif posicao == 2:
-
-        papel = "Complementar"
-
-    else:
-
-        papel = "Apoio"
-
-
+for item in ranking:
     st.write(
-
-        f"{posicao}º | {meio} | {papel} | Score: {valor}"
-
+        f"{item['posicao']}º | {item['meio']} | "
+        f"{item['papel']} | Score: {item['score']}"
     )

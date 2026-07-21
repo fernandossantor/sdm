@@ -8,8 +8,8 @@ from application.services.public_service import (
     PublicService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.base_conhecimento_service import (
+    BaseConhecimentoService
 )
 
 
@@ -31,7 +31,7 @@ st.title("📝 Briefing Inteligente")
 
 st.divider()
 
-repo = DecisionRepository()
+base_conhecimento = BaseConhecimentoService()
 
 briefing_service = BriefingService()
 
@@ -42,13 +42,9 @@ public_service = PublicService()
 # CATÁLOGOS
 # ==========================================================
 
-objetivos = repo.all(
+objetivos = base_conhecimento.objetivos()
 
-    "objetivos_campanha_v3"
-
-)
-
-kpis = repo.kpis()
+kpis = base_conhecimento.kpis()
 
 publicos = public_service.listar()
 
@@ -409,7 +405,7 @@ salvar = st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 )
 

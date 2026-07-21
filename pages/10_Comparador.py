@@ -12,8 +12,8 @@ from application.services.planejamento_service import (
     PlanejamentoService
 )
 
-from infrastructure.repositories.decision_repository import (
-    DecisionRepository
+from application.services.context_service import (
+    ContextService
 )
 
 
@@ -35,7 +35,7 @@ st.title("⚖️ Comparador de Planos")
 
 st.divider()
 
-repo = DecisionRepository()
+contexto_service = ContextService()
 
 planejamento = PlanejamentoService()
 
@@ -43,7 +43,7 @@ forecast_service = ForecastService()
 
 comparador = ComparadorService()
 
-briefings = repo.listar_briefings()
+briefings = contexto_service.listar_briefings()
 
 nomes = [
 
@@ -87,7 +87,7 @@ if st.button(
 
     type="primary",
 
-    use_container_width=True
+    width="stretch"
 
 ):
 
@@ -107,7 +107,7 @@ if st.button(
 
         plano1,
 
-        repo.metricas()
+        contexto_service.metricas()
 
     )
 
@@ -115,7 +115,7 @@ if st.button(
 
         plano2,
 
-        repo.metricas()
+        contexto_service.metricas()
 
     )
 
