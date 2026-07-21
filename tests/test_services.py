@@ -1,10 +1,38 @@
 import unittest
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from application.services.scenario_service import ScenarioService
 from application.services.workflow_service import WorkflowService
 from domain.models.plano_estrategico import PlanoEstrategico
+from infrastructure.database import admin_client
+
+
+class TestAdminClient(unittest.TestCase):
+
+    def tearDown(self):
+
+        admin_client.get_admin_client.cache_clear()
+
+    def test_import_offline_nao_cria_cliente(self):
+
+        admin_client.get_admin_client.cache_clear()
+
+        with (
+            patch.object(admin_client, "load_dotenv"),
+            patch.dict(
+                admin_client.os.environ,
+                {
+                    "SUPABASE_URL": "",
+                    "SUPABASE_SERVICE_KEY": "",
+                },
+            ),
+            patch.object(admin_client, "create_client") as criar_cliente,
+        ):
+            with self.assertRaisesRegex(RuntimeError, "devem estar configuradas"):
+                admin_client.admin.table("inventarios_v3")
+
+        criar_cliente.assert_not_called()
 
 
 class TestScenarioService(unittest.TestCase):
