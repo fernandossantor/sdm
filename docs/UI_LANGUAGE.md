@@ -132,3 +132,17 @@ O usuário nunca deve precisar conhecer a arquitetura do SDM.
 A interface comunica o negócio.
 
 O código comunica a implementação.
+
+---
+
+# Formatação numérica e de datas
+
+- Datas são exibidas como `DD/MM/AAAA`.
+- Percentuais identificam a unidade no título com `(%)` e usam duas casas
+  decimais, vírgula decimal e ponto de milhar: `1,25%`.
+- Valores monetários identificam a moeda no título com `(R$)` e usam ponto de
+  milhar e duas casas decimais separadas por vírgula: `15.354,89`.
+- Pessoas, frequências discretas e quantidades são exibidas como números
+  inteiros. Frequências médias permanecem com duas casas decimais.
+- Dados de cálculo continuam numéricos internamente; a localização é aplicada
+  apenas na entrada ou na camada de apresentação.

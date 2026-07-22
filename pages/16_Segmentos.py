@@ -1,4 +1,5 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.segment_service import (
     SegmentService
@@ -16,7 +17,7 @@ st.set_page_config(
 
     page_title="Segmentos de Público",
 
-    page_icon="🎯",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -153,7 +154,7 @@ with st.expander(
 
     populacao = st.number_input(
 
-        "População",
+        "População (pessoas)",
 
         min_value=0,
 

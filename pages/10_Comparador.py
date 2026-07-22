@@ -1,4 +1,5 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 import pandas as pd
 
 from application.services.comparador_service import (
@@ -28,7 +29,7 @@ st.set_page_config(
 
     page_title="Comparação de Planos",
 
-    page_icon="⚖️",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -66,12 +67,15 @@ rotulos = [
     ("investimento", "Menor custo", 5),
 ]
 pesos = {
-    chave: coluna.number_input(rotulo, 0, 100, padrao, key=f"peso_comp_{chave}")
+    chave: coluna.number_input(
+        f"{rotulo} (%)", 0.0, 100.0, float(padrao), step=0.01,
+        format="%.2f", key=f"peso_comp_{chave}"
+    )
     for coluna, (chave, rotulo, padrao) in zip(colunas, rotulos)
 }
 soma = sum(pesos.values())
 if soma != 100:
-    st.error(f"Os pesos somam {soma}%; ajuste para 100%.")
+    st.error(f"Os pesos somam {numero_ptbr(soma, 2)}%; ajuste para 100,00%.")
 
 if st.button(
 

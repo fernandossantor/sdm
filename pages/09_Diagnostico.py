@@ -1,4 +1,6 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
+from components.formatters import numero_ptbr
 
 from application.services.diagnostico_service import (
     DiagnosticoService
@@ -23,7 +25,7 @@ st.set_page_config(
 
     page_title="Diagnóstico do Plano",
 
-    page_icon="🩺",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -94,9 +96,9 @@ if "diagnostico" in st.session_state:
 
     c1.metric(
 
-        "Score Médio",
+        "Score médio (%)",
 
-        diagnostico.score_medio
+        numero_ptbr(diagnostico.score_medio, 2)
 
     )
 
@@ -158,9 +160,9 @@ if "diagnostico" in st.session_state:
 
                 a.metric(
 
-                    "Score",
+                    "Score (%)",
 
-                    item.score
+                    numero_ptbr(item.score, 2)
 
                 )
 

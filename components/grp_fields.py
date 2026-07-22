@@ -1,6 +1,6 @@
 import streamlit as st
 
-from components.formatters import numero_ptbr
+from components.formatters import numero_ptbr, percentual_ptbr
 from domain.media_metrics import (
     classificar_alcance,
     classificar_frequencia,
@@ -34,6 +34,7 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             min_value=0.01,
             value=float(frequencia or 5),
             step=0.1,
+            format="%.2f",
             key=f"{prefixo}_frequencia",
         )
         grp = c3.number_input(
@@ -41,6 +42,7 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             min_value=0.01,
             value=float(grp or 300),
             step=1.0,
+            format="%.2f",
             key=f"{prefixo}_grp",
         )
         alcance = grp / frequencia
@@ -48,7 +50,7 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             alcance, frequencia, grp = resolver_grp(None, frequencia, grp)
         except ValueError as erro:
             st.error(str(erro))
-        c1.metric("Alcance calculado", f"{numero_ptbr(alcance, 2)}%")
+        c1.metric("Alcance calculado (%)", percentual_ptbr(alcance))
     elif calcular == "FREQUENCIA":
         alcance = c1.number_input(
             "Alcance (%)",
@@ -56,6 +58,7 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             max_value=100.0,
             value=float(alcance or 60),
             step=1.0,
+            format="%.2f",
             key=f"{prefixo}_alcance",
         )
         grp = c3.number_input(
@@ -63,10 +66,11 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             min_value=0.01,
             value=float(grp or 300),
             step=1.0,
+            format="%.2f",
             key=f"{prefixo}_grp",
         )
         alcance, frequencia, grp = resolver_grp(alcance, None, grp)
-        c2.metric("Frequência calculada", numero_ptbr(frequencia, 2))
+        c2.metric("Frequência média calculada", numero_ptbr(frequencia, 2))
     else:
         alcance = c1.number_input(
             "Alcance (%)",
@@ -74,6 +78,7 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             max_value=100.0,
             value=float(alcance or 60),
             step=1.0,
+            format="%.2f",
             key=f"{prefixo}_alcance",
         )
         frequencia = c2.number_input(
@@ -81,6 +86,7 @@ def render(prefixo, alcance=60, frequencia=5, grp=None):
             min_value=0.01,
             value=float(frequencia or 5),
             step=0.1,
+            format="%.2f",
             key=f"{prefixo}_frequencia",
         )
         alcance, frequencia, grp = resolver_grp(alcance, frequencia, None)

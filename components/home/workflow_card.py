@@ -1,4 +1,5 @@
 import streamlit as st
+from components.formatters import percentual_ptbr
 
 
 def render(
@@ -21,9 +22,9 @@ def render(
 
     c2.metric(
 
-        "Progresso",
+        "Progresso (%)",
 
-        f"{estado.percentual}%"
+        percentual_ptbr(estado.percentual)
 
     )
 

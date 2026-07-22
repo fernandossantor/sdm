@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.base_conhecimento_service import (
     BaseConhecimentoService
@@ -13,7 +14,7 @@ st.set_page_config(
 
     page_title="Catálogo de Mídia",
 
-    page_icon="📚",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 

@@ -289,9 +289,14 @@ class PlanejamentoService:
         for item in plano.itens:
             premissa = dict(premissas.get(item.inventario_id) or {})
             premissa.setdefault("unidade_compra", item.unidade_compra)
-            resultado = MediaPlanEngine.calcular_item(
-                premissa, plano.publico_referencia, item.preco_unitario
+            preco_unitario = float(
+                premissa.get("preco_unitario", item.preco_unitario) or 0
             )
+            resultado = MediaPlanEngine.calcular_item(
+                premissa, plano.publico_referencia, preco_unitario
+            )
+            item.preco_unitario = preco_unitario
+            item.unidade_compra = premissa.get("unidade_compra") or item.unidade_compra
             item.quantidade_estimada = resultado.quantidade
             item.verba = resultado.investimento
             item.audiencia_percentual = resultado.audiencia_percentual
@@ -417,7 +422,7 @@ class PlanejamentoService:
             semana_inicio = inicio + timedelta(days=indice * 7)
             semana_fim = min(semana_inicio + timedelta(days=6), fim)
             colunas.append(
-                f"S{indice + 1} · {semana_inicio:%d/%m}–{semana_fim:%d/%m}"
+                f"S{indice + 1} · {semana_inicio:%d/%m/%Y}–{semana_fim:%d/%m/%Y}"
             )
 
         if not itens:
@@ -431,12 +436,10 @@ class PlanejamentoService:
 
         cronograma = []
         for item in itens:
-            total_item = float(item.quantidade_estimada or 0)
-            distribuicao = [round(total_item * percentual, 2) for percentual in percentuais]
+            total_item = int(round(float(item.quantidade_estimada or 0)))
+            distribuicao = [round(total_item * percentual) for percentual in percentuais]
             if distribuicao:
-                distribuicao[-1] = round(
-                    distribuicao[-1] + total_item - sum(distribuicao), 2
-                )
+                distribuicao[-1] += total_item - sum(distribuicao)
             linha = {
                 "Inventário": item.inventario,
                 "Unidade": item.unidade_compra or "Sem unidade",

@@ -79,6 +79,36 @@ class TestPlanejamentoService(unittest.TestCase):
         self.assertEqual(plano.alcance_meta, 8000)
         self.assertEqual(plano.alcance_projetado, 10000)
 
+    def test_premissa_do_plano_substitui_preco_cadastrado(self):
+        plano = PlanoEstrategico(
+            cliente="Cliente", campanha="Campanha", objetivo="Alcance",
+            orcamento=1000, publico_referencia=10000,
+        )
+        plano.adicionar_item(
+            PlanoItem(
+                inventario="Vídeo", plataforma="Digital", ambiente="Portal",
+                papel="PRINCIPAL", score=90, verba=0, percentual=0,
+                inventario_id="inventario-1", preco_unitario=0,
+                unidade_compra="Inserção",
+            )
+        )
+        premissas = {
+            "inventario-1": {
+                "audiencia_percentual": 10,
+                "alcance_percentual": 50,
+                "frequencia": 2,
+                "quantidade": 5,
+                "modo_calculo": "COMPRA",
+                "preco_unitario": 125.50,
+                "unidade_compra": "Inserção",
+            }
+        }
+
+        PlanejamentoService._calcular_entrega_configuravel(plano, premissas)
+
+        self.assertEqual(plano.itens[0].preco_unitario, 125.50)
+        self.assertEqual(plano.itens[0].verba, 627.50)
+
     def test_publico_referencia_considera_pesos(self):
 
         total = PlanejamentoService._publico_referencia(

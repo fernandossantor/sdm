@@ -23,7 +23,7 @@ def render(plano, key="cronograma_semanal"):
         disabled=colunas_fixas,
         column_config={
             coluna: st.column_config.NumberColumn(
-                coluna, min_value=0.0, format="%.2f"
+                coluna, min_value=0, step=1, format="%d"
             )
             for coluna in colunas_semana
         },
@@ -35,12 +35,11 @@ def render(plano, key="cronograma_semanal"):
         return False
 
     for indice in editado.index:
-        editado.at[indice, "Total"] = round(
+        editado.at[indice, "Total"] = int(
             sum(
-                float(editado.at[indice, coluna] or 0)
+                int(editado.at[indice, coluna] or 0)
                 for coluna in colunas_semana
-            ),
-            2,
+            )
         )
     plano.cronograma = editado.to_dict("records")
     return True

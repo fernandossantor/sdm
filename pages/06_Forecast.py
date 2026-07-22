@@ -1,4 +1,5 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.planejamento_service import (
     PlanejamentoService
@@ -29,7 +30,7 @@ st.set_page_config(
 
     page_title="Projeção de Resultados",
 
-    page_icon="📈",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -134,7 +135,7 @@ if (
 
     c4.metric(
 
-        "CPA Médio",
+        "CPA médio (R$)",
 
         moeda_ptbr(resumo["cpa"])
 
@@ -171,7 +172,7 @@ if (
 
         st.metric(
 
-            "CTR Médio",
+            "CTR médio (%)",
 
             percentual_ptbr(resumo["ctr"])
 
@@ -179,7 +180,7 @@ if (
 
         st.metric(
 
-            "CPM Médio",
+            "CPM médio (R$)",
 
             moeda_ptbr(resumo["cpm"])
 
@@ -189,7 +190,7 @@ if (
 
         st.metric(
 
-            "CPC Médio",
+            "CPC médio (R$)",
 
             moeda_ptbr(resumo["cpc"])
 
@@ -197,7 +198,7 @@ if (
 
         st.metric(
 
-            "Investimento",
+            "Investimento (R$)",
 
             moeda_ptbr(resumo["verba"])
 

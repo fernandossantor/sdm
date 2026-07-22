@@ -1,5 +1,6 @@
 import streamlit as st
-from components.formatters import moeda_ptbr
+from components.page_config import PAGE_ICON
+from components.formatters import moeda_ptbr, percentual_ptbr
 
 from application.services.briefing_service import (
     BriefingService
@@ -25,7 +26,7 @@ st.set_page_config(
 
     page_title="Briefing de Mídia",
 
-    page_icon="📝",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -138,13 +139,14 @@ with col2:
 
     orcamento = st.number_input(
 
-        "Orçamento",
+        "Orçamento (R$)",
 
         min_value=0.0,
 
         value=float(getattr(edicao, "orcamento", 100000.0)),
 
-        step=1000.0
+        step=1000.0,
+        format="%.2f",
 
     )
 
@@ -433,7 +435,7 @@ with c3:
 
     st.metric(
 
-        "Orçamento",
+        "Orçamento (R$)",
 
         moeda_ptbr(orcamento)
 
@@ -640,7 +642,7 @@ if briefing_service.existe(
         st.write(
 
             f"**Alcance:** {briefing.alcance_objetivo} "
-            f"({briefing.alcance_percentual}%)"
+            f"({percentual_ptbr(briefing.alcance_percentual)})"
 
         )
 

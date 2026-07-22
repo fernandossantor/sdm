@@ -121,11 +121,25 @@ class RegressionTest:
 
         )
 
+        ids_com_metricas = {
+            metrica.get("inventario_id") for metrica in metricas
+            if metrica.get("inventario_id")
+        }
+        nomes_com_metricas = {
+            metrica.get("inventario") for metrica in metricas
+            if metrica.get("inventario")
+        }
+        itens_elegiveis = [
+            item for item in plano.itens
+            if getattr(item, "inventario_id", None) in ids_com_metricas
+            or item.inventario in nomes_com_metricas
+        ]
+
         self.check(
 
-            len(forecast) == len(plano.itens),
+            len(forecast) == len(itens_elegiveis),
 
-            "Forecast consistente."
+            "Forecast consistente com os inventários que possuem métricas."
 
         )
 

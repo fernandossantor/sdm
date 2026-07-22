@@ -1,13 +1,13 @@
-import calendar
 from datetime import date
 
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.formatters import moeda_ptbr
 
 
-st.set_page_config(page_title="Cadastro de Inventários", page_icon="📦", layout="wide")
+st.set_page_config(page_title="Cadastro de Inventários", page_icon=PAGE_ICON, layout="wide")
 st.title("📦 Cadastro de Inventários")
 st.write(
     "Cadastre as oportunidades comerciais disponíveis nos meios e mantenha "
@@ -129,23 +129,6 @@ def escolher_catalogo(
     return None
 
 
-def selecionar_mes(prefixo, valor=None):
-    valor = valor or date.today()
-    meses = list(range(1, 13))
-    anos = list(range(date.today().year - 5, date.today().year + 11))
-    c_mes, c_ano = st.columns(2)
-    mes = c_mes.selectbox(
-        "Mês", meses, index=valor.month - 1,
-        format_func=lambda item: f"{item:02d}", key=f"{prefixo}_mes",
-    )
-    ano = c_ano.selectbox(
-        "Ano", anos,
-        index=anos.index(valor.year) if valor.year in anos else 5,
-        key=f"{prefixo}_ano",
-    )
-    return mes, ano
-
-
 def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
     inventario = inventario or {}
     preco = preco or {}
@@ -251,19 +234,26 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
 
     nome = st.text_input("Nome", value=inventario.get("nome", ""), key=f"{prefixo}_nome")
     valor = st.number_input(
-        "Preço bruto por unidade", min_value=0.0,
+        "Preço bruto por unidade (R$)", min_value=0.0,
         value=float(preco.get("valor_bruto") or 0), key=f"{prefixo}_valor",
+        step=0.01, format="%.2f",
     )
     desconto = st.number_input(
         "Desconto negociado (%)", min_value=0.0, max_value=100.0,
         value=float(preco.get("desconto_percentual") or 0), key=f"{prefixo}_desconto",
+        step=0.01, format="%.2f",
     )
-    st.markdown("**Vigência inicial (MM/AAAA)**")
     inicio_data = date.fromisoformat(preco["inicio_vigencia"][:10]) if preco.get("inicio_vigencia") else date.today()
-    inicio_mes, inicio_ano = selecionar_mes(f"{prefixo}_inicio", inicio_data)
-    st.markdown("**Vigência final (MM/AAAA)**")
     fim_data = date.fromisoformat(preco["fim_vigencia"][:10]) if preco.get("fim_vigencia") else date.today()
-    fim_mes, fim_ano = selecionar_mes(f"{prefixo}_fim", fim_data)
+    inicio, fim = st.columns(2)
+    inicio = inicio.date_input(
+        "Vigência inicial", value=inicio_data, format="DD/MM/YYYY",
+        key=f"{prefixo}_inicio",
+    )
+    fim = fim.date_input(
+        "Vigência final", value=fim_data, format="DD/MM/YYYY",
+        key=f"{prefixo}_fim",
+    )
 
     dados = {
         "nome": nome, "plataforma_id": meio["id"], "ambiente_id": ambiente["id"],
@@ -272,8 +262,6 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         "unidade_compra_id": unidade["id"], "kpi_principal_id": kpi["id"],
         "ativo": inventario.get("ativo", True),
     }
-    inicio = date(inicio_ano, inicio_mes, 1)
-    fim = date(fim_ano, fim_mes, calendar.monthrange(fim_ano, fim_mes)[1])
     preco_dados = {
         "unidade": unidade["nome"], "valor_bruto": float(valor),
         "desconto_percentual": float(desconto),
@@ -362,12 +350,12 @@ for item in cadastrados:
             )
         m1, m2, m3 = st.columns(3)
         tipo_original = m1.text_input("Tipo original", key=f"mtipo_{item['id']}")
-        valor_original = m2.number_input("Valor original", min_value=0.0, key=f"mvalor_{item['id']}")
+        valor_original = m2.number_input("Valor original", min_value=0.0, key=f"mvalor_{item['id']}", format="%.2f")
         unidade_original = m3.text_input("Unidade original", key=f"munidade_{item['id']}")
         m4, m5, m6 = st.columns(3)
-        audiencia_medida = m4.number_input("Equivalência: audiência (%)", 0.0, 100.0, key=f"maud_{item['id']}")
-        alcance_medido = m5.number_input("Equivalência: alcance (%)", 0.0, 100.0, key=f"malc_{item['id']}")
-        frequencia_medida = m6.number_input("Frequência observada", min_value=0.0, key=f"mfreq_{item['id']}")
+        audiencia_medida = m4.number_input("Equivalência: audiência (%)", 0.0, 100.0, key=f"maud_{item['id']}", step=0.01, format="%.2f")
+        alcance_medido = m5.number_input("Equivalência: alcance (%)", 0.0, 100.0, key=f"malc_{item['id']}", step=0.01, format="%.2f")
+        frequencia_medida = m6.number_input("Frequência observada", min_value=0, key=f"mfreq_{item['id']}", step=1)
         fonte_medicao = st.text_input("Fonte da medição", key=f"mfonte_{item['id']}")
         metodologia = st.text_area("Metodologia/correspondência", key=f"mmetodo_{item['id']}")
         confianca_medicao = st.selectbox(

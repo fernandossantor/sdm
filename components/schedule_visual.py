@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from components.formatters import numero_ptbr
 
 
 def render(plano):
@@ -21,7 +22,7 @@ def render(plano):
     subconjunto = [c for c in semanas if c in exibicao.columns]
     st.dataframe(
         exibicao.style.background_gradient(cmap="Blues", subset=subconjunto, axis=1)
-        .format({c: "{:.2f}" for c in subconjunto}),
+        .format({c: "{:.0f}" for c in subconjunto}),
         width="stretch",
     )
 
@@ -30,5 +31,5 @@ def render(plano):
     st.bar_chart(pressao, color="#2563EB")
     st.caption(
         f"Flight {plano.tipo_flight.title()} · frequência combinada "
-        f"{plano.frequencia_alvo:.2f} · GRP {plano.grp:.2f}"
+        f"{numero_ptbr(plano.frequencia_alvo, 2)} · GRP {numero_ptbr(plano.grp, 2)}"
     )

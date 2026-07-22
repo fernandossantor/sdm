@@ -1,5 +1,4 @@
 import streamlit as st
-from pathlib import Path
 
 from application.services.workflow_service import (
     WorkflowService
@@ -10,9 +9,8 @@ from components.home.workflow_card import render as workflow_card
 from components.home.projects_card import render as projects_card
 from components.home.knowledge_card import render as knowledge_card
 from components.active_context import render as active_context
+from components.page_config import PAGE_ICON
 
-
-LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
 
 # ==========================================================
 # CONFIGURAÇÃO
@@ -22,7 +20,7 @@ st.set_page_config(
 
     page_title="PlanOS — Plataforma Inteligente de Planejamento Híbrido de Mídia",
 
-    page_icon="📊",
+    page_icon=PAGE_ICON,
 
     layout="wide",
 
@@ -94,7 +92,7 @@ navegacao = st.navigation(
 )
 
 with st.sidebar:
-    st.image(LOGO_PLANOS, width="stretch")
+    st.markdown("## PlanOS")
     st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
     active_context()
     if st.session_state.get("projeto_nome"):
