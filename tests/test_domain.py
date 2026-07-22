@@ -4,11 +4,31 @@ from datetime import date
 from domain.models.briefing import Briefing
 from domain.models.workflow_state import WorkflowState
 from application.services.briefing_service import BriefingService
+from domain.media_metrics import resolver_grp
 
 
 class TestBriefing(unittest.TestCase):
 
-    def test_frequencia_deve_respeitar_a_faixa(self):
+    def test_calcula_grp_com_alcance_e_frequencia(self):
+        self.assertEqual(resolver_grp(60, 5, None), (60.0, 5.0, 300.0))
+
+    def test_calcula_frequencia_com_grp_e_alcance(self):
+        self.assertEqual(resolver_grp(60, None, 300), (60.0, 5.0, 300.0))
+
+    def test_calcula_alcance_com_grp_e_frequencia(self):
+        self.assertEqual(resolver_grp(None, 5, 300), (60.0, 5.0, 300.0))
+
+    def test_servico_completa_o_terceiro_indicador(self):
+        briefing = BriefingService().criar(
+            cliente="Cliente", campanha="Campanha", objetivo_id="objetivo-1",
+            objetivo="Alcance", kpi="Alcance", orcamento=1000,
+            alcance_percentual=50, frequencia_alvo=None, grp=200,
+        )
+
+        self.assertEqual(briefing.frequencia_alvo, 4)
+        self.assertEqual(briefing.frequencia_objetivo, "MEDIA")
+
+    def test_frequencia_define_a_faixa_correspondente(self):
 
         briefing = BriefingService().criar(
             cliente="Cliente",
@@ -22,7 +42,8 @@ class TestBriefing(unittest.TestCase):
             frequencia_alvo=3,
         )
 
-        self.assertIn("Frequência média deve estar entre 4 e 7.", briefing.validar())
+        self.assertEqual(briefing.frequencia_objetivo, "BAIXA")
+        self.assertEqual(briefing.validar(), [])
 
     def test_alcance_deve_respeitar_a_faixa(self):
 

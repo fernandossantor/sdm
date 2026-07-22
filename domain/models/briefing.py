@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional
 
+from domain.media_metrics import resolver_grp
+
 
 # ==========================================================
 # BRIEFING
@@ -62,11 +64,13 @@ class Briefing:
 
     frequencia_objetivo: Optional[str] = None
 
-    frequencia_alvo: Optional[int] = None
+    frequencia_alvo: Optional[float] = 5
 
     alcance_objetivo: str = "MEDIO"
 
-    alcance_percentual: int = 60
+    alcance_percentual: Optional[float] = 60
+
+    grp: Optional[float] = None
 
     praca: Optional[str] = None
 
@@ -236,11 +240,22 @@ class Briefing:
             erros.append("Faixa de alcance inválida.")
         else:
             minimo, maximo = alcances[self.alcance_objetivo]
-            if not minimo <= self.alcance_percentual <= maximo:
+            if self.alcance_percentual is None:
+                erros.append("Informe o alcance ou permita que ele seja calculado pelo GRP.")
+            elif not minimo <= self.alcance_percentual <= maximo:
                 erros.append(
                     f"Alcance {self.alcance_objetivo.lower()} deve estar entre "
                     f"{minimo}% e {maximo}%."
                 )
+
+        try:
+            resolver_grp(
+                self.alcance_percentual,
+                self.frequencia_alvo,
+                self.grp,
+            )
+        except ValueError as erro:
+            erros.append(str(erro))
 
         return erros
 

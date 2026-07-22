@@ -17,7 +17,7 @@ from application.services.segment_service import SegmentService
 
 st.set_page_config(
 
-    page_title="Públicos da Campanha",
+    page_title="Públicos",
 
     page_icon="👥",
 
@@ -25,7 +25,7 @@ st.set_page_config(
 
 )
 
-st.title("👥 Públicos da Campanha")
+st.title("👥 Públicos")
 
 st.divider()
 

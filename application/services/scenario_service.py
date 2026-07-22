@@ -136,7 +136,7 @@ class ScenarioService:
 
             f"Cenário estratégico: {cenario}.",
 
-            "Plano gerado automaticamente pelo PMAH.",
+            "Plano gerado automaticamente pelo PlanOS.",
 
             "Distribuição ajustada conforme o perfil estratégico do cenário."
 
@@ -207,6 +207,7 @@ class ScenarioService:
             plano.frequencia_alvo = plano_base.frequencia_alvo
             plano.alcance_objetivo = plano_base.alcance_objetivo
             plano.alcance_percentual = plano_base.alcance_percentual
+            plano.grp = plano_base.grp
             plano.publico_referencia = plano_base.publico_referencia
             plano.alcance_meta = plano_base.alcance_meta
             plano.alcance_projetado = plano_base.alcance_projetado

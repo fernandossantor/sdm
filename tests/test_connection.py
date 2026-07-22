@@ -51,6 +51,7 @@ class TestConnection(unittest.TestCase):
             .select(
                 "id,projeto_id,alcance_objetivo,alcance_percentual,marca,produto,"
                 "tipo_flight,frequencia_objetivo,frequencia_alvo,publicos,kpis"
+                ",grp"
             )
             .limit(1)
             .execute()

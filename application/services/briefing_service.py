@@ -2,6 +2,11 @@ from domain.models.briefing import Briefing
 from infrastructure.repositories.briefing_repository import BriefingRepository
 from application.services.project_service import ProjectService
 from infrastructure.database.database_schema import OBJETIVOS
+from domain.media_metrics import (
+    classificar_alcance,
+    classificar_frequencia,
+    resolver_grp,
+)
 
 
 class BriefingService:
@@ -76,11 +81,13 @@ class BriefingService:
 
         frequencia_objetivo=None,
 
-        frequencia_alvo=None,
+        frequencia_alvo=5,
 
         alcance_objetivo="MEDIO",
 
         alcance_percentual=60,
+
+        grp=None,
 
         plataformas_proibidas=None,
 
@@ -115,6 +122,22 @@ class BriefingService:
         kpis = kpis or []
 
         publicos = publicos or []
+
+        if sum(
+            valor is not None
+            for valor in (alcance_percentual, frequencia_alvo, grp)
+        ) >= 2:
+            try:
+                alcance_percentual, frequencia_alvo, grp = resolver_grp(
+                    alcance_percentual,
+                    frequencia_alvo,
+                    grp,
+                )
+            except ValueError:
+                pass
+            else:
+                alcance_objetivo = classificar_alcance(alcance_percentual)
+                frequencia_objetivo = classificar_frequencia(frequencia_alvo)
 
         #
         # Compatibilidade entre KPI único e lista
@@ -189,6 +212,8 @@ class BriefingService:
             alcance_objetivo=alcance_objetivo,
 
             alcance_percentual=alcance_percentual,
+
+            grp=grp,
 
             praca=praca,
 
@@ -328,6 +353,7 @@ class BriefingService:
             "frequencia_alvo": briefing.frequencia_alvo,
             "alcance_objetivo": briefing.alcance_objetivo,
             "alcance_percentual": briefing.alcance_percentual,
+            "grp": briefing.grp,
             "publicos": briefing.publicos,
             "observacoes": briefing.observacoes,
             "ativo": True,
@@ -351,9 +377,14 @@ class BriefingService:
             fim=date.fromisoformat(registro["periodo_fim"][:10]) if registro.get("periodo_fim") else None,
             tipo_flight=registro.get("tipo_flight") or "LINEAR",
             frequencia_objetivo=registro.get("frequencia_objetivo") or "MEDIA",
-            frequencia_alvo=int(registro.get("frequencia_alvo") or 5),
+            frequencia_alvo=float(registro.get("frequencia_alvo") or 5),
             alcance_objetivo=registro.get("alcance_objetivo") or "MEDIO",
-            alcance_percentual=int(registro.get("alcance_percentual") or 60),
+            alcance_percentual=float(registro.get("alcance_percentual") or 60),
+            grp=(
+                float(registro["grp"])
+                if registro.get("grp") is not None
+                else None
+            ),
             publicos=registro.get("publicos") or [],
             observacoes=registro.get("observacoes") or "",
         )
@@ -443,5 +474,7 @@ class BriefingService:
             ,"alcance": briefing.alcance_objetivo
 
             ,"alcance_percentual": briefing.alcance_percentual
+
+            ,"grp": briefing.grp
 
         }

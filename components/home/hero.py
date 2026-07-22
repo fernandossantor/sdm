@@ -5,13 +5,13 @@ def render():
 
     st.title(
 
-        "📊 PMAH"
+        "📊 PlanOS"
 
     )
 
     st.subheader(
 
-        "Planejador de Mídia Automatizado e Híbrido"
+        "Plataforma Inteligente de Planejamento Híbrido de Mídia"
 
     )
 

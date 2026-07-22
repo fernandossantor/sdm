@@ -1,4 +1,6 @@
 def numero_ptbr(valor, casas=0):
+    if valor is None:
+        return "—"
     try:
         texto = f"{float(valor):,.{casas}f}"
     except (TypeError, ValueError):

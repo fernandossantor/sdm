@@ -10,6 +10,9 @@ class PlanningRepository(BaseRepository):
     def salvar(self, dados):
         return self.insert(PLANEJAMENTOS, dados)
 
+    def obter(self, planejamento_id):
+        return self.by_id(PLANEJAMENTOS, planejamento_id)
+
     def atualizar(self, planejamento_id, dados):
         return self.update(PLANEJAMENTOS, "id", planejamento_id, dados)
 

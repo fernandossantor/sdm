@@ -13,6 +13,7 @@ from application.services.base_conhecimento_service import (
     BaseConhecimentoService
 )
 from application.services.project_service import ProjectService
+from components.grp_fields import render as render_grp
 
 
 # ==========================================================
@@ -279,73 +280,18 @@ with c3:
     )
 
 
-frequencia = st.selectbox(
-
-    "Frequência desejada",
-
-    [
-
-        "BAIXA",
-
-        "MEDIA",
-
-        "ALTA"
-
-    ],
-    index={"BAIXA": 0, "MEDIA": 1, "ALTA": 2}.get(getattr(edicao, "frequencia_objetivo", "MEDIA"), 1),
-
-    format_func=lambda valor: {
-        "BAIXA": "Baixa (1–3)",
-        "MEDIA": "Média (4–7)",
-        "ALTA": "Alta (8+)",
-    }[valor]
-
+st.subheader("Alcance, frequência média e GRP")
+metricas_midia = render_grp(
+    "briefing_metricas",
+    alcance=getattr(edicao, "alcance_percentual", 60),
+    frequencia=getattr(edicao, "frequencia_alvo", 5),
+    grp=getattr(edicao, "grp", None),
 )
-
-limites_frequencia = {
-    "BAIXA": (1, 3, 2),
-    "MEDIA": (4, 7, 5),
-    "ALTA": (8, 30, 8),
-}
-
-freq_min, freq_max, freq_padrao = limites_frequencia[frequencia]
-
-freq_carregada = getattr(edicao, "frequencia_alvo", freq_padrao) or freq_padrao
-frequencia_alvo = st.number_input(
-    "Frequência alvo",
-    min_value=freq_min,
-    max_value=freq_max,
-    value=max(freq_min, min(freq_max, int(freq_carregada))),
-    help="Valor numérico usado nas projeções de alcance e orçamento.",
-)
-
-st.subheader("Alcance da campanha")
-
-alcance_objetivo = st.selectbox(
-    "Faixa de alcance",
-    ["BAIXO", "MEDIO", "ALTO"],
-    index={"BAIXO": 0, "MEDIO": 1, "ALTO": 2}.get(getattr(edicao, "alcance_objetivo", "MEDIO"), 1),
-    format_func=lambda valor: {
-        "BAIXO": "Baixo (até 50% do público)",
-        "MEDIO": "Médio (51% a 69% do público)",
-        "ALTO": "Alto (70% a 100% do público)",
-    }[valor],
-)
-
-limites_alcance = {
-    "BAIXO": (0, 50, 40),
-    "MEDIO": (51, 69, 60),
-    "ALTO": (70, 100, 80),
-}
-alcance_min, alcance_max, alcance_padrao = limites_alcance[alcance_objetivo]
-alcance_carregado = getattr(edicao, "alcance_percentual", alcance_padrao)
-alcance_percentual = st.number_input(
-    "Percentual de alcance desejado",
-    min_value=alcance_min,
-    max_value=alcance_max,
-    value=max(alcance_min, min(alcance_max, int(alcance_carregado))),
-    help="Percentual do público estimado que a campanha deve alcançar.",
-)
+frequencia = metricas_midia["frequencia_objetivo"]
+frequencia_alvo = metricas_midia["frequencia_alvo"]
+alcance_objetivo = metricas_midia["alcance_objetivo"]
+alcance_percentual = metricas_midia["alcance_percentual"]
+grp = metricas_midia["grp"]
 
 
 # ==========================================================
@@ -536,11 +482,13 @@ if salvar:
 
         frequencia_objetivo=frequencia,
 
-        frequencia_alvo=int(frequencia_alvo),
+        frequencia_alvo=float(frequencia_alvo),
 
         alcance_objetivo=alcance_objetivo,
 
-        alcance_percentual=int(alcance_percentual),
+        alcance_percentual=float(alcance_percentual),
+
+        grp=float(grp),
 
         publicos=publicos_modelo,
 
@@ -582,7 +530,7 @@ if salvar:
 
         st.info(
 
-            "Agora acesse Plano de Mídia."
+            "Agora acesse Papéis dos Meios."
 
         )
 
@@ -673,9 +621,12 @@ if briefing_service.existe(
 
         st.write(
 
-            f"**Frequência:** {briefing.frequencia_objetivo}"
+            f"**Frequência:** {briefing.frequencia_objetivo} "
+            f"({briefing.frequencia_alvo})"
 
         )
+
+        st.write(f"**GRP:** {briefing.grp}")
 
         st.write(
 

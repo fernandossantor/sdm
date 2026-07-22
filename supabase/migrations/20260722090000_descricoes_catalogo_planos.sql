@@ -1,0 +1,203 @@
+update public.tecnologias_v3 t set descricao = v.descricao
+from (values
+('DIGITAL','Tecnologia baseada em dados e na distribuição de conteúdo por redes, dispositivos e plataformas digitais.'),
+('ELETRONICA','Tecnologia que utiliza sinais eletrônicos para transmitir ou exibir conteúdos de mídia.'),
+('FISICA','Tecnologia baseada em suportes materiais instalados, impressos, distribuídos ou expostos em espaços físicos.'),
+('PROGRAMATICA','Tecnologia de compra, venda e otimização automatizada de mídia baseada em dados, regras e plataformas.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.canais_v3 t set descricao = v.descricao
+from (values
+('DIGITAL','Canal formado por sites, aplicativos, plataformas e serviços acessados por dispositivos conectados.'),
+('ELETRONICA','Canal que transmite conteúdos por sinais eletrônicos, como rádio, televisão e cinema.'),
+('IMPRESSA','Canal baseado na reprodução e distribuição de conteúdo em suportes impressos.'),
+('NO_MEDIA','Canal composto por ações de comunicação que não dependem da compra convencional de espaço em veículos.'),
+('OOH','Canal de mídia presente em espaços públicos e locais de circulação fora do domicílio.'),
+('PDV','Canal de comunicação e ativação localizado no ponto de venda ou em suas áreas de influência.'),
+('PROGRAMATICA','Canal de acesso automatizado a inventários de mídia por plataformas de compra e negociação.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.ambientes_v3 t set descricao = v.descricao
+from (values
+('Ações Especiais','Ambiente destinado a ativações, projetos customizados e entregas que ultrapassam os formatos convencionais de mídia.'),
+('Aeroporto','Ambiente de mídia localizado em terminais, áreas de embarque, desembarque e circulação aeroportuária.'),
+('AM','Ambiente de radiodifusão sonora transmitido por modulação em amplitude.'),
+('Ambient Media','Ambiente que utiliza elementos, objetos ou espaços cotidianos de maneira não convencional para comunicar uma marca.'),
+('Áudio','Ambiente formado por inventários cujo conteúdo publicitário é transmitido predominantemente em formato sonoro.'),
+('Balão','Ambiente de mídia aérea que utiliza balões infláveis para exposição promocional ou publicitária.'),
+('Blimp','Ambiente de mídia aérea realizado por meio de dirigíveis ou estruturas infláveis alongadas.'),
+('Blogs','Ambiente formado por páginas editoriais ou autorais organizadas em publicações periódicas.'),
+('Busdoor','Ambiente de mídia exterior instalado na parte traseira de ônibus.'),
+('Checkout','Ambiente de comunicação localizado nas áreas de pagamento e finalização de compras.'),
+('Cinema','Ambiente de exibição publicitária em salas de cinema e em suas áreas de circulação.'),
+('CTV','Ambiente audiovisual acessado por televisores conectados à internet ou por dispositivos de conexão.'),
+('Display','Ambiente digital destinado à veiculação de anúncios gráficos em sites, aplicativos e plataformas.'),
+('DOOH','Ambiente de mídia exterior digital exibido em telas instaladas em espaços públicos ou de circulação.'),
+('Envelopamento','Ambiente de exposição obtido pelo revestimento total ou parcial de veículos, objetos ou estruturas.'),
+('Faixa de Rua','Ambiente de mídia exterior que utiliza faixas instaladas em vias, fachadas ou áreas de circulação.'),
+('FM','Ambiente de radiodifusão sonora transmitido por modulação em frequência.'),
+('Gaming','Ambiente formado por jogos eletrônicos, plataformas de jogos, comunidades e eventos relacionados.'),
+('Gôndola','Ambiente de comunicação instalado nas prateleiras e estruturas de exposição de produtos no ponto de venda.'),
+('Guerrilha','Ambiente de ações não convencionais que utiliza surpresa, contexto e intervenção direta no espaço público.'),
+('IPTV','Ambiente de televisão distribuída por redes baseadas em protocolo de internet controladas por um operador.'),
+('Jornal','Ambiente editorial formado por publicações jornalísticas impressas ou suas extensões comerciais.'),
+('Mensageria','Ambiente de comunicação realizado por aplicativos e serviços de mensagens instantâneas.'),
+('Metrô','Ambiente de mídia presente em estações, plataformas, acessos e veículos de sistemas metroviários.'),
+('MUB','Ambiente de mídia em mobiliário urbano, como abrigos, relógios, totens e estruturas instaladas em espaços públicos.'),
+('OTT','Ambiente de distribuição de conteúdo audiovisual pela internet sem dependência direta de uma operadora de televisão.'),
+('Outdoor','Ambiente de mídia exterior baseado em painéis estáticos de grande formato.'),
+('Painéis','Ambiente de mídia composto por superfícies fixas destinadas à exposição de mensagens publicitárias.'),
+('Podcast','Ambiente de conteúdo sonoro episódico distribuído sob demanda por plataformas digitais.'),
+('Portais','Ambiente formado por grandes sites de conteúdo, serviços ou notícias com ampla variedade editorial.'),
+('Quiosque','Ambiente de comunicação instalado em estruturas físicas ou digitais de atendimento, informação ou exposição.'),
+('Rádio Web','Ambiente de programação radiofônica transmitida exclusivamente ou prioritariamente pela internet.'),
+('Retail','Ambiente de comunicação inserido no ecossistema físico ou digital de empresas varejistas.'),
+('Retail Media Direto','Ambiente de mídia varejista negociado diretamente com o varejista ou proprietário do inventário.'),
+('Revista','Ambiente editorial formado por publicações periódicas segmentadas e seus espaços comerciais.'),
+('Sampling','Ambiente de experimentação baseado na distribuição de amostras de produtos ao público.'),
+('Search','Ambiente de mídia relacionado a buscas, resultados patrocinados e mecanismos de pesquisa.'),
+('Shopping','Ambiente de mídia localizado em centros comerciais e em suas áreas internas ou externas de circulação.'),
+('Sites','Ambiente formado por páginas e propriedades digitais acessadas por navegadores ou aplicativos.'),
+('Social','Ambiente composto por redes sociais, comunidades digitais e plataformas de interação entre usuários.'),
+('Stand','Ambiente físico temporário criado para exposição, atendimento, demonstração ou ativação de marca.'),
+('Streaming Áudio','Ambiente de transmissão sonora ao vivo ou sob demanda por plataformas conectadas.'),
+('Streaming Vídeo','Ambiente de transmissão audiovisual ao vivo ou sob demanda por plataformas conectadas.'),
+('Taxidoor','Ambiente de mídia exterior aplicado à carroceria ou às áreas externas de táxis.'),
+('TV Aberta','Ambiente de televisão transmitida gratuitamente por radiodifusão terrestre.'),
+('TV Fechada','Ambiente de televisão distribuída por assinatura, cabo, satélite ou operadoras de acesso condicionado.'),
+('Vídeo','Ambiente de inventários publicitários baseados predominantemente em conteúdo audiovisual.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.estruturas_v3 t set descricao = v.descricao
+from (values
+('Afiliada','Estrutura de comercialização ou veiculação realizada por uma emissora ou operação local vinculada a uma rede.'),
+('Conteúdo','Estrutura em que a marca é integrada a conteúdo editorial, informativo ou de entretenimento.'),
+('Direta','Estrutura negociada diretamente com o veículo, plataforma ou proprietário do inventário.'),
+('Patrocínio','Estrutura baseada na associação da marca a um conteúdo, evento, programa, sessão ou propriedade.'),
+('Programática PG','Estrutura programática garantida, com preço, volume e inventário previamente acordados entre comprador e vendedor.'),
+('Programática PMP','Estrutura de leilão programático privado acessível apenas a compradores autorizados.'),
+('Programática Preferred','Estrutura programática com preço previamente negociado e prioridade de compra, sem garantia obrigatória de volume.'),
+('Programática RTB','Estrutura de compra programática realizada por leilão em tempo real a cada oportunidade de impressão.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.formatos_v3 t set descricao = v.descricao
+from (values
+('10 segundos','Peça audiovisual ou sonora com duração de dez segundos.'),
+('15 segundos','Peça audiovisual ou sonora com duração de quinze segundos.'),
+('30 segundos','Peça audiovisual ou sonora com duração de trinta segundos.'),
+('45 segundos','Peça audiovisual ou sonora com duração de quarenta e cinco segundos.'),
+('5 segundos','Peça audiovisual ou sonora com duração de cinco segundos.'),
+('60 segundos','Peça audiovisual ou sonora com duração de sessenta segundos.'),
+('Backlight','Painel publicitário iluminado por uma fonte de luz instalada atrás da peça.'),
+('Banner','Peça gráfica digital estática ou animada exibida em espaços publicitários.'),
+('Bumper','Vídeo publicitário curto, normalmente não pulável, exibido antes, durante ou depois de um conteúdo.'),
+('Carrossel','Formato composto por múltiplos cartões, imagens ou produtos navegáveis dentro da mesma peça.'),
+('Coleção','Formato que reúne diversos produtos ou conteúdos em uma unidade publicitária navegável.'),
+('CTV AVOD','Formato de televisão conectada inserido em conteúdo sob demanda financiado por publicidade.'),
+('CTV FAST','Formato de televisão conectada exibido em canais gratuitos de streaming financiados por publicidade.'),
+('CTV SVOD','Formato de televisão conectada associado a serviços de vídeo sob demanda por assinatura.'),
+('CTV TVOD','Formato de televisão conectada associado a conteúdos adquiridos ou alugados individualmente.'),
+('Degustação','Formato promocional baseado na experimentação direta de alimentos, bebidas ou outros produtos.'),
+('Display','Peça gráfica destinada à exibição em inventários digitais.'),
+('Dupla Página','Formato impresso que ocupa duas páginas consecutivas e visualmente integradas.'),
+('Encarte','Peça impressa separada, inserida ou distribuída junto a uma publicação ou material principal.'),
+('Faixa','Peça horizontal ou alongada utilizada para sinalização, divulgação ou exposição de marca.'),
+('Feed','Formato inserido no fluxo principal de conteúdos de uma plataforma digital.'),
+('Frontlight','Painel publicitário iluminado por uma fonte de luz posicionada diante da peça.'),
+('Ilha','Estrutura promocional instalada de forma isolada em áreas de circulação ou no ponto de venda.'),
+('In-stream','Formato audiovisual inserido antes, durante ou depois de um conteúdo de áudio ou vídeo.'),
+('LED','Formato exibido em painel eletrônico formado por módulos de diodos emissores de luz.'),
+('Live','Formato associado a uma transmissão ou apresentação realizada ao vivo.'),
+('Meia Página','Formato impresso que ocupa aproximadamente metade da área útil de uma página.'),
+('Native','Formato publicitário integrado visual e editorialmente ao ambiente em que é exibido.'),
+('Newsletter','Formato publicitário inserido em boletins informativos enviados periodicamente ao público.'),
+('Página Inteira','Formato impresso que ocupa toda a área comercial disponível de uma página.'),
+('Patrocínio de Sessão','Formato que associa a marca a uma sessão, seção ou conjunto específico de conteúdos.'),
+('Push','Mensagem enviada diretamente ao dispositivo ou aplicativo de um usuário por meio de notificação.'),
+('Reels','Formato de vídeo vertical curto exibido em fluxo contínuo nas redes sociais.'),
+('Responsivo','Formato digital capaz de adaptar suas dimensões e organização a diferentes telas e dispositivos.'),
+('Retail Display','Formato gráfico exibido em propriedades físicas ou digitais de varejistas.'),
+('Retail Search','Formato patrocinado exibido nos resultados de busca de plataformas varejistas.'),
+('Retail Vídeo','Formato audiovisual exibido em propriedades físicas ou digitais de varejistas.'),
+('Rich Media','Formato digital interativo que combina recursos como vídeo, animação, áudio e resposta a ações do usuário.'),
+('Rodapé','Formato gráfico posicionado na faixa inferior de uma página, tela ou publicação.'),
+('Sampling','Formato promocional baseado na entrega de amostras de produtos.'),
+('Skippable','Formato audiovisual que permite ao usuário pular o anúncio após determinado período.'),
+('Spot 15','Peça publicitária sonora com duração de quinze segundos.'),
+('Spot 30','Peça publicitária sonora com duração de trinta segundos.'),
+('Spot 45','Peça publicitária sonora com duração de quarenta e cinco segundos.'),
+('Spot 60','Peça publicitária sonora com duração de sessenta segundos.'),
+('Stories','Formato vertical e temporário exibido em sequência nas plataformas sociais.'),
+('Testemunhal','Formato em que um apresentador, influenciador ou porta-voz recomenda ou comenta uma marca, produto ou serviço.'),
+('Texto','Formato publicitário composto predominantemente por conteúdo textual.'),
+('Vídeo 15','Peça publicitária em vídeo com duração de quinze segundos.'),
+('Vídeo 30','Peça publicitária em vídeo com duração de trinta segundos.'),
+('Vídeo 60','Peça publicitária em vídeo com duração de sessenta segundos.'),
+('Vídeo Vertical','Formato audiovisual desenvolvido prioritariamente para orientação vertical de tela.'),
+('Wobbler','Peça promocional fixada à gôndola ou prateleira por uma haste flexível que projeta a mensagem para fora da estrutura.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.modelos_comerciais_v3 t set descricao = v.descricao
+from (values
+('Ação Promocional','Modelo comercial destinado à realização de ativações, experiências, demonstrações ou interações promocionais.'),
+('Bonificação','Entrega adicional concedida como benefício comercial.'),
+('Branded Content','Modelo comercial baseado na criação ou integração de conteúdo produzido em associação com uma marca.'),
+('Comercial Duplo','Modelo comercial composto por duas inserções publicitárias vinculadas ou exibidas em sequência.'),
+('Comercial Simples','Modelo comercial correspondente a uma única inserção publicitária convencional.'),
+('Cota','Participação comercial definida dentro de um projeto ou propriedade.'),
+('Merchandising','Modelo comercial em que a marca ou produto é inserido no conteúdo ou na programação.'),
+('Mídia avulsa','Espaço ou inserção comercial comprada individualmente.'),
+('Pacote comercial','Conjunto negociado de espaços, inserções ou entregas.'),
+('Patrocínio','Associação da marca a conteúdo, programa, evento ou propriedade.'),
+('Permuta','Contratação com contrapartida total ou parcial em bens ou serviços.'),
+('Projeto Especial','Modelo comercial desenvolvido sob medida, com formatos, entregas e condições específicas.'),
+('Publieditorial','Modelo comercial baseado em conteúdo publicitário apresentado com linguagem e estrutura editorial.'),
+('Testemunhal','Modelo comercial baseado na recomendação ou menção da marca por apresentador, comunicador ou porta-voz.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.modalidades_compra_v3 t set descricao = v.descricao
+from (values
+('Avulsa','Compra individual de inserção ou espaço.'),
+('Circuito','Compra conjunta de presença em múltiplos pontos, locais, unidades ou veículos previamente agrupados.'),
+('Cota','Compra de participação definida em projeto ou programação.'),
+('CPA','Compra baseada no custo de cada aquisição, ação ou conversão atribuída à mídia.'),
+('CPC','Compra baseada no custo de cada clique registrado.'),
+('CPM','Compra baseada no custo de cada mil impressões publicitárias.'),
+('CPP','Custo por ponto de audiência.'),
+('CPV','Compra baseada no custo de cada visualização válida de conteúdo ou anúncio.'),
+('Custo por mil contatos','Compra baseada em mil oportunidades de contato.'),
+('Diária','Compra do direito de veiculação ou exposição durante um dia.'),
+('Exclusividade','Compra que garante presença exclusiva de uma marca, categoria ou anunciante em determinado espaço ou período.'),
+('Mensal','Compra do direito de veiculação ou exposição durante um mês.'),
+('Negociação','Compra definida por condições comerciais específicas acordadas entre as partes.'),
+('Pacote','Compra conjunta de múltiplos espaços, inserções, períodos ou entregas.'),
+('Patrocínio','Compra de propriedade ou cota de patrocínio.'),
+('Projeto Especial','Compra de solução customizada desenvolvida para uma campanha, objetivo ou anunciante específico.'),
+('Quinzenal','Compra do direito de veiculação ou exposição durante quinze dias.'),
+('Semanal','Compra do direito de veiculação ou exposição durante uma semana.'),
+('Tabela','Compra realizada com base nos valores e condições previstos na tabela comercial do veículo.')
+) v(nome,descricao) where t.nome = v.nome;
+
+update public.unidades_compra_v3 t set descricao = v.descricao
+from (values
+('Ação','Uma execução individual de ativação, intervenção ou atividade promocional.'),
+('Clique','Uma interação em que o usuário seleciona ou aciona um anúncio, link ou elemento publicitário.'),
+('Dia','Período de vinte e quatro horas utilizado como unidade de contratação ou veiculação.'),
+('Exemplar','Exemplar de publicação impresso ou distribuído.'),
+('Face','Uma superfície individual disponível para exposição de mensagem publicitária.'),
+('Impressão','Uma ocorrência de exibição ou entrega de um anúncio em meio digital.'),
+('Inserção','Uma veiculação individual de peça publicitária em programação, publicação ou espaço contratado.'),
+('Lead','Um contato identificado e potencialmente interessado gerado pela ação de mídia.'),
+('Loja','Uma unidade física ou digital de varejo incluída na contratação.'),
+('Mês','Período mensal utilizado como unidade de contratação, presença ou veiculação.'),
+('Mil contatos','Bloco de mil oportunidades de contato com a mensagem.'),
+('Mil impressões','Bloco de mil impressões publicitárias.'),
+('Página','Espaço publicitário correspondente a uma página.'),
+('Pessoa alcançada','Pessoa única alcançada pela campanha.'),
+('Ponto','Ponto físico de exibição ou instalação.'),
+('Ponto de audiência','Um ponto percentual de audiência no universo pesquisado.'),
+('Programa','Programa ou faixa de programação contratada.'),
+('Semana','Período de sete dias utilizado como unidade de contratação ou veiculação.'),
+('Sessão','Uma ocorrência individual de exibição, acesso, apresentação ou programação contratada.'),
+('View','Uma visualização contabilizada de anúncio ou conteúdo conforme os critérios definidos pelo veículo ou plataforma.')
+) v(nome,descricao) where t.nome = v.nome;

@@ -10,62 +10,40 @@ class ExportacaoService:
     # =====================================================
 
     def dataframe(self, plano):
-
-        linhas = []
-
-        for item in plano.itens:
-
-            linhas.append(
-
+        return pd.DataFrame(
+            [
                 {
-
-                    "Inventário": item.inventario,
-
-                    "Plataforma": item.plataforma,
-
-                    "Ambiente": item.ambiente,
-
                     "Papel": item.papel,
-
-                    "Score": item.score,
-
-                    "Score MCP": item.score_mcp,
-
-                    "Aderência ao objetivo": item.objetivo_score,
-
-                    "Aderência ao KPI": item.kpi_score,
-
-                    "Aderência à audiência": item.audiencia_score,
-
-                    "Score de métricas": item.metricas_score,
-
-                    "Percentual": item.percentual,
-
+                    "Score do papel": (
+                        item.score_mcp
+                        if item.score_mcp is not None
+                        else item.score
+                    ),
+                    "Flight": plano.tipo_flight,
+                    "Frequência média": plano.frequencia_alvo,
+                    "Alcance (%)": plano.alcance_percentual,
+                    "Inventário": item.inventario,
+                    "Plataforma": item.plataforma,
+                    "Ambiente": item.ambiente,
                     "Verba": item.verba,
-
-                    "ID do inventário": item.inventario_id,
-
+                    "GRP": plano.grp,
+                    "Score estratégico": item.score,
+                    "Participação da verba (%)": item.percentual,
+                    "Aderência ao objetivo": item.objetivo_score,
+                    "Aderência ao KPI": item.kpi_score,
+                    "Aderência ao público": item.audiencia_score,
+                    "Qualidade das métricas": item.metricas_score,
                     "Preço unitário": item.preco_unitario,
-
                     "Unidade de compra": item.unidade_compra,
-
-                    "Quantidade estimada": item.quantidade_estimada,
-
+                    "Quantidade comprada": item.quantidade_estimada,
                     "Impressões estimadas": item.impressoes_estimadas,
-
-                    "Alcance estimado": item.alcance_estimado,
-
-                    "Justificativas": "\n".join(
-
-                        item.justificativas
-
-                    )
-
+                    "Alcance estimado (pessoas)": item.alcance_estimado,
+                    "ID do inventário": item.inventario_id,
+                    "Justificativas": "\n".join(item.justificativas),
                 }
-
-            )
-
-        return pd.DataFrame(linhas)
+                for item in plano.itens
+            ]
+        )
 
     def tabelas(self, plano):
         resumo = pd.DataFrame(
@@ -79,6 +57,7 @@ class ExportacaoService:
                 {"Campo": "Frequência alvo", "Valor": plano.frequencia_alvo},
                 {"Campo": "Faixa de alcance", "Valor": plano.alcance_objetivo},
                 {"Campo": "Alcance desejado (%)", "Valor": plano.alcance_percentual},
+                {"Campo": "GRP", "Valor": plano.grp},
                 {"Campo": "Público de referência", "Valor": plano.publico_referencia},
                 {"Campo": "Meta de alcance", "Valor": plano.alcance_meta},
                 {"Campo": "Alcance projetado", "Valor": plano.alcance_projetado},

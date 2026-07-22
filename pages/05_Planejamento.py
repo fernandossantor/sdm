@@ -16,6 +16,8 @@ from application.services.workflow_service import WorkflowService
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.workflow_guard import exigir
 from components.formatters import dataframe_ptbr, moeda_ptbr, numero_ptbr
+from components.grp_fields import render as render_grp
+from components.schedule_editor import render as render_schedule
 
 
 # ==========================================================
@@ -189,19 +191,20 @@ if modo == "Briefing da Sessão":
     orcamento_inicial = float(briefing.orcamento)
     kpi_inicial = briefing.kpi
     flight_inicial = briefing.tipo_flight
-    frequencia_inicial = briefing.frequencia_objetivo or "MEDIA"
     frequencia_alvo_inicial = briefing.frequencia_alvo or 5
-    alcance_inicial = briefing.alcance_objetivo or "MEDIO"
     alcance_percentual_inicial = briefing.alcance_percentual or 60
+    grp_inicial = briefing.grp or alcance_percentual_inicial * frequencia_alvo_inicial
 else:
     orcamento_inicial = float(briefing_salvo.get("orcamento", 0))
     kpi_inicial = briefing_salvo.get("kpi")
     flight_inicial = briefing_salvo.get("tipo_flight", "LINEAR")
-    frequencia_inicial = briefing_salvo.get("frequencia_objetivo", "MEDIA")
-    frequencia_alvo_inicial = int(briefing_salvo.get("frequencia_alvo", 5))
-    alcance_inicial = briefing_salvo.get("alcance_objetivo", "MEDIO")
-    alcance_percentual_inicial = int(
+    frequencia_alvo_inicial = float(briefing_salvo.get("frequencia_alvo", 5))
+    alcance_percentual_inicial = float(
         briefing_salvo.get("alcance_percentual", 60)
+    )
+    grp_inicial = float(
+        briefing_salvo.get("grp")
+        or alcance_percentual_inicial * frequencia_alvo_inicial
     )
 
 kpis_catalogo = base_conhecimento.kpis()
@@ -223,60 +226,18 @@ with c2:
     flights = ["LINEAR", "ONDA", "CONCENTRADO"]
     flight_indice = flights.index(flight_inicial) if flight_inicial in flights else 0
     flight_plano = st.selectbox("Flight", flights, index=flight_indice)
-    frequencia_plano = st.selectbox(
-        "Faixa de frequência",
-        ["BAIXA", "MEDIA", "ALTA"],
-        index={"BAIXA": 0, "MEDIA": 1, "ALTA": 2}.get(frequencia_inicial, 1),
-        format_func=lambda valor: {
-            "BAIXA": "Baixa (1–3)",
-            "MEDIA": "Média (4–7)",
-            "ALTA": "Alta (8+)",
-        }[valor],
-    )
-
-limites = {"BAIXA": (1, 3, 2), "MEDIA": (4, 7, 5), "ALTA": (8, 30, 8)}
-freq_min, freq_max, freq_padrao = limites[frequencia_plano]
-valor_frequencia = frequencia_alvo_inicial
-if not freq_min <= valor_frequencia <= freq_max:
-    valor_frequencia = freq_padrao
-
-frequencia_alvo_plano = st.number_input(
-    "Frequência alvo",
-    min_value=freq_min,
-    max_value=freq_max,
-    value=valor_frequencia,
+st.markdown("#### Alcance, frequência média e GRP")
+metricas_plano = render_grp(
+    "planejamento_metricas",
+    alcance=alcance_percentual_inicial,
+    frequencia=frequencia_alvo_inicial,
+    grp=grp_inicial,
 )
-
-c_alcance_faixa, c_alcance_percentual = st.columns(2)
-with c_alcance_faixa:
-    alcance_plano = st.selectbox(
-        "Faixa de alcance",
-        ["BAIXO", "MEDIO", "ALTO"],
-        index={"BAIXO": 0, "MEDIO": 1, "ALTO": 2}.get(alcance_inicial, 1),
-        format_func=lambda valor: {
-            "BAIXO": "Baixo (até 50% do público)",
-            "MEDIO": "Médio (51% a 69% do público)",
-            "ALTO": "Alto (70% a 100% do público)",
-        }[valor],
-    )
-
-limites_alcance = {
-    "BAIXO": (0, 50, 40),
-    "MEDIO": (51, 69, 60),
-    "ALTO": (70, 100, 80),
-}
-alcance_min, alcance_max, alcance_padrao = limites_alcance[alcance_plano]
-valor_alcance = alcance_percentual_inicial
-if not alcance_min <= valor_alcance <= alcance_max:
-    valor_alcance = alcance_padrao
-
-with c_alcance_percentual:
-    alcance_percentual_plano = st.number_input(
-        "Percentual de alcance desejado",
-        min_value=alcance_min,
-        max_value=alcance_max,
-        value=valor_alcance,
-    )
+frequencia_plano = metricas_plano["frequencia_objetivo"]
+frequencia_alvo_plano = metricas_plano["frequencia_alvo"]
+alcance_plano = metricas_plano["alcance_objetivo"]
+alcance_percentual_plano = metricas_plano["alcance_percentual"]
+grp_plano = metricas_plano["grp"]
 
 configuracao = {
     "orcamento": float(orcamento_plano),
@@ -284,9 +245,10 @@ configuracao = {
     "kpis": [{"nome": kpi_plano, "peso": 100}],
     "tipo_flight": flight_plano,
     "frequencia_objetivo": frequencia_plano,
-    "frequencia_alvo": int(frequencia_alvo_plano),
+    "frequencia_alvo": float(frequencia_alvo_plano),
     "alcance_objetivo": alcance_plano,
-    "alcance_percentual": int(alcance_percentual_plano),
+    "alcance_percentual": float(alcance_percentual_plano),
+    "grp": float(grp_plano),
 }
 
 campanha_ref = (
@@ -415,35 +377,29 @@ if "plano" in st.session_state:
 
                 {
 
-                    "Inventário": i.inventario,
-
-                    "Plataforma": i.plataforma,
-
-                    "Ambiente": i.ambiente,
-
-                    "Flight": plano.tipo_flight,
-
-                    "Frequência": f"{plano.frequencia_objetivo} ({plano.frequencia_alvo})",
-
-                    "Alcance": f"{plano.alcance_objetivo} ({plano.alcance_percentual}%)",
-
                     "Papel": i.papel,
-
-                    "Score": i.score,
-
-                    "Score MCP": i.score_mcp or None,
-
-                    "Percentual": i.percentual,
-
-                    "Verba": i.verba
-
-                    ,"Preço unitário": i.preco_unitario
-
-                    ,"Unidade": i.unidade_compra
-
-                    ,"Quantidade estimada": i.quantidade_estimada
-
-                    ,"Alcance estimado": i.alcance_estimado
+                    "Score do papel": (
+                        i.score_mcp if i.score_mcp is not None else i.score
+                    ),
+                    "Flight": plano.tipo_flight.title(),
+                    "Frequência média": plano.frequencia_alvo,
+                    "Alcance (%)": plano.alcance_percentual,
+                    "Inventário": i.inventario,
+                    "Plataforma": i.plataforma,
+                    "Ambiente": i.ambiente,
+                    "Verba": i.verba,
+                    "GRP": plano.grp,
+                    "Score estratégico": i.score,
+                    "Participação da verba (%)": i.percentual,
+                    "Preço unitário": i.preco_unitario,
+                    "Unidade de compra": i.unidade_compra,
+                    "Quantidade comprada": i.quantidade_estimada,
+                    "Impressões estimadas": i.impressoes_estimadas,
+                    "Alcance estimado (pessoas)": i.alcance_estimado,
+                    "Aderência ao objetivo": i.objetivo_score,
+                    "Aderência aos KPIs": i.kpi_score,
+                    "Aderência ao público": i.audiencia_score,
+                    "Qualidade das métricas": i.metricas_score,
 
                 }
 
@@ -458,9 +414,14 @@ if "plano" in st.session_state:
             dataframe_ptbr(
                 df,
                 moedas=["Verba", "Preço unitário"],
-                percentuais=["Percentual"],
-                inteiros=["Alcance estimado"],
-                decimais=["Score", "Score MCP", "Quantidade estimada"],
+                percentuais=["Alcance (%)", "Participação da verba (%)"],
+                inteiros=["Impressões estimadas", "Alcance estimado (pessoas)"],
+                decimais=[
+                    "Score do papel", "Frequência média", "GRP",
+                    "Score estratégico", "Quantidade comprada",
+                    "Aderência ao objetivo", "Aderência aos KPIs",
+                    "Aderência ao público", "Qualidade das métricas",
+                ],
             ),
 
             hide_index=True,
@@ -468,6 +429,19 @@ if "plano" in st.session_state:
             width="stretch",
 
         )
+
+        with st.expander("Como interpretar e calcular as colunas"):
+            st.markdown(
+                """
+- **Score do papel:** adequação do MCP, calculada por 40% de afinidade editorial, 35% de consumo e 25% de cobertura. O papel decorre da posição no ranking desse score.
+- **Score estratégico:** aderência usada na distribuição da verba. Combina objetivo (40%), KPI (30%), público (20%) e qualidade das métricas (10%); quando há MCP, recebe 80% desse resultado e 20% do Score do papel.
+- **Participação da verba:** proporção do orçamento após ponderar o Score estratégico pelo papel (Principal 1,20; Complementar 1,00; Apoio 0,80; Opcional 0,50), aplicar limites e normalizar para 100%.
+- **Unidade de compra:** unidade comercial cadastrada no preço do inventário.
+- **Quantidade comprada:** verba dividida pelo preço líquido unitário.
+- **Impressões estimadas:** calculadas apenas para unidades de impressão; em “Mil impressões”, quantidade × 1.000.
+- **Alcance estimado:** impressões ou contatos divididos pela frequência média. Sem base compatível, o campo fica em branco.
+"""
+            )
 
     with abas[1]:
 
@@ -505,12 +479,13 @@ if "plano" in st.session_state:
 
         )
 
-        st.subheader("Meta de alcance da campanha")
-        a1, a2, a3, a4 = st.columns(4)
+        st.subheader("Metas de exposição da campanha")
+        a1, a2, a3, a4, a5 = st.columns(5)
         a1.metric("Faixa", plano.alcance_objetivo.title())
         a2.metric("Meta", f"{plano.alcance_percentual}%")
-        a3.metric("Público estimado", numero_ptbr(plano.publico_referencia))
-        a4.metric(
+        a3.metric("Frequência média", numero_ptbr(plano.frequencia_alvo, 2))
+        a4.metric("GRP", numero_ptbr(plano.grp, 2))
+        a5.metric(
             "Alcance projetado",
             numero_ptbr(plano.alcance_projetado),
             delta=(
@@ -523,6 +498,11 @@ if "plano" in st.session_state:
             st.info(
                 "Cadastre população nos Segmentos do Público para converter "
                 "a meta percentual em pessoas."
+            )
+        else:
+            st.caption(
+                f"Público de referência: {numero_ptbr(plano.publico_referencia)} · "
+                f"Meta de alcance: {numero_ptbr(plano.alcance_meta)} pessoas."
             )
 
         st.divider()
@@ -574,7 +554,7 @@ if "plano" in st.session_state:
             f"({plano.alcance_percentual}% do público; meta de "
             f"{numero_ptbr(plano.alcance_meta)} pessoas)"
         )
-        if plano.cronograma:
-            st.dataframe(pd.DataFrame(plano.cronograma), hide_index=True)
-        else:
-            st.info("Defina as datas do briefing para gerar o cronograma semanal.")
+        st.write(f"**GRP:** {numero_ptbr(plano.grp, 2)}")
+        if render_schedule(plano, "cronograma_no_plano"):
+            st.session_state["plano"] = plano
+            st.success("Cronograma incorporado ao plano. Salve o planejamento para persistir.")

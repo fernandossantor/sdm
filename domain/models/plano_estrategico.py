@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 
 # ==========================================================
@@ -23,7 +23,7 @@ class PlanoItem:
 
     percentual: float
 
-    score_mcp: float = 0.0
+    score_mcp: Optional[float] = None
 
     objetivo_score: float = 0.0
 
@@ -41,11 +41,11 @@ class PlanoItem:
 
     unidade_compra: str = ""
 
-    quantidade_estimada: float = 0.0
+    quantidade_estimada: Optional[float] = None
 
-    impressoes_estimadas: float = 0.0
+    impressoes_estimadas: Optional[float] = None
 
-    alcance_estimado: float = 0.0
+    alcance_estimado: Optional[float] = None
 
 
 # ==========================================================
@@ -71,11 +71,13 @@ class PlanoEstrategico:
 
     frequencia_objetivo: str = "MEDIA"
 
-    frequencia_alvo: int = 5
+    frequencia_alvo: float = 5
 
     alcance_objetivo: str = "MEDIO"
 
-    alcance_percentual: int = 60
+    alcance_percentual: float = 60
+
+    grp: float = 300
 
     publico_referencia: int = 0
 

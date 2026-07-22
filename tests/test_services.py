@@ -26,7 +26,7 @@ class TestPlanejamentoService(unittest.TestCase):
             PlanoItem(
                 inventario="Vídeo", plataforma="Digital", ambiente="Portal",
                 papel="PRINCIPAL", score=90, verba=1000, percentual=100,
-                score_mcp=85, preco_unitario=10, unidade_compra="CPM",
+                score_mcp=85, preco_unitario=10, unidade_compra="Mil impressões",
             )
         )
 
@@ -35,8 +35,16 @@ class TestPlanejamentoService(unittest.TestCase):
         self.assertEqual(
             set(tabelas), {"Resumo", "Plano", "Cronograma", "KPIs", "Observações"}
         )
-        self.assertIn("Score MCP", tabelas["Plano"].columns)
+        self.assertIn("Score do papel", tabelas["Plano"].columns)
+        self.assertIn("GRP", tabelas["Plano"].columns)
         self.assertIn("Preço unitário", tabelas["Plano"].columns)
+        self.assertEqual(
+            list(tabelas["Plano"].columns[:9]),
+            [
+                "Papel", "Score do papel", "Flight", "Frequência média",
+                "Alcance (%)", "Inventário", "Plataforma", "Ambiente", "Verba",
+            ],
+        )
 
     def test_calcula_meta_e_projecao_de_alcance(self):
 
@@ -61,7 +69,7 @@ class TestPlanejamentoService(unittest.TestCase):
                 verba=1000,
                 percentual=100,
                 preco_unitario=10,
-                unidade_compra="CPM",
+                unidade_compra="Mil impressões",
             )
         )
 
@@ -89,8 +97,30 @@ class TestPlanejamentoService(unittest.TestCase):
             "CONCENTRADO",
         )
 
-        self.assertEqual(sum(item["percentual"] for item in cronograma), 100)
-        self.assertEqual(cronograma[-1]["percentual"], 0)
+        self.assertEqual(
+            sum(item["Participação (%)"] for item in cronograma), 100
+        )
+        self.assertEqual(cronograma[-1]["Participação (%)"], 0)
+
+    def test_cronograma_distribui_quantidade_por_inventario(self):
+        item = PlanoItem(
+            inventario="TV", plataforma="Emissora", ambiente="TV Aberta",
+            papel="PRINCIPAL", score=90, verba=1200, percentual=100,
+            unidade_compra="Inserção", quantidade_estimada=12,
+        )
+        cronograma = PlanejamentoService._cronograma(
+            date(2026, 7, 1), date(2026, 7, 28), "LINEAR", [item]
+        )
+
+        self.assertEqual(len(cronograma), 1)
+        self.assertEqual(cronograma[0]["Total"], 12)
+        self.assertEqual(
+            sum(
+                valor for chave, valor in cronograma[0].items()
+                if chave.startswith("S")
+            ),
+            12,
+        )
 
 
 class TestContextoCampanha(unittest.TestCase):
