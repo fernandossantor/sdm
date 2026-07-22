@@ -18,6 +18,8 @@ from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
 from components.formatters import moeda_ptbr
+from application.services.workflow_artifact_service import WorkflowArtifactService
+from components.artifact_manager import render as gerenciar_artefatos
 
 
 # ==========================================================
@@ -47,8 +49,10 @@ planejamento = PlanejamentoService()
 exportacao = ExportacaoService()
 
 workflow_service = WorkflowService()
+artefatos = WorkflowArtifactService()
 
 origem = selecionar_planejamento(planejamento, "exportacao_planejamento")
+gerenciar_artefatos(artefatos, "RELATORIO", "Relatórios")
 
 if st.button(
 
@@ -66,6 +70,13 @@ if st.button(
 
     workflow_service.concluir(st.session_state, "planejamento", plano)
     workflow_service.concluir(st.session_state, "exportacao", True)
+    artefatos.salvar_no_projeto(
+        "RELATORIO",
+        f"Relatório — {plano.campanha}",
+        plano,
+        st.session_state,
+        origem["id"],
+    )
 
 
 # ==========================================================

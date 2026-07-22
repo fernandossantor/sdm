@@ -48,7 +48,10 @@ class TestConnection(unittest.TestCase):
         )
         briefings = (
             admin.table("briefings_v3")
-            .select("id,alcance_objetivo,alcance_percentual")
+            .select(
+                "id,projeto_id,alcance_objetivo,alcance_percentual,marca,produto,"
+                "tipo_flight,frequencia_objetivo,frequencia_alvo,publicos,kpis"
+            )
             .limit(1)
             .execute()
         )
@@ -58,11 +61,25 @@ class TestConnection(unittest.TestCase):
             .limit(1)
             .execute()
         )
+        projetos = (
+            admin.table("projetos")
+            .select("id,nome,briefing_id,etapa_atual,progresso")
+            .limit(1)
+            .execute()
+        )
+        artefatos = (
+            admin.table("artefatos_workflow")
+            .select("id,tipo,nome,projeto_id,dados")
+            .limit(1)
+            .execute()
+        )
 
         self.assertIsInstance(universos.data, list)
         self.assertIsInstance(papeis.data, list)
         self.assertIsInstance(briefings.data, list)
         self.assertIsInstance(segmentos.data, list)
+        self.assertIsInstance(projetos.data, list)
+        self.assertIsInstance(artefatos.data, list)
 
 
 if __name__ == "__main__":

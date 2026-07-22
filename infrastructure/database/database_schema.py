@@ -101,3 +101,5 @@ INVENTARIOS_PAPEIS = "inventarios_papeis"
 PLANEJAMENTOS = "planejamentos"
 
 ARTEFATOS_WORKFLOW = "artefatos_workflow"
+
+PROJETOS = "projetos"

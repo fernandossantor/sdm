@@ -1,7 +1,14 @@
 from domain.models.briefing import Briefing
+from infrastructure.repositories.briefing_repository import BriefingRepository
+from application.services.project_service import ProjectService
+from infrastructure.database.database_schema import OBJETIVOS
 
 
 class BriefingService:
+
+    def __init__(self):
+        self.repository = BriefingRepository()
+        self.projetos = ProjectService()
 
     # =====================================================
     # CONSTRUÇÃO
@@ -257,6 +264,101 @@ class BriefingService:
             "exportacao",
         ):
             session_state.pop(chave, None)
+
+        projeto_id = session_state.get("projeto_id")
+        if not projeto_id:
+            return None
+
+        dados = self._para_registro(briefing, projeto_id)
+        briefing_id = session_state.get("briefing_id")
+        if briefing_id:
+            self.repository.atualizar(briefing_id, dados)
+        else:
+            resposta = self.repository.salvar(dados)
+            briefing_id = resposta.data[0]["id"]
+            session_state["briefing_id"] = briefing_id
+        session_state["briefing_ref"] = briefing.campanha
+        self.projetos.registrar(
+            session_state, "briefing", True, briefing_id=briefing_id
+        )
+        return briefing_id
+
+    def listar(self, projeto_id=None):
+        try:
+            return [
+                item for item in self.repository.listar(projeto_id)
+                if item.get("ativo", True)
+            ]
+        except Exception:
+            return []
+
+    def carregar(self, registro, session_state):
+        briefing = self._do_registro(registro)
+        session_state["briefing"] = briefing
+        session_state["briefing_id"] = registro["id"]
+        session_state["briefing_ref"] = briefing.campanha
+        return briefing
+
+    def restaurar(self, registro):
+        return self._do_registro(registro)
+
+    def excluir(self, briefing_id, session_state=None):
+        resposta = self.repository.excluir(briefing_id)
+        if session_state is not None and session_state.get("briefing_id") == briefing_id:
+            for chave in ("briefing", "briefing_id", "briefing_ref"):
+                session_state.pop(chave, None)
+        return resposta
+
+    @staticmethod
+    def _para_registro(briefing, projeto_id=None):
+        return {
+            "projeto_id": projeto_id,
+            "anunciante": briefing.cliente,
+            "nome": briefing.campanha,
+            "marca": briefing.marca,
+            "produto": briefing.produto,
+            "objetivo_id": briefing.objetivo_id,
+            "kpi": briefing.kpi,
+            "kpis": briefing.kpis,
+            "orcamento": briefing.orcamento,
+            "periodo_inicio": briefing.inicio.isoformat() if briefing.inicio else None,
+            "periodo_fim": briefing.fim.isoformat() if briefing.fim else None,
+            "tipo_flight": briefing.tipo_flight,
+            "frequencia_objetivo": briefing.frequencia_objetivo,
+            "frequencia_alvo": briefing.frequencia_alvo,
+            "alcance_objetivo": briefing.alcance_objetivo,
+            "alcance_percentual": briefing.alcance_percentual,
+            "publicos": briefing.publicos,
+            "observacoes": briefing.observacoes,
+            "ativo": True,
+        }
+
+    def _do_registro(self, registro):
+        from datetime import date
+
+        objetivo = self.repository.by_id(OBJETIVOS, registro["objetivo_id"])
+        briefing = self.criar(
+            cliente=registro.get("anunciante", ""),
+            campanha=registro.get("nome", ""),
+            marca=registro.get("marca") or "",
+            produto=registro.get("produto") or "",
+            objetivo_id=registro.get("objetivo_id"),
+            objetivo=objetivo.get("nome", ""),
+            kpi=registro.get("kpi", ""),
+            kpis=registro.get("kpis") or [],
+            orcamento=float(registro.get("orcamento") or 0),
+            inicio=date.fromisoformat(registro["periodo_inicio"][:10]) if registro.get("periodo_inicio") else None,
+            fim=date.fromisoformat(registro["periodo_fim"][:10]) if registro.get("periodo_fim") else None,
+            tipo_flight=registro.get("tipo_flight") or "LINEAR",
+            frequencia_objetivo=registro.get("frequencia_objetivo") or "MEDIA",
+            frequencia_alvo=int(registro.get("frequencia_alvo") or 5),
+            alcance_objetivo=registro.get("alcance_objetivo") or "MEDIO",
+            alcance_percentual=int(registro.get("alcance_percentual") or 60),
+            publicos=registro.get("publicos") or [],
+            observacoes=registro.get("observacoes") or "",
+        )
+        briefing.registro_id = registro["id"]
+        return briefing
 
     # =====================================================
     # RECUPERAR

@@ -16,6 +16,8 @@ from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
 from components.formatters import moeda_ptbr, numero_ptbr
+from application.services.workflow_artifact_service import WorkflowArtifactService
+from components.artifact_manager import render as gerenciar_artefatos
 
 
 # ==========================================================
@@ -47,8 +49,10 @@ forecast_service = ForecastService()
 insights_service = InsightsService()
 
 workflow_service = WorkflowService()
+artefatos = WorkflowArtifactService()
 
 origem = selecionar_planejamento(planejamento, "dashboard_planejamento")
+gerenciar_artefatos(artefatos, "DASHBOARD", "Painéis executivos")
 
 if st.button(
 
@@ -74,6 +78,13 @@ if st.button(
         st.session_state,
         "dashboard",
         {"plano": plano, "forecast": forecast},
+    )
+    artefatos.salvar_no_projeto(
+        "DASHBOARD",
+        f"Painel Executivo — {plano.campanha}",
+        {"plano": plano, "forecast": forecast},
+        st.session_state,
+        origem["id"],
     )
 
 

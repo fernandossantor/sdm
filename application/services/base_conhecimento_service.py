@@ -100,3 +100,6 @@ class BaseConhecimentoService:
     def desmarcar_papeis_campanha(self, campanha_ref):
 
         return self.inventarios.desmarcar_papeis(campanha_ref)
+
+    def excluir_papeis_campanha(self, campanha_ref):
+        return self.inventarios.excluir_papeis(campanha_ref)

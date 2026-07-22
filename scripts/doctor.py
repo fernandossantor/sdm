@@ -3,9 +3,10 @@ from infrastructure.repositories.decision_repository import DecisionRepository
 
 repo = DecisionRepository()
 
-ctx = repo.carregar_contexto(
-    "Lançamento SDM"
-)
+briefings = repo.listar_briefings()
+if not briefings:
+    raise SystemExit("Nenhum briefing salvo para diagnosticar.")
+ctx = repo.carregar_contexto(briefings[0]["nome"])
 
 print()
 print("=" * 80)

@@ -158,21 +158,18 @@ if modo == "Briefing da Sessão":
 
 else:
 
-    nomes = [
-
-        b["nome"]
-
-        for b in briefings_salvos
-
-    ]
-
-    nome_briefing = st.selectbox(
+    briefing_salvo = st.selectbox(
 
         "Briefing",
 
-        nomes
+        briefings_salvos,
+
+        format_func=lambda item: item["nome"],
 
     )
+
+    nome_briefing = briefing_salvo["nome"]
+    briefing_salvo_obj = briefing_service.restaurar(briefing_salvo)
 
     st.success(
 
@@ -197,7 +194,6 @@ if modo == "Briefing da Sessão":
     alcance_inicial = briefing.alcance_objetivo or "MEDIO"
     alcance_percentual_inicial = briefing.alcance_percentual or 60
 else:
-    briefing_salvo = next(item for item in briefings_salvos if item["nome"] == nome_briefing)
     orcamento_inicial = float(briefing_salvo.get("orcamento", 0))
     kpi_inicial = briefing_salvo.get("kpi")
     flight_inicial = briefing_salvo.get("tipo_flight", "LINEAR")
@@ -362,11 +358,8 @@ if gerar:
         else:
 
             plano = planejamento.gerar(
-
-                nome_briefing=nome_briefing,
-
+                briefing=briefing_salvo_obj,
                 configuracao=configuracao,
-
             )
 
     if modo == "Briefing Salvo":
@@ -427,6 +420,12 @@ if "plano" in st.session_state:
                     "Plataforma": i.plataforma,
 
                     "Ambiente": i.ambiente,
+
+                    "Flight": plano.tipo_flight,
+
+                    "Frequência": f"{plano.frequencia_objetivo} ({plano.frequencia_alvo})",
+
+                    "Alcance": f"{plano.alcance_objetivo} ({plano.alcance_percentual}%)",
 
                     "Papel": i.papel,
 

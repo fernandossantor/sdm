@@ -1,15 +1,15 @@
 from application.services.planejamento_service import (
     PlanejamentoService
 )
+from application.services.context_service import ContextService
 
 
 service = PlanejamentoService()
 
-plano = service.gerar(
-
-    "Lançamento SDM"
-
-)
+briefings = ContextService().listar_briefings()
+if not briefings:
+    raise SystemExit("Nenhum briefing salvo para gerar um plano.")
+plano = service.gerar(briefings[0]["nome"])
 
 print()
 

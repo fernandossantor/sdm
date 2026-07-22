@@ -15,7 +15,10 @@ class BriefingRepository(BaseRepository):
     # LISTAR
     # =====================================================
 
-    def listar(self):
+    def listar(self, projeto_id=None):
+
+        if projeto_id:
+            return self.by_field(BRIEFINGS, "projeto_id", projeto_id)
 
         return self.ordered(
 
@@ -68,3 +71,12 @@ class BriefingRepository(BaseRepository):
             briefing_id
 
         )
+
+    def salvar(self, dados):
+        return self.insert(BRIEFINGS, dados)
+
+    def atualizar(self, briefing_id, dados):
+        return self.update(BRIEFINGS, "id", briefing_id, dados)
+
+    def excluir(self, briefing_id):
+        return self.delete(BRIEFINGS, "id", briefing_id)

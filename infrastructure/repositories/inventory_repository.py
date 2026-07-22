@@ -55,6 +55,9 @@ class InventoryRepository(BaseRepository):
             {"selecionado": False},
         )
 
+    def excluir_papeis(self, campanha_ref):
+        return self.delete(INVENTARIOS_PAPEIS, "campanha_ref", campanha_ref)
+
     def listar_por_ambiente(self, ambiente_id):
 
         return self.by_field(

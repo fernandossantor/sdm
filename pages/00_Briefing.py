@@ -12,6 +12,7 @@ from application.services.public_service import (
 from application.services.base_conhecimento_service import (
     BaseConhecimentoService
 )
+from application.services.project_service import ProjectService
 
 
 # ==========================================================
@@ -37,6 +38,41 @@ base_conhecimento = BaseConhecimentoService()
 briefing_service = BriefingService()
 
 public_service = PublicService()
+project_service = ProjectService()
+
+if not st.session_state.get("projeto_id"):
+    st.warning("Crie ou selecione um projeto antes de preencher o briefing.")
+    projetos = project_service.listar()
+    nomes_projetos = [item["nome"] for item in projetos]
+    if nomes_projetos:
+        projeto_nome = st.selectbox("Projeto existente", nomes_projetos)
+        if st.button("Selecionar projeto"):
+            projeto = next(item for item in projetos if item["nome"] == projeto_nome)
+            project_service.selecionar(projeto, st.session_state)
+            st.rerun()
+    novo_nome = st.text_input("Ou nomeie um novo projeto")
+    if st.button("Criar projeto", type="primary"):
+        project_service.criar(novo_nome, st.session_state)
+        st.rerun()
+    st.stop()
+
+st.caption(f"Projeto: **{st.session_state['projeto_nome']}**")
+
+with st.expander("Briefings salvos", expanded=False):
+    registros_briefing = briefing_service.listar(st.session_state["projeto_id"])
+    if not registros_briefing:
+        st.info("Nenhum briefing salvo.")
+    for registro in registros_briefing:
+        a, b, c = st.columns([4, 1, 1])
+        a.write(registro["nome"])
+        if b.button("Editar", key=f"editar_briefing_{registro['id']}"):
+            briefing_service.carregar(registro, st.session_state)
+            st.rerun()
+        if c.button("Excluir", key=f"excluir_briefing_{registro['id']}"):
+            briefing_service.excluir(registro["id"], st.session_state)
+            st.rerun()
+
+edicao = st.session_state.get("briefing")
 
 
 # ==========================================================
@@ -66,19 +102,19 @@ with col1:
 
     cliente = st.text_input(
 
-        "Cliente"
+        "Cliente", value=getattr(edicao, "cliente", "")
 
     )
 
     marca = st.text_input(
 
-        "Marca"
+        "Marca", value=getattr(edicao, "marca", "")
 
     )
 
     campanha = st.text_input(
 
-        "Campanha"
+        "Campanha", value=getattr(edicao, "campanha", "")
 
     )
 
@@ -86,7 +122,7 @@ with col2:
 
     produto = st.text_input(
 
-        "Produto"
+        "Produto", value=getattr(edicao, "produto", "")
 
     )
 
@@ -96,23 +132,20 @@ with col2:
 
         min_value=0.0,
 
-        value=100000.0,
+        value=float(getattr(edicao, "orcamento", 100000.0)),
 
         step=1000.0
 
     )
 
+    nomes_objetivos = [o["nome"] for o in objetivos]
+    objetivo_atual = getattr(edicao, "objetivo", nomes_objetivos[0])
     objetivo_nome = st.selectbox(
 
         "Objetivo Principal",
 
-        [
-
-            o["nome"]
-
-            for o in objetivos
-
-        ]
+        nomes_objetivos,
+        index=nomes_objetivos.index(objetivo_atual) if objetivo_atual in nomes_objetivos else 0,
 
     )
 
@@ -149,7 +182,8 @@ kpis_escolhidos = st.multiselect(
 
         for k in kpis
 
-    ]
+    ],
+    default=[item.get("nome") for item in getattr(edicao, "kpis", []) if item.get("nome")]
 
 )
 
@@ -161,17 +195,14 @@ if not kpis_escolhidos:
 
     )
 
+nomes_kpis = [k["nome"] for k in kpis]
+kpi_atual = getattr(edicao, "kpi", nomes_kpis[0])
 kpi_principal = st.selectbox(
 
     "KPI Principal",
 
-    [
-
-        k["nome"]
-
-        for k in kpis
-
-    ]
+    nomes_kpis,
+    index=nomes_kpis.index(kpi_atual) if kpi_atual in nomes_kpis else 0,
 
 )
 
@@ -212,6 +243,7 @@ with c1:
 
         "Data inicial",
 
+        value=getattr(edicao, "inicio", None) or "today",
         format="DD/MM/YYYY"
 
     )
@@ -222,6 +254,7 @@ with c2:
 
         "Data final",
 
+        value=getattr(edicao, "fim", None) or "today",
         format="DD/MM/YYYY"
 
     )
@@ -240,7 +273,8 @@ with c3:
 
             "CONCENTRADO"
 
-        ]
+        ],
+        index={"LINEAR": 0, "ONDA": 1, "CONCENTRADO": 2}.get(getattr(edicao, "tipo_flight", "LINEAR"), 0),
 
     )
 
@@ -258,6 +292,7 @@ frequencia = st.selectbox(
         "ALTA"
 
     ],
+    index={"BAIXA": 0, "MEDIA": 1, "ALTA": 2}.get(getattr(edicao, "frequencia_objetivo", "MEDIA"), 1),
 
     format_func=lambda valor: {
         "BAIXA": "Baixa (1–3)",
@@ -275,11 +310,12 @@ limites_frequencia = {
 
 freq_min, freq_max, freq_padrao = limites_frequencia[frequencia]
 
+freq_carregada = getattr(edicao, "frequencia_alvo", freq_padrao) or freq_padrao
 frequencia_alvo = st.number_input(
     "Frequência alvo",
     min_value=freq_min,
     max_value=freq_max,
-    value=freq_padrao,
+    value=max(freq_min, min(freq_max, int(freq_carregada))),
     help="Valor numérico usado nas projeções de alcance e orçamento.",
 )
 
@@ -288,7 +324,7 @@ st.subheader("Alcance da campanha")
 alcance_objetivo = st.selectbox(
     "Faixa de alcance",
     ["BAIXO", "MEDIO", "ALTO"],
-    index=1,
+    index={"BAIXO": 0, "MEDIO": 1, "ALTO": 2}.get(getattr(edicao, "alcance_objetivo", "MEDIO"), 1),
     format_func=lambda valor: {
         "BAIXO": "Baixo (até 50% do público)",
         "MEDIO": "Médio (51% a 69% do público)",
@@ -302,11 +338,12 @@ limites_alcance = {
     "ALTO": (70, 100, 80),
 }
 alcance_min, alcance_max, alcance_padrao = limites_alcance[alcance_objetivo]
+alcance_carregado = getattr(edicao, "alcance_percentual", alcance_padrao)
 alcance_percentual = st.number_input(
     "Percentual de alcance desejado",
     min_value=alcance_min,
     max_value=alcance_max,
-    value=alcance_padrao,
+    value=max(alcance_min, min(alcance_max, int(alcance_carregado))),
     help="Percentual do público estimado que a campanha deve alcançar.",
 )
 
@@ -339,7 +376,11 @@ publicos_escolhidos = st.multiselect(
             if universo["id"] == segmento.get("universo_id")
         ]
         + [publico["nome"]]
-    )
+    ),
+    default=[
+        publico for publico in publicos
+        if publico["id"] in {item.get("id") for item in getattr(edicao, "publicos", [])}
+    ]
 
 )
 
@@ -393,7 +434,8 @@ observacoes = st.text_area(
 
     "Observações da campanha",
 
-    height=120
+    height=120,
+    value=getattr(edicao, "observacoes", "")
 
 )
 
@@ -451,7 +493,7 @@ st.divider()
 
 salvar = st.button(
 
-    "Salvar Briefing",
+        "Atualizar Briefing" if st.session_state.get("briefing_id") else "Salvar Briefing",
 
     type="primary",
 
@@ -534,7 +576,7 @@ if salvar:
 
         st.success(
 
-            "Briefing salvo na sessão."
+            "Briefing salvo no projeto e disponível para edição."
 
         )
 

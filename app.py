@@ -25,6 +25,11 @@ st.set_page_config(
 
 )
 
+with st.sidebar:
+    st.markdown("## PMAH — Planejador de Mídia Automatizado e Híbrido")
+    if st.session_state.get("projeto_nome"):
+        st.caption(f"Projeto ativo: {st.session_state['projeto_nome']}")
+
 def pagina_inicial():
 
     workflow = WorkflowService()
@@ -88,5 +93,15 @@ navegacao = st.navigation(
     }
 
 )
+
+with st.sidebar:
+    st.divider()
+    st.caption(
+        "Desenvolvido por Fernando Silva Santor, professor de Planejamento "
+        "de Mídia do Curso de Publicidade e Propaganda da Universidade "
+        "Federal do Pampa, campus São Borja, RS."
+    )
+    st.caption("Versão 1.2.0")
+    st.caption("Tecnologias: Supabase · Streamlit · Codex · GitHub Codespaces")
 
 navegacao.run()

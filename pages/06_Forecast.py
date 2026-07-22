@@ -17,6 +17,8 @@ from components.planning_selector import selecionar_planejamento
 from components.formatters import (
     dataframe_ptbr, moeda_ptbr, numero_ptbr, percentual_ptbr,
 )
+from application.services.workflow_artifact_service import WorkflowArtifactService
+from components.artifact_manager import render as gerenciar_artefatos
 
 
 # ==========================================================
@@ -46,8 +48,10 @@ planejamento = PlanejamentoService()
 forecast_service = ForecastService()
 
 workflow_service = WorkflowService()
+artefatos = WorkflowArtifactService()
 
 origem = selecionar_planejamento(planejamento, "forecast_planejamento")
+gerenciar_artefatos(artefatos, "FORECAST", "Forecasts")
 
 if st.button(
 
@@ -73,6 +77,11 @@ if st.button(
     workflow_service.concluir(st.session_state, "forecast", forecast)
 
     st.session_state["forecast_plano"] = plano
+
+    artefatos.salvar_no_projeto(
+        "FORECAST", f"Forecast — {plano.campanha}", forecast,
+        st.session_state, origem["id"],
+    )
 
 
 # ==========================================================

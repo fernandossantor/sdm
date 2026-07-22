@@ -45,11 +45,30 @@ except Exception as erro:
     st.error(f"Não foi possível carregar o MCP: {erro}")
     st.stop()
 
+if any(item.get("classificacao") for item in inventarios):
+    st.info("Os controles abaixo carregam os papéis já salvos e permitem editá-los.")
+    if st.button("Excluir papéis desta campanha", type="secondary"):
+        base.excluir_papeis_campanha(campanha_ref)
+        st.session_state.pop("mcp_papeis", None)
+        st.rerun()
+
 st.subheader("1. Selecione o recorte de mídia")
 canais = [item for item in catalogos["canais"] if item.get("ativo", True)]
+ids_inventarios_salvos = {
+    item["id"] for item in inventarios if item.get("classificacao")
+}
+ids_ambientes_salvos = {
+    item.get("ambiente_id") for item in inventarios
+    if item["id"] in ids_inventarios_salvos
+}
+ids_canais_salvos = {
+    item.get("canal_id") for item in catalogos["ambientes"]
+    if item.get("id") in ids_ambientes_salvos
+}
 canais_sel = st.multiselect(
     "Canais",
     canais,
+    default=[item for item in canais if item["id"] in ids_canais_salvos],
     format_func=lambda item: item["nome"],
 )
 
@@ -62,6 +81,7 @@ ambientes = [
 ambientes_sel = st.multiselect(
     "Ambientes",
     ambientes,
+    default=[item for item in ambientes if item["id"] in ids_ambientes_salvos],
     format_func=lambda item: item["nome"],
     disabled=not canais_sel,
 )
@@ -77,6 +97,7 @@ tecnologias = [
 tecnologias_sel = st.multiselect(
     "Tecnologias",
     tecnologias,
+    default=tecnologias if ids_inventarios_salvos else [],
     format_func=lambda item: item["nome"],
     disabled=not ambientes_sel,
 )
@@ -102,6 +123,9 @@ inventarios_filtrados = [
 inventarios_sel = st.multiselect(
     "Inventários que participarão desta campanha",
     inventarios_filtrados,
+    default=[
+        item for item in inventarios_filtrados if item["id"] in ids_inventarios_salvos
+    ],
     format_func=lambda item: item["nome"],
     disabled=not tecnologias_sel,
 )

@@ -246,6 +246,9 @@ class DecisionRepository(BaseRepository):
                 return f"briefing:{briefing['id']}"
             nome = briefing.get("nome") or briefing.get("campanha") or "sem-nome"
         else:
+            registro_id = getattr(briefing, "registro_id", None)
+            if registro_id:
+                return f"briefing:{registro_id}"
             nome = getattr(briefing, "campanha", "sem-nome")
         return f"sessao:{nome}"
 
@@ -267,6 +270,19 @@ class DecisionRepository(BaseRepository):
 
         )
 
+        audiencias = self.audiencias(briefing["id"])
+        if not audiencias:
+            audiencias = [
+                {
+                    "audiencia_id": publico.get("audiencia_id", publico.get("id")),
+                    "peso": float(publico.get("peso", 100)),
+                    "interesses": publico.get("interesses", []),
+                    "jornada": publico.get("jornada"),
+                }
+                for publico in (briefing.get("publicos") or [])
+                if isinstance(publico, dict) and publico.get("id")
+            ]
+
         return {
 
             "briefing": briefing,
@@ -279,11 +295,7 @@ class DecisionRepository(BaseRepository):
 
             "kpis": self.kpis(),
 
-            "audiencias": self.audiencias(
-
-                briefing["id"]
-
-            ),
+            "audiencias": audiencias,
 
             "inventarios": self.inventarios(),
 

@@ -12,6 +12,7 @@ from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
 from application.services.workflow_artifact_service import WorkflowArtifactService
+from components.artifact_manager import render as gerenciar_artefatos
 
 
 # ==========================================================
@@ -42,6 +43,7 @@ workflow_service = WorkflowService()
 artefatos = WorkflowArtifactService()
 
 origem = selecionar_planejamento(planejamento, "diagnostico_planejamento")
+gerenciar_artefatos(artefatos, "DIAGNOSTICO", "Diagnósticos")
 
 if st.button(
 
@@ -79,10 +81,11 @@ if "diagnostico" in st.session_state:
             value=f"Diagnóstico — {diagnostico.campanha}",
         )
         if st.button("Salvar diagnóstico", type="primary"):
-            artefatos.salvar(
+            artefatos.salvar_no_projeto(
                 "DIAGNOSTICO",
                 nome_diagnostico,
                 diagnostico,
+                st.session_state,
                 origem["id"],
             )
             st.success("Diagnóstico salvo.")

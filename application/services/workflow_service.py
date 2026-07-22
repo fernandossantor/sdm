@@ -5,6 +5,7 @@ from application.services.briefing_service import (
 from domain.models.workflow_state import (
     WorkflowState
 )
+from application.services.project_service import ProjectService
 
 class WorkflowService:
 
@@ -30,6 +31,7 @@ class WorkflowService:
     def __init__(self):
 
         self.briefing_service = BriefingService()
+        self.projetos = ProjectService()
 
     # =====================================================
     # STATUS
@@ -60,6 +62,7 @@ class WorkflowService:
             raise ValueError(f"Etapa de workflow inválida: {etapa}")
 
         session_state[self.CHAVES[etapa]] = valor
+        self.projetos.registrar(session_state, etapa, True)
 
     def pode_acessar(self, session_state, etapa):
 
@@ -88,39 +91,40 @@ class WorkflowService:
             briefing=(
                 self.briefing_service.existe(session_state)
                 or session_state.get("briefing_ref") is not None
+                or bool((session_state.get("projeto_progresso") or {}).get("briefing"))
             ),
 
             planejamento=session_state.get(
 
                 "plano"
 
-            ) is not None,
+            ) is not None or bool((session_state.get("projeto_progresso") or {}).get("planejamento")),
 
-            mcp_papeis=session_state.get("mcp_papeis") is not None,
+            mcp_papeis=session_state.get("mcp_papeis") is not None or bool((session_state.get("projeto_progresso") or {}).get("mcp_papeis")),
 
             diagnostico=session_state.get(
 
                 "diagnostico"
 
-            ) is not None,
+            ) is not None or bool((session_state.get("projeto_progresso") or {}).get("diagnostico")),
 
             forecast=session_state.get(
 
                 "forecast"
 
-            ) is not None,
+            ) is not None or bool((session_state.get("projeto_progresso") or {}).get("forecast")),
 
             dashboard=session_state.get(
 
                 "dashboard"
 
-            ) is not None,
+            ) is not None or bool((session_state.get("projeto_progresso") or {}).get("dashboard")),
 
             exportacao=session_state.get(
 
                 "exportacao"
 
-            ) is not None
+            ) is not None or bool((session_state.get("projeto_progresso") or {}).get("exportacao"))
 
         )
 
