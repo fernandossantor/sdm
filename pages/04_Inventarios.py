@@ -314,6 +314,15 @@ else:
             f"editar_{selecionado['id']}", selecionado, preco_atual,
             selecionado.get("kpi_principal_id"),
         )
+        st.caption(f"Código: {selecionado.get('codigo') or selecionado['id'][:8]}")
+        if st.button("Duplicar inventário", width="stretch"):
+            try:
+                service.duplicar_inventario(selecionado)
+            except Exception as erro:
+                st.error(f"Não foi possível duplicar: {erro}")
+            else:
+                st.success("Inventário duplicado com preços e vigências.")
+                st.rerun()
         if st.button("Salvar alterações", type="primary", width="stretch"):
             if preco["fim_vigencia"] < preco["inicio_vigencia"]:
                 st.error("A vigência final não pode ser anterior à inicial.")
@@ -336,7 +345,7 @@ for item in cadastrados:
     precos = service.precos_inventario(item["id"])
     vigente = next((p for p in reversed(precos) if p.get("ativo", True)), None)
     nome_col, preco_col = st.columns([3, 2])
-    nome_col.write(item["nome"])
+    nome_col.write(f"{item.get('codigo') or item['id'][:8]} · {item['nome']}")
     if vigente:
         liquido = float(vigente["valor_bruto"]) * (
             1 - float(vigente.get("desconto_percentual", 0)) / 100
@@ -344,3 +353,39 @@ for item in cadastrados:
         preco_col.write(f"{moeda_ptbr(liquido)} / {vigente['unidade']}")
     else:
         preco_col.caption("Sem preço vigente")
+    with st.expander(f"Medições e correspondências — {item['nome']}"):
+        medicoes = service.medicoes_inventario(item["id"])
+        for medicao in reversed(medicoes):
+            st.caption(
+                f"{medicao['tipo_original']}: {medicao['valor_original']} "
+                f"{medicao['unidade_original']} · fonte: {medicao['fonte']}"
+            )
+        m1, m2, m3 = st.columns(3)
+        tipo_original = m1.text_input("Tipo original", key=f"mtipo_{item['id']}")
+        valor_original = m2.number_input("Valor original", min_value=0.0, key=f"mvalor_{item['id']}")
+        unidade_original = m3.text_input("Unidade original", key=f"munidade_{item['id']}")
+        m4, m5, m6 = st.columns(3)
+        audiencia_medida = m4.number_input("Equivalência: audiência (%)", 0.0, 100.0, key=f"maud_{item['id']}")
+        alcance_medido = m5.number_input("Equivalência: alcance (%)", 0.0, 100.0, key=f"malc_{item['id']}")
+        frequencia_medida = m6.number_input("Frequência observada", min_value=0.0, key=f"mfreq_{item['id']}")
+        fonte_medicao = st.text_input("Fonte da medição", key=f"mfonte_{item['id']}")
+        metodologia = st.text_area("Metodologia/correspondência", key=f"mmetodo_{item['id']}")
+        confianca_medicao = st.selectbox(
+            "Natureza", ["MEDIDO", "INFORMADO", "ESTIMADO"], key=f"mconf_{item['id']}"
+        )
+        if st.button("Salvar medição", key=f"msalvar_{item['id']}"):
+            try:
+                service.salvar_medicao_inventario({
+                    "inventario_id": item["id"], "tipo_original": tipo_original,
+                    "valor_original": valor_original, "unidade_original": unidade_original,
+                    "audiencia_percentual": audiencia_medida or None,
+                    "alcance_percentual": alcance_medido or None,
+                    "frequencia": frequencia_medida or None, "fonte": fonte_medicao,
+                    "metodologia": metodologia or None, "confianca": confianca_medicao,
+                    "ativo": True,
+                })
+            except Exception as erro:
+                st.error(str(erro))
+            else:
+                st.success("Medição salva.")
+                st.rerun()

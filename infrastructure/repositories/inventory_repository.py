@@ -2,6 +2,7 @@ from infrastructure.database.database_schema import (
     INVENTARIOS,
     INVENTARIOS_METRICAS,
     INVENTARIOS_PAPEIS,
+    MEDICOES_INVENTARIO,
     PRECOS_INVENTARIO,
 )
 from infrastructure.repositories.base_repository import BaseRepository
@@ -80,3 +81,9 @@ class InventoryRepository(BaseRepository):
         )
 
         return metricas[0] if metricas else None
+
+    def listar_medicoes(self, inventario_id):
+        return self.by_field(MEDICOES_INVENTARIO, "inventario_id", inventario_id)
+
+    def salvar_medicao(self, dados):
+        return self.insert(MEDICOES_INVENTARIO, dados)

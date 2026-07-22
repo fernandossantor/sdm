@@ -10,6 +10,7 @@ from engine.recommendation_engine import RecommendationEngine
 from engine.scenario_engine import ScenarioEngine
 from engine.score_engine import ScoreEngine
 from domain.models.plano_tatico import PlanoTatico, PlanoTaticoItem
+from engine.media_plan_engine import MediaPlanEngine
 
 
 class TestAllocationEngine(unittest.TestCase):
@@ -53,6 +54,41 @@ class TestAllocationEngine(unittest.TestCase):
         plano = AllocationEngine().distribuir(ranking, 1000)
 
         self.assertEqual(plano.itens, [])
+
+
+class TestMediaPlanEngine(unittest.TestCase):
+
+    def test_calcula_insercoes_grp_cpp_e_retorno(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10, "alcance_percentual": 30,
+                "frequencia": 2, "frequencia_maxima": 3,
+                "quantidade": 6, "unidade_compra": "Inserção",
+                "ctr": 2, "taxa_conversao": 5, "valor_conversao": 100,
+            },
+            publico_referencia=10000,
+            preco_unitario=500,
+        )
+        self.assertEqual(resultado.investimento, 3000)
+        self.assertEqual(resultado.grp, 60)
+        self.assertEqual(resultado.cpp, 50)
+        self.assertEqual(resultado.impressoes, 6000)
+        self.assertEqual(resultado.conversoes, 6)
+
+    def test_combina_alcance_incremental_e_grp(self):
+        premissas = [
+            {"alcance_percentual": 80, "alcance_incremental": 80},
+            {"alcance_percentual": 30, "alcance_incremental": 20},
+        ]
+        alcance, auditoria = MediaPlanEngine.alcance_combinado(premissas)
+        self.assertEqual(alcance, 100)
+        self.assertEqual(auditoria[1]["incremental"], 20)
+
+    def test_rejeita_premissa_incompleta(self):
+        with self.assertRaisesRegex(ValueError, "audiencia_percentual"):
+            MediaPlanEngine.calcular_item(
+                {"alcance_percentual": 30, "frequencia": 2}, 10000, 100
+            )
 
 
 class TestClassificacaoPapeisEngine(unittest.TestCase):

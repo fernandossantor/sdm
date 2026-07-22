@@ -8,6 +8,7 @@ from components.home.hero import render as hero
 from components.home.workflow_card import render as workflow_card
 from components.home.projects_card import render as projects_card
 from components.home.knowledge_card import render as knowledge_card
+from components.active_context import render as active_context
 
 # ==========================================================
 # CONFIGURAÇÃO
@@ -91,6 +92,7 @@ navegacao = st.navigation(
 with st.sidebar:
     st.markdown("## PlanOS")
     st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
+    active_context()
     if st.session_state.get("projeto_nome"):
         st.caption(f"Projeto ativo: {st.session_state['projeto_nome']}")
     st.page_link(pagina_home, label="Início", icon="🏠")
@@ -111,7 +113,7 @@ with st.sidebar:
         "Federal do Pampa, campus São Borja, RS. Contato: "
         "fernandosantor@unipampa.edu.br"
     )
-    st.caption("Versão 1.3.0")
+    st.caption("Versão 2.0.0")
     st.caption("Tecnologias: Supabase · Streamlit · Codex · GitHub Codespaces")
 
 navegacao.run()

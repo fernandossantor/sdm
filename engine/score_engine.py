@@ -166,8 +166,7 @@ class ScoreEngine:
             pesos += peso
 
         if pesos == 0:
-
-            return 20
+            return 0
 
         score = soma / pesos
 

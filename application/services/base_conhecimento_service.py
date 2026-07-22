@@ -16,6 +16,7 @@ from infrastructure.database.database_schema import (
 )
 from infrastructure.repositories.catalog_repository import CatalogRepository
 from infrastructure.repositories.inventory_repository import InventoryRepository
+from application.services.identifier_service import IdentifierService
 
 
 class BaseConhecimentoService:
@@ -150,6 +151,28 @@ class BaseConhecimentoService:
             raise ValueError("Nome do inventário é obrigatório.")
         return self.inventarios.atualizar(inventario_id, dados)
 
+    def duplicar_inventario(self, inventario):
+        novo_id, codigo = IdentifierService.preparar_copia(inventario, "inventarios_v3")
+        dados = {
+            chave: valor for chave, valor in inventario.items()
+            if chave in {
+                "nome", "descricao", "plataforma_id", "ambiente_id", "estrutura_id",
+                "formato_id", "modelo_comercial_id", "modalidade_compra_id",
+                "unidade_compra_id", "kpi_principal_id", "ativo",
+            }
+        }
+        dados.update({"id": novo_id, "codigo": codigo, "nome": f"{inventario['nome']} — cópia"})
+        resposta = self.inventarios.salvar(dados)
+        for preco in self.precos_inventario(inventario["id"]):
+            copia = {k: v for k, v in preco.items() if k not in {"id", "criado_em", "atualizado_em"}}
+            copia["inventario_id"] = novo_id
+            self.salvar_preco_inventario(copia)
+        for medicao in self.medicoes_inventario(inventario["id"]):
+            copia = {k: v for k, v in medicao.items() if k not in {"id", "criado_em"}}
+            copia["inventario_id"] = novo_id
+            self.salvar_medicao_inventario(copia)
+        return resposta.data[0]
+
     def precos_inventario(self, inventario_id):
 
         return self.inventarios.listar_precos(inventario_id)
@@ -160,6 +183,16 @@ class BaseConhecimentoService:
             raise ValueError("O preço não pode ser negativo.")
 
         return self.inventarios.salvar_preco(dados)
+
+    def medicoes_inventario(self, inventario_id):
+        return self.inventarios.listar_medicoes(inventario_id)
+
+    def salvar_medicao_inventario(self, dados):
+        obrigatorios = ("tipo_original", "valor_original", "unidade_original", "fonte")
+        ausentes = [campo for campo in obrigatorios if not dados.get(campo)]
+        if ausentes:
+            raise ValueError("Preencha tipo, valor, unidade e fonte da medição.")
+        return self.inventarios.salvar_medicao(dados)
 
     def inventarios_com_papeis(self, campanha_ref):
 

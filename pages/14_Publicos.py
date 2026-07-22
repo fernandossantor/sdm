@@ -246,7 +246,7 @@ else:
 
             st.markdown(
 
-                f"### {publico['nome']}"
+                f"### {publico.get('codigo') or publico['id'][:8]} · {publico['nome']}"
 
             )
 
@@ -293,11 +293,15 @@ else:
 
         with c2:
 
+            if st.button("Duplicar", key=f"dup_{publico['id']}"):
+                service.duplicar(publico)
+                st.rerun()
+
             if st.button(
 
                 "🗑",
 
-                key=publico["id"]
+                key=f"del_{publico['id']}"
 
             ):
 

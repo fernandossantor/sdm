@@ -319,7 +319,7 @@ else:
 
                 st.markdown(
 
-                    f"### {segmento['nome']}"
+                    f"### {segmento.get('codigo') or segmento['id'][:8]} · {segmento['nome']}"
 
                 )
 
@@ -393,6 +393,19 @@ else:
             # ----------------------------------------------
 
             with col5:
+
+                destino = st.selectbox(
+                    "Destino",
+                    universos,
+                    index=next((i for i, u in enumerate(universos) if u["id"] == segmento["universo_id"]), 0),
+                    format_func=lambda item: item["nome"],
+                    key=f"destino_{segmento['id']}",
+                    label_visibility="collapsed",
+                )
+
+                if st.button("Duplicar", key=f"dup_{segmento['id']}"):
+                    service.duplicar(segmento, destino["id"])
+                    st.rerun()
 
                 if st.button(
 

@@ -5,6 +5,7 @@ from infrastructure.repositories.segment_repository import SegmentRepository
 from infrastructure.repositories.universe_repository import UniverseRepository
 from infrastructure.repositories.catalog_repository import CatalogRepository
 from infrastructure.database.database_schema import INTERESSES, JORNADAS
+from application.services.identifier_service import IdentifierService
 
 
 class PublicService:
@@ -301,6 +302,26 @@ class PublicService:
             publico_id
 
         )
+
+    def duplicar(self, publico):
+        novo_id, codigo = IdentifierService.preparar_copia(publico, "biblioteca_publicos")
+        dados = {
+            "id": novo_id, "codigo": codigo,
+            "nome": f"{publico['nome']} — cópia",
+            "descricao": publico.get("descricao"), "ativo": publico.get("ativo", True),
+        }
+        resposta = self.repository.salvar(dados)
+        self.repository.salvar_segmentos([
+            {"publico_id": novo_id, "segmento_id": item["id"]}
+            for item in publico.get("segmentos", [])
+        ])
+        self.repository.salvar_interesses([
+            {"publico_id": novo_id, "interesse_id": item["id"], "peso": item.get("peso", 100)}
+            for item in publico.get("interesses", [])
+        ])
+        if publico.get("jornada"):
+            self.repository.salvar_jornada(novo_id, publico["jornada"]["id"])
+        return resposta.data[0]
 
     # =====================================================
     # RESUMO

@@ -3,6 +3,53 @@ from domain.models.comparacao import ComparacaoResultado
 
 class ComparadorService:
 
+    CRITERIOS = {
+        "alcance": ("alcance_liquido_percentual", True),
+        "frequencia": ("frequencia_combinada", True),
+        "conversoes": ("conversoes", True),
+        "roi": ("roi", True),
+        "jornada": ("cobertura_jornada", True),
+        "saturacao": ("risco_saturacao", False),
+        "investimento": ("investimento", False),
+    }
+
+    def comparar_configuravel(self, plano1, plano2, pesos):
+        dados = [
+            dict(plano1.resultados_consolidados or {}),
+            dict(plano2.resultados_consolidados or {}),
+        ]
+        if not dados[0] or not dados[1]:
+            raise ValueError("Os dois planos precisam ter cálculos cross-media auditáveis.")
+        total = sum(float(valor) for valor in pesos.values())
+        if abs(total - 100) > 0.01:
+            raise ValueError("Os pesos da comparação devem somar 100%.")
+        scores = [0.0, 0.0]
+        detalhes = []
+        for criterio, peso in pesos.items():
+            campo, maior_melhor = self.CRITERIOS[criterio]
+            valores = [float(item.get(campo) or 0) for item in dados]
+            referencia = max(valores) if maior_melhor else max(valores)
+            if maior_melhor:
+                notas = [v / referencia * 100 if referencia else 0 for v in valores]
+            else:
+                notas = [min(valores) / v * 100 if v else 100 for v in valores]
+            for indice in range(2):
+                scores[indice] += notas[indice] * float(peso) / 100
+            detalhes.append({
+                "criterio": criterio, "plano_a": valores[0], "plano_b": valores[1],
+                "peso": peso, "melhor": "A" if notas[0] > notas[1] else "B" if notas[1] > notas[0] else "Empate",
+            })
+        vencedor = "Plano A" if scores[0] > scores[1] else "Plano B" if scores[1] > scores[0] else "Empate"
+        vantagens = [d["criterio"] for d in detalhes if d["melhor"] == vencedor[-1:]]
+        justificativa = (
+            f"{vencedor} é mais aderente aos pesos configurados"
+            + (f", com vantagem em {', '.join(vantagens)}." if vantagens else ".")
+        )
+        return {
+            "vencedor": vencedor, "scores": [round(s, 2) for s in scores],
+            "detalhes": detalhes, "justificativa": justificativa,
+        }
+
     # =====================================================
     # COMPARAÇÃO
     # =====================================================

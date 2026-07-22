@@ -129,8 +129,7 @@ class InventoryEngine:
         fator = 1.0
 
         if not metricas:
-
-            return fator
+            return 0.0
 
         ctr = metricas.get(
 
@@ -336,7 +335,15 @@ class InventoryEngine:
             for item in afinidades_interesses
         }
 
-        hoje = date.today().isoformat()
+        if isinstance(briefing, dict):
+            referencia_preco = briefing.get("periodo_inicio")
+        else:
+            referencia_preco = getattr(briefing, "inicio", None)
+        hoje = (
+            referencia_preco.isoformat()
+            if hasattr(referencia_preco, "isoformat")
+            else str(referencia_preco)[:10] if referencia_preco else date.today().isoformat()
+        )
         precos_validos = []
         for item in contexto.get("precos", []):
             inicio = item.get("inicio_vigencia")

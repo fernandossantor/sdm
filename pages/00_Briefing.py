@@ -14,6 +14,7 @@ from application.services.base_conhecimento_service import (
 )
 from application.services.project_service import ProjectService
 from components.grp_fields import render as render_grp
+from application.services.identifier_service import IdentifierService
 
 
 # ==========================================================
@@ -57,17 +58,25 @@ if not st.session_state.get("projeto_id"):
         st.rerun()
     st.stop()
 
-st.caption(f"Projeto: **{st.session_state['projeto_nome']}**")
+st.caption(
+    f"Projeto: **{st.session_state.get('projeto_codigo') or ''} · "
+    f"{st.session_state['projeto_nome']}**"
+)
+if st.session_state.get("briefing_codigo"):
+    st.caption(f"Briefing ativo: **{st.session_state['briefing_codigo']}**")
 
 with st.expander("Briefings salvos", expanded=False):
     registros_briefing = briefing_service.listar(st.session_state["projeto_id"])
     if not registros_briefing:
         st.info("Nenhum briefing salvo.")
     for registro in registros_briefing:
-        a, b, c = st.columns([4, 1, 1])
-        a.write(registro["nome"])
+        a, b, copia, c = st.columns([4, 1, 1, 1])
+        a.write(IdentifierService.rotulo(registro))
         if b.button("Editar", key=f"editar_briefing_{registro['id']}"):
             briefing_service.carregar(registro, st.session_state)
+            st.rerun()
+        if copia.button("Duplicar", key=f"duplicar_briefing_{registro['id']}"):
+            briefing_service.duplicar(registro, st.session_state)
             st.rerun()
         if c.button("Excluir", key=f"excluir_briefing_{registro['id']}"):
             briefing_service.excluir(registro["id"], st.session_state)

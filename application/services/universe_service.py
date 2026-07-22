@@ -1,6 +1,7 @@
 from infrastructure.repositories.universe_repository import (
     UniverseRepository
 )
+from application.services.identifier_service import IdentifierService
 
 
 class UniverseService:
@@ -178,6 +179,12 @@ class UniverseService:
                 "O Universo possui dependências e foi arquivado para preservar "
                 "Segmentos e Públicos existentes."
             )
+
+    def duplicar(self, universo):
+        novo_id, codigo = IdentifierService.preparar_copia(universo, "universos")
+        dados = {k: v for k, v in universo.items() if k not in {"id", "codigo", "criado_em", "atualizado_em"}}
+        dados.update({"id": novo_id, "codigo": codigo, "nome": f"{universo['nome']} — cópia"})
+        return self.repository.salvar(dados).data[0]
 
     # =====================================================
     # RESUMO

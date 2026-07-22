@@ -9,6 +9,9 @@ class ProjectRepository(BaseRepository):
     def criar(self, nome):
         return self.insert(PROJETOS, {"nome": nome.strip()})
 
+    def salvar(self, dados):
+        return self.insert(PROJETOS, dados)
+
     def atualizar(self, projeto_id, dados):
         return self.update(PROJETOS, "id", projeto_id, dados)
 

@@ -1,4 +1,5 @@
 import streamlit as st
+from application.services.identifier_service import IdentifierService
 
 
 def selecionar_planejamento(service, key="planejamento_origem"):
@@ -6,13 +7,14 @@ def selecionar_planejamento(service, key="planejamento_origem"):
     opcoes = []
     if "plano" in st.session_state:
         plano = st.session_state["plano"]
-        opcoes.append(
-            {"rotulo": f"Sessão — {plano.campanha}", "plano": plano, "id": None}
-        )
+        opcoes.append({
+            "rotulo": f"Sessão — {plano.codigo + ' · ' if plano.codigo else ''}{plano.campanha}",
+            "plano": plano, "id": None,
+        })
     for registro in reversed(service.listar()):
         opcoes.append(
             {
-                "rotulo": f"Salvo — {registro['nome']}",
+                "rotulo": f"Salvo — {IdentifierService.rotulo(registro)}",
                 "plano": service.restaurar(registro),
                 "id": registro["id"],
             }

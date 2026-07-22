@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from math import ceil
 
 from application.services.briefing_service import (
     BriefingService
@@ -17,7 +18,8 @@ from application.services.base_conhecimento_service import BaseConhecimentoServi
 from components.workflow_guard import exigir
 from components.formatters import dataframe_ptbr, moeda_ptbr, numero_ptbr
 from components.grp_fields import render as render_grp
-from components.schedule_editor import render as render_schedule
+from components.schedule_visual import render as render_schedule
+from application.services.identifier_service import IdentifierService
 
 
 # ==========================================================
@@ -56,13 +58,16 @@ with st.expander("Planos de mídia salvos", expanded=False):
         st.info("Nenhum planejamento salvo.")
     else:
         for registro in reversed(planos_salvos):
-            c_nome, c_abrir, c_excluir = st.columns([5, 1, 1])
-            c_nome.write(registro["nome"])
+            c_nome, c_abrir, c_copia, c_excluir = st.columns([5, 1, 1, 1])
+            c_nome.write(IdentifierService.rotulo(registro))
             if c_abrir.button("Abrir", key=f"abrir_plano_{registro['id']}"):
                 st.session_state["plano"] = planejamento.restaurar(registro)
                 st.session_state["configuracao_planejamento"] = registro.get(
                     "configuracao", {}
                 )
+                st.rerun()
+            if c_copia.button("Duplicar", key=f"duplicar_plano_{registro['id']}"):
+                planejamento.duplicar(registro)
                 st.rerun()
             if c_excluir.button("Excluir", key=f"excluir_plano_{registro['id']}"):
                 planejamento.excluir(registro["id"])
@@ -187,6 +192,21 @@ else:
 st.divider()
 st.subheader("Configuração do planejamento")
 
+st.markdown("#### Critérios estratégicos")
+st.caption(
+    "Os pesos são explícitos e podem ser alterados. Eles orientam a proposta; "
+    "quantidades, preços e restrições determinam a alocação final."
+)
+p1, p2, p3, p4, p5 = st.columns(5)
+peso_objetivo = p1.number_input("Objetivo/OKR (%)", 0, 100, 40)
+peso_kpi = p2.number_input("KPI (%)", 0, 100, 30)
+peso_publico = p3.number_input("Público e jornada (%)", 0, 100, 20)
+peso_metricas = p4.number_input("Qualidade das métricas (%)", 0, 100, 10)
+peso_mcp = p5.number_input("Influência do MCP (%)", 0, 100, 20)
+soma_pesos = peso_objetivo + peso_kpi + peso_publico + peso_metricas
+if soma_pesos != 100:
+    st.error(f"Os quatro pesos estratégicos devem somar 100% (atual: {soma_pesos}%).")
+
 if modo == "Briefing da Sessão":
     orcamento_inicial = float(briefing.orcamento)
     kpi_inicial = briefing.kpi
@@ -221,6 +241,10 @@ with c1:
         step=1000.0,
     )
     kpi_plano = st.selectbox("KPI principal", nomes_kpis, index=kpi_indice)
+    reserva_testes = st.number_input(
+        "Reserva para testes (%)", min_value=0.0, max_value=30.0,
+        value=5.0, step=1.0,
+    )
 
 with c2:
     flights = ["LINEAR", "ONDA", "CONCENTRADO"]
@@ -249,6 +273,7 @@ configuracao = {
     "alcance_objetivo": alcance_plano,
     "alcance_percentual": float(alcance_percentual_plano),
     "grp": float(grp_plano),
+    "reserva_testes_percentual": float(reserva_testes),
 }
 
 campanha_ref = (
@@ -280,6 +305,219 @@ else:
         item["id"] for item in inventarios_plano
     ]
 
+    st.markdown("#### Entrega, compra e premissas por inventário")
+    st.info(
+        "Audiência, alcance e frequência são obrigatórios. Valores sugeridos "
+        "podem ser substituídos e ficam registrados somente neste plano."
+    )
+    premissas_inventarios = {}
+    componentes_inventarios = {}
+    premissas_validas = True
+    investimento_proposto = 0.0
+    briefing_previa = briefing if modo == "Briefing da Sessão" else briefing_salvo_obj
+    try:
+        ranking_previa = {
+            item["inventario_id"]: item
+            for item in planejamento.previsualizar(briefing_previa)
+        }
+    except Exception:
+        ranking_previa = {}
+    for ordem, item in enumerate(inventarios_plano):
+        classificacao = item.get("classificacao") or {}
+        previa = ranking_previa.get(item["id"], {})
+        precos_item = base_conhecimento.precos_inventario(item["id"])
+        preco_item = next((p for p in reversed(precos_item) if p.get("ativo", True)), {})
+        preco_liquido = float(preco_item.get("valor_bruto") or 0) * (
+            1 - float(preco_item.get("desconto_percentual") or 0) / 100
+        )
+        unidade_preco = str(preco_item.get("unidade") or "")
+        medicoes_item = base_conhecimento.medicoes_inventario(item["id"])
+        medicao_item = next((m for m in reversed(medicoes_item) if m.get("ativo", True)), {})
+        quantidade_sugerida = round(
+            float(orcamento_plano) * (1 - reserva_testes / 100)
+            / max(len(inventarios_plano), 1) / preco_liquido, 2
+        ) if preco_liquido else 0.0
+        with st.expander(item["nome"], expanded=True):
+            a, b, c, d = st.columns(4)
+            audiencia_item = a.number_input(
+                "Audiência por unidade (%)", min_value=0.0, max_value=100.0,
+                value=float(medicao_item.get("audiencia_percentual") or 0), key=f"audiencia_plano_{item['id']}",
+            )
+            alcance_item = b.number_input(
+                "Alcance do meio (%)", min_value=0.0, max_value=100.0,
+                value=float(medicao_item.get("alcance_percentual") or classificacao.get("cobertura") or 0),
+                key=f"alcance_plano_{item['id']}",
+            )
+            incremental_item = c.number_input(
+                "Alcance incremental (%)", min_value=0.0, max_value=100.0,
+                value=float(classificacao.get("cobertura") or 0) if ordem == 0 else 0.0,
+                key=f"incremental_plano_{item['id']}",
+            )
+            frequencia_item = d.number_input(
+                "Frequência do meio", min_value=0.0, value=float(medicao_item.get("frequencia") or 0), step=0.1,
+                key=f"frequencia_plano_{item['id']}",
+            )
+            modo_calculo = st.radio(
+                "Variável de decisão",
+                ["Metas geram a quantidade", "Quantidade informa a entrega"],
+                horizontal=True, key=f"modo_calculo_{item['id']}",
+                help="No primeiro modo, alcance, frequência e audiência calculam a compra. No segundo, a compra recalcula frequência e GRP.",
+            )
+            if audiencia_item > 0 and alcance_item > 0 and frequencia_item > 0:
+                if "mil impress" in unidade_preco.casefold() and getattr(briefing_previa, "publicos", None):
+                    publico_base = planejamento.publico_referencia(briefing_previa.publicos)
+                    quantidade_meta = publico_base * alcance_item / 100 * frequencia_item / 1000
+                elif "impress" in unidade_preco.casefold() and getattr(briefing_previa, "publicos", None):
+                    publico_base = planejamento.publico_referencia(briefing_previa.publicos)
+                    quantidade_meta = publico_base * alcance_item / 100 * frequencia_item
+                else:
+                    quantidade_meta = float(ceil(alcance_item * frequencia_item / audiencia_item))
+            else:
+                quantidade_meta = quantidade_sugerida
+            e, f, g, h = st.columns(4)
+            quantidade_item = e.number_input(
+                "Quantidade de compra", min_value=0.0,
+                value=quantidade_meta if modo_calculo == "Metas geram a quantidade" else quantidade_sugerida,
+                step=1.0,
+                key=f"quantidade_plano_{item['id']}",
+                disabled=modo_calculo == "Metas geram a quantidade",
+            )
+            frequencia_maxima = f.number_input(
+                "Frequência máxima", min_value=0.1, value=10.0, step=0.5,
+                key=f"freq_max_plano_{item['id']}",
+            )
+            ctr_item = g.number_input(
+                "CTR/resposta (%)", min_value=0.0, value=0.0, step=0.1,
+                key=f"ctr_plano_{item['id']}",
+            )
+            conversao_item = h.number_input(
+                "Taxa de conversão (%)", min_value=0.0, value=0.0, step=0.1,
+                key=f"conversao_plano_{item['id']}",
+            )
+            valor_conversao = st.number_input(
+                "Valor por conversão (R$)", min_value=0.0, value=0.0,
+                key=f"valor_conversao_plano_{item['id']}",
+            )
+            st.caption(
+                f"Preço líquido considerado: {moeda_ptbr(preco_liquido)} · "
+                f"proposta inicial: {numero_ptbr(quantidade_sugerida, 2)} unidades."
+            )
+            r1, r2, r3, r4 = st.columns(4)
+            quantidade_minima = r1.number_input(
+                "Piso de quantidade", min_value=0.0, value=0.0,
+                key=f"qmin_plano_{item['id']}",
+            )
+            quantidade_maxima = r2.number_input(
+                "Teto de quantidade", min_value=0.0,
+                value=max(quantidade_sugerida, quantidade_item),
+                key=f"qmax_plano_{item['id']}",
+            )
+            verba_minima = r3.number_input(
+                "Piso de verba", min_value=0.0, value=0.0,
+                key=f"vmin_plano_{item['id']}",
+            )
+            verba_maxima = r4.number_input(
+                "Teto de verba", min_value=0.0,
+                value=max(float(orcamento_plano), quantidade_item * preco_liquido),
+                key=f"vmax_plano_{item['id']}",
+            )
+            obrigatorio = st.checkbox(
+                "Inventário obrigatório nesta versão", value=False,
+                key=f"obrigatorio_plano_{item['id']}",
+            )
+            atualizar_cadastro = st.checkbox(
+                "Salvar estes valores também nas medições do inventário",
+                value=False, key=f"atualizar_medicao_{item['id']}",
+            )
+            cobertura_jornada = st.slider(
+                "Cobertura dos pontos de contato da jornada (%)", 0, 100, 50,
+                key=f"jornada_plano_{item['id']}",
+                help="Avalie a contribuição deste inventário às etapas da jornada do público.",
+            )
+            confianca = st.selectbox(
+                "Natureza dos dados", ["INFORMADO", "MEDIDO", "ESTIMADO"],
+                index=["INFORMADO", "MEDIDO", "ESTIMADO"].index(
+                    medicao_item.get("confianca") if medicao_item.get("confianca") in {"INFORMADO", "MEDIDO", "ESTIMADO"} else "INFORMADO"
+                ), key=f"confianca_plano_{item['id']}",
+            )
+            st.markdown("**Aderência estratégica — revise os valores sugeridos**")
+            s1, s2, s3, s4 = st.columns(4)
+            score_objetivo = s1.number_input(
+                "Objetivo/OKR", 0.0, 100.0, min(100.0, float(previa.get("objetivo") or 0)),
+                key=f"score_obj_{item['id']}",
+            )
+            score_kpi = s2.number_input(
+                "KPI", 0.0, 100.0, min(100.0, float(previa.get("kpi") or 0)),
+                key=f"score_kpi_{item['id']}",
+            )
+            score_publico = s3.number_input(
+                "Público e jornada", 0.0, 100.0, min(100.0, float(previa.get("audiencia") or 0)),
+                key=f"score_publico_{item['id']}",
+            )
+            score_metricas = s4.number_input(
+                "Qualidade das métricas", 0.0, 110.0, float(previa.get("metricas") or 0),
+                key=f"score_metricas_{item['id']}",
+            )
+        if audiencia_item <= 0 or alcance_item <= 0 or frequencia_item <= 0:
+            premissas_validas = False
+        investimento_item = quantidade_item * preco_liquido
+        investimento_proposto += investimento_item
+        if (
+            quantidade_item < quantidade_minima
+            or quantidade_item > quantidade_maxima
+            or investimento_item < verba_minima
+            or investimento_item > verba_maxima
+        ):
+            premissas_validas = False
+        premissas_inventarios[item["id"]] = {
+            "audiencia_percentual": audiencia_item,
+            "alcance_percentual": alcance_item,
+            "alcance_incremental": incremental_item,
+            "frequencia": frequencia_item,
+            "frequencia_maxima": frequencia_maxima,
+            "quantidade": quantidade_item,
+            "modo_calculo": "METAS" if modo_calculo == "Metas geram a quantidade" else "COMPRA",
+            "quantidade_minima": quantidade_minima,
+            "quantidade_maxima": quantidade_maxima,
+            "verba_minima": verba_minima,
+            "verba_maxima": verba_maxima,
+            "obrigatorio": obrigatorio,
+            "atualizar_cadastro": atualizar_cadastro,
+            "ctr": ctr_item,
+            "taxa_conversao": conversao_item,
+            "valor_conversao": valor_conversao,
+            "cobertura_jornada": cobertura_jornada,
+            "confianca": confianca,
+            "medicao_origem_id": medicao_item.get("id"),
+            "fonte": medicao_item.get("fonte") or "Informado no plano",
+        }
+        componentes_inventarios[item["id"]] = {
+            "objetivo": score_objetivo, "kpi": score_kpi,
+            "audiencia": score_publico, "metricas": score_metricas,
+        }
+    configuracao["premissas_inventarios"] = premissas_inventarios
+    configuracao["componentes_inventarios"] = componentes_inventarios
+    limite_compra = float(orcamento_plano) * (1 - reserva_testes / 100)
+    if investimento_proposto > limite_compra + 0.01:
+        premissas_validas = False
+        st.error(
+            f"A compra proposta ({moeda_ptbr(investimento_proposto)}) excede "
+            f"a verba disponível após a reserva ({moeda_ptbr(limite_compra)})."
+        )
+    else:
+        st.caption(
+            f"Compra proposta: {moeda_ptbr(investimento_proposto)} · "
+            f"saldo não alocado: {moeda_ptbr(limite_compra - investimento_proposto)}."
+        )
+
+configuracao["estrategia"] = {
+    "pesos": {
+        "objetivo": peso_objetivo, "kpi": peso_kpi,
+        "audiencia": peso_publico, "metricas": peso_metricas,
+    },
+    "peso_mcp": peso_mcp,
+}
+
 
 st.divider()
 
@@ -290,7 +528,7 @@ gerar = st.button(
     type="primary",
 
     width="stretch",
-    disabled=not inventarios_mcp,
+    disabled=(not inventarios_mcp or soma_pesos != 100 or not locals().get("premissas_validas", False)),
 
 )
 
@@ -327,6 +565,21 @@ if gerar:
     if modo == "Briefing Salvo":
         workflow_service.registrar_briefing(st.session_state, nome_briefing)
 
+    for inventario_id, premissa in configuracao.get("premissas_inventarios", {}).items():
+        if premissa.get("atualizar_cadastro"):
+            base_conhecimento.salvar_medicao_inventario({
+                "inventario_id": inventario_id,
+                "tipo_original": "Premissa validada no Plano de Mídia",
+                "valor_original": premissa["audiencia_percentual"],
+                "unidade_original": "% do público-alvo",
+                "audiencia_percentual": premissa["audiencia_percentual"],
+                "alcance_percentual": premissa["alcance_percentual"],
+                "frequencia": premissa["frequencia"],
+                "fonte": "Planejador — Plano de Mídia",
+                "metodologia": "Valor revisado e confirmado na configuração do plano.",
+                "confianca": premissa["confianca"], "ativo": True,
+            })
+
     workflow_service.concluir(st.session_state, "planejamento", plano)
 
     st.session_state["configuracao_planejamento"] = configuracao
@@ -346,11 +599,14 @@ if "plano" in st.session_state:
             value=f"{plano.campanha} — {flight_plano.title()}",
         )
         if st.button("Salvar planejamento", type="primary"):
-            planejamento.salvar(
+            resposta = planejamento.salvar(
                 nome_plano,
                 plano,
                 st.session_state.get("configuracao_planejamento", configuracao),
+                briefing_id=st.session_state.get("briefing_id"),
             )
+            if getattr(resposta, "data", None):
+                st.session_state["planejamento_id"] = resposta.data[0]["id"]
             st.success("Plano de Mídia salvo.")
 
     abas = st.tabs(
@@ -382,13 +638,14 @@ if "plano" in st.session_state:
                         i.score_mcp if i.score_mcp is not None else i.score
                     ),
                     "Flight": plano.tipo_flight.title(),
-                    "Frequência média": plano.frequencia_alvo,
-                    "Alcance (%)": plano.alcance_percentual,
+                    "Frequência do meio": i.frequencia,
+                    "Alcance do meio (%)": i.alcance_percentual,
+                    "Alcance incremental (%)": i.alcance_incremental,
                     "Inventário": i.inventario,
                     "Plataforma": i.plataforma,
                     "Ambiente": i.ambiente,
                     "Verba": i.verba,
-                    "GRP": plano.grp,
+                    "GRP do meio": i.grp,
                     "Score estratégico": i.score,
                     "Participação da verba (%)": i.percentual,
                     "Preço unitário": i.preco_unitario,
@@ -396,6 +653,13 @@ if "plano" in st.session_state:
                     "Quantidade comprada": i.quantidade_estimada,
                     "Impressões estimadas": i.impressoes_estimadas,
                     "Alcance estimado (pessoas)": i.alcance_estimado,
+                    "CPP": i.cpp,
+                    "CPM": i.cpm,
+                    "Cliques projetados": i.cliques_estimados,
+                    "Conversões projetadas": i.conversoes_estimadas,
+                    "Retorno projetado": i.retorno_estimado,
+                    "ROI": i.roi,
+                    "Excesso de frequência": i.excesso_frequencia,
                     "Aderência ao objetivo": i.objetivo_score,
                     "Aderência aos KPIs": i.kpi_score,
                     "Aderência ao público": i.audiencia_score,
@@ -433,13 +697,13 @@ if "plano" in st.session_state:
         with st.expander("Como interpretar e calcular as colunas"):
             st.markdown(
                 """
-- **Score do papel:** adequação do MCP, calculada por 40% de afinidade editorial, 35% de consumo e 25% de cobertura. O papel decorre da posição no ranking desse score.
-- **Score estratégico:** aderência usada na distribuição da verba. Combina objetivo (40%), KPI (30%), público (20%) e qualidade das métricas (10%); quando há MCP, recebe 80% desse resultado e 20% do Score do papel.
-- **Participação da verba:** proporção do orçamento após ponderar o Score estratégico pelo papel (Principal 1,20; Complementar 1,00; Apoio 0,80; Opcional 0,50), aplicar limites e normalizar para 100%.
+- **Índice de adequação MCP:** afinidade editorial, consumo e cobertura configurados em Papéis dos Meios. Não determina sozinho a verba.
+- **Aderência estratégica:** combinação auditável dos pesos de objetivo/OKR, KPI, público/jornada e qualidade das métricas definidos acima.
+- **Participação da verba:** consequência da quantidade comprada e do preço líquido, normalizada sobre o investimento calculado.
 - **Unidade de compra:** unidade comercial cadastrada no preço do inventário.
-- **Quantidade comprada:** verba dividida pelo preço líquido unitário.
-- **Impressões estimadas:** calculadas apenas para unidades de impressão; em “Mil impressões”, quantidade × 1.000.
-- **Alcance estimado:** impressões ou contatos divididos pela frequência média. Sem base compatível, o campo fica em branco.
+- **Quantidade comprada:** decisão configurável do planejador; custo = quantidade × preço para unidades discretas.
+- **Alcance incremental:** contribuição deduplicada informada; quando ausente, o motor identifica a estimativa por independência.
+- **CPP:** investimento dividido pelo GRP entregue. CTR, conversão, retorno e ROI usam somente as premissas registradas no plano.
 """
             )
 
@@ -555,6 +819,4 @@ if "plano" in st.session_state:
             f"{numero_ptbr(plano.alcance_meta)} pessoas)"
         )
         st.write(f"**GRP:** {numero_ptbr(plano.grp, 2)}")
-        if render_schedule(plano, "cronograma_no_plano"):
-            st.session_state["plano"] = plano
-            st.success("Cronograma incorporado ao plano. Salve o planejamento para persistir.")
+        render_schedule(plano)

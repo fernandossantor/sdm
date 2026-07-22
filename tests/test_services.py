@@ -10,6 +10,7 @@ from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
 from infrastructure.database import admin_client
 from infrastructure.repositories.decision_repository import DecisionRepository
+from application.services.comparador_service import ComparadorService
 
 
 class TestPlanejamentoService(unittest.TestCase):
@@ -121,6 +122,24 @@ class TestPlanejamentoService(unittest.TestCase):
             ),
             12,
         )
+
+    def test_comparador_respeita_prioridade_configurada(self):
+        plano_a = PlanoEstrategico("Cliente", "Alcance", "Awareness", 1000)
+        plano_b = PlanoEstrategico("Cliente", "Frequência", "Awareness", 1000)
+        plano_a.resultados_consolidados = {
+            "alcance_liquido_percentual": 90, "frequencia_combinada": 3,
+            "conversoes": 10, "roi": 0.1, "cobertura_jornada": 70,
+            "risco_saturacao": 0, "investimento": 1000,
+        }
+        plano_b.resultados_consolidados = {
+            "alcance_liquido_percentual": 60, "frequencia_combinada": 8,
+            "conversoes": 10, "roi": 0.1, "cobertura_jornada": 70,
+            "risco_saturacao": 2, "investimento": 1000,
+        }
+        pesos = {"alcance": 80, "frequencia": 20, "conversoes": 0,
+                 "roi": 0, "jornada": 0, "saturacao": 0, "investimento": 0}
+        resultado = ComparadorService().comparar_configuravel(plano_a, plano_b, pesos)
+        self.assertEqual(resultado["vencedor"], "Plano A")
 
 
 class TestContextoCampanha(unittest.TestCase):

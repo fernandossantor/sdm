@@ -26,7 +26,11 @@ class ExportacaoService:
                     "Plataforma": item.plataforma,
                     "Ambiente": item.ambiente,
                     "Verba": item.verba,
+                    "Frequência do meio": item.frequencia,
+                    "Alcance do meio (%)": item.alcance_percentual,
+                    "Alcance incremental (%)": item.alcance_incremental,
                     "GRP": plano.grp,
+                    "GRP do meio": item.grp,
                     "Score estratégico": item.score,
                     "Participação da verba (%)": item.percentual,
                     "Aderência ao objetivo": item.objetivo_score,
@@ -38,6 +42,16 @@ class ExportacaoService:
                     "Quantidade comprada": item.quantidade_estimada,
                     "Impressões estimadas": item.impressoes_estimadas,
                     "Alcance estimado (pessoas)": item.alcance_estimado,
+                    "CPP": item.cpp,
+                    "CPM": item.cpm,
+                    "CPC": item.cpc,
+                    "CPA": item.cpa,
+                    "Cliques projetados": item.cliques_estimados,
+                    "Conversões projetadas": item.conversoes_estimadas,
+                    "Retorno projetado": item.retorno_estimado,
+                    "ROI": item.roi,
+                    "Excesso de frequência": item.excesso_frequencia,
+                    "Premissas": item.premissas,
                     "ID do inventário": item.inventario_id,
                     "Justificativas": "\n".join(item.justificativas),
                 }
@@ -49,6 +63,7 @@ class ExportacaoService:
         resumo = pd.DataFrame(
             [
                 {"Campo": "Cliente", "Valor": plano.cliente},
+                {"Campo": "Código", "Valor": plano.codigo},
                 {"Campo": "Campanha", "Valor": plano.campanha},
                 {"Campo": "Objetivo", "Valor": plano.objetivo},
                 {"Campo": "Orçamento", "Valor": plano.orcamento},
@@ -61,6 +76,9 @@ class ExportacaoService:
                 {"Campo": "Público de referência", "Valor": plano.publico_referencia},
                 {"Campo": "Meta de alcance", "Valor": plano.alcance_meta},
                 {"Campo": "Alcance projetado", "Valor": plano.alcance_projetado},
+                {"Campo": "Estratégia", "Valor": plano.estrategia},
+                {"Campo": "Resultados consolidados", "Valor": plano.resultados_consolidados},
+                {"Campo": "Auditoria do cálculo", "Valor": plano.auditoria_calculo},
             ]
         )
         cronograma = pd.DataFrame(plano.cronograma)

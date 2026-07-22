@@ -1,6 +1,7 @@
 import streamlit as st
 
 from application.services.project_service import ProjectService
+from application.services.identifier_service import IdentifierService
 
 
 ROTAS = {
@@ -40,10 +41,10 @@ def render():
         etapa = projeto.get("etapa_atual") or "briefing"
         with st.container(border=True):
             c_nome, c_status = st.columns([3, 1])
-            c_nome.markdown(f"**{projeto['nome']}**")
+            c_nome.markdown(f"**{IdentifierService.rotulo(projeto)}**")
             c_status.caption(f"{concluidas}/7 etapas")
             st.progress(min(concluidas / 7, 1.0))
-            a, b = st.columns([3, 1])
+            a, copia, b = st.columns([3, 1, 1])
             if a.button("Retomar", key=f"retomar_{projeto['id']}", width="stretch"):
                 service.selecionar(projeto, st.session_state)
                 if projeto.get("briefing_id"):
@@ -57,6 +58,9 @@ def render():
                     if registro:
                         briefing_service.carregar(registro, st.session_state)
                 st.switch_page(ROTAS.get(etapa, "pages/00_Briefing.py"))
+            if copia.button("Duplicar", key=f"duplicar_projeto_{projeto['id']}"):
+                service.duplicar(projeto["id"], st.session_state)
+                st.rerun()
             if b.button("Excluir", key=f"excluir_projeto_{projeto['id']}"):
                 service.excluir(projeto["id"])
                 st.rerun()
