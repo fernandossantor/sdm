@@ -15,6 +15,7 @@ from application.services.planejamento_service import (
 from application.services.context_service import (
     ContextService
 )
+from components.planning_selector import selecionar_planejamento
 
 
 # ==========================================================
@@ -43,43 +44,15 @@ forecast_service = ForecastService()
 
 comparador = ComparadorService()
 
-briefings = contexto_service.listar_briefings()
-
-nomes = [
-
-    b["nome"]
-
-    for b in briefings
-
-]
-
 col1, col2 = st.columns(2)
 
 with col1:
 
-    briefing1 = st.selectbox(
-
-        "Plano A",
-
-        nomes,
-
-        key="plano_a"
-
-    )
+    origem1 = selecionar_planejamento(planejamento, "plano_a")
 
 with col2:
 
-    briefing2 = st.selectbox(
-
-        "Plano B",
-
-        nomes,
-
-        index=1 if len(nomes) > 1 else 0,
-
-        key="plano_b"
-
-    )
+    origem2 = selecionar_planejamento(planejamento, "plano_b")
 
 if st.button(
 
@@ -91,17 +64,8 @@ if st.button(
 
 ):
 
-    plano1 = planejamento.gerar(
-
-        nome_briefing=briefing1
-
-    )
-
-    plano2 = planejamento.gerar(
-
-        nome_briefing=briefing2
-
-    )
+    plano1 = origem1["plano"]
+    plano2 = origem2["plano"]
 
     forecast1 = forecast_service.gerar(
 

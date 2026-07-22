@@ -59,7 +59,7 @@ abas = st.tabs(
 # FUNÇÃO AUXILIAR
 # ==========================================================
 
-def mostrar(df):
+def mostrar(df, categoria):
 
     if not df:
 
@@ -67,13 +67,25 @@ def mostrar(df):
 
         return
 
-    tabela = (
-
-        pd.DataFrame(df)
-
-        .fillna("")
-
-    )
+    tabela = pd.DataFrame(df).fillna("")
+    ocultas = {
+        coluna for coluna in tabela.columns
+        if coluna == "id" or coluna.endswith("_id")
+        or coluna in {"criado_em", "atualizado_em", "ativo"}
+    }
+    tabela = tabela.drop(columns=list(ocultas), errors="ignore")
+    if "descricao" in tabela.columns:
+        tabela["descricao"] = tabela.apply(
+            lambda linha: linha["descricao"] or (
+                f"{categoria.rstrip('s')} de mídia: {linha.get('nome', '')}."
+            ),
+            axis=1,
+        )
+    nomes = {
+        "nome": "Nome", "descricao": "Descrição", "empresa": "Empresa",
+        "site": "Site", "sigla": "Sigla", "tipo": "Tipo",
+    }
+    tabela = tabela.rename(columns=nomes)
 
     st.dataframe(
 
@@ -93,7 +105,7 @@ with abas[0]:
 
     mostrar(
 
-        dados["canais"]
+        dados["canais"], "Canais"
 
     )
 
@@ -101,7 +113,7 @@ with abas[1]:
 
     mostrar(
 
-        dados["ambientes"]
+        dados["ambientes"], "Ambientes"
 
     )
 
@@ -109,7 +121,7 @@ with abas[2]:
 
     mostrar(
 
-        dados["estruturas"]
+        dados["estruturas"], "Estruturas"
 
     )
 
@@ -117,7 +129,7 @@ with abas[3]:
 
     mostrar(
 
-        dados["formatos"]
+        dados["formatos"], "Formatos"
 
     )
 
@@ -125,7 +137,7 @@ with abas[4]:
 
     mostrar(
 
-        dados["tecnologias"]
+        dados["tecnologias"], "Tecnologias"
 
     )
 
@@ -133,7 +145,7 @@ with abas[5]:
 
     mostrar(
 
-        dados["perfis"]
+        dados["perfis"], "Perfis"
 
     )
 
@@ -141,7 +153,7 @@ with abas[6]:
 
     mostrar(
 
-        dados["modalidades"]
+        dados["modalidades"], "Modalidades"
 
     )
 
@@ -149,7 +161,7 @@ with abas[7]:
 
     mostrar(
 
-        dados["unidades"]
+        dados["unidades"], "Unidades"
 
     )
 
@@ -157,7 +169,7 @@ with abas[8]:
 
     mostrar(
 
-        dados["plataformas"]
+        dados["plataformas"], "Plataformas"
 
     )
 
@@ -165,6 +177,6 @@ with abas[9]:
 
     mostrar(
 
-        dados["kpis"]
+        dados["kpis"], "KPIs"
 
     )

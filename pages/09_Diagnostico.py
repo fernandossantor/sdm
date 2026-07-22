@@ -8,9 +8,10 @@ from application.services.planejamento_service import (
     PlanejamentoService
 )
 
-from application.services.context_service import ContextService
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
+from components.planning_selector import selecionar_planejamento
+from application.services.workflow_artifact_service import WorkflowArtifactService
 
 
 # ==========================================================
@@ -33,36 +34,14 @@ st.title("🩺 Diagnóstico Estratégico")
 
 st.divider()
 
-contexto_service = ContextService()
-
 planejamento = PlanejamentoService()
 
 diagnostico_service = DiagnosticoService()
 
 workflow_service = WorkflowService()
+artefatos = WorkflowArtifactService()
 
-briefings = contexto_service.listar_briefings()
-
-nomes = [
-
-    b["nome"]
-
-    for b in briefings
-
-]
-
-briefing = st.selectbox(
-
-    "Briefing",
-
-    nomes
-
-)
-
-usar_plano_atual = "plano" in st.session_state and st.checkbox(
-    "Usar o planejamento atual da sessão",
-    value=True,
-)
+origem = selecionar_planejamento(planejamento, "diagnostico_planejamento")
 
 if st.button(
 
@@ -74,11 +53,7 @@ if st.button(
 
 ):
 
-    plano = (
-        st.session_state["plano"]
-        if usar_plano_atual
-        else planejamento.gerar(nome_briefing=briefing)
-    )
+    plano = origem["plano"]
 
     diagnostico = diagnostico_service.gerar(
 
@@ -86,7 +61,6 @@ if st.button(
 
     )
 
-    workflow_service.registrar_briefing(st.session_state, briefing)
     workflow_service.concluir(st.session_state, "planejamento", plano)
     workflow_service.concluir(st.session_state, "diagnostico", diagnostico)
 
@@ -98,6 +72,20 @@ if st.button(
 if "diagnostico" in st.session_state:
 
     diagnostico = st.session_state["diagnostico"]
+
+    with st.expander("Salvar diagnóstico", expanded=False):
+        nome_diagnostico = st.text_input(
+            "Nome do diagnóstico",
+            value=f"Diagnóstico — {diagnostico.campanha}",
+        )
+        if st.button("Salvar diagnóstico", type="primary"):
+            artefatos.salvar(
+                "DIAGNOSTICO",
+                nome_diagnostico,
+                diagnostico,
+                origem["id"],
+            )
+            st.success("Diagnóstico salvo.")
 
     c1, c2, c3, c4 = st.columns(4)
 

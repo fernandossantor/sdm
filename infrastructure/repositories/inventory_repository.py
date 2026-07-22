@@ -46,6 +46,15 @@ class InventoryRepository(BaseRepository):
             .execute()
         )
 
+    def desmarcar_papeis(self, campanha_ref):
+
+        return self.update(
+            INVENTARIOS_PAPEIS,
+            "campanha_ref",
+            campanha_ref,
+            {"selecionado": False},
+        )
+
     def listar_por_ambiente(self, ambiente_id):
 
         return self.by_field(

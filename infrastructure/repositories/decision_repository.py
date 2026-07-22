@@ -227,10 +227,13 @@ class DecisionRepository(BaseRepository):
     def papeis_inventarios(self, campanha_ref):
 
         try:
-            return self.by_field(
-                INVENTARIOS_PAPEIS,
-                "campanha_ref",
-                campanha_ref,
+            return (
+                self.db.table(INVENTARIOS_PAPEIS)
+                .select("*")
+                .eq("campanha_ref", campanha_ref)
+                .eq("selecionado", True)
+                .execute()
+                .data
             )
         except Exception:
             return []

@@ -202,11 +202,15 @@ class SegmentService:
 
     ):
 
-        self.repository.excluir(
-
-            segmento_id
-
-        )
+        try:
+            self.repository.excluir(segmento_id)
+            return True, "Segmento excluído."
+        except Exception:
+            self.repository.atualizar(segmento_id, {"ativo": False})
+            return True, (
+                "O Segmento está vinculado a Públicos e foi arquivado para "
+                "preservar o histórico."
+            )
 
     # =====================================================
     # RESUMO

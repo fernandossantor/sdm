@@ -11,6 +11,7 @@ from application.services.context_service import ContextService
 from application.services.forecast_service import (
     ForecastService
 )
+from components.planning_selector import selecionar_planejamento
 
 
 # ==========================================================
@@ -39,28 +40,7 @@ forecast_service = ForecastService()
 
 insights_service = InsightsService()
 
-briefings = contexto_service.listar_briefings()
-
-nomes = [
-
-    b["nome"]
-
-    for b in briefings
-
-]
-
-briefing = st.selectbox(
-
-    "Briefing",
-
-    nomes
-
-)
-
-usar_plano_atual = "plano" in st.session_state and st.checkbox(
-    "Usar o planejamento atual da sessão",
-    value=True,
-)
+origem = selecionar_planejamento(planejamento, "insights_planejamento")
 
 executar = st.button(
 
@@ -78,11 +58,7 @@ executar = st.button(
 
 if executar:
 
-    plano = (
-        st.session_state["plano"]
-        if usar_plano_atual
-        else planejamento.gerar(nome_briefing=briefing)
-    )
+    plano = origem["plano"]
 
     forecast = forecast_service.gerar_itens(plano)
 

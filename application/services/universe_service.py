@@ -169,11 +169,15 @@ class UniverseService:
 
     ):
 
-        self.repository.excluir(
-
-            universo_id
-
-        )
+        try:
+            self.repository.excluir(universo_id)
+            return True, "Universo excluído."
+        except Exception:
+            self.repository.atualizar(universo_id, {"ativo": False})
+            return True, (
+                "O Universo possui dependências e foi arquivado para preservar "
+                "Segmentos e Públicos existentes."
+            )
 
     # =====================================================
     # RESUMO

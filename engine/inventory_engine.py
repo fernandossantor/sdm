@@ -232,6 +232,19 @@ class InventoryEngine:
 
         inventarios = contexto["inventarios"]
 
+        # Quando a campanha já passou pelo MCP, somente os inventários
+        # explicitamente selecionados podem participar do planejamento.
+        papeis_campanha = contexto.get("papeis_inventarios", [])
+        if papeis_campanha:
+            ids_selecionados = {
+                item.get("inventario_id") for item in papeis_campanha
+                if item.get("selecionado", True)
+            }
+            inventarios = [
+                item for item in inventarios
+                if item.get("id") in ids_selecionados
+            ]
+
         audiencias = contexto["audiencias"]
 
         # ==========================================================

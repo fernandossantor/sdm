@@ -16,6 +16,7 @@ from application.services.context_service import (
 )
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
+from components.planning_selector import selecionar_planejamento
 
 
 # ==========================================================
@@ -46,28 +47,7 @@ exportacao = ExportacaoService()
 
 workflow_service = WorkflowService()
 
-briefings = contexto_service.listar_briefings()
-
-nomes = [
-
-    b["nome"]
-
-    for b in briefings
-
-]
-
-briefing = st.selectbox(
-
-    "Briefing",
-
-    nomes
-
-)
-
-usar_plano_atual = "plano" in st.session_state and st.checkbox(
-    "Usar o planejamento atual da sessão",
-    value=True,
-)
+origem = selecionar_planejamento(planejamento, "exportacao_planejamento")
 
 if st.button(
 
@@ -79,15 +59,10 @@ if st.button(
 
 ):
 
-    plano = (
-        st.session_state["plano"]
-        if usar_plano_atual
-        else planejamento.gerar(nome_briefing=briefing)
-    )
+    plano = origem["plano"]
 
     st.session_state["plano_exportacao"] = plano
 
-    workflow_service.registrar_briefing(st.session_state, briefing)
     workflow_service.concluir(st.session_state, "planejamento", plano)
     workflow_service.concluir(st.session_state, "exportacao", True)
 

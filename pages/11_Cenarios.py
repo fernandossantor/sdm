@@ -7,6 +7,8 @@ from application.services.scenario_service import (
 from application.services.context_service import (
     ContextService
 )
+from application.services.planejamento_service import PlanejamentoService
+from components.planning_selector import selecionar_planejamento
 
 
 # ==========================================================
@@ -30,16 +32,7 @@ st.divider()
 contexto_service = ContextService()
 
 service = ScenarioService()
-
-briefings = contexto_service.listar_briefings()
-
-nomes = [
-
-    b["nome"]
-
-    for b in briefings
-
-]
+planejamento = PlanejamentoService()
 
 col1, col2 = st.columns(
 
@@ -49,13 +42,7 @@ col1, col2 = st.columns(
 
 with col1:
 
-    briefing = st.selectbox(
-
-        "Briefing",
-
-        nomes
-
-    )
+    origem = selecionar_planejamento(planejamento, "cenarios_planejamento")
 
 with col2:
 
@@ -73,22 +60,13 @@ with col2:
 
     )
 
-usar_plano_atual = "plano" in st.session_state and st.checkbox(
-    "Usar o planejamento atual da sessão",
-    value=True,
-)
-
 # ==========================================================
 # GERAÇÃO
 # ==========================================================
 
 if gerar:
 
-    cenarios = (
-        service.gerar_todos_de_plano(st.session_state["plano"])
-        if usar_plano_atual
-        else service.gerar_todos(briefing)
-    )
+    cenarios = service.gerar_todos_de_plano(origem["plano"])
 
     st.session_state["cenarios"] = cenarios
 

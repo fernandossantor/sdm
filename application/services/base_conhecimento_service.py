@@ -96,3 +96,7 @@ class BaseConhecimentoService:
     def salvar_papel_inventario(self, dados):
 
         return self.inventarios.salvar_papel(dados)
+
+    def desmarcar_papeis_campanha(self, campanha_ref):
+
+        return self.inventarios.desmarcar_papeis(campanha_ref)

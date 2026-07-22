@@ -402,12 +402,8 @@ else:
 
                 ):
 
-                    service.excluir(
-
-                        segmento["id"]
-
-                    )
-
+                    _, mensagem = service.excluir(segmento["id"])
+                    st.toast(mensagem)
                     st.rerun()
 
         st.divider()

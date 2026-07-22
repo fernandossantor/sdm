@@ -292,6 +292,35 @@ configuracao = {
     "alcance_percentual": int(alcance_percentual_plano),
 }
 
+campanha_ref = (
+    f"sessao:{briefing.campanha}"
+    if modo == "Briefing da Sessão"
+    else f"briefing:{briefing_salvo.get('id')}"
+)
+inventarios_mcp = [
+    item for item in base_conhecimento.inventarios_com_papeis(campanha_ref)
+    if (item.get("classificacao") or {}).get("selecionado", True)
+    and item.get("classificacao")
+]
+st.subheader("Papéis de mídia aplicados antes da geração")
+if not inventarios_mcp:
+    st.warning(
+        "Este briefing ainda não possui inventários selecionados no MCP Papéis."
+    )
+    st.page_link("pages/03_MCP_Papeis.py", label="Configurar MCP Papéis", icon="🧩")
+else:
+    inventarios_plano = st.multiselect(
+        "Inventários que entrarão no plano",
+        inventarios_mcp,
+        default=inventarios_mcp,
+        format_func=lambda item: (
+            f"{item['nome']} — {item['classificacao'].get('papel', 'SEM PAPEL')}"
+        ),
+    )
+    configuracao["inventarios_selecionados"] = [
+        item["id"] for item in inventarios_plano
+    ]
+
 
 st.divider()
 
@@ -301,7 +330,8 @@ gerar = st.button(
 
     type="primary",
 
-    width="stretch"
+    width="stretch",
+    disabled=not inventarios_mcp,
 
 )
 
@@ -423,7 +453,7 @@ if "plano" in st.session_state:
 
         )
 
-        df_editado = st.data_editor(
+        st.dataframe(
 
             df,
 
@@ -431,29 +461,7 @@ if "plano" in st.session_state:
 
             width="stretch",
 
-            disabled=[
-                coluna
-                for coluna in df.columns
-                if coluna != "Papel"
-            ],
-
-            column_config={
-                "Papel": st.column_config.SelectboxColumn(
-                    "Papel",
-                    options=["PRINCIPAL", "COMPLEMENTAR", "APOIO", "OPCIONAL"],
-                    required=True,
-                )
-            },
-
-            key="editor_papeis_planejamento",
-
         )
-
-        if st.button("Aplicar papéis de mídia"):
-            papeis = dict(zip(df_editado["Inventário"], df_editado["Papel"]))
-            for item in plano.itens:
-                item.papel = papeis[item.inventario]
-            st.success("Papéis de mídia atualizados no planejamento.")
 
     with abas[1]:
 

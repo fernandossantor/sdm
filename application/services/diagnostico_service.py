@@ -50,13 +50,13 @@ class DiagnosticoService:
 
                 score=item.score,
 
-                objetivo=0,
+                objetivo=item.objetivo_score,
 
-                kpi=0,
+                kpi=item.kpi_score,
 
-                audiencia=0,
+                audiencia=item.audiencia_score,
 
-                metricas=0
+                metricas=item.metricas_score
 
             )
 

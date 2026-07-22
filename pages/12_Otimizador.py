@@ -7,6 +7,8 @@ from application.services.budget_optimizer_service import (
 from application.services.context_service import (
     ContextService
 )
+from application.services.planejamento_service import PlanejamentoService
+from components.planning_selector import selecionar_planejamento
 
 
 # ==========================================================
@@ -28,29 +30,7 @@ st.title("💰 Otimizador de Orçamento")
 st.divider()
 
 contexto_service = ContextService()
-
-briefings = contexto_service.listar_briefings()
-
-nomes = [
-
-    b["nome"]
-
-    for b in briefings
-
-]
-
-briefing = st.selectbox(
-
-    "Briefing",
-
-    nomes
-
-)
-
-usar_plano_atual = "plano" in st.session_state and st.checkbox(
-    "Usar o planejamento atual da sessão",
-    value=True,
-)
+origem = selecionar_planejamento(PlanejamentoService(), "otimizador_planejamento")
 
 # ==========================================================
 # PARÂMETROS
@@ -118,22 +98,18 @@ executar = st.button(
 
 if executar:
 
-    if usar_plano_atual:
-        plano_atual = st.session_state["plano"]
-        ranking = [
-            {
-                "inventario": item.inventario,
-                "plataforma": item.plataforma,
-                "ambiente": item.ambiente,
-                "papel": item.papel,
-                "score": item.score,
-            }
-            for item in plano_atual.itens
-        ]
-        verba = plano_atual.orcamento
-    else:
-        contexto, ranking = contexto_service.ranking(briefing)
-        verba = contexto["briefing"]["orcamento"]
+    plano_atual = origem["plano"]
+    ranking = [
+        {
+            "inventario": item.inventario,
+            "plataforma": item.plataforma,
+            "ambiente": item.ambiente,
+            "papel": item.papel,
+            "score": item.score,
+        }
+        for item in plano_atual.itens
+    ]
+    verba = plano_atual.orcamento
 
     ambientes = {
 

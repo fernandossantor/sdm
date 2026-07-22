@@ -25,6 +25,14 @@ class PlanoItem:
 
     score_mcp: float = 0.0
 
+    objetivo_score: float = 0.0
+
+    kpi_score: float = 0.0
+
+    audiencia_score: float = 0.0
+
+    metricas_score: float = 0.0
+
     justificativas: List[str] = field(default_factory=list)
 
     inventario_id: str = ""

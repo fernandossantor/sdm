@@ -137,6 +137,20 @@ class PlanejamentoService:
 
         )
 
+        ids_configurados = set(
+            (configuracao or {}).get("inventarios_selecionados", [])
+        )
+        if ids_configurados:
+            ranking = [
+                item for item in ranking
+                if item.get("inventario_id") in ids_configurados
+            ]
+
+        if not ranking:
+            raise ValueError(
+                "Nenhum inventário foi aplicado à campanha no MCP Papéis."
+            )
+
         plano = self._montar_plano(
 
             cliente=cliente,
@@ -281,6 +295,10 @@ class PlanejamentoService:
                 "papel": item.papel,
                 "score": item.score,
                 "score_mcp": item.score_mcp,
+                "objetivo_score": item.objetivo_score,
+                "kpi_score": item.kpi_score,
+                "audiencia_score": item.audiencia_score,
+                "metricas_score": item.metricas_score,
                 "verba": item.verba,
                 "percentual": item.percentual,
                 "justificativas": item.justificativas,
@@ -477,6 +495,14 @@ class PlanejamentoService:
                     score=item.score,
 
                     score_mcp=float(origem.get("score_mcp") or 0),
+
+                    objetivo_score=float(origem.get("objetivo") or 0),
+
+                    kpi_score=float(origem.get("kpi") or 0),
+
+                    audiencia_score=float(origem.get("audiencia") or 0),
+
+                    metricas_score=float(origem.get("metricas") or 0),
 
                     verba=item.verba,
 

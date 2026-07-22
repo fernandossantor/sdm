@@ -246,12 +246,8 @@ else:
 
                 ):
 
-                    service.excluir(
-
-                        universo["id"]
-
-                    )
-
+                    _, mensagem = service.excluir(universo["id"])
+                    st.toast(mensagem)
                     st.rerun()
 
             st.divider()
