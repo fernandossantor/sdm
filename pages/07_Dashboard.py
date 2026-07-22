@@ -86,6 +86,8 @@ if st.button(
         st.session_state,
         origem["id"],
     )
+    st.toast("Painel Executivo salvo no projeto.")
+    st.rerun()
 
 
 # ==========================================================

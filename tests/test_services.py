@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 from application.services.scenario_service import ScenarioService
 from application.services.workflow_service import WorkflowService
 from application.services.planejamento_service import PlanejamentoService
+from application.services.exportacao_service import ExportacaoService
 from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
 from infrastructure.database import admin_client
@@ -12,6 +13,30 @@ from infrastructure.repositories.decision_repository import DecisionRepository
 
 
 class TestPlanejamentoService(unittest.TestCase):
+
+    def test_exportacao_contem_todas_as_abas_e_variaveis_do_plano(self):
+        plano = PlanoEstrategico(
+            cliente="Cliente", campanha="Campanha", objetivo="Alcance",
+            orcamento=1000, tipo_flight="ONDA", frequencia_alvo=5,
+            alcance_percentual=60, kpis=[{"nome": "Alcance", "peso": 100}],
+            cronograma=[{"semana": 1, "percentual": 100}],
+            observacoes=["Observação"],
+        )
+        plano.adicionar_item(
+            PlanoItem(
+                inventario="Vídeo", plataforma="Digital", ambiente="Portal",
+                papel="PRINCIPAL", score=90, verba=1000, percentual=100,
+                score_mcp=85, preco_unitario=10, unidade_compra="CPM",
+            )
+        )
+
+        tabelas = ExportacaoService().tabelas(plano)
+
+        self.assertEqual(
+            set(tabelas), {"Resumo", "Plano", "Cronograma", "KPIs", "Observações"}
+        )
+        self.assertIn("Score MCP", tabelas["Plano"].columns)
+        self.assertIn("Preço unitário", tabelas["Plano"].columns)
 
     def test_calcula_meta_e_projecao_de_alcance(self):
 

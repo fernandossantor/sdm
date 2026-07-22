@@ -3,7 +3,7 @@ import json
 
 
 def render(service, tipo, titulo):
-    with st.expander(f"{titulo} salvos", expanded=False):
+    with st.expander(f"{titulo} salvos", expanded=True):
         registros = service.listar(tipo, st.session_state.get("projeto_id"))
         if not registros:
             st.info(f"Nenhum {titulo.lower()} salvo.")

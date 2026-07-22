@@ -25,11 +25,6 @@ st.set_page_config(
 
 )
 
-with st.sidebar:
-    st.markdown("## PMAH — Planejador de Mídia Automatizado e Híbrido")
-    if st.session_state.get("projeto_nome"):
-        st.caption(f"Projeto ativo: {st.session_state['projeto_nome']}")
-
 def pagina_inicial():
 
     workflow = WorkflowService()
@@ -57,49 +52,59 @@ def pagina_inicial():
     knowledge_card()
 
 
+pagina_home = st.Page(pagina_inicial, title="Início", icon="🏠", default=True)
+workflow_links = [
+    (st.Page("pages/00_Briefing.py", title="Briefing", icon="📋"), "Briefing", "📋"),
+    (st.Page("pages/03_MCP_Papeis.py", title="Papéis de mídia", icon="🧩"), "Papéis de mídia", "🧩"),
+    (st.Page("pages/05_Planejamento.py", title="Planejamento", icon="🧠"), "Planejamento", "🧠"),
+    (st.Page("pages/09_Diagnostico.py", title="Diagnóstico", icon="🩺"), "Diagnóstico", "🩺"),
+    (st.Page("pages/06_Forecast.py", title="Forecast", icon="📈"), "Forecast", "📈"),
+    (st.Page("pages/07_Dashboard.py", title="Painel Executivo", icon="📊"), "Painel Executivo", "📊"),
+    (st.Page("pages/08_Exportacao.py", title="Relatórios", icon="📄"), "Relatórios", "📄"),
+]
+analise_links = [
+    (st.Page("pages/10_Comparador.py", title="Comparador", icon="⚖️"), "Comparador", "⚖️"),
+    (st.Page("pages/11_Cenarios.py", title="Cenários", icon="🎛️"), "Cenários", "🎛️"),
+    (st.Page("pages/12_Otimizador.py", title="Otimizador", icon="🎯"), "Otimizador", "🎯"),
+    (st.Page("pages/13_Insights.py", title="Insights", icon="💡"), "Insights", "💡"),
+]
+base_links = [
+    (st.Page("pages/01_Catalogos.py", title="Catálogos", icon="🗂️"), "Catálogos", "🗂️"),
+    (st.Page("pages/04_Inventarios.py", title="Inventários", icon="📦"), "Inventários", "📦"),
+    (st.Page("pages/15_Universos.py", title="Universos", icon="🌎"), "Universos", "🌎"),
+    (st.Page("pages/16_Segmentos.py", title="Segmentos", icon="🧭"), "Segmentos", "🧭"),
+    (st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"), "Públicos", "👥"),
+]
 navegacao = st.navigation(
-
-    {
-        "PMAH": [
-            st.Page(
-                pagina_inicial,
-                title="Início",
-                icon="🏠",
-                default=True,
-            ),
-        ],
-        "Workflow oficial": [
-            st.Page("pages/00_Briefing.py", title="Briefing", icon="📋"),
-            st.Page("pages/03_MCP_Papeis.py", title="Papéis de mídia", icon="🧩"),
-            st.Page("pages/05_Planejamento.py", title="Planejamento", icon="🧠"),
-            st.Page("pages/09_Diagnostico.py", title="Diagnóstico", icon="🩺"),
-            st.Page("pages/06_Forecast.py", title="Forecast", icon="📈"),
-            st.Page("pages/07_Dashboard.py", title="Painel Executivo", icon="📊"),
-            st.Page("pages/08_Exportacao.py", title="Relatórios", icon="📄"),
-        ],
-        "Análises avançadas": [
-            st.Page("pages/10_Comparador.py", title="Comparador", icon="⚖️"),
-            st.Page("pages/11_Cenarios.py", title="Cenários", icon="🎛️"),
-            st.Page("pages/12_Otimizador.py", title="Otimizador", icon="🎯"),
-            st.Page("pages/13_Insights.py", title="Insights", icon="💡"),
-        ],
-        "Base de conhecimento": [
-            st.Page("pages/01_Catalogos.py", title="Catálogos", icon="🗂️"),
-            st.Page("pages/04_Inventarios.py", title="Inventários", icon="📦"),
-            st.Page("pages/15_Universos.py", title="Universos", icon="🌎"),
-            st.Page("pages/16_Segmentos.py", title="Segmentos", icon="🧭"),
-            st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"),
-        ],
-    }
-
+    [
+        pagina_home,
+        *[item[0] for item in workflow_links],
+        *[item[0] for item in analise_links],
+        *[item[0] for item in base_links],
+    ],
+    position="hidden",
 )
 
 with st.sidebar:
+    st.markdown("## PMAH — Planejador de Mídia Automatizado e Híbrido")
+    if st.session_state.get("projeto_nome"):
+        st.caption(f"Projeto ativo: {st.session_state['projeto_nome']}")
+    st.page_link(pagina_home, label="Início", icon="🏠")
+    st.caption("WORKFLOW OFICIAL")
+    for pagina, titulo, icone in workflow_links:
+        st.page_link(pagina, label=titulo, icon=icone)
+    st.caption("ANÁLISES AVANÇADAS")
+    for pagina, titulo, icone in analise_links:
+        st.page_link(pagina, label=titulo, icon=icone)
+    st.caption("BASE DE CONHECIMENTO")
+    for pagina, titulo, icone in base_links:
+        st.page_link(pagina, label=titulo, icon=icone)
     st.divider()
     st.caption(
         "Desenvolvido por Fernando Silva Santor, professor de Planejamento "
         "de Mídia do Curso de Publicidade e Propaganda da Universidade "
-        "Federal do Pampa, campus São Borja, RS."
+        "Federal do Pampa, campus São Borja, RS. Contato: "
+        "fernandosantor@unipampa.edu.br"
     )
     st.caption("Versão 1.2.0")
     st.caption("Tecnologias: Supabase · Streamlit · Codex · GitHub Codespaces")

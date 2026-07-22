@@ -82,6 +82,8 @@ if st.button(
         "FORECAST", f"Forecast — {plano.campanha}", forecast,
         st.session_state, origem["id"],
     )
+    st.toast("Forecast salvo no projeto.")
+    st.rerun()
 
 
 # ==========================================================

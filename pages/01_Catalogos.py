@@ -23,21 +23,11 @@ st.title("📚 Catálogos")
 
 st.divider()
 
-with st.expander("Contexto do mercado brasileiro", expanded=True):
-    st.markdown(
-        "Em 2024, o painel Cenp-Meios registrou **R$ 26,3 bilhões** em "
-        "investimentos feitos por 339 agências, crescimento de **12,17%**. "
-        "TV aberta respondeu por **42,4%**, internet por **39,8%** e OOH por "
-        "**11,8%**. Use esses dados como referência de mercado — não como "
-        "distribuição automática de verba, que deve seguir público, objetivo, "
-        "cobertura, frequência e disponibilidade de inventário."
-    )
-    st.markdown(
-        "Fontes: [Cenp-Meios — consolidado 2024]"
-        "(https://www.cenp.com.br/post/investimento-em-publicidade-no-mercado-brasileiro-cresce-12-17-em-2024-de-acordo-com-painel-cenp-m) "
-        "e [IAB Brasil — Digital AdSpend]"
-        "(https://iabbrasil.com.br/internas/pesquisas/adspend/)."
-    )
+st.caption(
+    "Fontes de referência para classificação: "
+    "[Cenp-Meios](https://www.cenp.com.br/cenp-meios) e "
+    "[IAB Brasil — Digital AdSpend](https://iabbrasil.com.br/internas/pesquisas/adspend/)."
+)
 
 service = BaseConhecimentoService()
 
@@ -73,19 +63,6 @@ abas = st.tabs(
 # FUNÇÃO AUXILIAR
 # ==========================================================
 
-DESCRICOES = {
-    "Canais": "Avaliar contribuição para alcance incremental, frequência, custo e papel no mix.",
-    "Ambientes": "Considerar contexto de exposição, atenção, brand safety e disponibilidade regional.",
-    "Estruturas": "Define como a entrega é organizada e quais combinações comerciais são possíveis.",
-    "Formatos": "Comparar duração, área, interação, atenção e compatibilidade com a criação.",
-    "Tecnologias": "Verificar segmentação, mensuração, interoperabilidade e transparência da entrega.",
-    "Modalidades": "Relacionar o modelo de compra ao risco, à previsibilidade e ao KPI contratado.",
-    "Unidades": "Base operacional para calcular quantidade, preço, entrega e comparação de eficiência.",
-    "Plataformas": "Avaliar cobertura, qualidade do inventário, dados disponíveis e sobreposição de público.",
-    "KPIs": "Vincular a uma fonte de dados, fórmula, periodicidade e meta antes da veiculação.",
-}
-
-
 def mostrar(df, categoria):
 
     if not df:
@@ -101,13 +78,8 @@ def mostrar(df, categoria):
         or coluna in {"criado_em", "atualizado_em", "ativo"}
     }
     tabela = tabela.drop(columns=list(ocultas), errors="ignore")
-    if "descricao" in tabela.columns:
-        tabela["descricao"] = tabela.apply(
-            lambda linha: linha["descricao"] or DESCRICOES[categoria].format(
-                nome=linha.get("nome", "")
-            ),
-            axis=1,
-        )
+    tabela = tabela.drop(columns=["descricao"], errors="ignore")
+    tabela["Fonte"] = "Cenp-Meios / IAB Brasil / Base PMAH"
     nomes = {
         "nome": "Nome", "descricao": "Descrição", "empresa": "Empresa",
         "site": "Site", "sigla": "Sigla", "tipo": "Tipo",

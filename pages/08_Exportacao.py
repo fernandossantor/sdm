@@ -77,6 +77,8 @@ if st.button(
         st.session_state,
         origem["id"],
     )
+    st.toast("Relatório salvo no projeto.")
+    st.rerun()
 
 
 # ==========================================================
@@ -163,15 +165,8 @@ if "plano_exportacao" in st.session_state:
 
     ) as writer:
 
-        df.to_excel(
-
-            writer,
-
-            index=False,
-
-            sheet_name="Plano"
-
-        )
+        for aba, tabela in exportacao.tabelas(plano).items():
+            tabela.to_excel(writer, index=False, sheet_name=aba)
 
     excel.seek(0)
 
