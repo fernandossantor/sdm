@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.planejamento_service import PlanejamentoService
 from components.formatters import numero_ptbr, percentual_ptbr
@@ -9,7 +9,7 @@ from components.workflow_guard import exigir
 
 
 st.set_page_config(
-    page_title="Cronograma de Inserções",
+    page_title=titulo_pagina("Cronograma de Inserções"),
     page_icon=PAGE_ICON,
     layout="wide",
 )

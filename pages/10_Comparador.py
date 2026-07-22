@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 import pandas as pd
 
 from application.services.comparador_service import (
@@ -27,7 +27,7 @@ from components.formatters import moeda_ptbr, numero_ptbr
 
 st.set_page_config(
 
-    page_title="Comparação de Planos",
+    page_title=titulo_pagina("Comparação de Planos"),
 
     page_icon=PAGE_ICON,
 

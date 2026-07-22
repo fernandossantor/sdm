@@ -69,12 +69,24 @@ class MediaPlanEngine:
         minimo = float(premissa.get("quantidade_minima") or 0)
         maximo = premissa.get("quantidade_maxima")
         if quantidade < minimo:
-            quantidade = minimo if modo == "METAS" else quantidade
+            if modo == "METAS":
+                quantidade = minimo
+            else:
+                raise ValueError("A quantidade está abaixo do piso informado.")
+        verba_minima = float(premissa.get("verba_minima") or 0)
+        if modo == "METAS" and verba_minima > 0:
+            if preco <= 0:
+                raise ValueError(
+                    "Informe um preço maior que zero para aplicar o piso de verba."
+                )
+            quantidade = max(quantidade, ceil(verba_minima / preco))
         if maximo is not None and quantidade > float(maximo):
-            quantidade = float(maximo) if modo == "METAS" else quantidade
+            if modo == "METAS":
+                quantidade = float(maximo)
+            else:
+                raise ValueError("A quantidade excede o teto informado.")
         quantidade = int(ceil(quantidade)) if modo == "METAS" else int(quantidade)
         investimento = quantidade * preco
-        verba_minima = float(premissa.get("verba_minima") or 0)
         verba_maxima = premissa.get("verba_maxima")
         if investimento < verba_minima:
             raise ValueError(f"O investimento {investimento:.2f} está abaixo do piso {verba_minima:.2f}.")

@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.planejamento_service import (
     PlanejamentoService
@@ -22,7 +22,7 @@ from components.formatters import moeda_ptbr
 
 st.set_page_config(
 
-    page_title="Insights de Mídia",
+    page_title=titulo_pagina("Insights de Mídia"),
 
     page_icon=PAGE_ICON,
 

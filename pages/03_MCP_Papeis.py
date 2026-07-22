@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from application.services.briefing_service import BriefingService
@@ -10,7 +10,7 @@ from components.workflow_guard import exigir
 from components.formatters import percentual_ptbr
 
 
-st.set_page_config(page_title="Papéis dos Meios", page_icon=PAGE_ICON, layout="wide")
+st.set_page_config(page_title=titulo_pagina("Papéis dos Meios"), page_icon=PAGE_ICON, layout="wide")
 exigir("mcp_papeis")
 st.title("🧩 Papéis dos Meios")
 
