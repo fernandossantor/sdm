@@ -18,6 +18,8 @@ from copy import deepcopy
 from datetime import date, timedelta
 
 from domain.media_metrics import resolver_grp
+from engine.media_plan_engine import MediaPlanEngine
+from application.services.identifier_service import IdentifierService
 
 
 class PlanejamentoService:
@@ -37,6 +39,10 @@ class PlanejamentoService:
     # ======================================================
     # GERAÇÃO
     # ======================================================
+
+    def previsualizar(self, briefing):
+        contexto = self.context_service.carregar_por_objeto(briefing)
+        return self.inventory_engine.calcular(contexto)
 
     def gerar(
 
@@ -143,6 +149,31 @@ class PlanejamentoService:
 
         )
 
+        estrategia = (configuracao or {}).get("estrategia") or {}
+        if estrategia:
+            pesos = estrategia.get("pesos") or {}
+            componentes = (configuracao or {}).get("componentes_inventarios") or {}
+            peso_mcp = float(estrategia.get("peso_mcp", 20)) / 100
+            total_pesos = sum(float(pesos.get(chave, 0)) for chave in (
+                "objetivo", "kpi", "audiencia", "metricas"
+            ))
+            if abs(total_pesos - 100) > 0.01:
+                raise ValueError("Os pesos estratégicos devem somar 100%.")
+            for item in ranking:
+                ajuste = componentes.get(item.get("inventario_id")) or {}
+                for chave in ("objetivo", "kpi", "audiencia", "metricas"):
+                    if chave in ajuste:
+                        item[chave] = float(ajuste[chave])
+                aderencia = sum(
+                    float(item[chave]) * float(pesos.get(chave, 0)) / 100
+                    for chave in ("objetivo", "kpi", "audiencia", "metricas")
+                )
+                item["score"] = round(
+                    aderencia * (1 - peso_mcp)
+                    + float(item.get("score_mcp") or aderencia) * peso_mcp,
+                    2,
+                )
+
         ids_configurados = set(
             (configuracao or {}).get("inventarios_selecionados", [])
         )
@@ -229,7 +260,19 @@ class PlanejamentoService:
             fim_cronograma = self._data(briefing_bd.get("periodo_fim"))
 
         resolver_grp(plano.alcance_percentual, plano.frequencia_alvo, plano.grp)
-        self._calcular_entrega(plano)
+        premissas = (configuracao or {}).get("premissas_inventarios") or {}
+        plano.estrategia = estrategia
+        if premissas:
+            self._calcular_entrega_configuravel(plano, premissas)
+            reserva = float((configuracao or {}).get("reserva_testes_percentual") or 0)
+            limite = float(plano.orcamento) * (1 - reserva / 100)
+            if plano.verba_total > limite + 0.01:
+                raise ValueError(
+                    f"A compra calculada ({plano.verba_total:.2f}) excede a verba "
+                    f"disponível após a reserva ({limite:.2f})."
+                )
+        else:
+            self._calcular_entrega(plano)
         plano.cronograma = self._cronograma(
             inicio_cronograma,
             fim_cronograma,
@@ -238,6 +281,53 @@ class PlanejamentoService:
         )
 
         return plano
+
+    @staticmethod
+    def _calcular_entrega_configuravel(plano, premissas):
+        resultados = []
+        premissas_ordenadas = []
+        for item in plano.itens:
+            premissa = dict(premissas.get(item.inventario_id) or {})
+            premissa.setdefault("unidade_compra", item.unidade_compra)
+            resultado = MediaPlanEngine.calcular_item(
+                premissa, plano.publico_referencia, item.preco_unitario
+            )
+            item.quantidade_estimada = resultado.quantidade
+            item.verba = resultado.investimento
+            item.audiencia_percentual = resultado.audiencia_percentual
+            item.alcance_percentual = resultado.alcance_percentual
+            item.alcance_incremental = premissa.get("alcance_incremental")
+            item.frequencia = resultado.frequencia
+            item.grp = resultado.grp
+            item.impressoes_estimadas = resultado.impressoes
+            item.alcance_estimado = resultado.alcance_pessoas
+            item.cliques_estimados = resultado.cliques
+            item.conversoes_estimadas = resultado.conversoes
+            item.retorno_estimado = resultado.retorno
+            item.cpp, item.cpm = resultado.cpp, resultado.cpm
+            item.cpc, item.cpa, item.roi = resultado.cpc, resultado.cpa, resultado.roi
+            item.excesso_frequencia = resultado.excesso_frequencia
+            item.premissas = premissa
+            resultados.append(resultado)
+            premissas_ordenadas.append(premissa)
+
+        total = sum(item.verba for item in plano.itens)
+        for item in plano.itens:
+            item.percentual = round(item.verba / total * 100, 2) if total else 0
+        consolidado = MediaPlanEngine.consolidar(resultados, premissas_ordenadas)
+        plano.resultados_consolidados = consolidado
+        plano.alcance_percentual = consolidado["alcance_liquido_percentual"]
+        plano.frequencia_alvo = consolidado["frequencia_combinada"]
+        plano.grp = consolidado["grp_total"]
+        plano.alcance_projetado = round(
+            plano.publico_referencia * plano.alcance_percentual / 100
+        )
+        plano.premissas = {"inventarios": premissas}
+        plano.auditoria_calculo = {
+            "motor": "cross-media-v2",
+            "alcance": consolidado["auditoria_alcance"],
+            "observacao": "Valores informados pelo planejador; lacunas não são estimadas silenciosamente.",
+        }
 
     @staticmethod
     def _calcular_entrega(plano):
@@ -290,7 +380,7 @@ class PlanejamentoService:
         return date.fromisoformat(str(valor)[:10])
 
     @staticmethod
-    def _publico_referencia(publicos):
+    def publico_referencia(publicos):
 
         return round(
             sum(
@@ -300,6 +390,8 @@ class PlanejamentoService:
                 if isinstance(publico, dict)
             )
         )
+
+    _publico_referencia = publico_referencia
 
     @staticmethod
     def _cronograma(inicio, fim, tipo_flight, itens=None):
@@ -384,6 +476,18 @@ class PlanejamentoService:
                 "quantidade_estimada": item.quantidade_estimada,
                 "impressoes_estimadas": item.impressoes_estimadas,
                 "alcance_estimado": item.alcance_estimado,
+                "audiencia_percentual": item.audiencia_percentual,
+                "alcance_percentual": item.alcance_percentual,
+                "alcance_incremental": item.alcance_incremental,
+                "frequencia": item.frequencia,
+                "grp": item.grp,
+                "cliques_estimados": item.cliques_estimados,
+                "conversoes_estimadas": item.conversoes_estimadas,
+                "retorno_estimado": item.retorno_estimado,
+                "cpp": item.cpp, "cpm": item.cpm, "cpc": item.cpc,
+                "cpa": item.cpa, "roi": item.roi,
+                "excesso_frequencia": item.excesso_frequencia,
+                "premissas": item.premissas,
             }
             for item in plano.itens
         ]
@@ -393,6 +497,9 @@ class PlanejamentoService:
                 "nome": nome,
                 "briefing_id": briefing_id,
                 "configuracao": configuracao,
+                "premissas": plano.premissas,
+                "estrategia": plano.estrategia,
+                "auditoria_calculo": plano.auditoria_calculo,
                 "resultado": {
                     "cliente": plano.cliente,
                     "campanha": plano.campanha,
@@ -411,6 +518,7 @@ class PlanejamentoService:
                     "alcance_projetado": plano.alcance_projetado,
                     "kpis": plano.kpis,
                     "cronograma": plano.cronograma,
+                    "resultados_consolidados": plano.resultados_consolidados,
                 },
                 "status": "SALVO",
             }
@@ -419,6 +527,15 @@ class PlanejamentoService:
     def excluir(self, planejamento_id):
 
         return self.repository.excluir(planejamento_id)
+
+    def duplicar(self, registro):
+        novo_id, codigo = IdentifierService.preparar_copia(registro, "planejamentos")
+        dados = {
+            chave: valor for chave, valor in registro.items()
+            if chave not in {"id", "codigo", "criado_em", "atualizado_em"}
+        }
+        dados.update({"id": novo_id, "codigo": codigo, "nome": f"{registro['nome']} — cópia"})
+        return self.repository.salvar(dados).data[0]
 
     def atualizar_cronograma(self, planejamento_id, cronograma):
         registro = self.repository.obter(planejamento_id)
@@ -454,6 +571,11 @@ class PlanejamentoService:
             kpis=dados.get("kpis", []),
             cronograma=dados.get("cronograma", []),
             observacoes=dados.get("observacoes", []),
+            codigo=registro.get("codigo") or "",
+            estrategia=registro.get("estrategia") or {},
+            premissas=registro.get("premissas") or {},
+            resultados_consolidados=dados.get("resultados_consolidados") or {},
+            auditoria_calculo=registro.get("auditoria_calculo") or {},
         )
 
         for item in dados.get("itens", []):

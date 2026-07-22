@@ -7,6 +7,7 @@ from domain.media_metrics import (
     classificar_frequencia,
     resolver_grp,
 )
+from application.services.identifier_service import IdentifierService
 
 
 class BriefingService:
@@ -321,6 +322,7 @@ class BriefingService:
         briefing = self._do_registro(registro)
         session_state["briefing"] = briefing
         session_state["briefing_id"] = registro["id"]
+        session_state["briefing_codigo"] = registro.get("codigo")
         session_state["briefing_ref"] = briefing.campanha
         return briefing
 
@@ -333,6 +335,26 @@ class BriefingService:
             for chave in ("briefing", "briefing_id", "briefing_ref"):
                 session_state.pop(chave, None)
         return resposta
+
+    def duplicar(self, registro, session_state):
+        novo_id, codigo = IdentifierService.preparar_copia(registro, "briefings_v3")
+        dados = {
+            chave: valor for chave, valor in registro.items()
+            if chave not in {"id", "codigo", "criado_em", "atualizado_em"}
+        }
+        dados.update({"id": novo_id, "codigo": codigo, "nome": f"{registro['nome']} — cópia"})
+        resposta = self.repository.salvar(dados)
+        novo = resposta.data[0]
+        # Os papéis são premissas da variação e devem acompanhar a cópia.
+        from application.services.base_conhecimento_service import BaseConhecimentoService
+        base = BaseConhecimentoService()
+        origem_ref, destino_ref = f"briefing:{registro['id']}", f"briefing:{novo_id}"
+        for papel in base.inventarios.listar_papeis(origem_ref):
+            copia = {k: v for k, v in papel.items() if k not in {"id", "criado_em", "atualizado_em"}}
+            copia["campanha_ref"] = destino_ref
+            base.salvar_papel_inventario(copia)
+        self.carregar(novo, session_state)
+        return novo
 
     @staticmethod
     def _para_registro(briefing, projeto_id=None):

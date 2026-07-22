@@ -21,7 +21,8 @@ def exigir(etapa):
 
     nome, pagina, icone = ANTERIORES[etapa]
     st.warning(
-        f"Conclua a etapa {nome} antes de acessar esta parte do workflow."
+        f"Selecione ou conclua {nome} para acessar esta parte do workflow. "
+        "Se o registro já existe, escolha-o no contexto ativo da barra lateral."
     )
     st.page_link(
         pagina,

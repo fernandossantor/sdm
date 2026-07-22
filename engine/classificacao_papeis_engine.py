@@ -6,7 +6,7 @@ class ClassificacaoPapeisEngine:
         "cobertura": 0.25,
     }
 
-    def calcular_score(self, afinidade, cobertura, consumo, objetivo=None):
+    def calcular_score(self, afinidade, cobertura, consumo, objetivo=None, jornada=0, pesos=None):
 
         valores = {
             "afinidade": afinidade,
@@ -14,10 +14,14 @@ class ClassificacaoPapeisEngine:
             "consumo": consumo,
         }
 
+        pesos = pesos or self.PESOS
+        if jornada and "jornada" not in pesos:
+            pesos = {"afinidade": .30, "consumo": .25, "cobertura": .25, "jornada": .20}
+        valores["jornada"] = jornada
         return round(
             sum(
                 valores[criterio] * peso
-                for criterio, peso in self.PESOS.items()
+                for criterio, peso in pesos.items()
             ),
             2,
         )

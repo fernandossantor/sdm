@@ -44,3 +44,13 @@ Antes de uma nova alteração de banco, comparar as migrações locais e remotas
 ## Próximo trabalho
 
 Retomar a partir das próximas observações de uso do PlanOS. O histórico funcional e arquitetural permanece nos commits anteriores e nos demais documentos desta pasta; não é necessário reconstruir as decisões já aplicadas.
+
+## Evolução cross-media em andamento
+
+Em 22 de julho de 2026 foi implementada a base da versão 2.0: identificadores
+legíveis e versionados, duplicação das entidades, contexto ativo, indicadores
+reais na página inicial, medições com fonte e metodologia, planejamento
+configurável por inventário, alcance incremental, saturação, custos e retorno,
+cronograma visual e comparação ponderada de estratégias. A migração remota
+`20260722110000` foi aplicada. O modelo está documentado em
+`docs/MODELO_PLANEJAMENTO_CROSS_MEDIA.md`.

@@ -1,6 +1,7 @@
 from infrastructure.repositories.segment_repository import (
     SegmentRepository
 )
+from application.services.identifier_service import IdentifierService
 
 
 class SegmentService:
@@ -211,6 +212,16 @@ class SegmentService:
                 "O Segmento está vinculado a Públicos e foi arquivado para "
                 "preservar o histórico."
             )
+
+    def duplicar(self, segmento, universo_id=None):
+        novo_id, codigo = IdentifierService.preparar_copia(segmento, "segmentos")
+        dados = {k: v for k, v in segmento.items() if k not in {"id", "codigo", "criado_em", "atualizado_em"}}
+        dados.update({
+            "id": novo_id, "codigo": codigo,
+            "nome": f"{segmento['nome']} — cópia",
+            "universo_id": universo_id or segmento["universo_id"],
+        })
+        return self.repository.salvar(dados).data[0]
 
     # =====================================================
     # RESUMO

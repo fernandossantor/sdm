@@ -46,6 +46,21 @@ class PlanoItem:
     impressoes_estimadas: Optional[float] = None
 
     alcance_estimado: Optional[float] = None
+    audiencia_percentual: Optional[float] = None
+    alcance_percentual: Optional[float] = None
+    alcance_incremental: Optional[float] = None
+    frequencia: Optional[float] = None
+    grp: Optional[float] = None
+    cliques_estimados: Optional[float] = None
+    conversoes_estimadas: Optional[float] = None
+    retorno_estimado: Optional[float] = None
+    cpp: Optional[float] = None
+    cpm: Optional[float] = None
+    cpc: Optional[float] = None
+    cpa: Optional[float] = None
+    roi: Optional[float] = None
+    excesso_frequencia: float = 0.0
+    premissas: dict = field(default_factory=dict)
 
 
 # ==========================================================
@@ -88,6 +103,11 @@ class PlanoEstrategico:
     kpis: List[dict] = field(default_factory=list)
 
     cronograma: List[dict] = field(default_factory=list)
+    codigo: str = ""
+    estrategia: dict = field(default_factory=dict)
+    premissas: dict = field(default_factory=dict)
+    resultados_consolidados: dict = field(default_factory=dict)
+    auditoria_calculo: dict = field(default_factory=dict)
 
     # ------------------------------------------------------
 

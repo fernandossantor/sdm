@@ -70,9 +70,16 @@ class WorkflowService:
             raise ValueError(f"Etapa de workflow inválida: {etapa}")
 
         estado = self.status(session_state)
-        indice = self.ORDEM.index(etapa)
-
-        return all(estado[nome] for nome in self.ORDEM[:indice])
+        requisitos = {
+            "briefing": (),
+            "mcp_papeis": ("briefing",),
+            "planejamento": ("briefing", "mcp_papeis"),
+            "diagnostico": ("planejamento",),
+            "forecast": ("planejamento",),
+            "dashboard": ("planejamento", "forecast"),
+            "exportacao": ("planejamento",),
+        }
+        return all(estado[nome] for nome in requisitos[etapa])
     
     # =====================================================
     # ESTADO GLOBAL

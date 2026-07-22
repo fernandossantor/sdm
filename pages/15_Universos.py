@@ -166,7 +166,7 @@ else:
 
                 st.markdown(
 
-                    f"### {universo['nome']}"
+                    f"### {universo.get('codigo') or universo['id'][:8]} · {universo['nome']}"
 
                 )
 
@@ -237,6 +237,17 @@ else:
                         "Inativo"
 
                     )
+
+                if st.button(
+
+                    "Duplicar",
+
+                    key=f"dup_{universo['id']}"
+
+                ):
+
+                    service.duplicar(universo)
+                    st.rerun()
 
                 if st.button(
 

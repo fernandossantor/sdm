@@ -143,6 +143,20 @@ st.caption(
     "de uso do público; Cobertura estima quanto desse público a mídia alcança. "
     "A adequação é calculada automaticamente a partir desses três critérios."
 )
+wc1, wc2, wc3, wc4 = st.columns(4)
+peso_afinidade = wc1.number_input("Peso afinidade (%)", 0, 100, 30)
+peso_consumo = wc2.number_input("Peso consumo (%)", 0, 100, 25)
+peso_cobertura = wc3.number_input("Peso cobertura (%)", 0, 100, 25)
+peso_jornada = wc4.number_input("Peso jornada (%)", 0, 100, 20)
+soma_pesos = peso_afinidade + peso_consumo + peso_cobertura + peso_jornada
+if soma_pesos != 100:
+    st.error(f"Os pesos devem somar 100% (atual: {soma_pesos}%).")
+pesos_mcp = {
+    "afinidade": peso_afinidade / 100,
+    "consumo": peso_consumo / 100,
+    "cobertura": peso_cobertura / 100,
+    "jornada": peso_jornada / 100,
+}
 scores = {}
 criterios = {}
 
@@ -175,7 +189,15 @@ for inventario in inventarios_sel:
             key=f"cobertura_{inventario['id']}",
             help="Parcela estimada do público que pode ser coberta pela mídia.",
         )
-        score = classificador.calcular_score(afinidade, cobertura, consumo)
+        jornada = st.select_slider(
+            "Contribuição aos pontos de contato da jornada",
+            options=list(range(0, 101, 10)),
+            value=intensidade_salva(salvo.get("jornada"), 60),
+            key=f"jornada_{inventario['id']}",
+        )
+        score = classificador.calcular_score(
+            afinidade, cobertura, consumo, jornada=jornada, pesos=pesos_mcp
+        )
         st.metric("Adequação calculada", f"{score:.0f}%")
     rotulo = f"{inventario['nome']} · {inventario['id'][:8]}"
     scores[rotulo] = score
@@ -184,6 +206,7 @@ for inventario in inventarios_sel:
         "Afinidade": afinidade,
         "Cobertura": cobertura,
         "Consumo": consumo,
+        "Jornada": jornada,
         "Adequação": score,
         "score": score,
     }
@@ -191,12 +214,20 @@ for inventario in inventarios_sel:
 ranking = classificador.classificar(scores)
 st.subheader("3. Revise o ranking")
 for item in ranking:
-    st.write(
+    item["papel"] = st.selectbox(
+        f"{item['posicao']}º · {item['meio'].split(' · ')[0]} ({item['score']:.0f}%)",
+        ["Principal", "Complementar", "Apoio", "Experimental"],
+        index=["Principal", "Complementar", "Apoio", "Experimental"].index(
+            item["papel"] if item["papel"] in {"Principal", "Complementar", "Apoio"} else "Experimental"
+        ),
+        key=f"papel_revisado_{criterios[item['meio']]['Inventário ID']}",
+    )
+    st.caption(
         f"{item['posicao']}º · **{item['meio'].split(' · ')[0]}** — "
         f"{item['papel']} ({item['score']:.0f}%)"
     )
 
-if st.button("Aplicar papéis à campanha", type="primary", width="stretch"):
+if st.button("Aplicar papéis à campanha", type="primary", width="stretch", disabled=soma_pesos != 100):
     try:
         base.desmarcar_papeis_campanha(campanha_ref)
         for item in ranking:
@@ -209,6 +240,8 @@ if st.button("Aplicar papéis à campanha", type="primary", width="stretch"):
                     "afinidade": criterio["Afinidade"],
                     "cobertura": criterio["Cobertura"],
                     "consumo": criterio["Consumo"],
+                    "jornada": criterio["Jornada"],
+                    "pesos": pesos_mcp,
                     "adequacao_objetivo": criterio["Adequação"],
                     "score": criterio["score"],
                     "papel": item["papel"].upper(),

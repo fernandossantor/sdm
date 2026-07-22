@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 from application.services.comparador_service import (
     ComparadorService
@@ -55,67 +56,64 @@ with col2:
 
     origem2 = selecionar_planejamento(planejamento, "plano_b")
 
+st.subheader("Critérios da decisão")
+st.caption("Defina o que significa 'melhor' para esta comparação. Os pesos devem somar 100%.")
+colunas = st.columns(7)
+rotulos = [
+    ("alcance", "Alcance", 25), ("frequencia", "Frequência", 20),
+    ("conversoes", "Conversões", 15), ("roi", "ROI", 10),
+    ("jornada", "Jornada", 15), ("saturacao", "Baixa saturação", 10),
+    ("investimento", "Menor custo", 5),
+]
+pesos = {
+    chave: coluna.number_input(rotulo, 0, 100, padrao, key=f"peso_comp_{chave}")
+    for coluna, (chave, rotulo, padrao) in zip(colunas, rotulos)
+}
+soma = sum(pesos.values())
+if soma != 100:
+    st.error(f"Os pesos somam {soma}%; ajuste para 100%.")
+
 if st.button(
 
     "Comparar",
 
     type="primary",
 
-    width="stretch"
+    width="stretch",
+    disabled=soma != 100,
 
 ):
 
     plano1 = origem1["plano"]
     plano2 = origem2["plano"]
 
-    forecast1 = forecast_service.gerar(
+    try:
+        resultado = comparador.comparar_configuravel(plano1, plano2, pesos)
+    except ValueError as erro:
+        st.error(str(erro))
+        resultado = None
 
-        plano1,
-
-        contexto_service.metricas()
-
-    )
-
-    forecast2 = forecast_service.gerar(
-
-        plano2,
-
-        contexto_service.metricas()
-
-    )
-
-    resultado = comparador.comparar(
-
-        plano1,
-
-        forecast1.itens,
-
-        plano2,
-
-        forecast2.itens
-
-    )
-
-    st.session_state["resultado"] = resultado
+    if resultado:
+        st.session_state["resultado_comparacao"] = resultado
 
 
 # ==========================================================
 # RESULTADOS
 # ==========================================================
 
-if "resultado" in st.session_state:
+if "resultado_comparacao" in st.session_state:
 
-    r = st.session_state["resultado"]
+    r = st.session_state["resultado_comparacao"]
 
     st.success(
 
-        f"Plano vencedor: {r.vencedor}"
+        f"Estratégia mais aderente: {r['vencedor']}"
 
     )
 
     st.divider()
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2 = st.columns(2)
 
     with c1:
 
@@ -123,23 +121,7 @@ if "resultado" in st.session_state:
 
             "Score Plano A",
 
-            numero_ptbr(r.score_plano_1, 2)
-
-        )
-
-        st.metric(
-
-            "Conversões Plano A",
-
-            f"{r.conversoes_plano_1:.0f}"
-
-        )
-
-        st.metric(
-
-            "Investimento Plano A",
-
-            moeda_ptbr(r.investimento_plano_1)
+            numero_ptbr(r["scores"][0], 2)
 
         )
 
@@ -149,51 +131,12 @@ if "resultado" in st.session_state:
 
             "Score Plano B",
 
-            numero_ptbr(r.score_plano_2, 2)
+            numero_ptbr(r["scores"][1], 2)
 
         )
 
-        st.metric(
 
-            "Conversões Plano B",
-
-            f"{r.conversoes_plano_2:.0f}"
-
-        )
-
-        st.metric(
-
-            "Investimento Plano B",
-
-            moeda_ptbr(r.investimento_plano_2)
-
-        )
-
-    with c3:
-
-        st.metric(
-
-            "Δ Score",
-
-            numero_ptbr(r.diferenca_score, 2)
-
-        )
-
-        st.metric(
-
-            "Δ Conversões",
-
-            f"{r.diferenca_conversoes:.0f}"
-
-        )
-
-        st.metric(
-
-            "Δ Investimento",
-
-            moeda_ptbr(r.diferenca_investimento)
-
-        )
+    st.dataframe(pd.DataFrame(r["detalhes"]), hide_index=True, width="stretch")
 
     st.divider()
 
@@ -205,6 +148,6 @@ if "resultado" in st.session_state:
 
     st.info(
 
-        r.justificativa
+        r["justificativa"]
 
     )
