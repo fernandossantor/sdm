@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.planejamento_service import (
     PlanejamentoService
@@ -15,7 +16,7 @@ from application.services.forecast_service import (
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
-from components.formatters import moeda_ptbr, numero_ptbr
+from components.formatters import dataframe_ptbr, moeda_ptbr, numero_ptbr
 from application.services.workflow_artifact_service import WorkflowArtifactService
 from components.artifact_manager import render as gerenciar_artefatos
 
@@ -28,7 +29,7 @@ st.set_page_config(
 
     page_title="Painel de Resultados",
 
-    page_icon="📊",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -120,7 +121,7 @@ if (
 
     c2.metric(
 
-        "Investimento",
+        "Investimento (R$)",
 
         moeda_ptbr(plano.verba_total)
 
@@ -346,46 +347,15 @@ if (
 
     st.dataframe(
 
-        tabela,
+        dataframe_ptbr(
+            tabela,
+            moedas=["Verba"],
+            percentuais=["Percentual"],
+            decimais=["Score"],
+        ),
 
         hide_index=True,
 
         width="stretch",
-
-        column_config={
-
-            "Score":
-
-                st.column_config.ProgressColumn(
-
-                    "Score",
-
-                    min_value=0,
-
-                    max_value=100
-
-                ),
-
-            "Percentual":
-
-                st.column_config.NumberColumn(
-
-                    "Percentual",
-
-                    format="%.2f %%"
-
-                ),
-
-            "Verba":
-
-                st.column_config.NumberColumn(
-
-                    "Verba",
-
-                    format="R$ %.2f"
-
-                )
-
-        }
 
     )

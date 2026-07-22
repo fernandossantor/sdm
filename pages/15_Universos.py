@@ -1,4 +1,5 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.universe_service import (
     UniverseService
@@ -13,7 +14,7 @@ st.set_page_config(
 
     page_title="Universos de Mercado",
 
-    page_icon="🌎",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -51,7 +52,7 @@ with st.expander(
     c_populacao, _ = st.columns(2)
     with c_populacao:
         populacao = st.number_input(
-            "População",
+            "População (pessoas)",
             min_value=0,
             value=0,
             step=1000,

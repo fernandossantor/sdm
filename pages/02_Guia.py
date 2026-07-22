@@ -1,7 +1,8 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 
-st.set_page_config(page_title="Guia de Uso — PlanOS", page_icon="📖", layout="wide")
+st.set_page_config(page_title="Guia de Uso — PlanOS", page_icon=PAGE_ICON, layout="wide")
 st.title("📖 Guia de Uso do PlanOS")
 st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
 

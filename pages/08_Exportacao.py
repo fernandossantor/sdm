@@ -2,6 +2,7 @@ import io
 
 import pandas as pd
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.planejamento_service import (
     PlanejamentoService
@@ -30,7 +31,7 @@ st.set_page_config(
 
     page_title="Relatório de Mídia",
 
-    page_icon="📤",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -109,7 +110,7 @@ if "plano_exportacao" in st.session_state:
 
         st.metric(
 
-            "Investimento",
+            "Investimento (R$)",
 
             moeda_ptbr(plano.verba_total)
 

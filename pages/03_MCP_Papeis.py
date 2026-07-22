@@ -1,4 +1,5 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from application.services.briefing_service import BriefingService
@@ -6,9 +7,10 @@ from application.services.context_service import ContextService
 from application.services.classificacao_papeis_service import ClassificacaoPapeisService
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
+from components.formatters import percentual_ptbr
 
 
-st.set_page_config(page_title="Papéis dos Meios", page_icon="🧩", layout="wide")
+st.set_page_config(page_title="Papéis dos Meios", page_icon=PAGE_ICON, layout="wide")
 exigir("mcp_papeis")
 st.title("🧩 Papéis dos Meios")
 
@@ -144,13 +146,16 @@ st.caption(
     "A adequação é calculada automaticamente a partir desses três critérios."
 )
 wc1, wc2, wc3, wc4 = st.columns(4)
-peso_afinidade = wc1.number_input("Peso afinidade (%)", 0, 100, 30)
-peso_consumo = wc2.number_input("Peso consumo (%)", 0, 100, 25)
-peso_cobertura = wc3.number_input("Peso cobertura (%)", 0, 100, 25)
-peso_jornada = wc4.number_input("Peso jornada (%)", 0, 100, 20)
+peso_afinidade = wc1.number_input("Peso afinidade (%)", 0.0, 100.0, 30.0, format="%.2f")
+peso_consumo = wc2.number_input("Peso consumo (%)", 0.0, 100.0, 25.0, format="%.2f")
+peso_cobertura = wc3.number_input("Peso cobertura (%)", 0.0, 100.0, 25.0, format="%.2f")
+peso_jornada = wc4.number_input("Peso jornada (%)", 0.0, 100.0, 20.0, format="%.2f")
 soma_pesos = peso_afinidade + peso_consumo + peso_cobertura + peso_jornada
 if soma_pesos != 100:
-    st.error(f"Os pesos devem somar 100% (atual: {soma_pesos}%).")
+    st.error(
+        "Os pesos devem somar 100,00% "
+        f"(atual: {percentual_ptbr(soma_pesos)})."
+    )
 pesos_mcp = {
     "afinidade": peso_afinidade / 100,
     "consumo": peso_consumo / 100,
@@ -198,7 +203,7 @@ for inventario in inventarios_sel:
         score = classificador.calcular_score(
             afinidade, cobertura, consumo, jornada=jornada, pesos=pesos_mcp
         )
-        st.metric("Adequação calculada", f"{score:.0f}%")
+        st.metric("Adequação calculada (%)", percentual_ptbr(score))
     rotulo = f"{inventario['nome']} · {inventario['id'][:8]}"
     scores[rotulo] = score
     criterios[rotulo] = {
@@ -215,7 +220,8 @@ ranking = classificador.classificar(scores)
 st.subheader("3. Revise o ranking")
 for item in ranking:
     item["papel"] = st.selectbox(
-        f"{item['posicao']}º · {item['meio'].split(' · ')[0]} ({item['score']:.0f}%)",
+        f"{item['posicao']}º · {item['meio'].split(' · ')[0]} "
+        f"({percentual_ptbr(item['score'])})",
         ["Principal", "Complementar", "Apoio", "Experimental"],
         index=["Principal", "Complementar", "Apoio", "Experimental"].index(
             item["papel"] if item["papel"] in {"Principal", "Complementar", "Apoio"} else "Experimental"
@@ -224,7 +230,7 @@ for item in ranking:
     )
     st.caption(
         f"{item['posicao']}º · **{item['meio'].split(' · ')[0]}** — "
-        f"{item['papel']} ({item['score']:.0f}%)"
+        f"{item['papel']} ({percentual_ptbr(item['score'])})"
     )
 
 if st.button("Aplicar papéis à campanha", type="primary", width="stretch", disabled=soma_pesos != 100):

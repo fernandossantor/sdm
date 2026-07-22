@@ -72,6 +72,7 @@ class MediaPlanEngine:
             quantidade = minimo if modo == "METAS" else quantidade
         if maximo is not None and quantidade > float(maximo):
             quantidade = float(maximo) if modo == "METAS" else quantidade
+        quantidade = int(ceil(quantidade)) if modo == "METAS" else int(quantidade)
         investimento = quantidade * preco
         verba_minima = float(premissa.get("verba_minima") or 0)
         verba_maxima = premissa.get("verba_maxima")
@@ -104,7 +105,7 @@ class MediaPlanEngine:
             return round(numerador / denominador, 2) if denominador else None
 
         return DeliveryResult(
-            quantidade=round(quantidade, 2), investimento=round(investimento, 2),
+            quantidade=quantidade, investimento=round(investimento, 2),
             audiencia_percentual=audiencia, alcance_percentual=alcance,
             alcance_pessoas=pessoas, frequencia=frequencia, grp=grp,
             impressoes=impressoes, cliques=round(cliques, 2),

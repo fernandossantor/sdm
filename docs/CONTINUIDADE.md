@@ -4,12 +4,15 @@
 
 ## Ponto de retomada
 
-- Branch: `agent/melhora-validacoes-identidade-planos`.
-- Base da branch: `a4c61e0` (`Merge pull request #3 from fernandossantor/agent/planos-cross-media-v2`).
-- Última entrega funcional antes deste registro: `3e2c732` (`Melhora validações e identidade do PlanOS`).
+- Branch: `agent/padroniza-interface-e-precos`.
+- Base da branch: `1ac444e` (`Melhora validações e identidade do PlanOS (#4)`).
+- Última entrega funcional antes deste registro: `16ab14c` (`Padroniza interface e corrige preços do plano`).
 - A branch deve ser retomada a partir do PR associado; `origin/main` continua como base da entrega.
 - O aplicativo publicado usa o nome **PlanOS** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
-- A última rodada adicionou a marca gráfica do PlanOS à página inicial e à barra lateral, além de tornar explícitos todos os impedimentos que desabilitam a geração de um plano.
+- A última rodada reduziu o logo da página inicial, aplicou `assets/barra.png`
+  como favicon, preservou nome e subtítulo na barra lateral, permitiu informar
+  o preço líquido diretamente no Plano de Mídia e padronizou datas, percentuais,
+  valores monetários, pessoas, frequências e quantidades na interface.
 - As migrações remotas do Supabase estavam sincronizadas até `20260722110000`.
 
 ## Estado verificado
@@ -24,10 +27,12 @@
 ## Validação da última entrega
 
 - `git diff --check` aprovado.
-- Compilação dos três módulos Python alterados aprovada.
-- 55 testes automatizados aprovados; 3 testes de integração opcionais ignorados nessa execução.
+- Compilação de todos os módulos Python aprovada.
+- 56 testes automatizados aprovados; 3 testes de integração opcionais ignorados nessa execução.
+- 3 testes de integração autenticados aprovados.
 - Health check autenticado aprovado para as 10 tabelas verificadas.
-- O teste autenticado `python -m scripts.regression_test` permanece com uma falha na asserção `Forecast consistente`: o plano possui inventários e verba, mas a quantidade de previsões diverge da quantidade de itens. A falha está fora dos arquivos de UI alterados nesta entrega e deve ser investigada na próxima rodada.
+- Regressão funcional autenticada aprovada. A antiga asserção do forecast foi
+  alinhada à regra do motor, que projeta apenas inventários com métricas.
 
 ## Retomada rápida
 
@@ -45,7 +50,9 @@ Antes de uma nova alteração de banco, comparar as migrações locais e remotas
 
 ## Próximo trabalho
 
-Investigar a divergência do teste de regressão em `Forecast consistente` e, depois, retomar a partir das próximas observações de uso do PlanOS. O histórico funcional e arquitetural permanece nos commits anteriores e nos demais documentos desta pasta; não é necessário reconstruir as decisões já aplicadas.
+Retomar a partir das próximas observações de uso do PlanOS. O histórico
+funcional e arquitetural permanece nos commits anteriores e nos demais
+documentos desta pasta; não é necessário reconstruir as decisões já aplicadas.
 
 ## Evolução cross-media em andamento
 

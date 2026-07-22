@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
-from components.formatters import moeda_ptbr
+from components.page_config import PAGE_ICON
+from components.formatters import dataframe_ptbr, moeda_ptbr
 
 from application.services.budget_optimizer_service import (
     BudgetOptimizerService
@@ -20,7 +21,7 @@ st.set_page_config(
 
     page_title="Otimização de Verba",
 
-    page_icon="💰",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -182,7 +183,7 @@ if "otimizacao" in st.session_state:
 
     c2.metric(
 
-        "Investimento",
+        "Investimento (R$)",
 
         moeda_ptbr(resumo["verba_total"])
 
@@ -190,7 +191,7 @@ if "otimizacao" in st.session_state:
 
     c3.metric(
 
-        "Distribuído",
+        "Distribuído (R$)",
 
         moeda_ptbr(resumo["verba_distribuida"])
 
@@ -198,7 +199,7 @@ if "otimizacao" in st.session_state:
 
     c4.metric(
 
-        "Reserva",
+        "Reserva (R$)",
 
         moeda_ptbr(resumo["reserva_testes"])
 
@@ -214,47 +215,11 @@ if "otimizacao" in st.session_state:
 
     st.dataframe(
 
-        df,
+        dataframe_ptbr(df, moedas=["verba"], percentuais=["percentual"], decimais=["score"]),
 
         hide_index=True,
 
         width="stretch",
-
-        column_config={
-
-            "score":
-
-                st.column_config.ProgressColumn(
-
-                    "Score",
-
-                    min_value=0,
-
-                    max_value=100
-
-                ),
-
-            "percentual":
-
-                st.column_config.NumberColumn(
-
-                    "Percentual",
-
-                    format="%.2f %%"
-
-                ),
-
-            "verba":
-
-                st.column_config.NumberColumn(
-
-                    "Verba",
-
-                    format="R$ %.2f"
-
-                )
-
-        }
 
     )
 
@@ -270,7 +235,7 @@ if "otimizacao" in st.session_state:
 
     st.dataframe(
 
-        pd.DataFrame(
+        dataframe_ptbr(pd.DataFrame(
 
             [
 
@@ -286,25 +251,11 @@ if "otimizacao" in st.session_state:
 
             ]
 
-        ),
+        ), moedas=["Verba"]),
 
         hide_index=True,
 
         width="stretch",
-
-        column_config={
-
-            "Verba":
-
-                st.column_config.NumberColumn(
-
-                    "Verba",
-
-                    format="R$ %.2f"
-
-                )
-
-        }
 
     )
 
@@ -318,7 +269,7 @@ if "otimizacao" in st.session_state:
 
     st.dataframe(
 
-        pd.DataFrame(
+        dataframe_ptbr(pd.DataFrame(
 
             [
 
@@ -334,25 +285,11 @@ if "otimizacao" in st.session_state:
 
             ]
 
-        ),
+        ), moedas=["Verba"]),
 
         hide_index=True,
 
         width="stretch",
-
-        column_config={
-
-            "Verba":
-
-                st.column_config.NumberColumn(
-
-                    "Verba",
-
-                    format="R$ %.2f"
-
-                )
-
-        }
 
     )
 

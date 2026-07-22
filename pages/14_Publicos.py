@@ -1,4 +1,5 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.public_service import (
     PublicService
@@ -19,7 +20,7 @@ st.set_page_config(
 
     page_title="Públicos",
 
-    page_icon="👥",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 

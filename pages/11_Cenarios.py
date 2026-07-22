@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from components.page_config import PAGE_ICON
 from components.formatters import moeda_ptbr, numero_ptbr, percentual_ptbr
 
 from application.services.scenario_service import (
@@ -20,7 +21,7 @@ st.set_page_config(
 
     page_title="Cenários",
 
-    page_icon="🎭",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 

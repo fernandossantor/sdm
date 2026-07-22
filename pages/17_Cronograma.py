@@ -1,7 +1,8 @@
 import streamlit as st
+from components.page_config import PAGE_ICON
 
 from application.services.planejamento_service import PlanejamentoService
-from components.formatters import numero_ptbr
+from components.formatters import numero_ptbr, percentual_ptbr
 from components.planning_selector import selecionar_planejamento
 from components.schedule_visual import render as render_schedule
 from components.workflow_guard import exigir
@@ -9,7 +10,7 @@ from components.workflow_guard import exigir
 
 st.set_page_config(
     page_title="Cronograma de Inserções",
-    page_icon="🗓️",
+    page_icon=PAGE_ICON,
     layout="wide",
 )
 exigir("diagnostico")
@@ -26,7 +27,7 @@ plano = origem["plano"]
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Flight", plano.tipo_flight.title())
 c2.metric("Frequência média", numero_ptbr(plano.frequencia_alvo, 2))
-c3.metric("Alcance", f"{numero_ptbr(plano.alcance_percentual, 2)}%")
+c3.metric("Alcance (%)", percentual_ptbr(plano.alcance_percentual))
 c4.metric("GRP", numero_ptbr(plano.grp, 2))
 
 render_schedule(plano)

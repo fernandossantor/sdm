@@ -16,7 +16,13 @@ from application.services.context_service import (
 from application.services.workflow_service import WorkflowService
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.workflow_guard import exigir
-from components.formatters import dataframe_ptbr, moeda_ptbr, numero_ptbr
+from components.formatters import (
+    dataframe_ptbr,
+    moeda_ptbr,
+    numero_ptbr,
+    percentual_ptbr,
+)
+from components.page_config import PAGE_ICON
 from components.grp_fields import render as render_grp
 from components.schedule_visual import render as render_schedule
 from application.services.identifier_service import IdentifierService
@@ -30,7 +36,7 @@ st.set_page_config(
 
     page_title="Plano de Mídia",
 
-    page_icon="📋",
+    page_icon=PAGE_ICON,
 
     layout="wide"
 
@@ -198,17 +204,21 @@ st.caption(
     "quantidades, preços e restrições determinam a alocação final."
 )
 p1, p2, p3, p4, p5 = st.columns(5)
-peso_objetivo = p1.number_input("Objetivo/OKR (%)", 0, 100, 40)
-peso_kpi = p2.number_input("KPI (%)", 0, 100, 30)
-peso_publico = p3.number_input("Público e jornada (%)", 0, 100, 20)
-peso_metricas = p4.number_input("Qualidade das métricas (%)", 0, 100, 10)
-peso_mcp = p5.number_input("Influência do MCP (%)", 0, 100, 20)
+peso_objetivo = p1.number_input("Objetivo/OKR (%)", 0.0, 100.0, 40.0, format="%.2f")
+peso_kpi = p2.number_input("KPI (%)", 0.0, 100.0, 30.0, format="%.2f")
+peso_publico = p3.number_input("Público e jornada (%)", 0.0, 100.0, 20.0, format="%.2f")
+peso_metricas = p4.number_input("Qualidade das métricas (%)", 0.0, 100.0, 10.0, format="%.2f")
+peso_mcp = p5.number_input("Influência do MCP (%)", 0.0, 100.0, 20.0, format="%.2f")
 soma_pesos = peso_objetivo + peso_kpi + peso_publico + peso_metricas
 impedimentos_geracao = []
 if soma_pesos != 100:
-    st.error(f"Os quatro pesos estratégicos devem somar 100% (atual: {soma_pesos}%).")
+    st.error(
+        "Os quatro pesos estratégicos devem somar 100,00% "
+        f"(atual: {percentual_ptbr(soma_pesos)})."
+    )
     impedimentos_geracao.append(
-        f"Ajuste os quatro pesos estratégicos para totalizar 100% (atual: {soma_pesos}%)."
+        "Ajuste os quatro pesos estratégicos para totalizar 100,00% "
+        f"(atual: {percentual_ptbr(soma_pesos)})."
     )
 
 if modo == "Briefing da Sessão":
@@ -239,15 +249,16 @@ c1, c2 = st.columns(2)
 
 with c1:
     orcamento_plano = st.number_input(
-        "Orçamento do planejamento",
+        "Orçamento do planejamento (R$)",
         min_value=0.0,
         value=orcamento_inicial,
         step=1000.0,
+        format="%.2f",
     )
     kpi_plano = st.selectbox("KPI principal", nomes_kpis, index=kpi_indice)
     reserva_testes = st.number_input(
         "Reserva para testes (%)", min_value=0.0, max_value=30.0,
-        value=5.0, step=1.0,
+        value=5.0, step=0.01, format="%.2f",
     )
 
 with c2:
@@ -335,34 +346,64 @@ else:
         previa = ranking_previa.get(item["id"], {})
         precos_item = base_conhecimento.precos_inventario(item["id"])
         preco_item = next((p for p in reversed(precos_item) if p.get("ativo", True)), {})
-        preco_liquido = float(preco_item.get("valor_bruto") or 0) * (
+        preco_cadastrado_liquido = float(preco_item.get("valor_bruto") or 0) * (
             1 - float(preco_item.get("desconto_percentual") or 0) / 100
         )
-        unidade_preco = str(preco_item.get("unidade") or "")
+        unidade_cadastrada = str(
+            preco_item.get("unidade") or item.get("unidade_compra") or "Unidade"
+        )
         medicoes_item = base_conhecimento.medicoes_inventario(item["id"])
         medicao_item = next((m for m in reversed(medicoes_item) if m.get("ativo", True)), {})
-        quantidade_sugerida = round(
-            float(orcamento_plano) * (1 - reserva_testes / 100)
-            / max(len(inventarios_plano), 1) / preco_liquido, 2
-        ) if preco_liquido else 0.0
         with st.expander(item["nome"], expanded=True):
+            preco_col, unidade_col = st.columns([2, 1])
+            preco_liquido = preco_col.number_input(
+                "Preço líquido por unidade (R$)",
+                min_value=0.0,
+                value=preco_cadastrado_liquido,
+                step=0.01,
+                format="%.2f",
+                key=f"preco_plano_{item['id']}",
+                help=(
+                    "Custo usado para calcular a compra deste plano. Pode ser "
+                    "informado aqui mesmo quando o inventário não possui preço cadastrado."
+                ),
+            )
+            unidade_preco = unidade_col.text_input(
+                "Unidade de compra",
+                value=unidade_cadastrada,
+                key=f"unidade_preco_plano_{item['id']}",
+            )
+            quantidade_sugerida = (
+                int(
+                    ceil(
+                        float(orcamento_plano) * (1 - reserva_testes / 100)
+                        / max(len(inventarios_plano), 1)
+                        / preco_liquido
+                    )
+                )
+                if preco_liquido
+                else 0
+            )
             a, b, c, d = st.columns(4)
             audiencia_item = a.number_input(
                 "Audiência por unidade (%)", min_value=0.0, max_value=100.0,
                 value=float(medicao_item.get("audiencia_percentual") or 0), key=f"audiencia_plano_{item['id']}",
+                step=0.01, format="%.2f",
             )
             alcance_item = b.number_input(
                 "Alcance do meio (%)", min_value=0.0, max_value=100.0,
                 value=float(medicao_item.get("alcance_percentual") or classificacao.get("cobertura") or 0),
                 key=f"alcance_plano_{item['id']}",
+                step=0.01, format="%.2f",
             )
             incremental_item = c.number_input(
                 "Alcance incremental (%)", min_value=0.0, max_value=100.0,
                 value=float(classificacao.get("cobertura") or 0) if ordem == 0 else 0.0,
                 key=f"incremental_plano_{item['id']}",
+                step=0.01, format="%.2f",
             )
             frequencia_item = d.number_input(
-                "Frequência do meio", min_value=0.0, value=float(medicao_item.get("frequencia") or 0), step=0.1,
+                "Frequência do meio", min_value=0, value=int(round(float(medicao_item.get("frequencia") or 0))), step=1,
                 key=f"frequencia_plano_{item['id']}",
             )
             modo_calculo = st.radio(
@@ -384,49 +425,53 @@ else:
                 quantidade_meta = quantidade_sugerida
             e, f, g, h = st.columns(4)
             quantidade_item = e.number_input(
-                "Quantidade de compra", min_value=0.0,
-                value=quantidade_meta if modo_calculo == "Metas geram a quantidade" else quantidade_sugerida,
-                step=1.0,
+                "Quantidade de compra", min_value=0,
+                value=int(ceil(quantidade_meta)) if modo_calculo == "Metas geram a quantidade" else quantidade_sugerida,
+                step=1,
                 key=f"quantidade_plano_{item['id']}",
                 disabled=modo_calculo == "Metas geram a quantidade",
             )
             frequencia_maxima = f.number_input(
-                "Frequência máxima", min_value=0.1, value=10.0, step=0.5,
+                "Frequência máxima", min_value=1, value=10, step=1,
                 key=f"freq_max_plano_{item['id']}",
             )
             ctr_item = g.number_input(
-                "CTR/resposta (%)", min_value=0.0, value=0.0, step=0.1,
+                "CTR/resposta (%)", min_value=0.0, value=0.0, step=0.01, format="%.2f",
                 key=f"ctr_plano_{item['id']}",
             )
             conversao_item = h.number_input(
-                "Taxa de conversão (%)", min_value=0.0, value=0.0, step=0.1,
+                "Taxa de conversão (%)", min_value=0.0, value=0.0, step=0.01, format="%.2f",
                 key=f"conversao_plano_{item['id']}",
             )
             valor_conversao = st.number_input(
                 "Valor por conversão (R$)", min_value=0.0, value=0.0,
+                step=0.01, format="%.2f",
                 key=f"valor_conversao_plano_{item['id']}",
             )
             st.caption(
-                f"Preço líquido considerado: {moeda_ptbr(preco_liquido)} · "
-                f"proposta inicial: {numero_ptbr(quantidade_sugerida, 2)} unidades."
+                f"Custo de mídia considerado: {moeda_ptbr(preco_liquido)} por "
+                f"{unidade_preco} · proposta inicial: "
+                f"{numero_ptbr(quantidade_sugerida)} unidades."
             )
             r1, r2, r3, r4 = st.columns(4)
             quantidade_minima = r1.number_input(
-                "Piso de quantidade", min_value=0.0, value=0.0,
+                "Piso de quantidade", min_value=0, value=0, step=1,
                 key=f"qmin_plano_{item['id']}",
             )
             quantidade_maxima = r2.number_input(
-                "Teto de quantidade", min_value=0.0,
-                value=max(quantidade_sugerida, quantidade_item),
+                "Teto de quantidade", min_value=0,
+                value=int(max(quantidade_sugerida, quantidade_item)), step=1,
                 key=f"qmax_plano_{item['id']}",
             )
             verba_minima = r3.number_input(
-                "Piso de verba", min_value=0.0, value=0.0,
+                "Piso de verba (R$)", min_value=0.0, value=0.0,
+                step=0.01, format="%.2f",
                 key=f"vmin_plano_{item['id']}",
             )
             verba_maxima = r4.number_input(
-                "Teto de verba", min_value=0.0,
+                "Teto de verba (R$)", min_value=0.0,
                 value=max(float(orcamento_plano), quantidade_item * preco_liquido),
+                step=0.01, format="%.2f",
                 key=f"vmax_plano_{item['id']}",
             )
             obrigatorio = st.checkbox(
@@ -438,7 +483,8 @@ else:
                 value=False, key=f"atualizar_medicao_{item['id']}",
             )
             cobertura_jornada = st.slider(
-                "Cobertura dos pontos de contato da jornada (%)", 0, 100, 50,
+                "Cobertura dos pontos de contato da jornada (%)", 0.0, 100.0, 50.0,
+                step=0.01, format="%.2f",
                 key=f"jornada_plano_{item['id']}",
                 help="Avalie a contribuição deste inventário às etapas da jornada do público.",
             )
@@ -451,24 +497,24 @@ else:
             st.markdown("**Aderência estratégica — revise os valores sugeridos**")
             s1, s2, s3, s4 = st.columns(4)
             score_objetivo = s1.number_input(
-                "Objetivo/OKR", 0.0, 100.0, min(100.0, float(previa.get("objetivo") or 0)),
+                "Objetivo/OKR (%)", 0.0, 100.0, min(100.0, float(previa.get("objetivo") or 0)), format="%.2f",
                 key=f"score_obj_{item['id']}",
             )
             score_kpi = s2.number_input(
-                "KPI", 0.0, 100.0, min(100.0, float(previa.get("kpi") or 0)),
+                "KPI (%)", 0.0, 100.0, min(100.0, float(previa.get("kpi") or 0)), format="%.2f",
                 key=f"score_kpi_{item['id']}",
             )
             score_publico = s3.number_input(
-                "Público e jornada", 0.0, 100.0, min(100.0, float(previa.get("audiencia") or 0)),
+                "Público e jornada (%)", 0.0, 100.0, min(100.0, float(previa.get("audiencia") or 0)), format="%.2f",
                 key=f"score_publico_{item['id']}",
             )
             score_metricas = s4.number_input(
-                "Qualidade das métricas", 0.0, 110.0, float(previa.get("metricas") or 0),
+                "Qualidade das métricas (%)", 0.0, 110.0, float(previa.get("metricas") or 0), format="%.2f",
                 key=f"score_metricas_{item['id']}",
             )
         campos_ausentes = []
         if preco_liquido <= 0:
-            campos_ausentes.append("preço ativo maior que R$ 0,00")
+            campos_ausentes.append("preço líquido por unidade maior que R$ 0,00")
         if audiencia_item <= 0:
             campos_ausentes.append("audiência por unidade")
         if alcance_item <= 0:
@@ -503,6 +549,8 @@ else:
             "frequencia": frequencia_item,
             "frequencia_maxima": frequencia_maxima,
             "quantidade": quantidade_item,
+            "preco_unitario": preco_liquido,
+            "unidade_compra": unidade_preco,
             "modo_calculo": "METAS" if modo_calculo == "Metas geram a quantidade" else "COMPRA",
             "quantidade_minima": quantidade_minima,
             "quantidade_maxima": quantidade_maxima,
@@ -726,11 +774,18 @@ if "plano" in st.session_state:
             dataframe_ptbr(
                 df,
                 moedas=["Verba", "Preço unitário"],
-                percentuais=["Alcance (%)", "Participação da verba (%)"],
-                inteiros=["Impressões estimadas", "Alcance estimado (pessoas)"],
+                percentuais=[
+                    "Alcance do meio (%)", "Alcance incremental (%)",
+                    "Participação da verba (%)",
+                ],
+                inteiros=[
+                    "Quantidade comprada", "Impressões estimadas",
+                    "Alcance estimado (pessoas)", "Cliques projetados",
+                    "Conversões projetadas",
+                ],
                 decimais=[
-                    "Score do papel", "Frequência média", "GRP",
-                    "Score estratégico", "Quantidade comprada",
+                    "Score do papel", "Frequência do meio", "GRP do meio",
+                    "Score estratégico",
                     "Aderência ao objetivo", "Aderência aos KPIs",
                     "Aderência ao público", "Qualidade das métricas",
                 ],
@@ -785,7 +840,7 @@ if "plano" in st.session_state:
 
         c4.metric(
 
-            "Verba",
+            "Verba (R$)",
 
             moeda_ptbr(plano.verba_total)
 
@@ -794,7 +849,7 @@ if "plano" in st.session_state:
         st.subheader("Metas de exposição da campanha")
         a1, a2, a3, a4, a5 = st.columns(5)
         a1.metric("Faixa", plano.alcance_objetivo.title())
-        a2.metric("Meta", f"{plano.alcance_percentual}%")
+        a2.metric("Meta (%)", percentual_ptbr(plano.alcance_percentual))
         a3.metric("Frequência média", numero_ptbr(plano.frequencia_alvo, 2))
         a4.metric("GRP", numero_ptbr(plano.grp, 2))
         a5.metric(
@@ -863,7 +918,7 @@ if "plano" in st.session_state:
         )
         st.write(
             f"**Alcance:** {plano.alcance_objetivo.title()} "
-            f"({plano.alcance_percentual}% do público; meta de "
+            f"({percentual_ptbr(plano.alcance_percentual)} do público; meta de "
             f"{numero_ptbr(plano.alcance_meta)} pessoas)"
         )
         st.write(f"**GRP:** {numero_ptbr(plano.grp, 2)}")
