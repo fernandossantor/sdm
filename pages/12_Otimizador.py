@@ -18,7 +18,7 @@ from components.planning_selector import selecionar_planejamento
 
 st.set_page_config(
 
-    page_title="Otimizador",
+    page_title="Otimização de Verba",
 
     page_icon="💰",
 
@@ -26,7 +26,7 @@ st.set_page_config(
 
 )
 
-st.title("💰 Otimizador de Orçamento")
+st.title("💰 Otimização de Verba")
 
 st.divider()
 

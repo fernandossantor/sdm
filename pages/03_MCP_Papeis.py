@@ -8,9 +8,9 @@ from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 
 
-st.set_page_config(page_title="MCP — Papéis de mídia", page_icon="🧩", layout="wide")
+st.set_page_config(page_title="Papéis dos Meios", page_icon="🧩", layout="wide")
 exigir("mcp_papeis")
-st.title("🧩 Papéis de mídia da campanha")
+st.title("🧩 Papéis dos Meios")
 
 base = BaseConhecimentoService()
 classificador = ClassificacaoPapeisService()
@@ -221,10 +221,10 @@ if st.button("Aplicar papéis à campanha", type="primary", width="stretch"):
             item["id"] for item in inventarios_sel
         ]
         WorkflowService().concluir(st.session_state, "mcp_papeis", campanha_ref)
-        st.success("Papéis aplicados. O Planejamento usará apenas estes inventários.")
+        st.success("Papéis aplicados. O Plano de Mídia usará apenas estes inventários.")
         st.page_link(
             "pages/05_Planejamento.py",
-            label="Continuar para Planejamento",
+            label="Continuar para Plano de Mídia",
             icon="🧠",
             width="stretch",
         )

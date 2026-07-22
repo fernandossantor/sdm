@@ -18,11 +18,11 @@ def selecionar_planejamento(service, key="planejamento_origem"):
             }
         )
     if not opcoes:
-        st.warning("Nenhum planejamento disponível. Gere e salve um Planejamento primeiro.")
-        st.page_link("pages/05_Planejamento.py", label="Ir para Planejamento", icon="📋")
+        st.warning("Nenhum Plano de Mídia disponível. Gere e salve um plano primeiro.")
+        st.page_link("pages/05_Planejamento.py", label="Ir para Plano de Mídia", icon="📋")
         st.stop()
     indice = st.selectbox(
-        "Planejamento",
+        "Plano de Mídia",
         range(len(opcoes)),
         format_func=lambda valor: opcoes[valor]["rotulo"],
         key=key,

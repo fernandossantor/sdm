@@ -27,7 +27,7 @@ def render():
 
             "pages/05_Planejamento.py",
 
-            label="🧠 Planejamento",
+            label="🧠 Plano de Mídia",
 
             width="stretch"
 
@@ -37,7 +37,7 @@ def render():
 
             "pages/06_Forecast.py",
 
-            label="📈 Forecast",
+            label="📈 Projeção de Resultados",
 
             width="stretch"
 
@@ -49,7 +49,7 @@ def render():
 
             "pages/07_Dashboard.py",
 
-            label="📊 Dashboard",
+            label="📊 Painel de Resultados",
 
             width="stretch"
 
@@ -59,7 +59,7 @@ def render():
 
             "pages/08_Exportacao.py",
 
-            label="📄 Exportação",
+            label="📄 Relatório de Mídia",
 
             width="stretch"
 

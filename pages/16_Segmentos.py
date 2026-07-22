@@ -14,7 +14,7 @@ from application.services.universe_service import (
 
 st.set_page_config(
 
-    page_title="Segmentos",
+    page_title="Segmentos de Público",
 
     page_icon="🎯",
 
@@ -22,7 +22,7 @@ st.set_page_config(
 
 )
 
-st.title("🎯 Segmentos")
+st.title("🎯 Segmentos de Público")
 
 st.divider()
 

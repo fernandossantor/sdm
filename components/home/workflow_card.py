@@ -42,13 +42,13 @@ def render(
     )
 
     etapas = [
-        ("Briefing", "pages/00_Briefing.py", "briefing", "📋"),
-        ("Papéis de mídia", "pages/03_MCP_Papeis.py", "mcp_papeis", "🧩"),
-        ("Planejamento", "pages/05_Planejamento.py", "planejamento", "🧠"),
-        ("Diagnóstico", "pages/09_Diagnostico.py", "diagnostico", "🩺"),
-        ("Forecast", "pages/06_Forecast.py", "forecast", "📈"),
-        ("Painel Executivo", "pages/07_Dashboard.py", "dashboard", "📊"),
-        ("Relatórios", "pages/08_Exportacao.py", "exportacao", "📄"),
+        ("Briefing de Mídia", "pages/00_Briefing.py", "briefing", "📋"),
+        ("Papéis dos Meios", "pages/03_MCP_Papeis.py", "mcp_papeis", "🧩"),
+        ("Plano de Mídia", "pages/05_Planejamento.py", "planejamento", "🧠"),
+        ("Diagnóstico do Plano", "pages/09_Diagnostico.py", "diagnostico", "🩺"),
+        ("Projeção de Resultados", "pages/06_Forecast.py", "forecast", "📈"),
+        ("Painel de Resultados", "pages/07_Dashboard.py", "dashboard", "📊"),
+        ("Relatório de Mídia", "pages/08_Exportacao.py", "exportacao", "📄"),
     ]
 
     status = [getattr(estado, chave) for _, _, chave, _ in etapas]

@@ -21,7 +21,7 @@ from application.services.project_service import ProjectService
 
 st.set_page_config(
 
-    page_title="Novo Briefing",
+    page_title="Briefing de Mídia",
 
     page_icon="📝",
 
@@ -29,7 +29,7 @@ st.set_page_config(
 
 )
 
-st.title("📝 Briefing Inteligente")
+st.title("📝 Briefing de Mídia")
 
 st.divider()
 
@@ -582,7 +582,7 @@ if salvar:
 
         st.info(
 
-            "Agora acesse Planejamento."
+            "Agora acesse Plano de Mídia."
 
         )
 

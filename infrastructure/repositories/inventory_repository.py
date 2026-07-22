@@ -67,7 +67,7 @@ class InventoryRepository(BaseRepository):
             campos=(
                 "id,nome,descricao,plataforma_id,ambiente_id,formato_id,"
                 "estrutura_id,modelo_comercial_id,modalidade_compra_id,"
-                "unidade_compra_id"
+                "unidade_compra_id,kpi_principal_id"
             ),
         )
 

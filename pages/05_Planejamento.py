@@ -24,7 +24,7 @@ from components.formatters import dataframe_ptbr, moeda_ptbr, numero_ptbr
 
 st.set_page_config(
 
-    page_title="Planejamento",
+    page_title="Plano de Mídia",
 
     page_icon="📋",
 
@@ -34,7 +34,7 @@ st.set_page_config(
 
 exigir("planejamento")
 
-st.title("📋 Planejamento Estratégico")
+st.title("📋 Plano de Mídia")
 
 st.divider()
 
@@ -48,7 +48,7 @@ workflow_service = WorkflowService()
 
 base_conhecimento = BaseConhecimentoService()
 
-with st.expander("Planejamentos salvos", expanded=False):
+with st.expander("Planos de mídia salvos", expanded=False):
     planos_salvos = planejamento.listar()
     if not planos_salvos:
         st.info("Nenhum planejamento salvo.")
@@ -299,7 +299,7 @@ inventarios_mcp = [
     if (item.get("classificacao") or {}).get("selecionado", True)
     and item.get("classificacao")
 ]
-st.subheader("Papéis de mídia aplicados antes da geração")
+st.subheader("Papéis dos Meios aplicados antes da geração")
 if not inventarios_mcp:
     st.warning(
         "Este briefing ainda não possui inventários selecionados no MCP Papéis."
@@ -389,7 +389,7 @@ if "plano" in st.session_state:
                 plano,
                 st.session_state.get("configuracao_planejamento", configuracao),
             )
-            st.success("Planejamento salvo.")
+            st.success("Plano de Mídia salvo.")
 
     abas = st.tabs(
 

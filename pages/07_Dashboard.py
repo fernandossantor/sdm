@@ -26,7 +26,7 @@ from components.artifact_manager import render as gerenciar_artefatos
 
 st.set_page_config(
 
-    page_title="Dashboard",
+    page_title="Painel de Resultados",
 
     page_icon="📊",
 
@@ -36,7 +36,7 @@ st.set_page_config(
 
 exigir("dashboard")
 
-st.title("📊 Dashboard Executivo")
+st.title("📊 Painel de Resultados")
 
 st.divider()
 
@@ -56,7 +56,7 @@ gerenciar_artefatos(artefatos, "DASHBOARD", "Painéis executivos")
 
 if st.button(
 
-    "Atualizar Dashboard",
+    "Atualizar Painel de Resultados",
 
     type="primary",
 
@@ -248,7 +248,7 @@ if (
 
     st.subheader(
 
-        "Forecast"
+        "Projeção de Resultados"
 
     )
 

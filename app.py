@@ -54,26 +54,26 @@ def pagina_inicial():
 
 pagina_home = st.Page(pagina_inicial, title="Início", icon="🏠", default=True)
 workflow_links = [
-    (st.Page("pages/00_Briefing.py", title="Briefing", icon="📋"), "Briefing", "📋"),
-    (st.Page("pages/03_MCP_Papeis.py", title="Papéis de mídia", icon="🧩"), "Papéis de mídia", "🧩"),
-    (st.Page("pages/05_Planejamento.py", title="Planejamento", icon="🧠"), "Planejamento", "🧠"),
-    (st.Page("pages/09_Diagnostico.py", title="Diagnóstico", icon="🩺"), "Diagnóstico", "🩺"),
-    (st.Page("pages/06_Forecast.py", title="Forecast", icon="📈"), "Forecast", "📈"),
-    (st.Page("pages/07_Dashboard.py", title="Painel Executivo", icon="📊"), "Painel Executivo", "📊"),
-    (st.Page("pages/08_Exportacao.py", title="Relatórios", icon="📄"), "Relatórios", "📄"),
+    (st.Page("pages/00_Briefing.py", title="Briefing de Mídia", icon="📋"), "Briefing de Mídia", "📋"),
+    (st.Page("pages/03_MCP_Papeis.py", title="Papéis dos Meios", icon="🧩"), "Papéis dos Meios", "🧩"),
+    (st.Page("pages/05_Planejamento.py", title="Plano de Mídia", icon="🧠"), "Plano de Mídia", "🧠"),
+    (st.Page("pages/09_Diagnostico.py", title="Diagnóstico do Plano", icon="🩺"), "Diagnóstico do Plano", "🩺"),
+    (st.Page("pages/06_Forecast.py", title="Projeção de Resultados", icon="📈"), "Projeção de Resultados", "📈"),
+    (st.Page("pages/07_Dashboard.py", title="Painel de Resultados", icon="📊"), "Painel de Resultados", "📊"),
+    (st.Page("pages/08_Exportacao.py", title="Relatório de Mídia", icon="📄"), "Relatório de Mídia", "📄"),
 ]
 analise_links = [
-    (st.Page("pages/10_Comparador.py", title="Comparador", icon="⚖️"), "Comparador", "⚖️"),
-    (st.Page("pages/11_Cenarios.py", title="Cenários", icon="🎛️"), "Cenários", "🎛️"),
-    (st.Page("pages/12_Otimizador.py", title="Otimizador", icon="🎯"), "Otimizador", "🎯"),
-    (st.Page("pages/13_Insights.py", title="Insights", icon="💡"), "Insights", "💡"),
+    (st.Page("pages/10_Comparador.py", title="Comparação de Planos", icon="⚖️"), "Comparação de Planos", "⚖️"),
+    (st.Page("pages/11_Cenarios.py", title="Simulação de Cenários", icon="🎛️"), "Simulação de Cenários", "🎛️"),
+    (st.Page("pages/12_Otimizador.py", title="Otimização de Verba", icon="🎯"), "Otimização de Verba", "🎯"),
+    (st.Page("pages/13_Insights.py", title="Insights de Mídia", icon="💡"), "Insights de Mídia", "💡"),
 ]
 base_links = [
-    (st.Page("pages/01_Catalogos.py", title="Catálogos", icon="🗂️"), "Catálogos", "🗂️"),
-    (st.Page("pages/04_Inventarios.py", title="Inventários", icon="📦"), "Inventários", "📦"),
-    (st.Page("pages/15_Universos.py", title="Universos", icon="🌎"), "Universos", "🌎"),
-    (st.Page("pages/16_Segmentos.py", title="Segmentos", icon="🧭"), "Segmentos", "🧭"),
-    (st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"), "Públicos", "👥"),
+    (st.Page("pages/01_Catalogos.py", title="Catálogo de Mídia", icon="🗂️"), "Catálogo de Mídia", "🗂️"),
+    (st.Page("pages/04_Inventarios.py", title="Cadastro de Inventários", icon="📦"), "Cadastro de Inventários", "📦"),
+    (st.Page("pages/15_Universos.py", title="Universos de Mercado", icon="🌎"), "Universos de Mercado", "🌎"),
+    (st.Page("pages/16_Segmentos.py", title="Segmentos de Público", icon="🧭"), "Segmentos de Público", "🧭"),
+    (st.Page("pages/14_Publicos.py", title="Públicos da Campanha", icon="👥"), "Públicos da Campanha", "👥"),
 ]
 navegacao = st.navigation(
     [

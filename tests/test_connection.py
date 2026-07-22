@@ -73,6 +73,12 @@ class TestConnection(unittest.TestCase):
             .limit(1)
             .execute()
         )
+        inventarios = (
+            admin.table("inventarios_v3")
+            .select("id,kpi_principal_id")
+            .limit(1)
+            .execute()
+        )
 
         self.assertIsInstance(universos.data, list)
         self.assertIsInstance(papeis.data, list)
@@ -80,6 +86,7 @@ class TestConnection(unittest.TestCase):
         self.assertIsInstance(segmentos.data, list)
         self.assertIsInstance(projetos.data, list)
         self.assertIsInstance(artefatos.data, list)
+        self.assertIsInstance(inventarios.data, list)
 
 
 if __name__ == "__main__":

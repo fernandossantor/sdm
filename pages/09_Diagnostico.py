@@ -21,7 +21,7 @@ from components.artifact_manager import render as gerenciar_artefatos
 
 st.set_page_config(
 
-    page_title="Diagnóstico",
+    page_title="Diagnóstico do Plano",
 
     page_icon="🩺",
 
@@ -31,7 +31,7 @@ st.set_page_config(
 
 exigir("diagnostico")
 
-st.title("🩺 Diagnóstico Estratégico")
+st.title("🩺 Diagnóstico do Plano")
 
 st.divider()
 

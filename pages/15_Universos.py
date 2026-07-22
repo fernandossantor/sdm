@@ -11,7 +11,7 @@ from application.services.universe_service import (
 
 st.set_page_config(
 
-    page_title="Universos",
+    page_title="Universos de Mercado",
 
     page_icon="🌎",
 
@@ -19,7 +19,7 @@ st.set_page_config(
 
 )
 
-st.title("🌎 Universos")
+st.title("🌎 Universos de Mercado")
 
 st.divider()
 

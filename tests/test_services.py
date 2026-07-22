@@ -268,7 +268,7 @@ class TestWorkflowService(unittest.TestCase):
         self.assertTrue(estado.mcp_papeis)
         self.assertTrue(estado.planejamento)
         self.assertTrue(estado.diagnostico)
-        self.assertEqual(estado.proxima_etapa, "Forecast")
+        self.assertEqual(estado.proxima_etapa, "Projeção de Resultados")
 
     def test_valida_pre_requisitos_de_acesso(self):
 

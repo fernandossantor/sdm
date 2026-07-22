@@ -27,7 +27,7 @@ from components.artifact_manager import render as gerenciar_artefatos
 
 st.set_page_config(
 
-    page_title="Forecast",
+    page_title="Projeção de Resultados",
 
     page_icon="📈",
 
@@ -37,7 +37,7 @@ st.set_page_config(
 
 exigir("forecast")
 
-st.title("📈 Forecast")
+st.title("📈 Projeção de Resultados")
 
 st.divider()
 
@@ -51,11 +51,11 @@ workflow_service = WorkflowService()
 artefatos = WorkflowArtifactService()
 
 origem = selecionar_planejamento(planejamento, "forecast_planejamento")
-gerenciar_artefatos(artefatos, "FORECAST", "Forecasts")
+gerenciar_artefatos(artefatos, "FORECAST", "Projeções de resultados")
 
 if st.button(
 
-    "Gerar Forecast",
+    "Gerar projeção de resultados",
 
     type="primary",
 
@@ -79,10 +79,10 @@ if st.button(
     st.session_state["forecast_plano"] = plano
 
     artefatos.salvar_no_projeto(
-        "FORECAST", f"Forecast — {plano.campanha}", forecast,
+        "FORECAST", f"Projeção de Resultados — {plano.campanha}", forecast,
         st.session_state, origem["id"],
     )
-    st.toast("Forecast salvo no projeto.")
+    st.toast("Projeção de Resultados salva no projeto.")
     st.rerun()
 
 

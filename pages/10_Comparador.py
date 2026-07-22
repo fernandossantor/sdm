@@ -25,7 +25,7 @@ from components.formatters import moeda_ptbr, numero_ptbr
 
 st.set_page_config(
 
-    page_title="Comparador",
+    page_title="Comparação de Planos",
 
     page_icon="⚖️",
 
@@ -33,7 +33,7 @@ st.set_page_config(
 
 )
 
-st.title("⚖️ Comparador de Planos")
+st.title("⚖️ Comparação de Planos")
 
 st.divider()
 

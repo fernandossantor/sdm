@@ -81,7 +81,7 @@ class TestWorkflowState(unittest.TestCase):
 
         self.assertEqual(estado.concluidas, 3)
         self.assertEqual(estado.percentual, 42.9)
-        self.assertEqual(estado.proxima_etapa, "Diagnóstico")
+        self.assertEqual(estado.proxima_etapa, "Diagnóstico do Plano")
 
 
 if __name__ == "__main__":

@@ -5,11 +5,11 @@ from application.services.workflow_service import WorkflowService
 
 ANTERIORES = {
     "mcp_papeis": ("Briefing", "pages/00_Briefing.py", "📋"),
-    "planejamento": ("Papéis de mídia", "pages/03_MCP_Papeis.py", "🧩"),
-    "diagnostico": ("Planejamento", "pages/05_Planejamento.py", "🧠"),
+    "planejamento": ("Papéis dos Meios", "pages/03_MCP_Papeis.py", "🧩"),
+    "diagnostico": ("Plano de Mídia", "pages/05_Planejamento.py", "🧠"),
     "forecast": ("Diagnóstico", "pages/09_Diagnostico.py", "🩺"),
-    "dashboard": ("Forecast", "pages/06_Forecast.py", "📈"),
-    "exportacao": ("Painel Executivo", "pages/07_Dashboard.py", "📊"),
+    "dashboard": ("Projeção de Resultados", "pages/06_Forecast.py", "📈"),
+    "exportacao": ("Painel de Resultados", "pages/07_Dashboard.py", "📊"),
 }
 
 

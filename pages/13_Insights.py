@@ -21,7 +21,7 @@ from components.formatters import moeda_ptbr
 
 st.set_page_config(
 
-    page_title="Insights",
+    page_title="Insights de Mídia",
 
     page_icon="💡",
 
@@ -29,7 +29,7 @@ st.set_page_config(
 
 )
 
-st.title("💡 Insights Estratégicos")
+st.title("💡 Insights de Mídia")
 
 st.divider()
 

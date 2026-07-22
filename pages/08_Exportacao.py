@@ -28,7 +28,7 @@ from components.artifact_manager import render as gerenciar_artefatos
 
 st.set_page_config(
 
-    page_title="Exportação",
+    page_title="Relatório de Mídia",
 
     page_icon="📤",
 
@@ -38,7 +38,7 @@ st.set_page_config(
 
 exigir("exportacao")
 
-st.title("📤 Exportação")
+st.title("📤 Relatório de Mídia")
 
 st.divider()
 

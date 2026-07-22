@@ -88,30 +88,30 @@ class WorkflowState:
 
         if not self.briefing:
 
-            return "Briefing"
+            return "Briefing de Mídia"
 
         if not self.mcp_papeis:
 
-            return "Papéis de mídia"
+            return "Papéis dos Meios"
 
         if not self.planejamento:
 
-            return "Planejamento"
+            return "Plano de Mídia"
 
         if not self.diagnostico:
 
-            return "Diagnóstico"
+            return "Diagnóstico do Plano"
 
         if not self.forecast:
 
-            return "Forecast"
+            return "Projeção de Resultados"
 
         if not self.dashboard:
 
-            return "Dashboard"
+            return "Painel de Resultados"
 
         if not self.exportacao:
 
-            return "Exportação"
+            return "Relatório de Mídia"
 
         return "Concluído"

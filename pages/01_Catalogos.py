@@ -11,7 +11,7 @@ from application.services.base_conhecimento_service import (
 
 st.set_page_config(
 
-    page_title="Catálogos",
+    page_title="Catálogo de Mídia",
 
     page_icon="📚",
 
@@ -19,15 +19,9 @@ st.set_page_config(
 
 )
 
-st.title("📚 Catálogos")
+st.title("📚 Catálogo de Mídia")
 
 st.divider()
-
-st.caption(
-    "Fontes de referência para classificação: "
-    "[Cenp-Meios](https://www.cenp.com.br/cenp-meios) e "
-    "[IAB Brasil — Digital AdSpend](https://iabbrasil.com.br/internas/pesquisas/adspend/)."
-)
 
 service = BaseConhecimentoService()
 
@@ -78,8 +72,10 @@ def mostrar(df, categoria):
         or coluna in {"criado_em", "atualizado_em", "ativo"}
     }
     tabela = tabela.drop(columns=list(ocultas), errors="ignore")
-    tabela = tabela.drop(columns=["descricao"], errors="ignore")
-    tabela["Fonte"] = "Cenp-Meios / IAB Brasil / Base PMAH"
+    for coluna in ("nome", "descricao"):
+        if coluna not in tabela.columns:
+            tabela[coluna] = ""
+    tabela = tabela[["nome", "descricao"]]
     nomes = {
         "nome": "Nome", "descricao": "Descrição", "empresa": "Empresa",
         "site": "Site", "sigla": "Sigla", "tipo": "Tipo",
@@ -94,6 +90,11 @@ def mostrar(df, categoria):
 
         width="stretch"
 
+    )
+    st.caption(
+        "Fontes: [Cenp-Meios](https://www.cenp.com.br/cenp-meios), "
+        "[IAB Brasil — Digital AdSpend]"
+        "(https://iabbrasil.com.br/internas/pesquisas/adspend/) e Base PMAH."
     )
 
 # ==========================================================
