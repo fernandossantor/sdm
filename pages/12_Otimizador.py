@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 from components.formatters import dataframe_ptbr, moeda_ptbr
 
 from application.services.budget_optimizer_service import (
@@ -19,7 +19,7 @@ from components.planning_selector import selecionar_planejamento
 
 st.set_page_config(
 
-    page_title="Otimização de Verba",
+    page_title=titulo_pagina("Otimização de Verba"),
 
     page_icon=PAGE_ICON,
 

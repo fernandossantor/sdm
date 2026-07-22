@@ -1,13 +1,14 @@
 from datetime import date
 
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.formatters import moeda_ptbr
+from components.inputs import entrada_monetaria
 
 
-st.set_page_config(page_title="Cadastro de Inventários", page_icon=PAGE_ICON, layout="wide")
+st.set_page_config(page_title=titulo_pagina("Cadastro de Inventários"), page_icon=PAGE_ICON, layout="wide")
 st.title("📦 Cadastro de Inventários")
 st.write(
     "Cadastre as oportunidades comerciais disponíveis nos meios e mantenha "
@@ -233,10 +234,14 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         st.stop()
 
     nome = st.text_input("Nome", value=inventario.get("nome", ""), key=f"{prefixo}_nome")
-    valor = st.number_input(
-        "Preço bruto por unidade (R$)", min_value=0.0,
-        value=float(preco.get("valor_bruto") or 0), key=f"{prefixo}_valor",
-        step=0.01, format="%.2f",
+    valor = entrada_monetaria(
+        "Preço bruto por unidade (R$)",
+        float(preco.get("valor_bruto") or 0),
+        key=f"{prefixo}_valor",
+        ajuda=(
+            "Preço de tabela de uma unidade de compra, antes do desconto, "
+            "no formato 1.000,00."
+        ),
     )
     desconto = st.number_input(
         "Desconto negociado (%)", min_value=0.0, max_value=100.0,

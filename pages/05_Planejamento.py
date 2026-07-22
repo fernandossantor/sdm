@@ -22,7 +22,8 @@ from components.formatters import (
     numero_ptbr,
     percentual_ptbr,
 )
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
+from components.inputs import entrada_monetaria
 from components.grp_fields import render as render_grp
 from components.schedule_visual import render as render_schedule
 from application.services.identifier_service import IdentifierService
@@ -34,7 +35,7 @@ from application.services.identifier_service import IdentifierService
 
 st.set_page_config(
 
-    page_title="Plano de Mídia",
+    page_title=titulo_pagina("Plano de Mídia"),
 
     page_icon=PAGE_ICON,
 
@@ -248,12 +249,13 @@ kpi_indice = nomes_kpis.index(kpi_inicial) if kpi_inicial in nomes_kpis else 0
 c1, c2 = st.columns(2)
 
 with c1:
-    orcamento_plano = st.number_input(
+    orcamento_plano = entrada_monetaria(
         "Orçamento do planejamento (R$)",
-        min_value=0.0,
-        value=orcamento_inicial,
-        step=1000.0,
-        format="%.2f",
+        orcamento_inicial,
+        key="orcamento_planejamento_br",
+        ajuda=(
+            "Verba total disponível para este plano, no formato 1.000,00."
+        ),
     )
     kpi_plano = st.selectbox("KPI principal", nomes_kpis, index=kpi_indice)
     reserva_testes = st.number_input(
@@ -356,16 +358,15 @@ else:
         medicao_item = next((m for m in reversed(medicoes_item) if m.get("ativo", True)), {})
         with st.expander(item["nome"], expanded=True):
             preco_col, unidade_col = st.columns([2, 1])
-            preco_liquido = preco_col.number_input(
+            preco_liquido = entrada_monetaria(
                 "Preço líquido por unidade (R$)",
-                min_value=0.0,
-                value=preco_cadastrado_liquido,
-                step=0.01,
-                format="%.2f",
-                key=f"preco_plano_{item['id']}",
-                help=(
+                preco_cadastrado_liquido,
+                key=f"preco_plano_br_{item['id']}",
+                container=preco_col,
+                ajuda=(
                     "Custo usado para calcular a compra deste plano. Pode ser "
-                    "informado aqui mesmo quando o inventário não possui preço cadastrado."
+                    "informado aqui mesmo quando o inventário não possui preço "
+                    "cadastrado. Não é o valor de uma conversão."
                 ),
             )
             unidade_preco = unidade_col.text_input(
@@ -423,17 +424,80 @@ else:
                     quantidade_meta = float(ceil(alcance_item * frequencia_item / audiencia_item))
             else:
                 quantidade_meta = quantidade_sugerida
-            e, f, g, h = st.columns(4)
-            quantidade_item = e.number_input(
-                "Quantidade de compra", min_value=0,
-                value=int(ceil(quantidade_meta)) if modo_calculo == "Metas geram a quantidade" else quantidade_sugerida,
-                step=1,
-                key=f"quantidade_plano_{item['id']}",
-                disabled=modo_calculo == "Metas geram a quantidade",
+            qmin_key = f"qmin_plano_{item['id']}"
+            qmax_key = f"qmax_plano_{item['id']}"
+            vmin_key = f"vmin_plano_br_{item['id']}"
+            vmax_key = f"vmax_plano_br_{item['id']}"
+            if st.button(
+                "Restaurar restrições",
+                key=f"restaurar_restricoes_{item['id']}",
+                help="Zera pisos e tetos opcionais deste inventário.",
+            ):
+                st.session_state[qmin_key] = 0
+                st.session_state[qmax_key] = 0
+                st.session_state[vmin_key] = "0,00"
+                st.session_state[vmax_key] = "0,00"
+
+            st.markdown("**Restrições opcionais de compra**")
+            r1, r2, r3, r4 = st.columns(4)
+            quantidade_minima = r1.number_input(
+                "Piso de quantidade", min_value=0, value=0, step=1,
+                key=qmin_key,
+                help=(
+                    "Quantidade mínima. No cálculo automático, o plano eleva "
+                    "a compra até este piso. Zero significa sem piso."
+                ),
             )
+            quantidade_maxima = r2.number_input(
+                "Teto de quantidade", min_value=0, value=0, step=1,
+                key=qmax_key,
+                help="Quantidade máxima permitida. Zero significa sem teto.",
+            )
+            verba_minima = entrada_monetaria(
+                "Piso de verba (R$)",
+                0.0,
+                key=vmin_key,
+                container=r3,
+                ajuda=(
+                    "Investimento mínimo. No cálculo automático, a quantidade "
+                    "é elevada até atingir este piso. Zero significa sem piso."
+                ),
+            )
+            verba_maxima = entrada_monetaria(
+                "Teto de verba (R$)",
+                0.0,
+                key=vmax_key,
+                container=r4,
+                ajuda="Investimento máximo permitido. Zero significa sem teto.",
+            )
+
+            quantidade_automatica = int(ceil(quantidade_meta))
+            quantidade_automatica = max(
+                quantidade_automatica, int(quantidade_minima)
+            )
+            if preco_liquido > 0 and verba_minima > 0:
+                quantidade_automatica = max(
+                    quantidade_automatica,
+                    int(ceil(verba_minima / preco_liquido)),
+                )
+
+            e, f, g, h = st.columns(4)
+            if modo_calculo == "Metas geram a quantidade":
+                quantidade_item = quantidade_automatica
+                e.metric("Quantidade calculada", numero_ptbr(quantidade_item))
+                e.caption("Atualizada automaticamente pelas metas e pelos pisos.")
+            else:
+                quantidade_item = e.number_input(
+                    "Quantidade de compra", min_value=0,
+                    value=quantidade_sugerida,
+                    step=1,
+                    key=f"quantidade_manual_plano_{item['id']}",
+                    help="Quantidade inteira definida manualmente para a compra.",
+                )
             frequencia_maxima = f.number_input(
                 "Frequência máxima", min_value=1, value=10, step=1,
                 key=f"freq_max_plano_{item['id']}",
+                help="Limite de frequência antes de sinalizar saturação.",
             )
             ctr_item = g.number_input(
                 "CTR/resposta (%)", min_value=0.0, value=0.0, step=0.01, format="%.2f",
@@ -443,36 +507,20 @@ else:
                 "Taxa de conversão (%)", min_value=0.0, value=0.0, step=0.01, format="%.2f",
                 key=f"conversao_plano_{item['id']}",
             )
-            valor_conversao = st.number_input(
-                "Valor por conversão (R$)", min_value=0.0, value=0.0,
-                step=0.01, format="%.2f",
-                key=f"valor_conversao_plano_{item['id']}",
+            valor_conversao = entrada_monetaria(
+                "Valor por conversão (R$)",
+                0.0,
+                key=f"valor_conversao_plano_br_{item['id']}",
+                ajuda=(
+                    "Receita estimada gerada por uma conversão. É usada somente "
+                    "para retorno e ROI; não representa o custo da mídia e pode "
+                    "ficar em zero."
+                ),
             )
             st.caption(
                 f"Custo de mídia considerado: {moeda_ptbr(preco_liquido)} por "
                 f"{unidade_preco} · proposta inicial: "
                 f"{numero_ptbr(quantidade_sugerida)} unidades."
-            )
-            r1, r2, r3, r4 = st.columns(4)
-            quantidade_minima = r1.number_input(
-                "Piso de quantidade", min_value=0, value=0, step=1,
-                key=f"qmin_plano_{item['id']}",
-            )
-            quantidade_maxima = r2.number_input(
-                "Teto de quantidade", min_value=0,
-                value=int(max(quantidade_sugerida, quantidade_item)), step=1,
-                key=f"qmax_plano_{item['id']}",
-            )
-            verba_minima = r3.number_input(
-                "Piso de verba (R$)", min_value=0.0, value=0.0,
-                step=0.01, format="%.2f",
-                key=f"vmin_plano_{item['id']}",
-            )
-            verba_maxima = r4.number_input(
-                "Teto de verba (R$)", min_value=0.0,
-                value=max(float(orcamento_plano), quantidade_item * preco_liquido),
-                step=0.01, format="%.2f",
-                key=f"vmax_plano_{item['id']}",
             )
             obrigatorio = st.checkbox(
                 "Inventário obrigatório nesta versão", value=False,
@@ -530,13 +578,29 @@ else:
         investimento_proposto += investimento_item
         limites_invalidos = []
         if quantidade_item < quantidade_minima:
-            limites_invalidos.append("quantidade abaixo do piso")
-        if quantidade_item > quantidade_maxima:
-            limites_invalidos.append("quantidade acima do teto")
+            limites_invalidos.append(
+                "quantidade abaixo do piso "
+                f"({numero_ptbr(quantidade_item)} calculada; "
+                f"{numero_ptbr(quantidade_minima)} mínima)"
+            )
+        if quantidade_maxima > 0 and quantidade_item > quantidade_maxima:
+            limites_invalidos.append(
+                "quantidade acima do teto "
+                f"({numero_ptbr(quantidade_item)} calculada; "
+                f"{numero_ptbr(quantidade_maxima)} máxima)"
+            )
         if investimento_item < verba_minima:
-            limites_invalidos.append("verba abaixo do piso")
-        if investimento_item > verba_maxima:
-            limites_invalidos.append("verba acima do teto")
+            limites_invalidos.append(
+                "verba abaixo do piso "
+                f"({moeda_ptbr(investimento_item)} calculada; "
+                f"{moeda_ptbr(verba_minima)} mínima)"
+            )
+        if verba_maxima > 0 and investimento_item > verba_maxima:
+            limites_invalidos.append(
+                "verba acima do teto "
+                f"({moeda_ptbr(investimento_item)} calculada; "
+                f"{moeda_ptbr(verba_maxima)} máxima)"
+            )
         if limites_invalidos:
             premissas_validas = False
             impedimentos_geracao.append(
@@ -553,9 +617,9 @@ else:
             "unidade_compra": unidade_preco,
             "modo_calculo": "METAS" if modo_calculo == "Metas geram a quantidade" else "COMPRA",
             "quantidade_minima": quantidade_minima,
-            "quantidade_maxima": quantidade_maxima,
+            "quantidade_maxima": quantidade_maxima or None,
             "verba_minima": verba_minima,
-            "verba_maxima": verba_maxima,
+            "verba_maxima": verba_maxima or None,
             "obrigatorio": obrigatorio,
             "atualizar_cadastro": atualizar_cadastro,
             "ctr": ctr_item,

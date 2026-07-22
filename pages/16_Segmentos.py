@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.segment_service import (
     SegmentService
@@ -15,7 +15,7 @@ from application.services.universe_service import (
 
 st.set_page_config(
 
-    page_title="Segmentos de Público",
+    page_title=titulo_pagina("Segmentos de Público"),
 
     page_icon=PAGE_ICON,
 

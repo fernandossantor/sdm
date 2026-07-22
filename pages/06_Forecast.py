@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.planejamento_service import (
     PlanejamentoService
@@ -28,7 +28,7 @@ from components.artifact_manager import render as gerenciar_artefatos
 
 st.set_page_config(
 
-    page_title="Projeção de Resultados",
+    page_title=titulo_pagina("Projeção de Resultados"),
 
     page_icon=PAGE_ICON,
 

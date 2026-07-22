@@ -4,15 +4,15 @@
 
 ## Ponto de retomada
 
-- Branch: `agent/padroniza-interface-e-precos`.
-- Base da branch: `1ac444e` (`Melhora validações e identidade do PlanOS (#4)`).
-- Última entrega funcional antes deste registro: `16ab14c` (`Padroniza interface e corrige preços do plano`).
+- Branch: `agent/corrige-restricoes-e-moeda`.
+- Base da branch: `bb4d6d1` (`Padroniza interface e corrige preços do plano (#5)`).
+- Última entrega funcional antes deste registro: `aa4fcda` (`Corrige restrições e moeda no planejamento`).
 - A branch deve ser retomada a partir do PR associado; `origin/main` continua como base da entrega.
 - O aplicativo publicado usa o nome **PlanOS** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
-- A última rodada reduziu o logo da página inicial, aplicou `assets/barra.png`
-  como favicon, preservou nome e subtítulo na barra lateral, permitiu informar
-  o preço líquido diretamente no Plano de Mídia e padronizou datas, percentuais,
-  valores monetários, pessoas, frequências e quantidades na interface.
+- A última rodada restaurou o logo na barra lateral, preservou o logo reduzido
+  na página Início, manteve favicon e título completo no navegador, introduziu
+  entradas monetárias em pt-BR e unificou pisos, tetos e quantidade automática
+  entre a interface e o motor do Plano de Mídia.
 - As migrações remotas do Supabase estavam sincronizadas até `20260722110000`.
 
 ## Estado verificado
@@ -28,11 +28,13 @@
 
 - `git diff --check` aprovado.
 - Compilação de todos os módulos Python aprovada.
-- 56 testes automatizados aprovados; 3 testes de integração opcionais ignorados nessa execução.
+- 60 testes automatizados aprovados; 3 testes de integração opcionais ignorados nessa execução.
 - 3 testes de integração autenticados aprovados.
 - Health check autenticado aprovado para as 10 tabelas verificadas.
 - Regressão funcional autenticada aprovada. A antiga asserção do forecast foi
   alinhada à regra do motor, que projeta apenas inventários com métricas.
+- Renderização da página inicial aprovada com duas imagens e sem texto PlanOS
+  duplicado. Entrada `1.000.000,00` convertida corretamente para cálculo.
 
 ## Retomada rápida
 

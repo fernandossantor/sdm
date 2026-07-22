@@ -84,6 +84,40 @@ class TestMediaPlanEngine(unittest.TestCase):
         self.assertEqual(alcance, 100)
         self.assertEqual(auditoria[1]["incremental"], 20)
 
+    def test_modo_automatico_aplica_pisos_de_quantidade_e_verba(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10,
+                "alcance_percentual": 30,
+                "frequencia": 2,
+                "unidade_compra": "Inserção",
+                "modo_calculo": "METAS",
+                "quantidade_minima": 10,
+                "verba_minima": 6000,
+            },
+            publico_referencia=10000,
+            preco_unitario=500,
+        )
+
+        self.assertEqual(resultado.quantidade, 12)
+        self.assertEqual(resultado.investimento, 6000)
+
+    def test_modo_manual_rejeita_quantidade_abaixo_do_piso(self):
+        with self.assertRaisesRegex(ValueError, "abaixo do piso"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 30,
+                    "frequencia": 2,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "COMPRA",
+                    "quantidade": 5,
+                    "quantidade_minima": 10,
+                },
+                publico_referencia=10000,
+                preco_unitario=500,
+            )
+
     def test_rejeita_premissa_incompleta(self):
         with self.assertRaisesRegex(ValueError, "audiencia_percentual"):
             MediaPlanEngine.calcular_item(

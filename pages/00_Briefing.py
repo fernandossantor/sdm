@@ -1,5 +1,6 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
+from components.inputs import entrada_monetaria
 from components.formatters import moeda_ptbr, percentual_ptbr
 
 from application.services.briefing_service import (
@@ -24,7 +25,7 @@ from application.services.identifier_service import IdentifierService
 
 st.set_page_config(
 
-    page_title="Briefing de Mídia",
+    page_title=titulo_pagina("Briefing de Mídia"),
 
     page_icon=PAGE_ICON,
 
@@ -137,17 +138,11 @@ with col2:
 
     )
 
-    orcamento = st.number_input(
-
+    orcamento = entrada_monetaria(
         "Orçamento (R$)",
-
-        min_value=0.0,
-
-        value=float(getattr(edicao, "orcamento", 100000.0)),
-
-        step=1000.0,
-        format="%.2f",
-
+        float(getattr(edicao, "orcamento", 100000.0)),
+        key="briefing_orcamento",
+        ajuda="Verba total disponível para a campanha, no formato 1.000,00.",
     )
 
     nomes_objetivos = [o["nome"] for o in objetivos]

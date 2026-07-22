@@ -1,5 +1,5 @@
 import streamlit as st
-from components.page_config import PAGE_ICON
+from components.page_config import PAGE_ICON, titulo_pagina
 
 from application.services.universe_service import (
     UniverseService
@@ -12,7 +12,7 @@ from application.services.universe_service import (
 
 st.set_page_config(
 
-    page_title="Universos de Mercado",
+    page_title=titulo_pagina("Universos de Mercado"),
 
     page_icon=PAGE_ICON,
 
