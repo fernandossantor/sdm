@@ -5,3 +5,4 @@ htmlcov/
 .env
 .streamlit/secrets.toml
 .vscode/
+node_modules/
