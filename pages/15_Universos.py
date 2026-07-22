@@ -36,46 +36,27 @@ with st.expander(
     expanded=True
 
 ):
-
-    nome = st.text_input(
-
-    "Nome"
-
-)
-
-populacao = st.number_input(
-
-    "População",
-
-    min_value=0,
-
-    value=0,
-
-    step=1000
-
-)
-
-publico_alvo = st.number_input(
-
-    "Público-alvo",
-
-    min_value=0,
-
-    value=0,
-
-    step=1000
-
-)
-
-salvar = st.button(
-
-    "Salvar Universo",
-
-    type="primary",
-
-    width="stretch"
-
-)
+    nome = st.text_input("Nome")
+    c_populacao, c_publico = st.columns(2)
+    with c_populacao:
+        populacao = st.number_input(
+            "População",
+            min_value=0,
+            value=0,
+            step=1000,
+        )
+    with c_publico:
+        publico_alvo = st.number_input(
+            "Público-alvo",
+            min_value=0,
+            value=0,
+            step=1000,
+        )
+    salvar = st.button(
+        "Salvar Universo",
+        type="primary",
+        width="stretch",
+    )
 
 # ==========================================================
 # SALVAR
@@ -84,27 +65,10 @@ salvar = st.button(
 if salvar:
 
     dados = {
-
-    "nome": nome,
-
-    "populacao": int(
-
-        populacao
-
-    ),
-
-    "publico_alvo": int(
-
-        publico_alvo
-
-    ),
-
-    #
-    # Temporário até implementarmos Cenários
-    #
-
-    "cenario_id": None
-
+        "nome": nome,
+        "populacao": int(populacao),
+        "publico_alvo": int(publico_alvo),
+        "cenario_id": None,
     }
 
     ok, retorno = service.salvar(

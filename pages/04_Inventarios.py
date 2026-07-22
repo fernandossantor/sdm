@@ -16,6 +16,11 @@ st.set_page_config(
 
 st.title("📦 Inventários")
 
+st.write(
+    "Os inventários e seus preços vigentes alimentam diretamente o ranking, "
+    "a distribuição de verba e as estimativas do Planejamento."
+)
+
 st.markdown("---")
 
 
@@ -156,38 +161,78 @@ st.markdown("---")
 
 if st.button("Salvar Inventário"):
 
-    resposta = service.salvar_inventario({
+    if fim_vigencia < inicio_vigencia:
+        st.error("A data final da vigência não pode ser anterior à data inicial.")
+        st.stop()
 
-        "nome": nome,
+    try:
+        resposta = service.salvar_inventario(
+            {
+                "nome": nome,
+                "plataforma_id": plataforma["id"],
+                "ambiente_id": ambiente["id"],
+                "estrutura_id": estrutura["id"],
+                "modelo_comercial_id": modelo["id"],
+                "formato_id": formato["id"],
+                "modalidade_compra_id": modalidade["id"],
+                "unidade_compra_id": unidade["id"],
+                "ativo": True,
+            }
+        )
 
-        "plataforma_id": plataforma["id"],
+        inventario_id = resposta.data[0]["id"]
 
-        "ambiente_id": ambiente["id"],
+        if valor_bruto > 0:
+            service.salvar_preco_inventario({
+                "inventario_id": inventario_id,
+                "unidade": unidade["nome"],
+                "valor_bruto": float(valor_bruto),
+                "desconto_percentual": float(desconto),
+                "inicio_vigencia": inicio_vigencia.isoformat(),
+                "fim_vigencia": fim_vigencia.isoformat(),
+            })
+    except Exception as erro:
+        st.error(f"Não foi possível salvar o Inventário: {erro}")
+    else:
+        st.success("Inventário salvo e disponível para classificação e planejamento.")
+        c_mcp, c_plano = st.columns(2)
+        with c_mcp:
+            st.page_link(
+                "pages/03_MCP_Papeis.py",
+                label="Classificar papel no MCP",
+                icon="🧩",
+                width="stretch",
+            )
+        with c_plano:
+            st.page_link(
+                "pages/05_Planejamento.py",
+                label="Ir para Planejamento",
+                icon="🧠",
+                width="stretch",
+            )
 
-        "estrutura_id": estrutura["id"],
+st.divider()
+st.subheader("Inventários disponíveis para o Planejamento")
 
-        "modelo_comercial_id": modelo["id"],
-
-        "formato_id": formato["id"],
-
-        "modalidade_compra_id": modalidade["id"],
-
-        "unidade_compra_id": unidade["id"],
-
-        "ativo": True,
-
-        })
-
-    inventario_id = resposta.data[0]["id"]
-
-    if valor_bruto > 0:
-        service.salvar_preco_inventario({
-            "inventario_id": inventario_id,
-            "unidade": unidade["nome"],
-            "valor_bruto": float(valor_bruto),
-            "desconto_percentual": float(desconto),
-            "inicio_vigencia": inicio_vigencia.isoformat(),
-            "fim_vigencia": fim_vigencia.isoformat(),
-        })
-
-    st.success("Inventário salvo com sucesso!")
+try:
+    cadastrados = service.listar_inventarios()
+except Exception as erro:
+    st.error(f"Não foi possível listar os inventários: {erro}")
+else:
+    if not cadastrados:
+        st.info("Nenhum inventário cadastrado.")
+    for item in cadastrados:
+        precos = service.precos_inventario(item["id"])
+        vigente = next(
+            (preco for preco in reversed(precos) if preco.get("ativo", True)),
+            None,
+        )
+        c_nome, c_preco = st.columns([3, 2])
+        c_nome.write(item["nome"])
+        if vigente:
+            liquido = float(vigente["valor_bruto"]) * (
+                1 - float(vigente.get("desconto_percentual", 0)) / 100
+            )
+            c_preco.write(f"R$ {liquido:,.2f} / {vigente['unidade']}")
+        else:
+            c_preco.caption("Sem preço vigente cadastrado")

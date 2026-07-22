@@ -96,4 +96,6 @@ INTERESSES_AMBIENTES_AFINIDADE = "interesses_ambientes_afinidade"
 
 PRECOS_INVENTARIO = "precos_inventario"
 
+INVENTARIOS_PAPEIS = "inventarios_papeis"
+
 PLANEJAMENTOS = "planejamentos"

@@ -268,6 +268,77 @@ class TestScoreEngine(unittest.TestCase):
 
 class TestInventoryEngine(unittest.TestCase):
 
+    @staticmethod
+    def contexto_base():
+
+        return {
+            "briefing": {"kpi": "Alcance"},
+            "objetivo": {"id": "objetivo-1"},
+            "inventarios": [
+                {
+                    "id": "inventario-1",
+                    "nome": "TV",
+                    "plataforma_id": "plataforma-1",
+                    "ambiente_id": "ambiente-1",
+                    "formato_id": "formato-1",
+                    "plataformas_v3": {"nome": "Aberta"},
+                    "ambientes_v3": {"nome": "Vídeo"},
+                }
+            ],
+            "audiencias": [{"audiencia_id": "audiencia-1", "peso": 100}],
+            "inventarios_objetivos": [
+                {
+                    "inventario_id": "inventario-1",
+                    "objetivo_id": "objetivo-1",
+                    "score_base": 5,
+                }
+            ],
+            "inventarios_kpis": [
+                {
+                    "inventario_id": "inventario-1",
+                    "kpi_id": "kpi-1",
+                    "score_base": 5,
+                }
+            ],
+            "metricas": [],
+            "consumo": [],
+            "kpis": [{"id": "kpi-1", "nome": "Alcance"}],
+        }
+
+    def test_aplica_papel_mcp_e_preco_vigente(self):
+
+        contexto = self.contexto_base()
+        contexto["papeis_inventarios"] = [
+            {
+                "inventario_id": "inventario-1",
+                "score": 95,
+                "papel": "COMPLEMENTAR",
+            }
+        ]
+        contexto["precos"] = [
+            {
+                "inventario_id": "inventario-1",
+                "valor_bruto": 20,
+                "desconto_percentual": 10,
+                "unidade": "CPM",
+                "inicio_vigencia": "2020-01-01",
+                "fim_vigencia": "2090-01-01",
+            },
+            {
+                "inventario_id": "inventario-1",
+                "valor_bruto": 999,
+                "desconto_percentual": 0,
+                "unidade": "CPM",
+                "inicio_vigencia": "2099-01-01",
+            },
+        ]
+
+        item = InventoryEngine().calcular(contexto)[0]
+
+        self.assertEqual(item["papel"], "COMPLEMENTAR")
+        self.assertEqual(item["score_mcp"], 95)
+        self.assertEqual(item["preco_unitario"], 18)
+
     def test_calcula_e_ordena_inventarios(self):
 
         contexto = {

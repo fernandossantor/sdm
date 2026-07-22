@@ -14,6 +14,7 @@ from application.services.context_service import (
 )
 from application.services.workflow_service import WorkflowService
 from application.services.base_conhecimento_service import BaseConhecimentoService
+from components.workflow_guard import exigir
 
 
 # ==========================================================
@@ -29,6 +30,8 @@ st.set_page_config(
     layout="wide"
 
 )
+
+exigir("planejamento")
 
 st.title("📋 Planejamento Estratégico")
 
@@ -358,6 +361,8 @@ if "plano" in st.session_state:
                     "Papel": i.papel,
 
                     "Score": i.score,
+
+                    "Score MCP": i.score_mcp or None,
 
                     "Percentual": i.percentual,
 

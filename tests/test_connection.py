@@ -30,6 +30,26 @@ class TestConnection(unittest.TestCase):
         response = admin.table("canais_v3").select("id").limit(1).execute()
         self.assertIsInstance(response.data, list)
 
+    def test_schema_integrado_do_planejamento(self):
+
+        from infrastructure.database.admin_client import admin
+
+        universos = (
+            admin.table("universos")
+            .select("id,publico_alvo,ativo")
+            .limit(1)
+            .execute()
+        )
+        papeis = (
+            admin.table("inventarios_papeis")
+            .select("inventario_id,score,papel")
+            .limit(1)
+            .execute()
+        )
+
+        self.assertIsInstance(universos.data, list)
+        self.assertIsInstance(papeis.data, list)
+
 
 if __name__ == "__main__":
     unittest.main()

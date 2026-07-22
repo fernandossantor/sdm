@@ -13,6 +13,7 @@ from application.services.forecast_service import (
     ForecastService
 )
 from application.services.workflow_service import WorkflowService
+from components.workflow_guard import exigir
 
 
 # ==========================================================
@@ -28,6 +29,8 @@ st.set_page_config(
     layout="wide"
 
 )
+
+exigir("dashboard")
 
 st.title("📊 Dashboard Executivo")
 

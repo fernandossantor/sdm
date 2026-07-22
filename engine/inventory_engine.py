@@ -1,4 +1,5 @@
 from engine.score_engine import ScoreEngine
+from datetime import date
 
 
 class InventoryEngine:
@@ -322,13 +323,36 @@ class InventoryEngine:
             for item in afinidades_interesses
         }
 
-        precos = {}
+        hoje = date.today().isoformat()
+        precos_validos = []
         for item in contexto.get("precos", []):
+            inicio = item.get("inicio_vigencia")
+            fim = item.get("fim_vigencia")
+            if inicio and inicio > hoje:
+                continue
+            if fim and fim < hoje:
+                continue
             bruto = float(item.get("valor_bruto", 0))
             desconto = float(item.get("desconto_percentual", 0))
             item_preco = dict(item)
             item_preco["valor_liquido"] = bruto * (1 - desconto / 100)
-            precos.setdefault(item["inventario_id"], item_preco)
+            precos_validos.append(item_preco)
+
+        precos_validos.sort(
+            key=lambda item: (
+                item.get("inicio_vigencia") or "0001-01-01",
+                item.get("criado_em") or "",
+            ),
+            reverse=True,
+        )
+        precos = {}
+        for item in precos_validos:
+            precos.setdefault(item["inventario_id"], item)
+
+        papeis_mcp = {
+            item["inventario_id"]: item
+            for item in contexto.get("papeis_inventarios", [])
+        }
 
         #
         # KPIs DO BRIEFING
@@ -566,11 +590,18 @@ class InventoryEngine:
 
             )
 
-            papel = ScoreEngine.papel(
+            classificacao_mcp = papeis_mcp.get(inventario["id"])
+            if classificacao_mcp:
+                score_mcp = float(classificacao_mcp.get("score", 0))
+                score = round(score * 0.8 + score_mcp * 0.2, 2)
+                papel = classificacao_mcp.get("papel", "APOIO").upper()
+            else:
+                score_mcp = None
+                papel = ScoreEngine.papel(
 
-                score
+                    score
 
-            )
+                )
 
             resultado.append(
 
@@ -593,6 +624,8 @@ class InventoryEngine:
                     "score": score,
 
                     "papel": papel,
+
+                    "score_mcp": score_mcp,
 
                     "objetivo": round(
 

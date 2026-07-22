@@ -224,6 +224,13 @@ class DecisionRepository(BaseRepository):
         except Exception:
             return []
 
+    def papeis_inventarios(self):
+
+        try:
+            return self.all(INVENTARIOS_PAPEIS)
+        except Exception:
+            return []
+
     # =====================================================
     # CONTEXTO
     # =====================================================
@@ -281,6 +288,8 @@ class DecisionRepository(BaseRepository):
             "interesses_afinidade": self.interesses_afinidade(),
 
             "precos": self.precos(),
+
+            "papeis_inventarios": self.papeis_inventarios(),
 
         }
 
@@ -396,5 +405,7 @@ class DecisionRepository(BaseRepository):
             "interesses_afinidade": self.interesses_afinidade(),
 
             "precos": self.precos(),
+
+            "papeis_inventarios": self.papeis_inventarios(),
 
         }

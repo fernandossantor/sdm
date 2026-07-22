@@ -61,9 +61,32 @@ class BaseConhecimentoService:
 
         return self.inventarios.salvar(dados)
 
+    def listar_inventarios(self):
+
+        return self.inventarios.listar()
+
+    def precos_inventario(self, inventario_id):
+
+        return self.inventarios.listar_precos(inventario_id)
+
     def salvar_preco_inventario(self, dados):
 
         if float(dados.get("valor_bruto", -1)) < 0:
             raise ValueError("O preço não pode ser negativo.")
 
         return self.inventarios.salvar_preco(dados)
+
+    def inventarios_com_papeis(self):
+
+        papeis = {
+            item["inventario_id"]: item
+            for item in self.inventarios.listar_papeis()
+        }
+        return [
+            {**inventario, "classificacao": papeis.get(inventario["id"])}
+            for inventario in self.inventarios.listar()
+        ]
+
+    def salvar_papel_inventario(self, dados):
+
+        return self.inventarios.salvar_papel(dados)

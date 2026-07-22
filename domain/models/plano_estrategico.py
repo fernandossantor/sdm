@@ -23,6 +23,8 @@ class PlanoItem:
 
     percentual: float
 
+    score_mcp: float = 0.0
+
     justificativas: List[str] = field(default_factory=list)
 
     inventario_id: str = ""

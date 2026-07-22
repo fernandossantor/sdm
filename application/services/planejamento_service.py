@@ -224,6 +224,7 @@ class PlanejamentoService:
                 "ambiente": item.ambiente,
                 "papel": item.papel,
                 "score": item.score,
+                "score_mcp": item.score_mcp,
                 "verba": item.verba,
                 "percentual": item.percentual,
                 "justificativas": item.justificativas,
@@ -408,6 +409,8 @@ class PlanejamentoService:
                     papel=item.papel,
 
                     score=item.score,
+
+                    score_mcp=float(origem.get("score_mcp") or 0),
 
                     verba=item.verba,
 

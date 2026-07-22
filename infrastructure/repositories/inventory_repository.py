@@ -1,6 +1,7 @@
 from infrastructure.database.database_schema import (
     INVENTARIOS,
     INVENTARIOS_METRICAS,
+    INVENTARIOS_PAPEIS,
     PRECOS_INVENTARIO,
 )
 from infrastructure.repositories.base_repository import BaseRepository
@@ -23,6 +24,19 @@ class InventoryRepository(BaseRepository):
     def listar_precos(self, inventario_id):
 
         return self.by_field(PRECOS_INVENTARIO, "inventario_id", inventario_id)
+
+    def listar_papeis(self):
+
+        return self.all(INVENTARIOS_PAPEIS)
+
+    def salvar_papel(self, dados):
+
+        return (
+            self.db
+            .table(INVENTARIOS_PAPEIS)
+            .upsert(dados, on_conflict="inventario_id")
+            .execute()
+        )
 
     def listar_por_ambiente(self, ambiente_id):
 

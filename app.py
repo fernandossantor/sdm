@@ -8,7 +8,6 @@ from components.home.hero import render as hero
 from components.home.workflow_card import render as workflow_card
 from components.home.projects_card import render as projects_card
 from components.home.knowledge_card import render as knowledge_card
-from components.home.navigation_card import render as navigation_card
 
 # ==========================================================
 # CONFIGURAÇÃO
@@ -47,10 +46,6 @@ def pagina_inicial():
     st.divider()
 
     projects_card()
-
-    st.divider()
-
-    navigation_card()
 
     st.divider()
 
