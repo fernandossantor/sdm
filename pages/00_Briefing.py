@@ -282,6 +282,34 @@ frequencia_alvo = st.number_input(
     help="Valor numérico usado nas projeções de alcance e orçamento.",
 )
 
+st.subheader("Alcance da campanha")
+
+alcance_objetivo = st.selectbox(
+    "Faixa de alcance",
+    ["BAIXO", "MEDIO", "ALTO"],
+    index=1,
+    format_func=lambda valor: {
+        "BAIXO": "Baixo (até 50% do público)",
+        "MEDIO": "Médio (51% a 69% do público)",
+        "ALTO": "Alto (70% a 100% do público)",
+    }[valor],
+)
+
+limites_alcance = {
+    "BAIXO": (0, 50, 40),
+    "MEDIO": (51, 69, 60),
+    "ALTO": (70, 100, 80),
+}
+alcance_min, alcance_max, alcance_padrao = limites_alcance[alcance_objetivo]
+alcance_percentual = st.number_input(
+    "Percentual de alcance desejado",
+    min_value=alcance_min,
+    max_value=alcance_max,
+    value=alcance_padrao,
+    format="%d%%",
+    help="Percentual do público estimado que a campanha deve alcançar.",
+)
+
 
 # ==========================================================
 # PÚBLICOS
@@ -328,6 +356,8 @@ for publico in publicos_escolhidos:
             "nome": publico["nome"],
 
             "peso": 100
+
+            ,"populacao_estimada": publico.get("populacao_estimada", 0)
 
             ,"interesses": publico.get("interesses", [])
 
@@ -466,6 +496,10 @@ if salvar:
 
         frequencia_alvo=int(frequencia_alvo),
 
+        alcance_objetivo=alcance_objetivo,
+
+        alcance_percentual=int(alcance_percentual),
+
         publicos=publicos_modelo,
 
         observacoes=observacoes
@@ -598,6 +632,13 @@ if briefing_service.existe(
         st.write(
 
             f"**Frequência:** {briefing.frequencia_objetivo}"
+
+        )
+
+        st.write(
+
+            f"**Alcance:** {briefing.alcance_objetivo} "
+            f"({briefing.alcance_percentual}%)"
 
         )
 

@@ -6,11 +6,54 @@ from application.services.scenario_service import ScenarioService
 from application.services.workflow_service import WorkflowService
 from application.services.planejamento_service import PlanejamentoService
 from datetime import date
-from domain.models.plano_estrategico import PlanoEstrategico
+from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
 from infrastructure.database import admin_client
 
 
 class TestPlanejamentoService(unittest.TestCase):
+
+    def test_calcula_meta_e_projecao_de_alcance(self):
+
+        plano = PlanoEstrategico(
+            cliente="Cliente",
+            campanha="Campanha",
+            objetivo="Alcance",
+            orcamento=1000,
+            frequencia_alvo=5,
+            alcance_objetivo="ALTO",
+            alcance_percentual=80,
+            publico_referencia=10000,
+            alcance_meta=8000,
+        )
+        plano.adicionar_item(
+            PlanoItem(
+                inventario="Vídeo",
+                plataforma="Digital",
+                ambiente="Vídeo",
+                papel="PRINCIPAL",
+                score=90,
+                verba=1000,
+                percentual=100,
+                preco_unitario=10,
+                unidade_compra="CPM",
+            )
+        )
+
+        PlanejamentoService._calcular_entrega(plano)
+
+        self.assertEqual(plano.alcance_meta, 8000)
+        self.assertEqual(plano.alcance_projetado, 10000)
+
+    def test_publico_referencia_considera_pesos(self):
+
+        total = PlanejamentoService._publico_referencia(
+            [
+                {"populacao_estimada": 10000, "peso": 100},
+                {"populacao_estimada": 5000, "peso": 50},
+            ]
+        )
+
+        self.assertEqual(total, 12500)
 
     def test_flight_concentrado_aloca_apenas_o_inicio(self):
 

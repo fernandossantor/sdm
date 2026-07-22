@@ -65,6 +65,16 @@ class PlanoEstrategico:
 
     frequencia_alvo: int = 5
 
+    alcance_objetivo: str = "MEDIO"
+
+    alcance_percentual: int = 60
+
+    publico_referencia: int = 0
+
+    alcance_meta: int = 0
+
+    alcance_projetado: int = 0
+
     kpis: List[dict] = field(default_factory=list)
 
     cronograma: List[dict] = field(default_factory=list)

@@ -71,6 +71,10 @@ class BriefingService:
 
         frequencia_alvo=None,
 
+        alcance_objetivo="MEDIO",
+
+        alcance_percentual=60,
+
         plataformas_proibidas=None,
 
         ambientes_proibidos=None,
@@ -174,6 +178,10 @@ class BriefingService:
             frequencia_objetivo=frequencia_objetivo,
 
             frequencia_alvo=frequencia_alvo,
+
+            alcance_objetivo=alcance_objetivo,
+
+            alcance_percentual=alcance_percentual,
 
             praca=praca,
 
@@ -320,5 +328,9 @@ class BriefingService:
             "frequencia": briefing.frequencia_objetivo
 
             ,"frequencia_alvo": briefing.frequencia_alvo
+
+            ,"alcance": briefing.alcance_objetivo
+
+            ,"alcance_percentual": briefing.alcance_percentual
 
         }

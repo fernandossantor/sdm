@@ -46,9 +46,16 @@ class TestConnection(unittest.TestCase):
             .limit(1)
             .execute()
         )
+        briefings = (
+            admin.table("briefings_v3")
+            .select("id,alcance_objetivo,alcance_percentual")
+            .limit(1)
+            .execute()
+        )
 
         self.assertIsInstance(universos.data, list)
         self.assertIsInstance(papeis.data, list)
+        self.assertIsInstance(briefings.data, list)
 
 
 if __name__ == "__main__":

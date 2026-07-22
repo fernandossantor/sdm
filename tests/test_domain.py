@@ -24,6 +24,18 @@ class TestBriefing(unittest.TestCase):
 
         self.assertIn("Frequência média deve estar entre 4 e 7.", briefing.validar())
 
+    def test_alcance_deve_respeitar_a_faixa(self):
+
+        briefing = self.criar_briefing(
+            alcance_objetivo="ALTO",
+            alcance_percentual=69,
+        )
+
+        self.assertIn(
+            "Alcance alto deve estar entre 70% e 100%.",
+            briefing.validar(),
+        )
+
     def criar_briefing(self, **alteracoes):
 
         dados = {

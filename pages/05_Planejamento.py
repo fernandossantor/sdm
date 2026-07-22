@@ -193,6 +193,8 @@ if modo == "Briefing da Sessão":
     flight_inicial = briefing.tipo_flight
     frequencia_inicial = briefing.frequencia_objetivo or "MEDIA"
     frequencia_alvo_inicial = briefing.frequencia_alvo or 5
+    alcance_inicial = briefing.alcance_objetivo or "MEDIO"
+    alcance_percentual_inicial = briefing.alcance_percentual or 60
 else:
     briefing_salvo = next(item for item in briefings_salvos if item["nome"] == nome_briefing)
     orcamento_inicial = float(briefing_salvo.get("orcamento", 0))
@@ -200,6 +202,10 @@ else:
     flight_inicial = briefing_salvo.get("tipo_flight", "LINEAR")
     frequencia_inicial = briefing_salvo.get("frequencia_objetivo", "MEDIA")
     frequencia_alvo_inicial = int(briefing_salvo.get("frequencia_alvo", 5))
+    alcance_inicial = briefing_salvo.get("alcance_objetivo", "MEDIO")
+    alcance_percentual_inicial = int(
+        briefing_salvo.get("alcance_percentual", 60)
+    )
 
 kpis_catalogo = base_conhecimento.kpis()
 nomes_kpis = [item["nome"] for item in kpis_catalogo]
@@ -244,6 +250,38 @@ frequencia_alvo_plano = st.number_input(
     value=valor_frequencia,
 )
 
+c_alcance_faixa, c_alcance_percentual = st.columns(2)
+with c_alcance_faixa:
+    alcance_plano = st.selectbox(
+        "Faixa de alcance",
+        ["BAIXO", "MEDIO", "ALTO"],
+        index={"BAIXO": 0, "MEDIO": 1, "ALTO": 2}.get(alcance_inicial, 1),
+        format_func=lambda valor: {
+            "BAIXO": "Baixo (até 50% do público)",
+            "MEDIO": "Médio (51% a 69% do público)",
+            "ALTO": "Alto (70% a 100% do público)",
+        }[valor],
+    )
+
+limites_alcance = {
+    "BAIXO": (0, 50, 40),
+    "MEDIO": (51, 69, 60),
+    "ALTO": (70, 100, 80),
+}
+alcance_min, alcance_max, alcance_padrao = limites_alcance[alcance_plano]
+valor_alcance = alcance_percentual_inicial
+if not alcance_min <= valor_alcance <= alcance_max:
+    valor_alcance = alcance_padrao
+
+with c_alcance_percentual:
+    alcance_percentual_plano = st.number_input(
+        "Percentual de alcance desejado",
+        min_value=alcance_min,
+        max_value=alcance_max,
+        value=valor_alcance,
+        format="%d%%",
+    )
+
 configuracao = {
     "orcamento": float(orcamento_plano),
     "kpi": kpi_plano,
@@ -251,6 +289,8 @@ configuracao = {
     "tipo_flight": flight_plano,
     "frequencia_objetivo": frequencia_plano,
     "frequencia_alvo": int(frequencia_alvo_plano),
+    "alcance_objetivo": alcance_plano,
+    "alcance_percentual": int(alcance_percentual_plano),
 }
 
 
@@ -452,6 +492,26 @@ if "plano" in st.session_state:
 
         )
 
+        st.subheader("Meta de alcance da campanha")
+        a1, a2, a3, a4 = st.columns(4)
+        a1.metric("Faixa", plano.alcance_objetivo.title())
+        a2.metric("Meta", f"{plano.alcance_percentual}%")
+        a3.metric("Público estimado", f"{plano.publico_referencia:,}")
+        a4.metric(
+            "Alcance projetado",
+            f"{plano.alcance_projetado:,}",
+            delta=(
+                f"{plano.alcance_projetado - plano.alcance_meta:+,} vs. meta"
+                if plano.alcance_meta > 0
+                else None
+            ),
+        )
+        if plano.publico_referencia <= 0:
+            st.info(
+                "Cadastre população nos Segmentos do Público para converter "
+                "a meta percentual em pessoas."
+            )
+
         st.divider()
 
         st.write(
@@ -495,6 +555,11 @@ if "plano" in st.session_state:
         st.write(
             f"**Frequência:** {plano.frequencia_objetivo.title()} "
             f"({plano.frequencia_alvo})"
+        )
+        st.write(
+            f"**Alcance:** {plano.alcance_objetivo.title()} "
+            f"({plano.alcance_percentual}% do público; meta de "
+            f"{plano.alcance_meta:,} pessoas)"
         )
         if plano.cronograma:
             st.dataframe(pd.DataFrame(plano.cronograma), hide_index=True)

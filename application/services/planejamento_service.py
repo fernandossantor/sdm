@@ -110,6 +110,12 @@ class PlanejamentoService:
                 briefing_calculo.frequencia_alvo = configuracao.get(
                     "frequencia_alvo", briefing_calculo.frequencia_alvo
                 )
+                briefing_calculo.alcance_objetivo = configuracao.get(
+                    "alcance_objetivo", briefing_calculo.alcance_objetivo
+                )
+                briefing_calculo.alcance_percentual = configuracao.get(
+                    "alcance_percentual", briefing_calculo.alcance_percentual
+                )
 
             contexto = self.context_service.carregar_por_objeto(
 
@@ -156,6 +162,16 @@ class PlanejamentoService:
             plano.frequencia_alvo = int(
                 fonte.get("frequencia_alvo", briefing.frequencia_alvo or 5)
             )
+            plano.alcance_objetivo = fonte.get(
+                "alcance_objetivo", briefing.alcance_objetivo or "MEDIO"
+            )
+            plano.alcance_percentual = int(
+                fonte.get("alcance_percentual", briefing.alcance_percentual or 60)
+            )
+            plano.publico_referencia = self._publico_referencia(briefing.publicos)
+            plano.alcance_meta = round(
+                plano.publico_referencia * plano.alcance_percentual / 100
+            )
             plano.kpis = fonte.get("kpis", briefing.kpis)
             plano.cronograma = self._cronograma(
                 briefing.inicio,
@@ -166,6 +182,18 @@ class PlanejamentoService:
             plano.tipo_flight = fonte.get("tipo_flight", briefing_bd.get("tipo_flight", "LINEAR"))
             plano.frequencia_objetivo = fonte.get("frequencia_objetivo", "MEDIA")
             plano.frequencia_alvo = int(fonte.get("frequencia_alvo", 5))
+            plano.alcance_objetivo = fonte.get(
+                "alcance_objetivo", briefing_bd.get("alcance_objetivo", "MEDIO")
+            )
+            plano.alcance_percentual = int(
+                fonte.get("alcance_percentual", briefing_bd.get("alcance_percentual", 60))
+            )
+            plano.publico_referencia = int(
+                fonte.get("publico_referencia", briefing_bd.get("publico_referencia", 0))
+            )
+            plano.alcance_meta = round(
+                plano.publico_referencia * plano.alcance_percentual / 100
+            )
             plano.kpis = fonte.get("kpis", [{"nome": fonte.get("kpi", briefing_bd.get("kpi")), "peso": 100}])
 
         self._calcular_entrega(plano)
@@ -184,6 +212,34 @@ class PlanejamentoService:
                 item.alcance_estimado = round(
                     item.impressoes_estimadas / max(plano.frequencia_alvo, 1)
                 )
+
+        if plano.publico_referencia > 0:
+            nao_alcancado = 1.0
+            for item in plano.itens:
+                alcance_item = min(
+                    item.alcance_estimado / plano.publico_referencia,
+                    1.0,
+                )
+                nao_alcancado *= 1 - alcance_item
+            plano.alcance_projetado = round(
+                plano.publico_referencia * (1 - nao_alcancado)
+            )
+        else:
+            plano.alcance_projetado = round(
+                sum(item.alcance_estimado for item in plano.itens)
+            )
+
+    @staticmethod
+    def _publico_referencia(publicos):
+
+        return round(
+            sum(
+                int(publico.get("populacao_estimada") or 0)
+                * float(publico.get("peso", 100)) / 100
+                for publico in (publicos or [])
+                if isinstance(publico, dict)
+            )
+        )
 
     @staticmethod
     def _cronograma(inicio, fim, tipo_flight):
@@ -253,6 +309,11 @@ class PlanejamentoService:
                     "tipo_flight": plano.tipo_flight,
                     "frequencia_objetivo": plano.frequencia_objetivo,
                     "frequencia_alvo": plano.frequencia_alvo,
+                    "alcance_objetivo": plano.alcance_objetivo,
+                    "alcance_percentual": plano.alcance_percentual,
+                    "publico_referencia": plano.publico_referencia,
+                    "alcance_meta": plano.alcance_meta,
+                    "alcance_projetado": plano.alcance_projetado,
                     "kpis": plano.kpis,
                     "cronograma": plano.cronograma,
                 },
@@ -276,6 +337,11 @@ class PlanejamentoService:
             tipo_flight=dados.get("tipo_flight", "LINEAR"),
             frequencia_objetivo=dados.get("frequencia_objetivo", "MEDIA"),
             frequencia_alvo=int(dados.get("frequencia_alvo", 5)),
+            alcance_objetivo=dados.get("alcance_objetivo", "MEDIO"),
+            alcance_percentual=int(dados.get("alcance_percentual", 60)),
+            publico_referencia=int(dados.get("publico_referencia", 0)),
+            alcance_meta=int(dados.get("alcance_meta", 0)),
+            alcance_projetado=int(dados.get("alcance_projetado", 0)),
             kpis=dados.get("kpis", []),
             cronograma=dados.get("cronograma", []),
             observacoes=dados.get("observacoes", []),

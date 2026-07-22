@@ -64,6 +64,10 @@ class Briefing:
 
     frequencia_alvo: Optional[int] = None
 
+    alcance_objetivo: str = "MEDIO"
+
+    alcance_percentual: int = 60
+
     praca: Optional[str] = None
 
     universo: Optional[str] = None
@@ -220,6 +224,21 @@ class Briefing:
                 erros.append("Frequência média deve estar entre 4 e 7.")
             elif self.frequencia_objetivo == "ALTA" and self.frequencia_alvo < 8:
                 erros.append("Frequência alta deve ser 8 ou mais.")
+
+        alcances = {
+            "BAIXO": (0, 50),
+            "MEDIO": (51, 69),
+            "ALTO": (70, 100),
+        }
+        if self.alcance_objetivo not in alcances:
+            erros.append("Faixa de alcance inválida.")
+        else:
+            minimo, maximo = alcances[self.alcance_objetivo]
+            if not minimo <= self.alcance_percentual <= maximo:
+                erros.append(
+                    f"Alcance {self.alcance_objetivo.lower()} deve estar entre "
+                    f"{minimo}% e {maximo}%."
+                )
 
         return erros
 

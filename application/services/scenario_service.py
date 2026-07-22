@@ -197,6 +197,11 @@ class ScenarioService:
             plano.tipo_flight = plano_base.tipo_flight
             plano.frequencia_objetivo = plano_base.frequencia_objetivo
             plano.frequencia_alvo = plano_base.frequencia_alvo
+            plano.alcance_objetivo = plano_base.alcance_objetivo
+            plano.alcance_percentual = plano_base.alcance_percentual
+            plano.publico_referencia = plano_base.publico_referencia
+            plano.alcance_meta = plano_base.alcance_meta
+            plano.alcance_projetado = plano_base.alcance_projetado
             plano.kpis = plano_base.kpis
             plano.cronograma = plano_base.cronograma
             resultado[cenario] = plano

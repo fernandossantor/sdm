@@ -86,6 +86,20 @@ class PublicService:
             if rel_jornadas:
                 item["jornada"] = jornadas.get(rel_jornadas[0].get("jornada_id"))
 
+            populacao_segmentos = sum(
+                int(segmento.get("populacao") or 0)
+                for segmento in item["segmentos"]
+            )
+            limite_universos = sum(
+                int(universo.get("publico_alvo") or universo.get("populacao") or 0)
+                for universo in item["universos"]
+            )
+            item["populacao_estimada"] = (
+                min(populacao_segmentos, limite_universos)
+                if populacao_segmentos > 0 and limite_universos > 0
+                else max(populacao_segmentos, limite_universos)
+            )
+
             resultado.append(item)
 
         return resultado
