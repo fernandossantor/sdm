@@ -8,6 +8,7 @@ from application.services.planejamento_service import PlanejamentoService
 from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
 from infrastructure.database import admin_client
+from infrastructure.repositories.decision_repository import DecisionRepository
 
 
 class TestPlanejamentoService(unittest.TestCase):
@@ -65,6 +66,35 @@ class TestPlanejamentoService(unittest.TestCase):
 
         self.assertEqual(sum(item["percentual"] for item in cronograma), 100)
         self.assertEqual(cronograma[-1]["percentual"], 0)
+
+
+class TestContextoCampanha(unittest.TestCase):
+
+    def test_referencia_mcp_e_especifica_por_campanha(self):
+
+        briefing = SimpleNamespace(campanha="Lançamento")
+
+        self.assertEqual(
+            DecisionRepository.campanha_ref(briefing),
+            "sessao:Lançamento",
+        )
+
+    def test_novo_briefing_invalida_etapas_posteriores(self):
+
+        session_state = {
+            "mcp_papeis": "antigo",
+            "plano": "antigo",
+            "diagnostico": "antigo",
+        }
+        briefing = SimpleNamespace(campanha="Nova campanha")
+
+        from application.services.briefing_service import BriefingService
+
+        BriefingService().salvar(session_state, briefing)
+
+        self.assertIs(session_state["briefing"], briefing)
+        self.assertNotIn("mcp_papeis", session_state)
+        self.assertNotIn("plano", session_state)
 
 
 class TestAdminClient(unittest.TestCase):
@@ -174,12 +204,14 @@ class TestWorkflowService(unittest.TestCase):
         service = WorkflowService()
 
         service.registrar_briefing(session_state, "Campanha")
+        service.concluir(session_state, "mcp_papeis", "sessao:Campanha")
         service.concluir(session_state, "planejamento", "plano")
         service.concluir(session_state, "diagnostico", "diagnostico")
 
         estado = service.estado(session_state)
 
         self.assertTrue(estado.briefing)
+        self.assertTrue(estado.mcp_papeis)
         self.assertTrue(estado.planejamento)
         self.assertTrue(estado.diagnostico)
         self.assertEqual(estado.proxima_etapa, "Forecast")
@@ -189,9 +221,11 @@ class TestWorkflowService(unittest.TestCase):
         session_state = {"briefing_ref": "Campanha"}
         service = WorkflowService()
 
-        self.assertTrue(service.pode_acessar(session_state, "planejamento"))
+        self.assertTrue(service.pode_acessar(session_state, "mcp_papeis"))
+        self.assertFalse(service.pode_acessar(session_state, "planejamento"))
         self.assertFalse(service.pode_acessar(session_state, "forecast"))
 
+        service.concluir(session_state, "mcp_papeis", "sessao:Campanha")
         service.concluir(session_state, "planejamento", "plano")
         service.concluir(session_state, "diagnostico", "diagnostico")
 

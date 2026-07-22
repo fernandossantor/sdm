@@ -50,6 +50,19 @@ mapa_universos = {
 
 }
 
+CLASSES_SOCIAIS = ["A", "B", "C", "D", "E"]
+FAIXAS_ETARIAS = [
+    "0-3", "4-7", "8-12", "12-15", "15-18", "19-24", "25-29",
+    "30-34", "35-39", "40-44", "45-49", "50-54", "55-59",
+    "60-64", "65-69", "70-74", "75-79", "80+",
+]
+ESCOLARIDADES = [
+    "Analfabeto",
+    "Ensino fundamental",
+    "Ensino médio",
+    "Ensino superior",
+]
+
 # ==========================================================
 # FORMULÁRIO
 # ==========================================================
@@ -86,11 +99,7 @@ with st.expander(
 
     )
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        sexo = st.selectbox(
+    sexo = st.selectbox(
 
             "Sexo",
 
@@ -108,25 +117,39 @@ with st.expander(
 
         )
 
-        faixa = st.text_input(
-
-            "Faixa etária"
-
+    c_classe, c_faixa, c_escolaridade = st.columns(3)
+    with c_classe:
+        todas_classes = st.checkbox("Todas as classes")
+        classes_sociais = st.multiselect(
+            "Classes sociais *",
+            CLASSES_SOCIAIS,
+            default=CLASSES_SOCIAIS if todas_classes else [],
+            disabled=todas_classes,
         )
+        if todas_classes:
+            classes_sociais = CLASSES_SOCIAIS
 
-    with col2:
-
-        classe = st.text_input(
-
-            "Classe social"
-
+    with c_faixa:
+        todas_faixas = st.checkbox("Todas as faixas etárias")
+        faixas_etarias = st.multiselect(
+            "Faixas etárias *",
+            FAIXAS_ETARIAS,
+            default=FAIXAS_ETARIAS if todas_faixas else [],
+            disabled=todas_faixas,
         )
+        if todas_faixas:
+            faixas_etarias = FAIXAS_ETARIAS
 
-        escolaridade = st.text_input(
-
-            "Escolaridade"
-
+    with c_escolaridade:
+        todas_escolaridades = st.checkbox("Todas as escolaridades")
+        escolaridades = st.multiselect(
+            "Escolaridades *",
+            ESCOLARIDADES,
+            default=ESCOLARIDADES if todas_escolaridades else [],
+            disabled=todas_escolaridades,
         )
+        if todas_escolaridades:
+            escolaridades = ESCOLARIDADES
 
     populacao = st.number_input(
 
@@ -164,11 +187,17 @@ if salvar:
 
         "sexo": sexo if sexo else None,
 
-        "faixa_etaria": faixa if faixa else None,
+        "faixa_etaria": ", ".join(faixas_etarias) or None,
 
-        "classe_social": classe if classe else None,
+        "classe_social": ", ".join(classes_sociais) or None,
 
-        "escolaridade": escolaridade if escolaridade else None,
+        "escolaridade": ", ".join(escolaridades) or None,
+
+        "faixas_etarias": faixas_etarias,
+
+        "classes_sociais": classes_sociais,
+
+        "escolaridades": escolaridades,
 
         "populacao": int(
 
@@ -314,7 +343,10 @@ else:
 
                 st.write(
 
-                    f"**Faixa:** {segmento.get('faixa_etaria') or '-'}"
+                    "**Faixas:** " + ", ".join(
+                        segmento.get("faixas_etarias")
+                        or ([segmento["faixa_etaria"]] if segmento.get("faixa_etaria") else ["-"])
+                    )
 
                 )
 
@@ -324,13 +356,19 @@ else:
 
                 st.write(
 
-                    f"**Classe:** {segmento.get('classe_social') or '-'}"
+                    "**Classes:** " + ", ".join(
+                        segmento.get("classes_sociais")
+                        or ([segmento["classe_social"]] if segmento.get("classe_social") else ["-"])
+                    )
 
                 )
 
                 st.write(
 
-                    f"**Escolaridade:** {segmento.get('escolaridade') or '-'}"
+                    "**Escolaridades:** " + ", ".join(
+                        segmento.get("escolaridades")
+                        or ([segmento["escolaridade"]] if segmento.get("escolaridade") else ["-"])
+                    )
 
                 )
 

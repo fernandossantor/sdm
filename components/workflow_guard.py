@@ -4,7 +4,8 @@ from application.services.workflow_service import WorkflowService
 
 
 ANTERIORES = {
-    "planejamento": ("Briefing", "pages/00_Briefing.py", "📋"),
+    "mcp_papeis": ("Briefing", "pages/00_Briefing.py", "📋"),
+    "planejamento": ("Papéis de mídia", "pages/03_MCP_Papeis.py", "🧩"),
     "diagnostico": ("Planejamento", "pages/05_Planejamento.py", "🧠"),
     "forecast": ("Diagnóstico", "pages/09_Diagnostico.py", "🩺"),
     "dashboard": ("Forecast", "pages/06_Forecast.py", "📈"),

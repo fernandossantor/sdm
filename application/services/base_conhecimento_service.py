@@ -65,6 +65,12 @@ class BaseConhecimentoService:
 
         return self.inventarios.listar()
 
+    def atualizar_inventario(self, inventario_id, dados):
+
+        if not dados.get("nome", "").strip():
+            raise ValueError("Nome do inventário é obrigatório.")
+        return self.inventarios.atualizar(inventario_id, dados)
+
     def precos_inventario(self, inventario_id):
 
         return self.inventarios.listar_precos(inventario_id)
@@ -76,11 +82,11 @@ class BaseConhecimentoService:
 
         return self.inventarios.salvar_preco(dados)
 
-    def inventarios_com_papeis(self):
+    def inventarios_com_papeis(self, campanha_ref):
 
         papeis = {
             item["inventario_id"]: item
-            for item in self.inventarios.listar_papeis()
+            for item in self.inventarios.listar_papeis(campanha_ref)
         }
         return [
             {**inventario, "classificacao": papeis.get(inventario["id"])}

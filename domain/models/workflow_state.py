@@ -6,6 +6,8 @@ class WorkflowState:
 
     briefing: bool = False
 
+    mcp_papeis: bool = False
+
     planejamento: bool = False
 
     diagnostico: bool = False
@@ -23,7 +25,7 @@ class WorkflowState:
     @property
     def total(self):
 
-        return 6
+        return 7
 
     # =====================================================
     # CONCLUÍDAS
@@ -37,6 +39,8 @@ class WorkflowState:
             [
 
                 self.briefing,
+
+                self.mcp_papeis,
 
                 self.planejamento,
 
@@ -85,6 +89,10 @@ class WorkflowState:
         if not self.briefing:
 
             return "Briefing"
+
+        if not self.mcp_papeis:
+
+            return "Papéis de mídia"
 
         if not self.planejamento:
 

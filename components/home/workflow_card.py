@@ -43,6 +43,7 @@ def render(
 
     etapas = [
         ("Briefing", "pages/00_Briefing.py", "briefing", "📋"),
+        ("Papéis de mídia", "pages/03_MCP_Papeis.py", "mcp_papeis", "🧩"),
         ("Planejamento", "pages/05_Planejamento.py", "planejamento", "🧠"),
         ("Diagnóstico", "pages/09_Diagnostico.py", "diagnostico", "🩺"),
         ("Forecast", "pages/06_Forecast.py", "forecast", "📈"),

@@ -10,6 +10,7 @@ class WorkflowService:
 
     ORDEM = (
         "briefing",
+        "mcp_papeis",
         "planejamento",
         "diagnostico",
         "forecast",
@@ -18,6 +19,7 @@ class WorkflowService:
     )
 
     CHAVES = {
+        "mcp_papeis": "mcp_papeis",
         "planejamento": "plano",
         "diagnostico": "diagnostico",
         "forecast": "forecast",
@@ -93,6 +95,8 @@ class WorkflowService:
                 "plano"
 
             ) is not None,
+
+            mcp_papeis=session_state.get("mcp_papeis") is not None,
 
             diagnostico=session_state.get(
 

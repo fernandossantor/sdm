@@ -89,49 +89,11 @@ class UniverseService:
 
             )
 
-        publico = dados.get(
+        if not dados.get("cidade", "").strip():
+            erros.append("Cidade é obrigatória.")
 
-            "publico_alvo",
-
-            0
-
-        )
-
-        try:
-
-            publico = int(
-
-                publico
-
-            )
-
-        except Exception:
-
-            publico = -1
-
-        if publico < 0:
-
-            erros.append(
-
-                "Público-alvo inválido."
-
-            )
-
-        if (
-
-            populacao > 0
-
-            and
-
-            publico > populacao
-
-        ):
-
-            erros.append(
-
-                "O público-alvo não pode ser maior que a população."
-
-            )
+        if not dados.get("estado"):
+            erros.append("Estado é obrigatório.")
 
         return erros
 

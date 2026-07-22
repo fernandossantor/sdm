@@ -65,6 +65,7 @@ navegacao = st.navigation(
         ],
         "Workflow oficial": [
             st.Page("pages/00_Briefing.py", title="Briefing", icon="📋"),
+            st.Page("pages/03_MCP_Papeis.py", title="Papéis de mídia", icon="🧩"),
             st.Page("pages/05_Planejamento.py", title="Planejamento", icon="🧠"),
             st.Page("pages/09_Diagnostico.py", title="Diagnóstico", icon="🩺"),
             st.Page("pages/06_Forecast.py", title="Forecast", icon="📈"),
@@ -79,7 +80,6 @@ navegacao = st.navigation(
         ],
         "Base de conhecimento": [
             st.Page("pages/01_Catalogos.py", title="Catálogos", icon="🗂️"),
-            st.Page("pages/03_MCP_Papeis.py", title="Papéis de mídia", icon="🧩"),
             st.Page("pages/04_Inventarios.py", title="Inventários", icon="📦"),
             st.Page("pages/15_Universos.py", title="Universos", icon="🌎"),
             st.Page("pages/16_Segmentos.py", title="Segmentos", icon="🧭"),

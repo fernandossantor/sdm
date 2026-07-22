@@ -17,6 +17,10 @@ class InventoryRepository(BaseRepository):
 
         return self.insert(INVENTARIOS, dados)
 
+    def atualizar(self, inventario_id, dados):
+
+        return self.update(INVENTARIOS, "id", inventario_id, dados)
+
     def salvar_preco(self, dados):
 
         return self.insert(PRECOS_INVENTARIO, dados)
@@ -25,16 +29,20 @@ class InventoryRepository(BaseRepository):
 
         return self.by_field(PRECOS_INVENTARIO, "inventario_id", inventario_id)
 
-    def listar_papeis(self):
+    def listar_papeis(self, campanha_ref):
 
-        return self.all(INVENTARIOS_PAPEIS)
+        return self.by_field(
+            INVENTARIOS_PAPEIS,
+            "campanha_ref",
+            campanha_ref,
+        )
 
     def salvar_papel(self, dados):
 
         return (
             self.db
             .table(INVENTARIOS_PAPEIS)
-            .upsert(dados, on_conflict="inventario_id")
+            .upsert(dados, on_conflict="campanha_ref,inventario_id")
             .execute()
         )
 

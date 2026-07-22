@@ -36,13 +36,13 @@ class TestConnection(unittest.TestCase):
 
         universos = (
             admin.table("universos")
-            .select("id,publico_alvo,ativo")
+            .select("id,cidade,estado,ativo")
             .limit(1)
             .execute()
         )
         papeis = (
             admin.table("inventarios_papeis")
-            .select("inventario_id,score,papel")
+            .select("campanha_ref,inventario_id,score,papel")
             .limit(1)
             .execute()
         )
@@ -52,10 +52,17 @@ class TestConnection(unittest.TestCase):
             .limit(1)
             .execute()
         )
+        segmentos = (
+            admin.table("segmentos")
+            .select("id,classes_sociais,faixas_etarias,escolaridades")
+            .limit(1)
+            .execute()
+        )
 
         self.assertIsInstance(universos.data, list)
         self.assertIsInstance(papeis.data, list)
         self.assertIsInstance(briefings.data, list)
+        self.assertIsInstance(segmentos.data, list)
 
 
 if __name__ == "__main__":

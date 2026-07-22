@@ -306,7 +306,6 @@ alcance_percentual = st.number_input(
     min_value=alcance_min,
     max_value=alcance_max,
     value=alcance_padrao,
-    format="%d%%",
     help="Percentual do público estimado que a campanha deve alcançar.",
 )
 

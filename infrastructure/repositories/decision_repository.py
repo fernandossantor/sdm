@@ -224,12 +224,27 @@ class DecisionRepository(BaseRepository):
         except Exception:
             return []
 
-    def papeis_inventarios(self):
+    def papeis_inventarios(self, campanha_ref):
 
         try:
-            return self.all(INVENTARIOS_PAPEIS)
+            return self.by_field(
+                INVENTARIOS_PAPEIS,
+                "campanha_ref",
+                campanha_ref,
+            )
         except Exception:
             return []
+
+    @staticmethod
+    def campanha_ref(briefing):
+
+        if isinstance(briefing, dict):
+            if briefing.get("id"):
+                return f"briefing:{briefing['id']}"
+            nome = briefing.get("nome") or briefing.get("campanha") or "sem-nome"
+        else:
+            nome = getattr(briefing, "campanha", "sem-nome")
+        return f"sessao:{nome}"
 
     # =====================================================
     # CONTEXTO
@@ -289,7 +304,9 @@ class DecisionRepository(BaseRepository):
 
             "precos": self.precos(),
 
-            "papeis_inventarios": self.papeis_inventarios(),
+            "papeis_inventarios": self.papeis_inventarios(
+                self.campanha_ref(briefing)
+            ),
 
         }
 
@@ -406,6 +423,8 @@ class DecisionRepository(BaseRepository):
 
             "precos": self.precos(),
 
-            "papeis_inventarios": self.papeis_inventarios(),
+            "papeis_inventarios": self.papeis_inventarios(
+                self.campanha_ref(briefing)
+            ),
 
         }

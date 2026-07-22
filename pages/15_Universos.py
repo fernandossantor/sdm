@@ -25,6 +25,12 @@ st.divider()
 
 service = UniverseService()
 
+UFS = [
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+    "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+    "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+]
+
 # ==========================================================
 # FORMULÁRIO
 # ==========================================================
@@ -37,17 +43,15 @@ with st.expander(
 
 ):
     nome = st.text_input("Nome")
-    c_populacao, c_publico = st.columns(2)
+    c_cidade, c_estado = st.columns([3, 1])
+    with c_cidade:
+        cidade = st.text_input("Cidade")
+    with c_estado:
+        estado = st.selectbox("Estado (UF)", UFS)
+    c_populacao, _ = st.columns(2)
     with c_populacao:
         populacao = st.number_input(
             "População",
-            min_value=0,
-            value=0,
-            step=1000,
-        )
-    with c_publico:
-        publico_alvo = st.number_input(
-            "Público-alvo",
             min_value=0,
             value=0,
             step=1000,
@@ -66,8 +70,9 @@ if salvar:
 
     dados = {
         "nome": nome,
+        "cidade": cidade.strip(),
+        "estado": estado,
         "populacao": int(populacao),
-        "publico_alvo": int(publico_alvo),
         "cenario_id": None,
     }
 
@@ -105,7 +110,7 @@ st.divider()
 
 resumo = service.resumo()
 
-c1, c2, c3 = st.columns(3)
+c1, c2 = st.columns(2)
 
 c1.metric(
 
@@ -120,38 +125,6 @@ c2.metric(
     "Ativos",
 
     resumo["ativos"]
-
-)
-
-if populacao > 0:
-
-    cobertura = round(
-
-        (
-
-            publico_alvo
-
-            /
-
-            populacao
-
-        )
-
-        * 100,
-
-        2
-
-    )
-
-else:
-
-    cobertura = 0
-
-c3.metric(
-
-    "Cobertura",
-
-    f"{cobertura}%"
 
 )
 
@@ -183,9 +156,9 @@ else:
 
         with st.container():
 
-            col1, col2, col3, col4, col5 = st.columns(
+            col1, col2, col3 = st.columns(
 
-                [4, 2, 2, 2, 1]
+                [5, 2, 1]
 
             )
 
@@ -242,56 +215,6 @@ else:
                 )
 
             with col3:
-
-                st.metric(
-
-                    "Público",
-
-                    f"{universo.get('publico_alvo',0):,}".replace(",", ".")
-
-                )
-
-            with col4:
-
-                pop = universo.get(
-
-                    "populacao",
-
-                    0
-
-                )
-
-                alvo = universo.get(
-
-                    "publico_alvo",
-
-                    0
-
-                )
-
-                if pop:
-
-                    perc = round(
-
-                        alvo / pop * 100,
-
-                        1
-
-                    )
-
-                else:
-
-                    perc = 0
-
-                st.metric(
-
-                    "Cobertura",
-
-                    f"{perc}%"
-
-                )
-
-            with col5:
 
                 if universo.get(
 

@@ -10,6 +10,7 @@ from application.services.forecast_service import ForecastService
 from application.services.insights_service import InsightsService
 from application.services.planejamento_service import PlanejamentoService
 from application.services.universe_service import UniverseService
+from application.services.segment_service import SegmentService
 
 
 class TestWorkflowCompleto(unittest.TestCase):
@@ -111,7 +112,8 @@ class TestPersistenciaSimulada(unittest.TestCase):
         dados = {
             "nome": "Brasil",
             "populacao": 1000,
-            "publico_alvo": 500,
+            "cidade": "São Paulo",
+            "estado": "SP",
         }
 
         ok, erros = service.salvar(dados)
@@ -125,15 +127,30 @@ class TestPersistenciaSimulada(unittest.TestCase):
         service = UniverseService()
         service.repository = Mock()
 
+        ok, erros = service.salvar({"nome": "Brasil", "populacao": 100})
+
+        self.assertFalse(ok)
+        self.assertIn("Cidade é obrigatória.", erros)
+        self.assertIn("Estado é obrigatório.", erros)
+        service.repository.salvar.assert_not_called()
+
+    def test_segmento_exige_recortes_demograficos(self):
+
+        service = SegmentService()
+        service.repository = Mock()
         ok, erros = service.salvar(
-            {"nome": "Brasil", "populacao": 100, "publico_alvo": 200}
+            {
+                "universo_id": "universo-1",
+                "nome": "Adultos",
+                "populacao": 100,
+                "classes_sociais": [],
+                "faixas_etarias": [],
+                "escolaridades": [],
+            }
         )
 
         self.assertFalse(ok)
-        self.assertIn(
-            "O público-alvo não pode ser maior que a população.",
-            erros,
-        )
+        self.assertEqual(len(erros), 3)
         service.repository.salvar.assert_not_called()
 
 

@@ -2,9 +2,13 @@ import streamlit as st
 
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from application.services.classificacao_papeis_service import ClassificacaoPapeisService
+from application.services.briefing_service import BriefingService
+from application.services.workflow_service import WorkflowService
+from components.workflow_guard import exigir
 
 
 st.set_page_config(page_title="MCP — Papéis de mídia", page_icon="🧩", layout="wide")
+exigir("mcp_papeis")
 st.title("🧩 MCP — Papéis de mídia")
 st.write(
     "Classifique os inventários reais. O score e o papel salvos aqui passam a "
@@ -13,9 +17,13 @@ st.write(
 
 base = BaseConhecimentoService()
 classificador = ClassificacaoPapeisService()
+briefing = BriefingService().recuperar(st.session_state)
+campanha_ref = f"sessao:{briefing.campanha}"
+
+st.success(f"Classificação da campanha: {briefing.campanha}")
 
 try:
-    inventarios = base.inventarios_com_papeis()
+    inventarios = base.inventarios_com_papeis(campanha_ref)
 except Exception as erro:
     st.error(f"Não foi possível carregar a classificação dos inventários: {erro}")
     st.stop()
@@ -85,6 +93,7 @@ if st.button("Salvar e integrar ao Planejamento", type="primary", width="stretch
             base.salvar_papel_inventario(
                 {
                     "inventario_id": criterio["inventario_id"],
+                    "campanha_ref": campanha_ref,
                     "afinidade": criterio["afinidade"],
                     "cobertura": criterio["cobertura"],
                     "consumo": criterio["consumo"],
@@ -96,6 +105,11 @@ if st.button("Salvar e integrar ao Planejamento", type="primary", width="stretch
     except Exception as erro:
         st.error(f"Não foi possível salvar os papéis: {erro}")
     else:
+        WorkflowService().concluir(
+            st.session_state,
+            "mcp_papeis",
+            campanha_ref,
+        )
         st.success("Papéis salvos e integrados. Gere novamente o Planejamento.")
         st.page_link(
             "pages/05_Planejamento.py",

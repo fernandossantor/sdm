@@ -119,6 +119,15 @@ class SegmentService:
 
             )
 
+        if not dados.get("classes_sociais"):
+            erros.append("Selecione ao menos uma classe social.")
+
+        if not dados.get("faixas_etarias"):
+            erros.append("Selecione ao menos uma faixa etária.")
+
+        if not dados.get("escolaridades"):
+            erros.append("Selecione ao menos uma escolaridade.")
+
         return erros
 
     # =====================================================

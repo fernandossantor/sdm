@@ -73,10 +73,14 @@ class TestWorkflowState(unittest.TestCase):
 
     def test_progresso_e_proxima_etapa(self):
 
-        estado = WorkflowState(briefing=True, planejamento=True)
+        estado = WorkflowState(
+            briefing=True,
+            mcp_papeis=True,
+            planejamento=True,
+        )
 
-        self.assertEqual(estado.concluidas, 2)
-        self.assertEqual(estado.percentual, 33.3)
+        self.assertEqual(estado.concluidas, 3)
+        self.assertEqual(estado.percentual, 42.9)
         self.assertEqual(estado.proxima_etapa, "Diagnóstico")
 
 

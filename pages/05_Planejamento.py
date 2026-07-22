@@ -279,7 +279,6 @@ with c_alcance_percentual:
         min_value=alcance_min,
         max_value=alcance_max,
         value=valor_alcance,
-        format="%d%%",
     )
 
 configuracao = {

@@ -248,6 +248,15 @@ class BriefingService:
     ):
 
         session_state["briefing"] = briefing
+        for chave in (
+            "mcp_papeis",
+            "plano",
+            "diagnostico",
+            "forecast",
+            "dashboard",
+            "exportacao",
+        ):
+            session_state.pop(chave, None)
 
     # =====================================================
     # RECUPERAR

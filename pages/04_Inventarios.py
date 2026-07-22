@@ -1,3 +1,5 @@
+from datetime import date
+
 import streamlit as st
 
 from application.services.base_conhecimento_service import (
@@ -45,6 +47,13 @@ formatos = catalogos["formatos"]
 modalidades = catalogos["modalidades"]
 
 unidades = catalogos["unidades"]
+
+
+def indice_por_id(opcoes, valor):
+    return next(
+        (indice for indice, item in enumerate(opcoes) if item["id"] == valor),
+        0,
+    )
 
 st.write("Canais:", len(canais))
 
@@ -211,16 +220,159 @@ if st.button("Salvar Inventário"):
                 width="stretch",
             )
 
-st.divider()
-st.subheader("Inventários disponíveis para o Planejamento")
-
 try:
     cadastrados = service.listar_inventarios()
 except Exception as erro:
     st.error(f"Não foi possível listar os inventários: {erro}")
+    cadastrados = []
+
+st.divider()
+st.subheader("Editar inventário")
+
+if not cadastrados:
+    st.info("Nenhum inventário disponível para edição.")
 else:
-    if not cadastrados:
-        st.info("Nenhum inventário cadastrado.")
+    selecionado = st.selectbox(
+        "Inventário cadastrado",
+        cadastrados,
+        format_func=lambda item: item["nome"],
+        key="inventario_edicao",
+    )
+    precos_edicao = service.precos_inventario(selecionado["id"])
+    preco_atual = next(
+        (item for item in reversed(precos_edicao) if item.get("ativo", True)),
+        {},
+    )
+
+    with st.form("form_editar_inventario"):
+        nome_edicao = st.text_input(
+            "Nome",
+            value=selecionado["nome"],
+        )
+        e1, e2 = st.columns(2)
+        with e1:
+            plataforma_edicao = st.selectbox(
+                "Plataforma",
+                plataformas,
+                index=indice_por_id(plataformas, selecionado.get("plataforma_id")),
+                format_func=lambda item: item["nome"],
+            )
+            ambiente_edicao = st.selectbox(
+                "Ambiente",
+                ambientes,
+                index=indice_por_id(ambientes, selecionado.get("ambiente_id")),
+                format_func=lambda item: item["nome"],
+            )
+            estrutura_edicao = st.selectbox(
+                "Estrutura",
+                estruturas,
+                index=indice_por_id(estruturas, selecionado.get("estrutura_id")),
+                format_func=lambda item: item["nome"],
+            )
+            formato_edicao = st.selectbox(
+                "Formato",
+                formatos,
+                index=indice_por_id(formatos, selecionado.get("formato_id")),
+                format_func=lambda item: item["nome"],
+            )
+        with e2:
+            modelo_edicao = st.selectbox(
+                "Modelo comercial",
+                modelos,
+                index=indice_por_id(modelos, selecionado.get("modelo_comercial_id")),
+                format_func=lambda item: item["nome"],
+            )
+            modalidade_edicao = st.selectbox(
+                "Modalidade de compra",
+                modalidades,
+                index=indice_por_id(modalidades, selecionado.get("modalidade_compra_id")),
+                format_func=lambda item: item["nome"],
+            )
+            unidade_edicao = st.selectbox(
+                "Unidade de compra",
+                unidades,
+                index=indice_por_id(unidades, selecionado.get("unidade_compra_id")),
+                format_func=lambda item: item["nome"],
+            )
+            ativo_edicao = st.checkbox(
+                "Ativo",
+                value=selecionado.get("ativo", True),
+            )
+
+        st.caption("Ao informar preço, uma nova vigência comercial será criada.")
+        p1, p2 = st.columns(2)
+        with p1:
+            valor_edicao = st.number_input(
+                "Novo valor bruto",
+                min_value=0.0,
+                value=float(preco_atual.get("valor_bruto") or 0),
+            )
+            inicio_edicao = st.date_input(
+                "Início da nova vigência",
+                value=date.today(),
+                format="DD/MM/YYYY",
+            )
+        with p2:
+            desconto_edicao = st.number_input(
+                "Desconto (%)",
+                min_value=0.0,
+                max_value=100.0,
+                value=float(preco_atual.get("desconto_percentual") or 0),
+            )
+            fim_edicao = st.date_input(
+                "Fim da nova vigência",
+                value=date.today(),
+                format="DD/MM/YYYY",
+            )
+
+        atualizar = st.form_submit_button(
+            "Salvar alterações",
+            type="primary",
+            width="stretch",
+        )
+
+    if atualizar:
+        if fim_edicao < inicio_edicao:
+            st.error("A data final não pode ser anterior à data inicial.")
+        else:
+            try:
+                service.atualizar_inventario(
+                    selecionado["id"],
+                    {
+                        "nome": nome_edicao,
+                        "plataforma_id": plataforma_edicao["id"],
+                        "ambiente_id": ambiente_edicao["id"],
+                        "estrutura_id": estrutura_edicao["id"],
+                        "modelo_comercial_id": modelo_edicao["id"],
+                        "formato_id": formato_edicao["id"],
+                        "modalidade_compra_id": modalidade_edicao["id"],
+                        "unidade_compra_id": unidade_edicao["id"],
+                        "ativo": ativo_edicao,
+                    },
+                )
+                if valor_edicao > 0:
+                    service.salvar_preco_inventario(
+                        {
+                            "inventario_id": selecionado["id"],
+                            "unidade": unidade_edicao["nome"],
+                            "valor_bruto": float(valor_edicao),
+                            "desconto_percentual": float(desconto_edicao),
+                            "inicio_vigencia": inicio_edicao.isoformat(),
+                            "fim_vigencia": fim_edicao.isoformat(),
+                        }
+                    )
+            except Exception as erro:
+                st.error(f"Não foi possível atualizar o Inventário: {erro}")
+            else:
+                st.success("Inventário atualizado e nova vigência registrada.")
+                st.rerun()
+
+st.divider()
+st.subheader("Inventários disponíveis para o Planejamento")
+
+if not cadastrados:
+    st.info("Nenhum inventário cadastrado.")
+else:
     for item in cadastrados:
         precos = service.precos_inventario(item["id"])
         vigente = next(
