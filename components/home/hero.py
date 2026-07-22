@@ -1,13 +1,13 @@
 import streamlit as st
+from pathlib import Path
+
+
+LOGO_PLANOS = Path(__file__).parents[2] / "assets" / "PlanOS.png"
 
 
 def render():
 
-    st.title(
-
-        "📊 PlanOS"
-
-    )
+    st.image(LOGO_PLANOS, width="content")
 
     st.subheader(
 
