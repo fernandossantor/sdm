@@ -204,8 +204,12 @@ peso_publico = p3.number_input("Público e jornada (%)", 0, 100, 20)
 peso_metricas = p4.number_input("Qualidade das métricas (%)", 0, 100, 10)
 peso_mcp = p5.number_input("Influência do MCP (%)", 0, 100, 20)
 soma_pesos = peso_objetivo + peso_kpi + peso_publico + peso_metricas
+impedimentos_geracao = []
 if soma_pesos != 100:
     st.error(f"Os quatro pesos estratégicos devem somar 100% (atual: {soma_pesos}%).")
+    impedimentos_geracao.append(
+        f"Ajuste os quatro pesos estratégicos para totalizar 100% (atual: {soma_pesos}%)."
+    )
 
 if modo == "Briefing da Sessão":
     orcamento_inicial = float(briefing.orcamento)
@@ -304,6 +308,10 @@ else:
     configuracao["inventarios_selecionados"] = [
         item["id"] for item in inventarios_plano
     ]
+    if not inventarios_plano:
+        impedimentos_geracao.append(
+            "Selecione ao menos um inventário para entrar no plano."
+        )
 
     st.markdown("#### Entrega, compra e premissas por inventário")
     st.info(
@@ -458,17 +466,36 @@ else:
                 "Qualidade das métricas", 0.0, 110.0, float(previa.get("metricas") or 0),
                 key=f"score_metricas_{item['id']}",
             )
-        if audiencia_item <= 0 or alcance_item <= 0 or frequencia_item <= 0:
+        campos_ausentes = []
+        if preco_liquido <= 0:
+            campos_ausentes.append("preço ativo maior que R$ 0,00")
+        if audiencia_item <= 0:
+            campos_ausentes.append("audiência por unidade")
+        if alcance_item <= 0:
+            campos_ausentes.append("alcance do meio")
+        if frequencia_item <= 0:
+            campos_ausentes.append("frequência do meio")
+        if campos_ausentes:
             premissas_validas = False
+            impedimentos_geracao.append(
+                f"{item['nome']}: informe " + ", ".join(campos_ausentes) + "."
+            )
         investimento_item = quantidade_item * preco_liquido
         investimento_proposto += investimento_item
-        if (
-            quantidade_item < quantidade_minima
-            or quantidade_item > quantidade_maxima
-            or investimento_item < verba_minima
-            or investimento_item > verba_maxima
-        ):
+        limites_invalidos = []
+        if quantidade_item < quantidade_minima:
+            limites_invalidos.append("quantidade abaixo do piso")
+        if quantidade_item > quantidade_maxima:
+            limites_invalidos.append("quantidade acima do teto")
+        if investimento_item < verba_minima:
+            limites_invalidos.append("verba abaixo do piso")
+        if investimento_item > verba_maxima:
+            limites_invalidos.append("verba acima do teto")
+        if limites_invalidos:
             premissas_validas = False
+            impedimentos_geracao.append(
+                f"{item['nome']}: corrija " + ", ".join(limites_invalidos) + "."
+            )
         premissas_inventarios[item["id"]] = {
             "audiencia_percentual": audiencia_item,
             "alcance_percentual": alcance_item,
@@ -500,6 +527,10 @@ else:
     limite_compra = float(orcamento_plano) * (1 - reserva_testes / 100)
     if investimento_proposto > limite_compra + 0.01:
         premissas_validas = False
+        impedimentos_geracao.append(
+            "Reduza a compra proposta para que ela não ultrapasse a verba "
+            "disponível após a reserva para testes."
+        )
         st.error(
             f"A compra proposta ({moeda_ptbr(investimento_proposto)}) excede "
             f"a verba disponível após a reserva ({moeda_ptbr(limite_compra)})."
@@ -518,8 +549,25 @@ configuracao["estrategia"] = {
     "peso_mcp": peso_mcp,
 }
 
+if not inventarios_mcp:
+    impedimentos_geracao.append(
+        "Selecione e classifique ao menos um inventário no MCP Papéis."
+    )
+if orcamento_plano <= 0:
+    impedimentos_geracao.append(
+        "Informe um orçamento do planejamento maior que R$ 0,00."
+    )
+
 
 st.divider()
+
+if impedimentos_geracao:
+    st.warning(
+        "**Para habilitar Gerar Plano:**\n\n"
+        + "\n".join(f"- {motivo}" for motivo in impedimentos_geracao)
+    )
+
+geracao_bloqueada = bool(impedimentos_geracao)
 
 gerar = st.button(
 
@@ -528,7 +576,7 @@ gerar = st.button(
     type="primary",
 
     width="stretch",
-    disabled=(not inventarios_mcp or soma_pesos != 100 or not locals().get("premissas_validas", False)),
+    disabled=geracao_bloqueada,
 
 )
 
