@@ -1,9 +1,18 @@
 from infrastructure.database.database_schema import (
+    AMBIENTES,
+    CANAIS,
+    ESTRUTURAS,
+    FORMATOS,
     INTERESSES,
     JORNADAS,
+    KPIS,
+    MODALIDADES,
     MODELOS_COMERCIAIS,
     OBJETIVOS,
+    PLATAFORMAS,
     SEGMENTOS,
+    TECNOLOGIAS,
+    UNIDADES,
 )
 from infrastructure.repositories.catalog_repository import CatalogRepository
 from infrastructure.repositories.inventory_repository import InventoryRepository
@@ -52,7 +61,77 @@ class BaseConhecimentoService:
             MODELOS_COMERCIAIS,
             "nome",
         )
+        dados["formatos_ambientes"] = self.catalogos.formatos_ambientes()
+        dados["modalidades_unidades"] = self.catalogos.modalidades_unidades()
         return dados
+
+    def salvar_opcao_catalogo(
+        self,
+        categoria,
+        nome,
+        descricao="",
+        parent_id=None,
+        empresa="",
+        site="",
+    ):
+        nome = nome.strip()
+        if not nome:
+            raise ValueError("Informe o nome da nova opção.")
+
+        tabelas = {
+            "tecnologia": TECNOLOGIAS,
+            "canal": CANAIS,
+            "ambiente": AMBIENTES,
+            "estrutura": ESTRUTURAS,
+            "formato": FORMATOS,
+            "modelo_comercial": MODELOS_COMERCIAIS,
+            "modalidade": MODALIDADES,
+            "unidade": UNIDADES,
+            "plataforma": PLATAFORMAS,
+            "kpi": KPIS,
+        }
+        if categoria not in tabelas:
+            raise ValueError("Categoria de catálogo inválida.")
+        if categoria in {"canal", "ambiente", "formato", "unidade"} and not parent_id:
+            raise ValueError("Selecione a opção anterior da hierarquia.")
+
+        tabela = tabelas[categoria]
+        campos_parent = {"canal": "tecnologia_id", "ambiente": "canal_id"}
+        existente = self.catalogos.buscar_por_nome(
+            tabela,
+            nome,
+            campos_parent.get(categoria),
+            parent_id,
+        )
+        if existente:
+            item = existente
+        else:
+            dados = {"nome": nome, "ativo": True}
+            if categoria == "plataforma":
+                dados.update(
+                    {
+                        "empresa": empresa.strip() or nome,
+                        "site": site.strip() or None,
+                    }
+                )
+            else:
+                dados["descricao"] = descricao.strip() or None
+            if categoria == "canal":
+                dados["tecnologia_id"] = parent_id
+            elif categoria == "ambiente":
+                dados["canal_id"] = parent_id
+            resposta = self.catalogos.salvar_opcao(tabela, dados)
+            item = resposta.data[0]
+
+        if categoria == "formato":
+            if not parent_id:
+                raise ValueError("O formato precisa estar relacionado a um ambiente.")
+            self.catalogos.vincular_formato_ambiente(item["id"], parent_id)
+        elif categoria == "unidade":
+            if not parent_id:
+                raise ValueError("A unidade precisa estar relacionada a uma modalidade.")
+            self.catalogos.vincular_modalidade_unidade(parent_id, item["id"])
+        return item
 
     def salvar_inventario(self, dados):
 

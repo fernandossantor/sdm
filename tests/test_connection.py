@@ -79,6 +79,18 @@ class TestConnection(unittest.TestCase):
             .limit(1)
             .execute()
         )
+        formatos_ambientes = (
+            admin.table("formatos_ambientes")
+            .select("formato_id,ambiente_id")
+            .limit(1)
+            .execute()
+        )
+        modalidades_unidades = (
+            admin.table("modalidades_unidades_compra")
+            .select("modalidade_id,unidade_id")
+            .limit(1)
+            .execute()
+        )
 
         self.assertIsInstance(universos.data, list)
         self.assertIsInstance(papeis.data, list)
@@ -87,6 +99,8 @@ class TestConnection(unittest.TestCase):
         self.assertIsInstance(projetos.data, list)
         self.assertIsInstance(artefatos.data, list)
         self.assertIsInstance(inventarios.data, list)
+        self.assertIsInstance(formatos_ambientes.data, list)
+        self.assertIsInstance(modalidades_unidades.data, list)
 
 
 if __name__ == "__main__":

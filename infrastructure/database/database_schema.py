@@ -21,6 +21,8 @@ ESTRUTURAS = "estruturas_v3"
 
 FORMATOS = "formatos_v3"
 
+FORMATOS_AMBIENTES = "formatos_ambientes"
+
 TECNOLOGIAS = "tecnologias_v3"
 
 # Não existe perfis_v3
@@ -29,6 +31,8 @@ PERFIS = "perfis_editoriais"
 MODALIDADES = "modalidades_compra_v3"
 
 UNIDADES = "unidades_compra_v3"
+
+MODALIDADES_UNIDADES = "modalidades_unidades_compra"
 
 PLATAFORMAS = "plataformas_v3"
 

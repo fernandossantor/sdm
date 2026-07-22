@@ -26,6 +26,8 @@ modalidades = catalogos["modalidades"]
 unidades = catalogos["unidades"]
 plataformas = catalogos["plataformas"]
 kpis = catalogos["kpis"]
+formatos_ambientes = catalogos["formatos_ambientes"]
+modalidades_unidades = catalogos["modalidades_unidades"]
 
 st.subheader("Base de conhecimento disponível")
 resumo = {
@@ -53,6 +55,78 @@ modo = st.radio(
 
 def indice_por_id(opcoes, valor):
     return next((i for i, item in enumerate(opcoes) if item["id"] == valor), 0)
+
+
+NOVA_OPCAO_ID = "__nova_opcao__"
+
+
+def escolher_catalogo(
+    label,
+    opcoes,
+    prefixo,
+    categoria,
+    atual_id=None,
+    parent_id=None,
+    format_func=None,
+):
+    base_key = f"{prefixo}_{categoria}"
+    revisao_key = f"{base_key}_revisao"
+    pendente_key = f"{base_key}_pendente"
+    revisao = st.session_state.get(revisao_key, 0)
+    atual_id = st.session_state.pop(pendente_key, atual_id)
+    nova_opcao = {"id": NOVA_OPCAO_ID, "nome": "Cadastrar outra opção…"}
+    opcoes_exibidas = [*opcoes, nova_opcao]
+
+    def exibir(item):
+        if not isinstance(item, dict):
+            return str(item)
+        if format_func and item["id"] != NOVA_OPCAO_ID:
+            return format_func(item)
+        return item["nome"]
+
+    selecionado = st.selectbox(
+        label,
+        opcoes_exibidas,
+        index=indice_por_id(opcoes_exibidas, atual_id),
+        format_func=exibir,
+        key=f"{base_key}_selecao_{revisao}",
+    )
+    if selecionado["id"] != NOVA_OPCAO_ID:
+        return selecionado
+
+    st.caption(
+        f'A nova opção será incorporada ao catálogo de {label.lower()} e '
+        "ficará disponível nos próximos cadastros."
+    )
+    nome = st.text_input(f"Nome — novo {label.lower()}", key=f"{base_key}_nome")
+    descricao = ""
+    empresa = ""
+    site = ""
+    if categoria == "plataforma":
+        empresa = st.text_input("Empresa", key=f"{base_key}_empresa")
+        site = st.text_input("Site (opcional)", key=f"{base_key}_site")
+    else:
+        descricao = st.text_input(
+            "Descrição (opcional)", key=f"{base_key}_descricao"
+        )
+    if st.button(f"Cadastrar e usar {label.lower()}", key=f"{base_key}_cadastrar"):
+        try:
+            novo = service.salvar_opcao_catalogo(
+                categoria,
+                nome,
+                descricao=descricao,
+                parent_id=parent_id,
+                empresa=empresa,
+                site=site,
+            )
+        except Exception as erro:
+            st.error(f"Não foi possível cadastrar a opção: {erro}")
+        else:
+            st.session_state[pendente_key] = novo["id"]
+            st.session_state[revisao_key] = revisao + 1
+            st.rerun()
+    st.info("Cadastre a nova opção para continuar o preenchimento.")
+    return None
 
 
 def selecionar_mes(prefixo, valor=None):
@@ -89,72 +163,93 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         tecnologias[0],
     )
 
-    tecnologia = st.selectbox(
-        "Tecnologia", tecnologias,
-        index=indice_por_id(tecnologias, tecnologia_atual["id"]),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_tecnologia",
+    tecnologia = escolher_catalogo(
+        "Tecnologia", tecnologias, prefixo, "tecnologia", tecnologia_atual["id"]
     )
+    if tecnologia is None:
+        st.stop()
     canais_filtrados = [
         item for item in canais if item.get("tecnologia_id") == tecnologia["id"]
     ]
-    if not canais_filtrados:
-        st.error("A tecnologia selecionada não possui canais relacionados no Catálogo.")
-        st.stop()
-    canal = st.selectbox(
-        "Canal", canais_filtrados,
-        index=indice_por_id(canais_filtrados, canal_atual["id"]),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_canal",
+    canal = escolher_catalogo(
+        "Canal", canais_filtrados, prefixo, "canal", canal_atual["id"], tecnologia["id"]
     )
+    if canal is None:
+        st.stop()
     ambientes_filtrados = [
         item for item in ambientes if item.get("canal_id") == canal["id"]
     ]
-    if not ambientes_filtrados:
-        st.error("O canal selecionado não possui ambientes relacionados no Catálogo.")
+    ambiente = escolher_catalogo(
+        "Ambiente", ambientes_filtrados, prefixo, "ambiente",
+        inventario.get("ambiente_id"), canal["id"],
+    )
+    if ambiente is None:
         st.stop()
-    ambiente = st.selectbox(
-        "Ambiente", ambientes_filtrados,
-        index=indice_por_id(ambientes_filtrados, inventario.get("ambiente_id")),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_ambiente",
+    estrutura = escolher_catalogo(
+        "Estrutura", estruturas, prefixo, "estrutura", inventario.get("estrutura_id")
     )
-    estrutura = st.selectbox(
-        "Estrutura", estruturas,
-        index=indice_por_id(estruturas, inventario.get("estrutura_id")),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_estrutura",
+    if estrutura is None:
+        st.stop()
+
+    formatos_ids = {
+        item["formato_id"] for item in formatos_ambientes
+        if item["ambiente_id"] == ambiente["id"]
+    }
+    formatos_filtrados = [item for item in formatos if item["id"] in formatos_ids]
+    formato_atual = next(
+        (item for item in formatos if item["id"] == inventario.get("formato_id")), None
     )
-    formato = st.selectbox(
-        "Formato", formatos,
-        index=indice_por_id(formatos, inventario.get("formato_id")),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_formato",
+    if formato_atual and formato_atual not in formatos_filtrados:
+        formatos_filtrados.append(formato_atual)
+    formato = escolher_catalogo(
+        "Formato", formatos_filtrados, prefixo, "formato",
+        inventario.get("formato_id"), ambiente["id"],
     )
-    modelo = st.selectbox(
-        "Modelo comercial", modelos,
-        index=indice_por_id(modelos, inventario.get("modelo_comercial_id")),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_modelo",
+    if formato is None:
+        st.stop()
+    modelo = escolher_catalogo(
+        "Modelo comercial", modelos, prefixo, "modelo_comercial",
+        inventario.get("modelo_comercial_id"),
     )
-    modalidade = st.selectbox(
-        "Modalidade de compra", modalidades,
-        index=indice_por_id(modalidades, inventario.get("modalidade_compra_id")),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_modalidade",
+    if modelo is None:
+        st.stop()
+    modalidade = escolher_catalogo(
+        "Modalidade de compra", modalidades, prefixo, "modalidade",
+        inventario.get("modalidade_compra_id"),
     )
-    unidade = st.selectbox(
-        "Unidade de compra", unidades,
-        index=indice_por_id(unidades, inventario.get("unidade_compra_id")),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_unidade",
+    if modalidade is None:
+        st.stop()
+
+    unidades_ids = {
+        item["unidade_id"] for item in modalidades_unidades
+        if item["modalidade_id"] == modalidade["id"]
+    }
+    unidades_filtradas = [item for item in unidades if item["id"] in unidades_ids]
+    unidade_atual = next(
+        (item for item in unidades if item["id"] == inventario.get("unidade_compra_id")), None
     )
-    meio = st.selectbox(
-        "Meio (plataforma/empresa)", plataformas,
-        index=indice_por_id(plataformas, inventario.get("plataforma_id")),
+    if unidade_atual and unidade_atual not in unidades_filtradas:
+        unidades_filtradas.append(unidade_atual)
+    unidade = escolher_catalogo(
+        "Unidade de compra", unidades_filtradas, prefixo, "unidade",
+        inventario.get("unidade_compra_id"), modalidade["id"],
+    )
+    if unidade is None:
+        st.stop()
+    meio = escolher_catalogo(
+        "Meio (plataforma/empresa)", plataformas, prefixo, "plataforma",
+        inventario.get("plataforma_id"),
         format_func=lambda item: " — ".join(
             parte for parte in [item["nome"], item.get("empresa")] if parte
-        ), key=f"{prefixo}_meio",
+        ),
     )
-    kpi = st.selectbox(
-        "KPI", kpis, index=indice_por_id(kpis, kpi_atual),
-        format_func=lambda item: item["nome"], key=f"{prefixo}_kpi",
-    )
-    nome = st.text_input(
-        "Nome", value=inventario.get("nome", ""), key=f"{prefixo}_nome"
-    )
+    if meio is None:
+        st.stop()
+    kpi = escolher_catalogo("KPI", kpis, prefixo, "kpi", kpi_atual)
+    if kpi is None:
+        st.stop()
+
+    nome = st.text_input("Nome", value=inventario.get("nome", ""), key=f"{prefixo}_nome")
     valor = st.number_input(
         "Preço bruto por unidade", min_value=0.0,
         value=float(preco.get("valor_bruto") or 0), key=f"{prefixo}_valor",
@@ -173,8 +268,7 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
     dados = {
         "nome": nome, "plataforma_id": meio["id"], "ambiente_id": ambiente["id"],
         "estrutura_id": estrutura["id"], "formato_id": formato["id"],
-        "modelo_comercial_id": modelo["id"],
-        "modalidade_compra_id": modalidade["id"],
+        "modelo_comercial_id": modelo["id"], "modalidade_compra_id": modalidade["id"],
         "unidade_compra_id": unidade["id"], "kpi_principal_id": kpi["id"],
         "ativo": inventario.get("ativo", True),
     }
@@ -185,12 +279,12 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         "desconto_percentual": float(desconto),
         "inicio_vigencia": inicio.isoformat(), "fim_vigencia": fim.isoformat(),
     }
-    return dados, preco_dados, kpi
+    return dados, preco_dados
 
 
 if modo == "Cadastrar novo inventário":
     st.subheader("Cadastrar novo inventário")
-    dados, preco, kpi = formulario("novo")
+    dados, preco = formulario("novo")
     if st.button("Salvar novo inventário", type="primary", width="stretch"):
         if preco["fim_vigencia"] < preco["inicio_vigencia"]:
             st.error("A vigência final não pode ser anterior à inicial.")
@@ -199,9 +293,7 @@ if modo == "Cadastrar novo inventário":
                 resposta = service.salvar_inventario(dados)
                 inventario_id = resposta.data[0]["id"]
                 if preco["valor_bruto"] > 0:
-                    service.salvar_preco_inventario(
-                        {**preco, "inventario_id": inventario_id}
-                    )
+                    service.salvar_preco_inventario({**preco, "inventario_id": inventario_id})
             except Exception as erro:
                 st.error(f"Não foi possível salvar o inventário: {erro}")
             else:
@@ -217,12 +309,10 @@ else:
             format_func=lambda item: item["nome"], key="inventario_salvo",
         )
         precos = service.precos_inventario(selecionado["id"])
-        preco_atual = next(
-            (item for item in reversed(precos) if item.get("ativo", True)), {}
-        )
-        kpi_atual = selecionado.get("kpi_principal_id")
-        dados, preco, kpi = formulario(
-            f"editar_{selecionado['id']}", selecionado, preco_atual, kpi_atual
+        preco_atual = next((item for item in reversed(precos) if item.get("ativo", True)), {})
+        dados, preco = formulario(
+            f"editar_{selecionado['id']}", selecionado, preco_atual,
+            selecionado.get("kpi_principal_id"),
         )
         if st.button("Salvar alterações", type="primary", width="stretch"):
             if preco["fim_vigencia"] < preco["inicio_vigencia"]:

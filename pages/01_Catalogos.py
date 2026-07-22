@@ -25,33 +25,22 @@ st.divider()
 
 service = BaseConhecimentoService()
 
-dados = service.carregar_catalogos()
+dados = service.catalogos_inventario()
 
-abas = st.tabs(
+categorias = [
+    ("Tecnologias", "tecnologias"),
+    ("Canais", "canais"),
+    ("Ambientes", "ambientes"),
+    ("Estruturas", "estruturas"),
+    ("Formatos", "formatos"),
+    ("Modelos comerciais", "modelos_comerciais"),
+    ("Modalidades de compra", "modalidades"),
+    ("Unidades de compra", "unidades"),
+    ("Meios (plataformas/empresas)", "plataformas"),
+    ("KPIs", "kpis"),
+]
 
-    [
-
-        "Canais",
-
-        "Ambientes",
-
-        "Estruturas",
-
-        "Formatos",
-
-        "Tecnologias",
-
-        "Modalidades",
-
-        "Unidades",
-
-        "Plataformas",
-
-        "KPIs"
-
-    ]
-
-)
+abas = st.tabs([titulo for titulo, _ in categorias])
 
 # ==========================================================
 # FUNÇÃO AUXILIAR
@@ -97,78 +86,6 @@ def mostrar(df, categoria):
         "(https://iabbrasil.com.br/internas/pesquisas/adspend/) e Base PMAH."
     )
 
-# ==========================================================
-# ABAS
-# ==========================================================
-
-with abas[0]:
-
-    mostrar(
-
-        dados["canais"], "Canais"
-
-    )
-
-with abas[1]:
-
-    mostrar(
-
-        dados["ambientes"], "Ambientes"
-
-    )
-
-with abas[2]:
-
-    mostrar(
-
-        dados["estruturas"], "Estruturas"
-
-    )
-
-with abas[3]:
-
-    mostrar(
-
-        dados["formatos"], "Formatos"
-
-    )
-
-with abas[4]:
-
-    mostrar(
-
-        dados["tecnologias"], "Tecnologias"
-
-    )
-
-with abas[5]:
-
-    mostrar(
-
-        dados["modalidades"], "Modalidades"
-
-    )
-
-with abas[6]:
-
-    mostrar(
-
-        dados["unidades"], "Unidades"
-
-    )
-
-with abas[7]:
-
-    mostrar(
-
-        dados["plataformas"], "Plataformas"
-
-    )
-
-with abas[8]:
-
-    mostrar(
-
-        dados["kpis"], "KPIs"
-
-    )
+for aba, (titulo, chave) in zip(abas, categorias):
+    with aba:
+        mostrar(dados[chave], titulo)
