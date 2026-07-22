@@ -7,7 +7,9 @@
 - Branch: `agent/corrige-restricoes-e-moeda`.
 - Base da branch: `bb4d6d1` (`Padroniza interface e corrige preços do plano (#5)`).
 - Última entrega funcional antes deste registro: `aa4fcda` (`Corrige restrições e moeda no planejamento`).
-- A branch deve ser retomada a partir do PR associado; `origin/main` continua como base da entrega.
+- Publicação concluída pelo PR `#6`; merge em `origin/main`: `320fa5c`
+  (`Corrige restrições e moeda no planejamento (#6)`).
+- A branch de continuidade permanece disponível para retomada no Codespace.
 - O aplicativo publicado usa o nome **PlanOS** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
 - A última rodada restaurou o logo na barra lateral, preservou o logo reduzido
   na página Início, manteve favicon e título completo no navegador, introduziu
@@ -21,6 +23,7 @@
 - CLI Supabase: instalada localmente pelo `package-lock.json`; em uma reconstrução do Codespace, `npm ci` é executado automaticamente.
 - Credencial do Git: leitura de `origin` confirmada em 22/07/2026.
 - GitHub CLI (`gh`): autenticado como `fernandossantor`; operações Git e da API estavam disponíveis nesta revisão.
+- GitHub Actions: CI pós-merge `29955148246` concluído com sucesso.
 - Configuração local: `.env` presente e ignorado pelo Git. Segredos não são copiados para arquivos versionados.
 - Produção: os segredos permanecem no mecanismo seguro do Streamlit Cloud/Supabase.
 
