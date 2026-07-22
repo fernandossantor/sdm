@@ -195,6 +195,35 @@ class TestScenarioService(unittest.TestCase):
         self.assertEqual(resumo[0]["score_medio"], 0)
         self.assertEqual(resumo[0]["inventarios"], 0)
 
+    def test_gera_cenarios_a_partir_de_planejamento_salvo(self):
+
+        plano = PlanoEstrategico(
+            cliente="Cliente",
+            campanha="Campanha",
+            objetivo="Alcance",
+            orcamento=1000,
+        )
+        plano.adicionar_item(
+            PlanoItem(
+                inventario="Vídeo",
+                plataforma="Digital",
+                ambiente="Portal",
+                papel="PRINCIPAL",
+                score=90,
+                verba=1000,
+                percentual=100,
+                objetivo_score=95,
+                kpi_score=90,
+                audiencia_score=85,
+                metricas_score=105,
+            )
+        )
+
+        cenarios = ScenarioService().gerar_todos_de_plano(plano)
+
+        self.assertTrue(cenarios)
+        self.assertTrue(all(cenario.itens for cenario in cenarios.values()))
+
 
 class TestWorkflowService(unittest.TestCase):
 

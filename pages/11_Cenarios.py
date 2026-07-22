@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from components.formatters import moeda_ptbr, numero_ptbr, percentual_ptbr
 
 from application.services.scenario_service import (
     ScenarioService
@@ -98,7 +99,7 @@ if "cenarios" in st.session_state:
 
                 "Complementares": plano.complementar,
 
-                "Score Médio": round(
+                "Score médio": numero_ptbr(round(
 
                     sum(
 
@@ -114,9 +115,9 @@ if "cenarios" in st.session_state:
 
                     2
 
-                ),
+                ), 2) if plano.itens else numero_ptbr(0, 2),
 
-                "Investimento": plano.verba_total
+                "Investimento": moeda_ptbr(plano.verba_total)
 
             }
 
@@ -140,19 +141,6 @@ if "cenarios" in st.session_state:
 
         width="stretch",
 
-        column_config={
-
-            "Investimento":
-
-                st.column_config.NumberColumn(
-
-                    "Investimento",
-
-                    format="R$ %.2f"
-
-                )
-
-        }
 
     )
 
@@ -196,11 +184,11 @@ if "cenarios" in st.session_state:
 
                         "Papel": item.papel,
 
-                        "Score": item.score,
+                        "Score": numero_ptbr(item.score, 2),
 
-                        "Percentual": item.percentual,
+                        "Percentual": percentual_ptbr(item.percentual),
 
-                        "Verba": item.verba
+                        "Verba": moeda_ptbr(item.verba)
 
                     }
 
@@ -218,42 +206,6 @@ if "cenarios" in st.session_state:
 
                 width="stretch",
 
-                column_config={
-
-                    "Score":
-
-                        st.column_config.ProgressColumn(
-
-                            "Score",
-
-                            min_value=0,
-
-                            max_value=100
-
-                        ),
-
-                    "Percentual":
-
-                        st.column_config.NumberColumn(
-
-                            "Percentual",
-
-                            format="%.2f %%"
-
-                        ),
-
-                    "Verba":
-
-                        st.column_config.NumberColumn(
-
-                            "Verba",
-
-                            format="R$ %.2f"
-
-                        )
-
-                }
-
             )
 
             st.caption(
@@ -262,6 +214,6 @@ if "cenarios" in st.session_state:
 
                 f"{plano.complementar} complementares • "
 
-                f"Verba total: R$ {plano.verba_total:,.2f}"
+                f"Verba total: {moeda_ptbr(plano.verba_total)}"
 
             )

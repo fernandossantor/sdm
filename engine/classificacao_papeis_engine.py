@@ -1,19 +1,17 @@
 class ClassificacaoPapeisEngine:
 
     PESOS = {
-        "afinidade": 0.35,
-        "cobertura": 0.30,
-        "consumo": 0.20,
-        "objetivo": 0.15,
+        "afinidade": 0.40,
+        "consumo": 0.35,
+        "cobertura": 0.25,
     }
 
-    def calcular_score(self, afinidade, cobertura, consumo, objetivo):
+    def calcular_score(self, afinidade, cobertura, consumo, objetivo=None):
 
         valores = {
             "afinidade": afinidade,
             "cobertura": cobertura,
             "consumo": consumo,
-            "objetivo": objetivo,
         }
 
         return round(

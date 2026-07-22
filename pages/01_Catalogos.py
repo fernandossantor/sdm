@@ -41,8 +41,6 @@ abas = st.tabs(
 
         "Tecnologias",
 
-        "Perfis",
-
         "Modalidades",
 
         "Unidades",
@@ -58,6 +56,19 @@ abas = st.tabs(
 # ==========================================================
 # FUNÇÃO AUXILIAR
 # ==========================================================
+
+DESCRICOES = {
+    "Canais": "Meio de distribuição de mídia: {nome}.",
+    "Ambientes": "Contexto em que ocorre o consumo de mídia: {nome}.",
+    "Estruturas": "Estrutura de entrega do inventário: {nome}.",
+    "Formatos": "Formato publicitário disponível: {nome}.",
+    "Tecnologias": "Tecnologia utilizada na distribuição ou mensuração: {nome}.",
+    "Modalidades": "Modalidade de contratação de mídia: {nome}.",
+    "Unidades": "Unidade usada para compra e precificação: {nome}.",
+    "Plataformas": "Plataforma ou veículo que disponibiliza inventário: {nome}.",
+    "KPIs": "Indicador usado para avaliar o resultado da campanha: {nome}.",
+}
+
 
 def mostrar(df, categoria):
 
@@ -76,8 +87,8 @@ def mostrar(df, categoria):
     tabela = tabela.drop(columns=list(ocultas), errors="ignore")
     if "descricao" in tabela.columns:
         tabela["descricao"] = tabela.apply(
-            lambda linha: linha["descricao"] or (
-                f"{categoria.rstrip('s')} de mídia: {linha.get('nome', '')}."
+            lambda linha: linha["descricao"] or DESCRICOES[categoria].format(
+                nome=linha.get("nome", "")
             ),
             axis=1,
         )
@@ -145,7 +156,7 @@ with abas[5]:
 
     mostrar(
 
-        dados["perfis"], "Perfis"
+        dados["modalidades"], "Modalidades"
 
     )
 
@@ -153,7 +164,7 @@ with abas[6]:
 
     mostrar(
 
-        dados["modalidades"], "Modalidades"
+        dados["unidades"], "Unidades"
 
     )
 
@@ -161,19 +172,11 @@ with abas[7]:
 
     mostrar(
 
-        dados["unidades"], "Unidades"
-
-    )
-
-with abas[8]:
-
-    mostrar(
-
         dados["plataformas"], "Plataformas"
 
     )
 
-with abas[9]:
+with abas[8]:
 
     mostrar(
 

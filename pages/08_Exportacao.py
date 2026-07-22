@@ -17,6 +17,7 @@ from application.services.context_service import (
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
+from components.formatters import moeda_ptbr
 
 
 # ==========================================================
@@ -97,7 +98,7 @@ if "plano_exportacao" in st.session_state:
 
             "Investimento",
 
-            f"R$ {plano.verba_total:,.2f}"
+            moeda_ptbr(plano.verba_total)
 
         )
 

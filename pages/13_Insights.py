@@ -12,6 +12,7 @@ from application.services.forecast_service import (
     ForecastService
 )
 from components.planning_selector import selecionar_planejamento
+from components.formatters import moeda_ptbr
 
 
 # ==========================================================
@@ -122,7 +123,7 @@ if (
 
         "Investimento",
 
-        f"R$ {plano.verba_total:,.2f}"
+        moeda_ptbr(plano.verba_total)
 
     )
 

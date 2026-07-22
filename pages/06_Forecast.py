@@ -14,6 +14,9 @@ from application.services.context_service import (
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
+from components.formatters import (
+    dataframe_ptbr, moeda_ptbr, numero_ptbr, percentual_ptbr,
+)
 
 
 # ==========================================================
@@ -98,7 +101,7 @@ if (
 
         "Impressões",
 
-        f"{resumo['impressoes']:,}"
+        numero_ptbr(resumo["impressoes"])
 
     )
 
@@ -106,7 +109,7 @@ if (
 
         "Cliques",
 
-        f"{resumo['cliques']:,}"
+        numero_ptbr(resumo["cliques"])
 
     )
 
@@ -114,7 +117,7 @@ if (
 
         "Conversões",
 
-        f"{resumo['conversoes']:,}"
+        numero_ptbr(resumo["conversoes"])
 
     )
 
@@ -122,7 +125,7 @@ if (
 
         "CPA Médio",
 
-        f"R$ {resumo['cpa']:.2f}"
+        moeda_ptbr(resumo["cpa"])
 
     )
 
@@ -130,10 +133,11 @@ if (
 
     st.dataframe(
 
-        forecast_service.dataframe(
-
-            forecast
-
+        dataframe_ptbr(
+            forecast_service.dataframe(forecast),
+            moedas=["Verba", "CPM", "CPC", "CPA"],
+            percentuais=["CTR"],
+            inteiros=["Impressões", "Alcance", "Cliques", "Conversões"],
         ),
 
         hide_index=True,
@@ -158,7 +162,7 @@ if (
 
             "CTR Médio",
 
-            f"{resumo['ctr']:.2f}%"
+            percentual_ptbr(resumo["ctr"])
 
         )
 
@@ -166,7 +170,7 @@ if (
 
             "CPM Médio",
 
-            f"R$ {resumo['cpm']:.2f}"
+            moeda_ptbr(resumo["cpm"])
 
         )
 
@@ -176,7 +180,7 @@ if (
 
             "CPC Médio",
 
-            f"R$ {resumo['cpc']:.2f}"
+            moeda_ptbr(resumo["cpc"])
 
         )
 
@@ -184,6 +188,6 @@ if (
 
             "Investimento",
 
-            f"R$ {resumo['verba']:,.2f}"
+            moeda_ptbr(resumo["verba"])
 
         )

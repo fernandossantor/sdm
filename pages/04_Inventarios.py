@@ -1,6 +1,7 @@
 from datetime import date
 
 import streamlit as st
+from components.formatters import moeda_ptbr
 
 from application.services.base_conhecimento_service import (
     BaseConhecimentoService
@@ -385,6 +386,6 @@ else:
             liquido = float(vigente["valor_bruto"]) * (
                 1 - float(vigente.get("desconto_percentual", 0)) / 100
             )
-            c_preco.write(f"R$ {liquido:,.2f} / {vigente['unidade']}")
+            c_preco.write(f"{moeda_ptbr(liquido)} / {vigente['unidade']}")
         else:
             c_preco.caption("Sem preço vigente cadastrado")

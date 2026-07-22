@@ -1,4 +1,3 @@
-import pandas as pd
 import streamlit as st
 
 from application.services.base_conhecimento_service import BaseConhecimentoService
@@ -115,50 +114,63 @@ if not inventarios_sel:
     st.stop()
 
 st.subheader("2. Ajuste os critérios")
-linhas = []
-for inventario in inventarios_sel:
-    salvo = inventario.get("classificacao") or {}
-    linhas.append(
-        {
-            "Inventário": inventario["nome"],
-            "Inventário ID": inventario["id"],
-            "Afinidade": float(salvo.get("afinidade", 100)),
-            "Cobertura": float(salvo.get("cobertura", 70)),
-            "Consumo": float(salvo.get("consumo", 60)),
-            "Adequação": float(salvo.get("adequacao_objetivo", 80)),
-        }
-    )
-
-editado = st.data_editor(
-    pd.DataFrame(linhas),
-    hide_index=True,
-    width="stretch",
-    disabled=["Inventário", "Inventário ID"],
-    column_config={
-        "Inventário ID": None,
-        "Afinidade": st.column_config.NumberColumn(min_value=0, max_value=200),
-        "Cobertura": st.column_config.NumberColumn(min_value=0, max_value=100),
-        "Consumo": st.column_config.NumberColumn(min_value=0, max_value=100),
-        "Adequação": st.column_config.NumberColumn(min_value=0, max_value=100),
-    },
+st.caption(
+    "Afinidade avalia a qualificação editorial; Consumo representa o hábito "
+    "de uso do público; Cobertura estima quanto desse público a mídia alcança. "
+    "A adequação é calculada automaticamente a partir desses três critérios."
 )
-
 scores = {}
 criterios = {}
-for _, linha in editado.iterrows():
-    score = classificador.calcular_score(
-        linha["Afinidade"],
-        linha["Cobertura"],
-        linha["Consumo"],
-        linha["Adequação"],
-    )
-    rotulo = f"{linha['Inventário']} · {linha['Inventário ID'][:8]}"
+
+
+def intensidade_salva(valor, padrao):
+    return max(0, min(100, int(float(valor or padrao) // 10 * 10)))
+
+
+for inventario in inventarios_sel:
+    salvo = inventario.get("classificacao") or {}
+    with st.expander(inventario["nome"], expanded=True):
+        afinidade = st.select_slider(
+            "Afinidade editorial",
+            options=list(range(0, 101, 10)),
+            value=intensidade_salva(salvo.get("afinidade"), 70),
+            key=f"afinidade_{inventario['id']}",
+            help="Quanto a linha editorial qualifica o inventário para este público.",
+        )
+        consumo = st.select_slider(
+            "Intensidade de consumo",
+            options=list(range(0, 101, 10)),
+            value=intensidade_salva(salvo.get("consumo"), 60),
+            key=f"consumo_{inventario['id']}",
+            help="Intensidade do hábito de consumo desse meio pelo público.",
+        )
+        cobertura = st.select_slider(
+            "Cobertura do público",
+            options=list(range(0, 101, 10)),
+            value=intensidade_salva(salvo.get("cobertura"), 70),
+            key=f"cobertura_{inventario['id']}",
+            help="Parcela estimada do público que pode ser coberta pela mídia.",
+        )
+        score = classificador.calcular_score(afinidade, cobertura, consumo)
+        st.metric("Adequação calculada", f"{score:.0f}%")
+    rotulo = f"{inventario['nome']} · {inventario['id'][:8]}"
     scores[rotulo] = score
-    criterios[rotulo] = {**linha.to_dict(), "score": score}
+    criterios[rotulo] = {
+        "Inventário ID": inventario["id"],
+        "Afinidade": afinidade,
+        "Cobertura": cobertura,
+        "Consumo": consumo,
+        "Adequação": score,
+        "score": score,
+    }
 
 ranking = classificador.classificar(scores)
 st.subheader("3. Revise o ranking")
-st.dataframe(ranking, hide_index=True, width="stretch")
+for item in ranking:
+    st.write(
+        f"{item['posicao']}º · **{item['meio'].split(' · ')[0]}** — "
+        f"{item['papel']} ({item['score']:.0f}%)"
+    )
 
 if st.button("Aplicar papéis à campanha", type="primary", width="stretch"):
     try:

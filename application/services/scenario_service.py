@@ -179,6 +179,14 @@ class ScenarioService:
                 "ambiente": item.ambiente,
                 "papel": item.papel,
                 "score": item.score,
+                "objetivo": item.objetivo_score,
+                "kpi": item.kpi_score,
+                "audiencia": item.audiencia_score,
+                "metricas": item.metricas_score,
+                "score_mcp": item.score_mcp,
+                "inventario_id": item.inventario_id,
+                "preco_unitario": item.preco_unitario,
+                "unidade_compra": item.unidade_compra,
             }
             for item in plano_base.itens
         ]

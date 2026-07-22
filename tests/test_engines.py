@@ -61,7 +61,7 @@ class TestClassificacaoPapeisEngine(unittest.TestCase):
 
         engine = ClassificacaoPapeisEngine()
 
-        self.assertEqual(engine.calcular_score(100, 80, 60, 40), 77)
+        self.assertEqual(engine.calcular_score(100, 80, 60), 81)
 
     def test_classifica_por_ordem_de_score(self):
 

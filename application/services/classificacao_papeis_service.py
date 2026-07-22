@@ -7,13 +7,12 @@ class ClassificacaoPapeisService:
 
         self.engine = ClassificacaoPapeisEngine()
 
-    def calcular_score(self, afinidade, cobertura, consumo, objetivo):
+    def calcular_score(self, afinidade, cobertura, consumo, objetivo=None):
 
         return self.engine.calcular_score(
             afinidade,
             cobertura,
             consumo,
-            objetivo,
         )
 
     def classificar(self, scores):

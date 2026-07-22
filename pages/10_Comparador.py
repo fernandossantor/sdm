@@ -16,6 +16,7 @@ from application.services.context_service import (
     ContextService
 )
 from components.planning_selector import selecionar_planejamento
+from components.formatters import moeda_ptbr, numero_ptbr
 
 
 # ==========================================================
@@ -122,7 +123,7 @@ if "resultado" in st.session_state:
 
             "Score Plano A",
 
-            f"{r.score_plano_1:.2f}"
+            numero_ptbr(r.score_plano_1, 2)
 
         )
 
@@ -138,7 +139,7 @@ if "resultado" in st.session_state:
 
             "Investimento Plano A",
 
-            f"R$ {r.investimento_plano_1:,.2f}"
+            moeda_ptbr(r.investimento_plano_1)
 
         )
 
@@ -148,7 +149,7 @@ if "resultado" in st.session_state:
 
             "Score Plano B",
 
-            f"{r.score_plano_2:.2f}"
+            numero_ptbr(r.score_plano_2, 2)
 
         )
 
@@ -164,7 +165,7 @@ if "resultado" in st.session_state:
 
             "Investimento Plano B",
 
-            f"R$ {r.investimento_plano_2:,.2f}"
+            moeda_ptbr(r.investimento_plano_2)
 
         )
 
@@ -174,7 +175,7 @@ if "resultado" in st.session_state:
 
             "Δ Score",
 
-            f"{r.diferenca_score:.2f}"
+            numero_ptbr(r.diferenca_score, 2)
 
         )
 
@@ -190,7 +191,7 @@ if "resultado" in st.session_state:
 
             "Δ Investimento",
 
-            f"R$ {r.diferenca_investimento:,.2f}"
+            moeda_ptbr(r.diferenca_investimento)
 
         )
 

@@ -15,6 +15,7 @@ from application.services.forecast_service import (
 from application.services.workflow_service import WorkflowService
 from components.workflow_guard import exigir
 from components.planning_selector import selecionar_planejamento
+from components.formatters import moeda_ptbr, numero_ptbr
 
 
 # ==========================================================
@@ -108,7 +109,7 @@ if (
 
         "Investimento",
 
-        f"R$ {plano.verba_total:,.2f}"
+        moeda_ptbr(plano.verba_total)
 
     )
 
@@ -116,7 +117,7 @@ if (
 
         "Conversões",
 
-        int(
+        numero_ptbr(int(
 
             sum(
 
@@ -126,7 +127,7 @@ if (
 
             )
 
-        )
+        ))
 
     )
 
@@ -134,7 +135,7 @@ if (
 
         "Cliques",
 
-        int(
+        numero_ptbr(int(
 
             sum(
 
@@ -144,7 +145,7 @@ if (
 
             )
 
-        )
+        ))
 
     )
 

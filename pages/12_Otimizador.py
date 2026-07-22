@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from components.formatters import moeda_ptbr
 
 from application.services.budget_optimizer_service import (
     BudgetOptimizerService
@@ -183,7 +184,7 @@ if "otimizacao" in st.session_state:
 
         "Investimento",
 
-        f'R$ {resumo["verba_total"]:,.2f}'
+        moeda_ptbr(resumo["verba_total"])
 
     )
 
@@ -191,7 +192,7 @@ if "otimizacao" in st.session_state:
 
         "Distribuído",
 
-        f'R$ {resumo["verba_distribuida"]:,.2f}'
+        moeda_ptbr(resumo["verba_distribuida"])
 
     )
 
@@ -199,7 +200,7 @@ if "otimizacao" in st.session_state:
 
         "Reserva",
 
-        f'R$ {resumo["reserva_testes"]:,.2f}'
+        moeda_ptbr(resumo["reserva_testes"])
 
     )
 

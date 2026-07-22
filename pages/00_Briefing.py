@@ -1,4 +1,5 @@
 import streamlit as st
+from components.formatters import moeda_ptbr
 
 from application.services.briefing_service import (
     BriefingService
@@ -437,7 +438,7 @@ with c3:
 
         "Orçamento",
 
-        f"R$ {orcamento:,.2f}"
+        moeda_ptbr(orcamento)
 
     )
 
@@ -643,7 +644,7 @@ if briefing_service.existe(
 
     st.write(
 
-        f"**Orçamento:** R$ {briefing.orcamento:,.2f}"
+        f"**Orçamento:** {moeda_ptbr(briefing.orcamento)}"
 
     )
 

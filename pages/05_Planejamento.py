@@ -15,6 +15,7 @@ from application.services.context_service import (
 from application.services.workflow_service import WorkflowService
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.workflow_guard import exigir
+from components.formatters import dataframe_ptbr, moeda_ptbr, numero_ptbr
 
 
 # ==========================================================
@@ -146,7 +147,7 @@ if modo == "Briefing da Sessão":
 
 **KPI:** {briefing.kpi}
 
-**Orçamento:** R$ {briefing.orcamento:,.2f}
+**Orçamento:** {moeda_ptbr(briefing.orcamento)}
 """
     )
 
@@ -455,7 +456,13 @@ if "plano" in st.session_state:
 
         st.dataframe(
 
-            df,
+            dataframe_ptbr(
+                df,
+                moedas=["Verba", "Preço unitário"],
+                percentuais=["Percentual"],
+                inteiros=["Alcance estimado"],
+                decimais=["Score", "Score MCP", "Quantidade estimada"],
+            ),
 
             hide_index=True,
 
@@ -495,7 +502,7 @@ if "plano" in st.session_state:
 
             "Verba",
 
-            f"R$ {plano.verba_total:,.2f}"
+            moeda_ptbr(plano.verba_total)
 
         )
 
@@ -503,10 +510,10 @@ if "plano" in st.session_state:
         a1, a2, a3, a4 = st.columns(4)
         a1.metric("Faixa", plano.alcance_objetivo.title())
         a2.metric("Meta", f"{plano.alcance_percentual}%")
-        a3.metric("Público estimado", f"{plano.publico_referencia:,}")
+        a3.metric("Público estimado", numero_ptbr(plano.publico_referencia))
         a4.metric(
             "Alcance projetado",
-            f"{plano.alcance_projetado:,}",
+            numero_ptbr(plano.alcance_projetado),
             delta=(
                 f"{plano.alcance_projetado - plano.alcance_meta:+,} vs. meta"
                 if plano.alcance_meta > 0
@@ -566,7 +573,7 @@ if "plano" in st.session_state:
         st.write(
             f"**Alcance:** {plano.alcance_objetivo.title()} "
             f"({plano.alcance_percentual}% do público; meta de "
-            f"{plano.alcance_meta:,} pessoas)"
+            f"{numero_ptbr(plano.alcance_meta)} pessoas)"
         )
         if plano.cronograma:
             st.dataframe(pd.DataFrame(plano.cronograma), hide_index=True)
