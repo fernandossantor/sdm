@@ -9,6 +9,11 @@ ambiente acadêmico multiusuário. Ele sistematiza as decisões tomadas na
 conversa de planejamento e deve ser consultado antes de iniciar a
 implementação.
 
+Desde 26 de julho de 2026, estas decisões estão incorporadas à Trilha D do
+`PLANO_MESTRE_EVOLUCAO.md`. Este documento permanece como registro detalhado da
+origem e das premissas da evolução multiusuário; o plano mestre define a
+sequência integrada de implementação.
+
 Nenhuma das funcionalidades descritas abaixo estava autorizada para
 implementação no momento desta revisão. Este registro não altera código,
 banco de dados, configuração ou publicação.

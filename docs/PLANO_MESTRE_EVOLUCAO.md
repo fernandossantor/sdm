@@ -1,0 +1,655 @@
+# Plano mestre de evolução do PlanOS
+
+Última revisão: 26 de julho de 2026 (UTC).
+
+## Objetivo
+
+Este documento consolida a evolução metodológica, funcional, arquitetural e
+multiusuário do PlanOS. Ele integra as pendências encontradas na `main`, nas
+branches de continuidade e refatoração, nos materiais de mídia e no
+`PLANO_MULTIUSUARIO.md`.
+
+As regras de cálculo que orientam este plano estão fixadas em
+`DECISOES_METODOLOGICAS_ENGINES.md`.
+
+## Estado de partida
+
+### Base saudável
+
+- fluxo cross-media configurável implementado;
+- 60 testes offline aprovados e 3 integrações opcionais;
+- migrações locais e remotas sincronizadas até `20260722110000`;
+- acesso público bloqueado e backend atual operando com `service_role`;
+- GRP, cronograma, alcance estimado, custos e retorno já representados;
+- persistência de projetos, briefings, planejamentos e artefatos.
+
+### Lacunas críticas
+
+- todos os repositories normais usam cliente administrativo;
+- não há autenticação, propriedade, compartilhamento ou RLS por usuário;
+- conceitos de audiência, consumo, entrega e afinidade ainda se sobrepõem;
+- GRP cross-media é agregado sem validar comparabilidade;
+- alcance líquido usa fallback probabilístico implícito;
+- saturação é apenas excesso médio;
+- forecast usa defaults silenciosos e pode divergir do plano;
+- restrições não são aplicadas uniformemente;
+- alocação proporcional é apresentada como otimização;
+- custos programáticos e qualidade de mídia estão incompletos;
+- atribuição, realizado e incrementalidade não têm modelo próprio;
+- documentação de continuidade não funciona como backlog executável.
+
+## Resultado esperado
+
+Ao final, o PlanOS deverá:
+
+- gerar planos metodologicamente auditáveis;
+- distinguir medição, premissa, decisão e estimativa;
+- produzir soluções viáveis sob restrições;
+- preservar histórico e versões;
+- comparar planejado, forecast e realizado;
+- operar com múltiplos usuários e isolamento no banco;
+- compartilhar projetos com papéis explícitos;
+- administrar inventários globais e privados;
+- explicar cada recomendação, limitação e cálculo;
+- executar backup e restauração testados.
+
+## Diretrizes de execução
+
+1. Segurança e metodologia são requisitos de domínio, não acabamentos de UI.
+2. Alterações de banco serão aditivas e precedidas por backup.
+3. `service_role` ficará restrito a administração e manutenção.
+4. Migrações terão caminho de preenchimento para dados legados.
+5. Nenhuma fase publicará números que não reconciliem entre telas e exportações.
+6. Branches antigas serão fontes de ideias, não bases para merge indiscriminado.
+7. Cada fase deverá terminar utilizável, testada e reversível.
+
+## Trilha A — Governança metodológica e dados
+
+### A1. Catálogo de métricas e unidades
+
+Entregas:
+
+- entidades para métrica, unidade, fórmula e compatibilidade;
+- distinção entre impactos, impressões, OTS, audiência, circulação, fluxo,
+  visualização e contatos estimados;
+- regras de quantidade e arredondamento por unidade de compra;
+- compatibilidade entre universo, target, praça, período e metodologia.
+
+Aceite:
+
+- nenhuma métrica é agregada sem denominador;
+- conversões de unidade são explícitas e testadas;
+- métrica nativa permanece visível.
+
+### A2. Proveniência, confiança e versões
+
+Entregas:
+
+- metadados de fonte, período, metodologia, natureza e confiança;
+- versão dos engines e fórmulas no plano;
+- snapshot das entradas;
+- trilha de alterações manuais.
+
+Aceite:
+
+- todo número material do plano pode ser rastreado;
+- recalcular cria versão sem alterar o plano histórico.
+
+### A3. Custos e modelos de compra
+
+Entregas:
+
+- preço de tabela, desconto, líquido e custo total;
+- fees de tecnologia, dados, verificação e operação;
+- open auction, PMP, preferred deal, garantido e direto;
+- disponibilidade, capacidade e mínimos comerciais.
+
+Aceite:
+
+- CPM, CPP, ROI e ROAS identificam numerador e denominador;
+- totais reconciliam por item, período e plano.
+
+## Trilha B — Reengenharia dos engines
+
+### B1. Pipeline canônico
+
+Ordem:
+
+1. validar briefing e objetivos;
+2. montar universo elegível;
+3. aplicar restrições duras;
+4. calcular componentes de qualidade e aderência;
+5. gerar ranking explicável;
+6. resolver alocação ou otimização;
+7. calcular entrega;
+8. consolidar alcance e frequência;
+9. gerar forecast por cenários;
+10. produzir diagnóstico e recomendações.
+
+Responsabilidades:
+
+- `InventoryEngine`: universo candidato e elegibilidade técnica;
+- `ScoreEngine`: componentes, normalização e ranking;
+- `AllocationEngine`: heurística explicitamente identificada;
+- `BudgetOptimizer`: solução sob restrições;
+- `MediaPlanEngine`: compra e entrega planejada;
+- `ForecastEngine`: cenários condicionados;
+- `RecommendationEngine`: explicações baseadas na auditoria;
+- `ScenarioEngine`: variações controladas;
+- `InsightsEngine`: leitura estratégica sem modificar resultados.
+
+O trabalho da branch `refactor/sdm-finalizacao` será revisado conceito a
+conceito, com destaque para desacoplamento, ranking e teste offline. Nenhum
+commit será portado sem adaptação ao modelo atual.
+
+### B2. Restrições e viabilidade
+
+Entregas:
+
+- tipos de restrição definidos em domínio;
+- aplicação uniforme para objetos e dicionários;
+- diagnóstico de inviabilidade;
+- simulação de relaxamento com aprovação.
+
+Aceite:
+
+- proibidos nunca entram;
+- obrigatórios entram ou a geração falha;
+- pisos e tetos permanecem válidos após arredondamento;
+- orçamento nunca é excedido silenciosamente.
+
+### B3. Alcance, frequência e GRP
+
+Entregas:
+
+- verificador de comparabilidade;
+- alcance líquido por níveis de evidência;
+- superposição e incremental auditados;
+- distribuição de frequência;
+- GRP/TRP por universo;
+- confiança do agregado cross-media.
+
+Aceite:
+
+- ordem só afeta resultado quando o método declarar dependência;
+- alcance fica entre 0 e 100%;
+- GRP incompatível não é somado;
+- identidades matemáticas reconciliam dentro da tolerância definida.
+
+### B4. Saturação e resposta
+
+Entregas:
+
+- frequência efetiva e faixas;
+- sinalização separada de subexposição e sobre-exposição;
+- curvas opcionais, calibradas e versionadas;
+- impacto marginal usado pelo otimizador apenas quando defensável.
+
+Aceite:
+
+- ausência de curva não produz falsa estimativa de saturação;
+- o usuário vê a origem e confiança do modelo.
+
+### B5. Otimização
+
+Entregas:
+
+- função objetivo selecionável;
+- solução com quantidades discretas e restrições;
+- multiobjetivo com pesos explícitos;
+- relatório de viabilidade e restrições ativas;
+- benchmark contra alocação heurística.
+
+Aceite:
+
+- solução respeita todas as restrições duras;
+- sobra e déficit são explicados;
+- repetição com mesmas entradas é determinística;
+- “ótimo” só é usado quando suportado pelo método.
+
+### B6. Forecast, cenários e realizado
+
+Entregas:
+
+- remoção de CPM, CTR, conversão e frequência silenciosos;
+- cenário conservador, base e otimista;
+- análise de sensibilidade;
+- ingestão de realizado;
+- comparação planejado × forecast × realizado.
+
+Aceite:
+
+- meios não clicáveis não recebem cliques genéricos;
+- ausência de premissa bloqueia somente o resultado dependente;
+- plano, dashboard e exportação usam a mesma fonte calculada.
+
+### B7. Atribuição
+
+Entregas:
+
+- modelos baseados em regras;
+- janela, eventos e crédito fracionado;
+- conversões diretas e assistidas;
+- separação de atribuição e incrementalidade;
+- suporte futuro a experimento e modelos causais.
+
+Aceite:
+
+- soma do crédito fecha em 100% por conversão elegível;
+- limitações de identidade e canais são mostradas;
+- receita atribuída não é rotulada como incremental.
+
+## Trilha C — Produto e fluxo do planejamento
+
+### C1. Briefing ampliado
+
+Adicionar:
+
+- mercado e concorrência;
+- situação de marca e categoria;
+- objetivos encadeados;
+- jornada e ciclo de compra;
+- sazonalidade;
+- praça e capacidade de distribuição;
+- critérios criativos;
+- riscos e condições regulatórias.
+
+### C2. Estratégia e tática
+
+Entregas:
+
+- separação clara entre estratégia, tática e operação;
+- papéis básico/principal, complementar e apoio;
+- racional por meio;
+- mapa de cobertura da jornada;
+- alternativas rejeitadas e respectivos motivos.
+
+### C3. Cronograma e mapas
+
+Entregas:
+
+- flights linear, ondas, concentrado e personalizado;
+- resumo semanal e mensal;
+- mapas por tipo de mídia;
+- inserções, horários, custos, audiência e indicadores;
+- reconciliação de cronograma, quantidade e verba.
+
+### C4. Qualidade e transparência
+
+Entregas:
+
+- viewability, fraude, tráfego inválido, brand safety e suitability;
+- listas de permissão e bloqueio;
+- atualidade e qualidade das fontes;
+- riscos de privacidade e uso de dados.
+
+### C5. Relatórios
+
+Entregas:
+
+- plano completo, não apenas tabela;
+- anexos de premissas e auditoria;
+- exportação consistente em Excel/CSV;
+- PDF e PowerPoint em fase posterior;
+- comparação de versões.
+
+## Trilha D — Arquitetura multiusuário
+
+Esta trilha incorpora e detalha `PLANO_MULTIUSUARIO.md`.
+
+### D1. Modelo de identidade e espaços
+
+Tabelas propostas:
+
+- `perfis`, vinculado a `auth.users`;
+- `espacos_trabalho`;
+- `espacos_membros`;
+- `projetos_membros`;
+- `logs_auditoria`.
+
+Papéis:
+
+- global: `ADMINISTRADOR`, `USUARIO`;
+- no espaço: `PROPRIETARIO`, `GESTOR`, `MEMBRO`;
+- no projeto: `PROPRIETARIO`, `EDITOR`, `LEITOR`.
+
+Decisão:
+
+- dados de produção pertencem a um espaço de trabalho;
+- projetos têm proprietário e podem ser compartilhados sem duplicação;
+- papel global não substitui permissão contextual.
+
+### D2. Propriedade dos dados
+
+Adicionar conforme a natureza:
+
+- `espaco_id`;
+- `criado_por`;
+- `atualizado_por`;
+- `arquivado_em`;
+- `arquivado_por`.
+
+Projetos, briefings, planejamentos, artefatos, públicos privados, cenários,
+medições privadas e inventários privados seguirão o espaço.
+
+Catálogos de referência poderão ser globais e somente leitura para usuários
+comuns.
+
+### D3. Inventários globais e privados
+
+Inventários terão:
+
+- escopo `GLOBAL` ou `PRIVADO`;
+- espaço proprietário quando privado;
+- estado ativo/arquivado;
+- autor e datas;
+- regras de uso e edição.
+
+Inventário global será mantido pelo administrador. Inventário privado será
+visível apenas no espaço autorizado.
+
+### D4. Compartilhamento
+
+Entregas:
+
+- compartilhamento com usuário cadastrado;
+- leitor, editor e proprietário;
+- revogação;
+- gestão restrita ao proprietário e administrador;
+- auditoria de concessão e remoção.
+
+### D5. Autenticação e sessão
+
+Entregas:
+
+- Supabase Auth;
+- cadastro apenas administrativo;
+- senha temporária sem persistência legível;
+- troca obrigatória no primeiro acesso;
+- logout e expiração;
+- bloqueio, reativação e redefinição;
+- MFA para administrador.
+
+Decisão:
+
+- operações normais usarão o JWT do usuário;
+- o cliente administrativo não será injetado em repositories comuns;
+- `service_role` será usado apenas em casos administrativos explícitos.
+
+### D6. RLS
+
+Entregas:
+
+- políticas por tabela e operação;
+- funções auxiliares seguras para membresia e papel;
+- acesso a globais versus privados;
+- compartilhamento de projeto;
+- revogação imediata.
+
+Aceite:
+
+- usuário A não lê nem altera dados privados de B;
+- leitor não escreve;
+- editor não gerencia participantes;
+- proprietário gerencia o projeto;
+- administrador atua somente pelas capacidades previstas;
+- URL direta ou chamada de API não contorna a política.
+
+### D7. Área administrativa
+
+Entregas:
+
+- criar e consultar usuários;
+- bloquear, reativar e redefinir acesso;
+- administrar permissões;
+- compartilhar projetos;
+- administrar inventários globais;
+- consultar logs administrativos.
+
+### D8. Migração dos dados existentes
+
+Estratégia:
+
+1. criar administrador inicial;
+2. criar espaço legado;
+3. associar registros existentes ao espaço;
+4. preencher autores técnicos quando o autor real não existir;
+5. validar contagens e referências;
+6. somente então tornar colunas obrigatórias.
+
+Não haverá exclusão de dados para simplificar a migração.
+
+## Trilha E — Inventários, histórico e exclusão
+
+### E1. Arquivamento
+
+Arquivamento será a operação padrão para inventários usados. Deve registrar
+autor, data e motivo. Inventário arquivado permanece em planos históricos e não
+aparece para novas seleções.
+
+### E2. Exclusão física
+
+Permitida somente quando:
+
+- usuário tem permissão;
+- inventário nunca foi usado;
+- não há medição, preço, papel, planejamento ou artefato dependente;
+- operação ocorre em função transacional;
+- confirmação explícita foi fornecida;
+- auditoria foi registrada.
+
+Relacionamentos históricos não usarão cascata destrutiva indiscriminada.
+
+## Trilha F — Segurança, continuidade e operação
+
+### F1. Segredos
+
+- revisar `.env`, Streamlit Secrets e Supabase;
+- impedir exposição de chave administrativa;
+- rotacionar qualquer segredo suspeito;
+- verificar logs e exportações.
+
+### F2. Backup e restauração
+
+- backup semanal;
+- backup antes de cada migration estrutural;
+- esquema e dados armazenados privadamente fora do projeto;
+- procedimento de restauração documentado;
+- teste periódico de restauração.
+
+### F3. Auditoria
+
+Registrar:
+
+- criação e bloqueio de usuário;
+- alterações de papel;
+- compartilhamento e revogação;
+- arquivamento e exclusão;
+- mudanças metodológicas relevantes;
+- publicação e restauração de versões.
+
+Senhas, tokens e dados sensíveis não serão registrados.
+
+### F4. Privacidade
+
+- classificar dados pessoais;
+- minimizar coleta;
+- definir retenção;
+- registrar finalidade para localização e identificadores;
+- estabelecer processo de desativação e remoção;
+- revisar requisitos acadêmicos e institucionais antes da abertura.
+
+## Trilha G — Testes e validação
+
+### G1. Testes matemáticos
+
+- exemplos das aulas para GRP, alcance, frequência, CPP e CPM;
+- invariantes e limites;
+- unidades discretas;
+- arredondamento e reconciliação;
+- agregações compatíveis e incompatíveis.
+
+### G2. Testes dos engines
+
+- ranking determinístico;
+- restrições duras e flexíveis;
+- problemas viáveis e inviáveis;
+- comparação heurística × otimização;
+- cenários e sensibilidade;
+- ausência de dados;
+- versões históricas.
+
+### G3. Testes multiusuário
+
+Matriz mínima com:
+
+- duas contas comuns;
+- uma administradora;
+- dois espaços;
+- projeto próprio e compartilhado;
+- leitor, editor e proprietário;
+- inventário global e privado;
+- concessão e revogação.
+
+Testar leitura, inserção, alteração e exclusão diretamente na API, não apenas
+pela interface.
+
+### G4. Regressão ponta a ponta
+
+Validar:
+
+- briefing;
+- seleção e ranking;
+- plano;
+- forecast;
+- diagnóstico;
+- dashboard;
+- cenários;
+- comparação;
+- exportação;
+- restauração de plano antigo.
+
+## Sequência de implementação
+
+### Fase 0 — Preparação
+
+1. atualizar `main` e criar branch dedicada;
+2. fazer backup e ensaio de restauração;
+3. inventariar esquema remoto, dados e usos de `service_role`;
+4. converter este plano em issues ou entregas rastreáveis.
+
+Saída: ambiente recuperável e backlog aprovado.
+
+### Fase 1 — Fundação metodológica
+
+1. implementar proveniência, confiança e versões;
+2. criar catálogo de métricas e unidades;
+3. modelar comparabilidade, custos e tipos de compra;
+4. migrar dados atuais sem alterar resultados.
+
+Saída: base capaz de sustentar cálculos auditáveis.
+
+### Fase 2 — Correções críticas dos engines
+
+1. unificar restrições;
+2. separar elegibilidade e score;
+3. corrigir GRP agregado e alcance;
+4. remover defaults silenciosos do forecast;
+5. reconciliar plano, forecast e exportação;
+6. portar seletivamente ideias da branch de refatoração.
+
+Saída: pipeline consistente, ainda com alocação heurística identificada.
+
+### Fase 3 — Otimização e incerteza
+
+1. implementar solver de restrições;
+2. funções objetivo;
+3. frequência efetiva e saturação;
+4. cenários e sensibilidade;
+5. realizado e diagnóstico.
+
+Saída: planejamento defensável e comparável.
+
+### Fase 4 — Fundação multiusuário
+
+1. perfis, espaços, membros e propriedade;
+2. migração para espaço legado;
+3. clientes autenticados;
+4. RLS e testes cruzados;
+5. login e sessão.
+
+Saída: isolamento efetivo no servidor e no banco.
+
+### Fase 5 — Administração e colaboração
+
+1. área administrativa;
+2. ciclo de vida de contas;
+3. compartilhamento e revogação;
+4. inventários globais e privados;
+5. logs administrativos.
+
+Saída: operação acadêmica controlada.
+
+### Fase 6 — Produto completo
+
+1. briefing ampliado;
+2. estratégia e racional;
+3. mapas e cronogramas;
+4. atribuição;
+5. qualidade programática e localização;
+6. relatórios e comparação de versões.
+
+Saída: plano completo, não apenas cálculo tático.
+
+### Fase 7 — Homologação e publicação
+
+1. segurança e privacidade;
+2. backup/restauração;
+3. regressão matemática e funcional;
+4. homologação com usuários-piloto;
+5. publicação gradual;
+6. monitoramento de erros, uso, armazenamento e disponibilidade.
+
+## Dependências entre trilhas
+
+- A precede B porque engines auditáveis exigem dados qualificados.
+- B2 e B3 precedem otimização.
+- D1–D3 precedem RLS.
+- RLS precede abertura a usuários.
+- Versionamento precede colaboração para evitar sobrescrita histórica.
+- Arquivamento precede exclusão física.
+- Backup testado precede qualquer migration estrutural em produção.
+
+## Fora do escopo inicial
+
+- cadastro público;
+- envio automático de convites;
+- modelo causal automático sem dados adequados;
+- machine learning sem dataset validado;
+- API pública;
+- cobrança e multiempresa comercial;
+- disponibilidade ou SLA de nível empresarial.
+
+## Critérios de conclusão
+
+O plano será considerado concluído quando:
+
+- cálculos obedecerem às decisões metodológicas;
+- resultados forem reproduzíveis e explicáveis;
+- métricas incompatíveis não forem agregadas;
+- restrições e orçamento forem respeitados;
+- forecast não inventar premissas;
+- planos históricos preservarem método e versão;
+- usuários comuns estiverem isolados por RLS;
+- compartilhamento e revogação funcionarem;
+- inventários globais e privados obedecerem ao escopo;
+- arquivamento preservar histórico;
+- backup e restauração forem testados;
+- suíte matemática, multiusuário e ponta a ponta estiver aprovada;
+- publicação piloto funcionar nas limitações acadêmicas aceitas.
+
+## Primeira entrega recomendada
+
+A primeira entrega de implementação será a Fase 0 seguida da Fase 1. Não se
+deve iniciar pela tela de login nem pelo novo otimizador: ambos dependem de uma
+base de dados versionada, recuperável e metodologicamente consistente.

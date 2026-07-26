@@ -55,9 +55,15 @@ Antes de uma nova alteração de banco, comparar as migrações locais e remotas
 
 ## Próximo trabalho
 
-Retomar a partir das próximas observações de uso do PlanOS. O histórico
-funcional e arquitetural permanece nos commits anteriores e nos demais
-documentos desta pasta; não é necessário reconstruir as decisões já aplicadas.
+Retomar pelo `docs/PLANO_MESTRE_EVOLUCAO.md`. As decisões obrigatórias para
+fórmulas, dados, restrições, forecast, otimização, atribuição e auditoria estão
+em `docs/DECISOES_METODOLOGICAS_ENGINES.md`.
+
+O plano mestre também incorpora a evolução multiusuário, os inventários globais
+e privados, o compartilhamento, a segurança, o backup e os testes de isolamento.
+O histórico funcional e arquitetural permanece nos commits anteriores e nos
+demais documentos desta pasta; não é necessário reconstruir decisões já
+registradas.
 
 ## Evolução cross-media em andamento
 
