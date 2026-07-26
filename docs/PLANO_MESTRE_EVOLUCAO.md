@@ -653,3 +653,17 @@ O plano será considerado concluído quando:
 A primeira entrega de implementação será a Fase 0 seguida da Fase 1. Não se
 deve iniciar pela tela de login nem pelo novo otimizador: ambos dependem de uma
 base de dados versionada, recuperável e metodologicamente consistente.
+
+## Progresso de implementação
+
+### 26 de julho de 2026 — Fase 1, contrato de domínio inicial
+
+- criado o contrato canônico de proveniência para natureza, origem e confiança;
+- criado o contexto mínimo de comparabilidade definido pela DM-002;
+- bloqueada a agregação direta quando há divergência ou metadado ausente;
+- conversões permanecem dependentes de autorização explícita;
+- resultados calculados passam a exigir versão do método e entradas;
+- cobertura adicionada sem alterar cálculos ou persistência existentes.
+
+Próximo bloqueio: concluir o backup e o ensaio de restauração da Fase 0 antes
+de criar ou aplicar a migration aditiva do catálogo de métricas.
