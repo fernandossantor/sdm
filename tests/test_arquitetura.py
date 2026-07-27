@@ -92,6 +92,23 @@ class TestArquitetura(unittest.TestCase):
             migration,
         )
 
+    def test_migration_auditoria_restringe_escrita_ao_service_role(self):
+        migration = (
+            RAIZ
+            / "supabase"
+            / "migrations"
+            / "20260727040000_auditoria_administrativa.sql"
+        ).read_text(encoding="utf-8")
+
+        for controle in (
+            "alter table public.logs_auditoria enable row level security",
+            "using (public.eh_admin())",
+            "revoke all on public.logs_auditoria from anon, authenticated",
+            "grant select on public.logs_auditoria to authenticated",
+            "grant all on public.logs_auditoria to service_role",
+        ):
+            self.assertIn(controle, migration)
+
 
 if __name__ == "__main__":
     unittest.main()

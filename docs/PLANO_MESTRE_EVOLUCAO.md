@@ -968,3 +968,18 @@ depende da cópia durável do backup em armazenamento privado.
 - autenticação de produção permanece desligada até a área administrativa
   fornecer redefinição segura e ativação gradual;
 - próxima etapa: Fase 5, administração e colaboração.
+
+### 27 de julho de 2026 — Fase 5, fundação administrativa
+
+- referências oficiais do Supabase e recomendações OWASP foram revistas;
+- administração exige JWT válido e perfil global de administrador ativo antes
+  de acessar o cliente `service_role`;
+- criação de conta gera senha temporária forte, confirmada e exibida somente
+  como retorno imediato;
+- bloqueio, reativação e redefinição de senha foram encapsulados;
+- autobloqueio administrativo foi impedido;
+- senha redefinida nunca integra os detalhes de auditoria;
+- migration de logs administrativos foi preparada com leitura por
+  administrador e escrita exclusiva por `service_role`;
+- próxima etapa: validar a migration localmente e construir a interface
+  administrativa antes de novo backup e aplicação remota.
