@@ -1,5 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
+import os
 from pathlib import Path
 
 from application.services.workflow_service import (
@@ -27,6 +28,34 @@ LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
 # Streamlit não carrega automaticamente o arquivo .env. Isso precisa ocorrer
 # antes da validação e da decisão de renderizar o portão de autenticação.
 load_dotenv()
+
+# No Streamlit Cloud, os valores ficam em ``st.secrets`` e não em um arquivo
+# .env. Espelhamos somente a configuração em memória para que os clientes
+# Supabase e a validação de runtime usem a mesma fonte de configuração.
+for _nome in (
+    "SUPABASE_URL",
+    "SUPABASE_KEY",
+    "SUPABASE_SERVICE_KEY",
+    "PLANOS_ENV",
+    "PLANOS_AUTH_ENABLED",
+):
+    if os.getenv(_nome):
+        continue
+    try:
+        _valor = st.secrets.get(_nome)
+    except Exception:
+        _valor = None
+    if _valor is not None:
+        os.environ[_nome] = str(_valor)
+
+# Um app publicado com Supabase configurado deve sempre passar pelo portão de
+# autenticação, salvo quando a implantação declarar explicitamente o contrário.
+if (
+    not os.getenv("PLANOS_AUTH_ENABLED")
+    and os.getenv("SUPABASE_URL")
+    and os.getenv("SUPABASE_KEY")
+):
+    os.environ["PLANOS_AUTH_ENABLED"] = "true"
 RuntimeConfigService.validar()
 
 # ==========================================================
