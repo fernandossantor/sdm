@@ -9,6 +9,7 @@ class ForecastEngine:
         return float(valor) if valor is not None else None
 
     def calcular(self, plano, metricas):
+        metricas = metricas or []
         idx_id = {
             metrica["inventario_id"]: metrica
             for metrica in metricas

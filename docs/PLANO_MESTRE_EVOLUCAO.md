@@ -827,3 +827,15 @@ depende da cópia durável do backup em armazenamento privado.
 - forecast legado não soma resultados parciais quando algum item está ausente;
 - dashboard usa o mesmo contrato agregado da página de forecast;
 - exportação ganha aba estruturada para resultados consolidados.
+
+### 27 de julho de 2026 — Fase 2, portabilidade seletiva concluída
+
+- a branch `refactor/sdm-finalizacao` foi auditada sem merge entre históricos;
+- forecast tolerante a coleção nula de métricas foi reimplementado;
+- validações, compatibilidade e testes já cobertos foram identificados;
+- ranking e planejador antigos foram rejeitados por conflitarem com os
+  contratos metodológicos atuais;
+- payloads multiusuário e workspace foram encaminhados às fases futuras;
+- decisões detalhadas ficam em `AUDITORIA_BRANCH_REFATORACAO.md`;
+- Fase 2 encerrada com 92 testes offline aprovados e 3 integrações opcionais
+  desabilitadas por padrão.

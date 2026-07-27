@@ -434,6 +434,13 @@ class TestForecastEngine(unittest.TestCase):
         self.assertIsNone(resultado[0].conversoes)
         self.assertIn("CPM ou impressões do plano", resultado[0].lacunas)
 
+    def test_metricas_nulas_sao_tratadas_como_ausentes(self):
+        resultado = ForecastEngine().calcular(self.criar_plano(), None)
+
+        self.assertEqual(len(resultado), 1)
+        self.assertIsNone(resultado[0].impressoes)
+        self.assertIn("CPM ou impressões do plano", resultado[0].lacunas)
+
     def test_zero_explicito_nao_vira_default(self):
         resultado = ForecastEngine().calcular(
             self.criar_plano(),
