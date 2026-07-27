@@ -1016,3 +1016,19 @@ depende da cópia durável do backup em armazenamento privado.
 - acesso público ao banco permanece bloqueado;
 - autenticação geral permanece desativada até o teste controlado da área
   administrativa com uma sessão Auth real.
+
+### 27 de julho de 2026 — Validação controlada da administração
+
+- a conta administradora foi autenticada com JWT real e listou as duas contas;
+- tentativa de autobloqueio foi rejeitada antes de qualquer alteração;
+- a conta comum foi bloqueada e reativada, retornando ao estado ativo;
+- redefinição produziu senha temporária somente em memória e preservou a
+  exigência de troca no primeiro acesso;
+- a mesma conta comum foi recusada ao tentar construir o serviço
+  administrativo;
+- bloqueio, reativação e redefinição foram registrados na auditoria sem
+  senhas nos detalhes;
+- as senhas aleatórias do ensaio não foram exibidas nem persistidas; o primeiro
+  acesso deverá começar por nova redefinição administrativa controlada;
+- login geral permanece desligado; próxima entrega da Fase 5 é o
+  compartilhamento de projetos com proprietário, editor e leitor.
