@@ -62,7 +62,7 @@ st.header("Análises Avançadas")
 analises = {
     "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, saturação e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
     "Simulação de Cenários": "Aplica perfis alternativos ao mesmo conjunto de inventários para observar mudanças de pressão e distribuição.",
-    "Otimização de Verba": "Explora redistribuições com pisos, tetos, limites por ambiente e reserva para testes.",
+    "Simulação Heurística de Verba": "Explora redistribuições proporcionais ao score com pisos, tetos, limites por ambiente e reserva para testes, sem afirmar ótimo.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",
 }
 for nome, descricao in analises.items():

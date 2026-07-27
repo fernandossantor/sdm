@@ -5,6 +5,9 @@ from domain.restricoes import diagnosticar_viabilidade
 
 class BudgetOptimizer:
 
+    METODO = "ALOCACAO_HEURISTICA"
+    VERSAO = "score-proporcional-v1"
+
     # =====================================================
     # OTIMIZAÇÃO
     # =====================================================
@@ -68,6 +71,17 @@ class BudgetOptimizer:
                 or item.get("inventario")
             ) in elegiveis
         ]
+        obrigatorios_sem_peso = [
+            item["inventario"]
+            for item in ranking
+            if item["inventario"] in obrigatorios
+            and float(item.get("score") or 0) <= 0
+        ]
+        if obrigatorios_sem_peso:
+            raise ValueError(
+                "Alocação inviável: inventários obrigatórios sem score "
+                "positivo: " + ", ".join(obrigatorios_sem_peso) + "."
+            )
 
         #
         # Score ponderado
@@ -83,7 +97,10 @@ class BudgetOptimizer:
 
         if total_score == 0:
 
-            return []
+            raise ValueError(
+                "Alocação inviável: nenhum inventário elegível possui "
+                "score positivo."
+            )
 
         #
         # Distribuição inicial
@@ -340,6 +357,9 @@ class BudgetOptimizer:
             2
 
         )
+        diferenca_orcamento = round(verba_total - total - reserva, 2)
+        valores_nao_negativos = all(item["verba"] >= 0 for item in resultado)
+        viavel = abs(diferenca_orcamento) <= 0.01 and valores_nao_negativos
 
         return {
 
@@ -369,5 +389,23 @@ class BudgetOptimizer:
                 ],
                 "obrigatorios": list(diagnostico.obrigatorios),
             },
+
+            "metodo_alocacao": self.METODO,
+
+            "versao_metodo": self.VERSAO,
+
+            "funcao": "DISTRIBUICAO_PROPORCIONAL_AO_SCORE",
+
+            "otimo_comprovado": False,
+
+            "condicao_viabilidade": "VIAVEL" if viavel else "INVIAVEL",
+
+            "saldo_orcamento": diferenca_orcamento,
+
+            "limitacoes": [
+                "Não usa solver matemático.",
+                "Não comprova ótimo global.",
+                "Ajustes de limites são sequenciais.",
+            ],
 
         }

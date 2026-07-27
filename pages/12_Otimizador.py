@@ -19,7 +19,7 @@ from components.planning_selector import selecionar_planejamento
 
 st.set_page_config(
 
-    page_title=titulo_pagina("Otimização de Verba"),
+    page_title=titulo_pagina("Simulação Heurística de Verba"),
 
     page_icon=PAGE_ICON,
 
@@ -27,7 +27,11 @@ st.set_page_config(
 
 )
 
-st.title("💰 Otimização de Verba")
+st.title("💰 Simulação Heurística de Verba")
+st.info(
+    "Esta ferramenta redistribui a verba proporcionalmente ao score e aplica "
+    "ajustes sequenciais. Não usa solver e não afirma encontrar um ótimo."
+)
 
 st.divider()
 
@@ -86,7 +90,7 @@ with col3:
 
 executar = st.button(
 
-    "Otimizar",
+    "Simular redistribuição",
 
     type="primary",
 
@@ -141,21 +145,18 @@ if executar:
 
     }
 
-    resultado = BudgetOptimizerService().otimizar(
-
-        ranking=ranking,
-
-        verba_total=verba,
-
-        minimo_ambiente=minimo_ambiente,
-
-        maximo_ambiente=maximo_ambiente,
-
-        percentual_teste=percentual_teste / 100
-
-    )
-
-    st.session_state["otimizacao"] = resultado
+    try:
+        resultado = BudgetOptimizerService().otimizar(
+            ranking=ranking,
+            verba_total=verba,
+            minimo_ambiente=minimo_ambiente,
+            maximo_ambiente=maximo_ambiente,
+            percentual_teste=percentual_teste / 100,
+        )
+    except ValueError as erro:
+        st.error(str(erro))
+    else:
+        st.session_state["otimizacao"] = resultado
 
 # ==========================================================
 # RESULTADO
@@ -203,6 +204,11 @@ if "otimizacao" in st.session_state:
 
         moeda_ptbr(resumo["reserva_testes"])
 
+    )
+    st.caption(
+        f"Método: {resumo['metodo']} · versão: "
+        f"{resumo['versao_metodo']} · ótimo comprovado: não · "
+        f"condição: {resumo['condicao_viabilidade']}."
     )
 
     st.divider()
@@ -301,7 +307,7 @@ if "otimizacao" in st.session_state:
 
         st.success(
 
-            "Plano otimizado com sucesso."
+            "Simulação heurística reconciliada com a verba."
 
         )
 
@@ -309,5 +315,6 @@ if "otimizacao" in st.session_state:
 
         st.error(
 
-            "A distribuição apresenta inconsistências."
+            "Simulação inviável com os limites informados. "
+            f"Sobra/déficit: {moeda_ptbr(resumo['saldo_orcamento'])}."
         )

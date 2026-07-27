@@ -74,7 +74,15 @@ workflow_links = [
 analise_links = [
     (st.Page("pages/10_Comparador.py", title="Comparação de Planos", icon="⚖️"), "Comparação de Planos", "⚖️"),
     (st.Page("pages/11_Cenarios.py", title="Simulação de Cenários", icon="🎛️"), "Simulação de Cenários", "🎛️"),
-    (st.Page("pages/12_Otimizador.py", title="Otimização de Verba", icon="🎯"), "Otimização de Verba", "🎯"),
+    (
+        st.Page(
+            "pages/12_Otimizador.py",
+            title="Simulação Heurística de Verba",
+            icon="🎯",
+        ),
+        "Simulação Heurística de Verba",
+        "🎯",
+    ),
     (st.Page("pages/13_Insights.py", title="Insights de Mídia", icon="💡"), "Insights de Mídia", "💡"),
 ]
 base_links = [

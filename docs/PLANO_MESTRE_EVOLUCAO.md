@@ -800,3 +800,13 @@ depende da cópia durável do backup em armazenamento privado.
   zero;
 - comparação por conversões incompletas é bloqueada com causa explícita;
 - suíte offline ampliada para 87 testes e regressão conectada aprovadas.
+
+### 27 de julho de 2026 — Fase 2, alocação heurística identificada
+
+- redistribuição proporcional deixa de ser apresentada como otimização;
+- método, versão, função e limitações acompanham cada simulação;
+- a interface informa explicitamente que não há solver nem ótimo comprovado;
+- resultado declara condição de viabilidade e sobra ou déficit de orçamento;
+- obrigatório sem score positivo e conjunto sem peso viável falham com causa;
+- mensagens, guia e navegação adotam “Simulação Heurística de Verba”;
+- suíte offline ampliada para 88 testes e regressão conectada aprovadas.

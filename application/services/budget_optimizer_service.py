@@ -83,6 +83,16 @@ class BudgetOptimizerService:
 
             "reserva_testes": resultado["reserva_testes"],
 
+            "metodo": resultado["metodo_alocacao"],
+
+            "versao_metodo": resultado["versao_metodo"],
+
+            "otimo_comprovado": resultado["otimo_comprovado"],
+
+            "condicao_viabilidade": resultado["condicao_viabilidade"],
+
+            "saldo_orcamento": resultado["saldo_orcamento"],
+
             "maior_investimento": max(
 
                 itens,
@@ -197,4 +207,7 @@ class BudgetOptimizerService:
 
         )
 
-        return diferenca <= tolerancia
+        return (
+            diferenca <= tolerancia
+            and resultado.get("condicao_viabilidade") == "VIAVEL"
+        )

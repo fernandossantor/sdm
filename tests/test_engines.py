@@ -483,22 +483,26 @@ class TestBudgetOptimizer(unittest.TestCase):
         self.assertEqual(resultado["verba_distribuida"], 900)
         self.assertEqual(resultado["reserva_testes"], 100)
         self.assertEqual(resultado["itens"][0]["percentual"], 100)
+        self.assertEqual(resultado["metodo_alocacao"], "ALOCACAO_HEURISTICA")
+        self.assertFalse(resultado["otimo_comprovado"])
+        self.assertTrue(resultado["limitacoes"])
+        self.assertEqual(resultado["condicao_viabilidade"], "VIAVEL")
+        self.assertEqual(resultado["saldo_orcamento"], 0)
 
-    def test_retorna_vazio_quando_nao_ha_score(self):
+    def test_falha_quando_nao_ha_score_positivo(self):
 
-        resultado = BudgetOptimizer().otimizar(
-            [
-                {
-                    "inventario": "TV",
-                    "ambiente": "Vídeo",
-                    "plataforma": "Aberta",
-                    "score": 0,
-                }
-            ],
-            verba_total=1000,
-        )
-
-        self.assertEqual(resultado, [])
+        with self.assertRaisesRegex(ValueError, "nenhum inventário elegível"):
+            BudgetOptimizer().otimizar(
+                [
+                    {
+                        "inventario": "TV",
+                        "ambiente": "Vídeo",
+                        "plataforma": "Aberta",
+                        "score": 0,
+                    }
+                ],
+                verba_total=1000,
+            )
 
     def test_excluido_nao_recebe_verba(self):
         ranking = [
@@ -547,6 +551,27 @@ class TestBudgetOptimizer(unittest.TestCase):
                 ],
                 verba_total=1000,
                 obrigatorios=["Rádio"],
+            )
+
+    def test_obrigatorio_sem_score_positivo_impede_alocacao(self):
+        with self.assertRaisesRegex(ValueError, "obrigatórios sem score positivo"):
+            BudgetOptimizer().otimizar(
+                [
+                    {
+                        "inventario": "TV",
+                        "ambiente": "Vídeo",
+                        "plataforma": "Aberta",
+                        "score": 0,
+                    },
+                    {
+                        "inventario": "Rádio",
+                        "ambiente": "Áudio",
+                        "plataforma": "FM",
+                        "score": 100,
+                    },
+                ],
+                verba_total=1000,
+                obrigatorios=["TV"],
             )
 
 

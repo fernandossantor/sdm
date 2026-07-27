@@ -272,7 +272,7 @@ class RecommendationEngine:
 
             texto.append(
 
-                "Plano necessita otimização."
+                "Plano pode exigir revisão ou nova simulação de alocação."
 
             )
 
