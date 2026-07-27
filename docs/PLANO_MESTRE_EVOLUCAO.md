@@ -1032,3 +1032,30 @@ depende da cópia durável do backup em armazenamento privado.
   acesso deverá começar por nova redefinição administrativa controlada;
 - login geral permanece desligado; próxima entrega da Fase 5 é o
   compartilhamento de projetos com proprietário, editor e leitor.
+
+### 27 de julho de 2026 — Colaboração e inventários da Fase 5
+
+- compartilhamento de projetos passa a usar proprietário canônico, editor e
+  leitor, sem duplicar o projeto;
+- acesso contextual alcança briefing, planejamento, versões e artefatos do
+  projeto, sem conceder acesso aos demais projetos do espaço;
+- transferência de propriedade exige operação explícita e mantém o
+  proprietário anterior como editor;
+- revogação é imediata e leitor não escreve nem gerencia participantes;
+- concessão, transferência e revogação entram na auditoria;
+- convidados podem selecionar o espaço apenas para acessar os projetos
+  compartilhados que a RLS devolver;
+- inventários existentes são migrados como globais;
+- somente administrador mantém inventários globais, enquanto proprietários e
+  editores mantêm inventários privados do próprio espaço;
+- preços, medições, métricas, KPIs, objetivos e papéis herdam a autorização do
+  inventário;
+- arquivamento preserva histórico e registra autor e data;
+- interface ganhou colaboração, escopo de inventário, arquivamento e consulta
+  administrativa de logs;
+- revisão do Supabase e da OWASP está registrada em
+  `REVISAO_REFERENCIAS_FASE_5.md`;
+- 135 testes offline, dois testes SQL de RLS e idempotência das migrations
+  foram aprovados;
+- próximo gate: backup restaurável, aplicação remota e validação com JWTs
+  reais antes do encerramento da Fase 5.

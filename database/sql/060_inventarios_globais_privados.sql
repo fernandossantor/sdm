@@ -1,0 +1,4 @@
+-- Fonte canônica:
+-- ../../supabase/migrations/20260727060000_inventarios_globais_privados.sql
+--
+-- Mantido como índice para a sequência histórica em database/sql.

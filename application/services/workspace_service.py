@@ -33,9 +33,11 @@ class WorkspaceService:
             for item in self.repository.papeis_do_usuario(usuario_id)
         }
         return [
-            {**item, "papel": papeis[item["id"]]}
+            {
+                **item,
+                "papel": papeis.get(item["id"], "COMPARTILHADO"),
+            }
             for item in espacos
-            if item["id"] in papeis
         ]
 
     def selecionar(self, espaco_id, espacos, session_state):

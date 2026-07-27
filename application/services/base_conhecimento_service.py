@@ -151,6 +151,12 @@ class BaseConhecimentoService:
             raise ValueError("Nome do inventário é obrigatório.")
         return self.inventarios.atualizar(inventario_id, dados)
 
+    def arquivar_inventario(self, inventario_id):
+        return self.inventarios.atualizar(
+            inventario_id,
+            {"ativo": False},
+        )
+
     def duplicar_inventario(self, inventario):
         novo_id, codigo = IdentifierService.preparar_copia(inventario, "inventarios_v3")
         dados = {
@@ -158,7 +164,8 @@ class BaseConhecimentoService:
             if chave in {
                 "nome", "descricao", "plataforma_id", "ambiente_id", "estrutura_id",
                 "formato_id", "modelo_comercial_id", "modalidade_compra_id",
-                "unidade_compra_id", "kpi_principal_id", "ativo",
+                "unidade_compra_id", "kpi_principal_id", "ativo", "escopo",
+                "espaco_id",
             }
         }
         dados.update({"id": novo_id, "codigo": codigo, "nome": f"{inventario['nome']} — cópia"})

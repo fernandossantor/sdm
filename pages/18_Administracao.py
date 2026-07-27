@@ -125,3 +125,32 @@ if usuarios:
                         )
                 except Exception:
                     st.error("A ação administrativa não pôde ser concluída.")
+
+st.subheader("Auditoria administrativa")
+st.caption(
+    "Operações sensíveis são registradas sem senhas ou credenciais."
+)
+try:
+    logs = service.listar_logs()
+except Exception:
+    st.error("Não foi possível consultar a auditoria.")
+    logs = []
+
+if logs:
+    st.dataframe(
+        [
+            {
+                "Data": item.get("criado_em") or "—",
+                "Ação": item.get("acao") or "—",
+                "Ator": item.get("ator_id") or "—",
+                "Tipo": item.get("alvo_tipo") or "—",
+                "Alvo": item.get("alvo_id") or "—",
+                "Detalhes": item.get("detalhes") or {},
+            }
+            for item in logs
+        ],
+        hide_index=True,
+        width="stretch",
+    )
+else:
+    st.info("Ainda não há operações administrativas registradas.")

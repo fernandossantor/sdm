@@ -71,3 +71,14 @@ class TestWorkspaceContext(unittest.TestCase):
         BaseRepository(cliente).insert("canais_v3", {"nome": "TV"})
 
         cliente.table.return_value.insert.assert_called_once_with({"nome": "TV"})
+
+    def test_lista_espaco_de_projeto_compartilhado_sem_membresia(self):
+        repository = Mock()
+        repository.listar.return_value = [
+            {"id": "espaco-compartilhado", "nome": "Compartilhado"}
+        ]
+        repository.papeis_do_usuario.return_value = []
+
+        resultado = WorkspaceService(repository).listar("usuario-1")
+
+        self.assertEqual(resultado[0]["papel"], "COMPARTILHADO")

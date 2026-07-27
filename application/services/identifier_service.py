@@ -18,21 +18,32 @@ class IdentifierService:
         novo_id = str(uuid4())
         cliente = get_data_client()
         if using_authenticated_client():
-            if tabela not in {"projetos", "briefings_v3", "planejamentos"}:
+            if tabela == "inventarios_v3":
+                resposta = cliente.rpc(
+                    "proximo_codigo_copia_inventario",
+                    {
+                        "p_codigo_origem": codigo,
+                        "p_id": novo_id,
+                        "p_origem_id": origem.get("id"),
+                        "p_espaco_id": require_workspace(),
+                    },
+                ).execute()
+            elif tabela in {"projetos", "briefings_v3", "planejamentos"}:
+                resposta = cliente.rpc(
+                    "proximo_codigo_copia_espaco",
+                    {
+                        "p_codigo_origem": codigo,
+                        "p_tabela": tabela,
+                        "p_id": novo_id,
+                        "p_origem_id": origem.get("id"),
+                        "p_espaco_id": require_workspace(),
+                    },
+                ).execute()
+            else:
                 raise PermissionError(
                     "A cópia autenticada desta entidade depende da definição "
                     "de escopo global ou privado."
                 )
-            resposta = cliente.rpc(
-                "proximo_codigo_copia_espaco",
-                {
-                    "p_codigo_origem": codigo,
-                    "p_tabela": tabela,
-                    "p_id": novo_id,
-                    "p_origem_id": origem.get("id"),
-                    "p_espaco_id": require_workspace(),
-                },
-            ).execute()
         else:
             resposta = cliente.rpc(
                 "proximo_codigo_copia",

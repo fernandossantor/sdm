@@ -6,6 +6,7 @@ from components.page_config import PAGE_ICON, titulo_pagina
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.formatters import moeda_ptbr
 from components.inputs import entrada_monetaria
+from application.services.auth_service import autenticacao_habilitada
 
 
 st.set_page_config(page_title=titulo_pagina("Cadastro de Inventários"), page_icon=PAGE_ICON, layout="wide")
@@ -133,6 +134,32 @@ def escolher_catalogo(
 def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
     inventario = inventario or {}
     preco = preco or {}
+
+    autenticado = autenticacao_habilitada()
+    administrador = (
+        st.session_state.get("auth_papel_global") == "ADMINISTRADOR"
+    )
+    escopo_atual = inventario.get(
+        "escopo",
+        "GLOBAL" if not autenticado or administrador else "PRIVADO",
+    )
+    if autenticado and administrador:
+        escopo = st.selectbox(
+            "Escopo",
+            ("GLOBAL", "PRIVADO"),
+            index=0 if escopo_atual == "GLOBAL" else 1,
+            format_func=lambda valor: (
+                "Global — disponível para todos"
+                if valor == "GLOBAL"
+                else "Privado — somente no espaço atual"
+            ),
+            key=f"{prefixo}_escopo",
+        )
+    elif autenticado:
+        escopo = "PRIVADO"
+        st.caption("Escopo: **Privado — somente no espaço atual**")
+    else:
+        escopo = "GLOBAL"
 
     ambiente_atual = next(
         (item for item in ambientes if item["id"] == inventario.get("ambiente_id")),
@@ -335,6 +362,12 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         "modelo_comercial_id": modelo["id"], "modalidade_compra_id": modalidade["id"],
         "unidade_compra_id": unidade["id"], "kpi_principal_id": kpi["id"],
         "ativo": inventario.get("ativo", True),
+        "escopo": escopo,
+        "espaco_id": (
+            st.session_state.get("espaco_id")
+            if escopo == "PRIVADO"
+            else None
+        ),
     }
     preco_dados = {
         "unidade": unidade["nome"], "valor_bruto": float(valor),
@@ -405,6 +438,21 @@ else:
                     st.error(f"Não foi possível atualizar o inventário: {erro}")
                 else:
                     st.success("Inventário atualizado.")
+                    st.rerun()
+        confirmar_arquivo = st.checkbox(
+            "Confirmo o arquivamento; o histórico será preservado.",
+            key=f"confirmar_arquivo_{selecionado['id']}",
+        )
+        if st.button("Arquivar inventário", width="stretch"):
+            if not confirmar_arquivo:
+                st.error("Confirme o arquivamento.")
+            else:
+                try:
+                    service.arquivar_inventario(selecionado["id"])
+                except Exception as erro:
+                    st.error(f"Não foi possível arquivar: {erro}")
+                else:
+                    st.success("Inventário arquivado.")
                     st.rerun()
 
 st.divider()

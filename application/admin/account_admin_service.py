@@ -79,6 +79,20 @@ class AccountAdminService:
             for usuario in usuarios
         ]
 
+    def listar_logs(self, limite=200):
+        limite = max(1, min(int(limite), 500))
+        return (
+            self.user_db.table("logs_auditoria")
+            .select(
+                "id,ator_id,acao,alvo_tipo,alvo_id,detalhes,criado_em"
+            )
+            .order("criado_em", desc=True)
+            .limit(limite)
+            .execute()
+            .data
+            or []
+        )
+
     def criar(self, email, nome, papel_global="USUARIO"):
         if papel_global not in {"ADMINISTRADOR", "USUARIO"}:
             raise ValueError("Papel global inválido.")

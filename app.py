@@ -110,6 +110,19 @@ base_links = [
     (st.Page("pages/16_Segmentos.py", title="Segmentos de Público", icon="🧭"), "Segmentos de Público", "🧭"),
     (st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"), "Públicos", "👥"),
 ]
+collaboration_links = []
+if autenticacao_habilitada():
+    collaboration_links.append(
+        (
+            st.Page(
+                "pages/19_Colaboracao.py",
+                title="Colaboração",
+                icon="🤝",
+            ),
+            "Colaboração",
+            "🤝",
+        )
+    )
 admin_links = []
 if (
     autenticacao_habilitada()
@@ -133,6 +146,7 @@ navegacao = st.navigation(
         *[item[0] for item in workflow_links],
         *[item[0] for item in analise_links],
         *[item[0] for item in base_links],
+        *[item[0] for item in collaboration_links],
         *[item[0] for item in admin_links],
     ],
     position="hidden",

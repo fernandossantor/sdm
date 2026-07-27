@@ -83,3 +83,21 @@ class TestAccountAdminService(unittest.TestCase):
         )
         self.assertEqual(insercao["detalhes"], {})
         self.assertNotIn("senha_temporaria", insercao)
+
+    def test_lista_logs_com_cliente_autenticado_e_limite_controlado(self):
+        user_db = Mock()
+        consulta_perfil(user_db)
+        (
+            user_db.table.return_value.select.return_value.order.return_value
+            .limit.return_value.execute.return_value
+        ) = SimpleNamespace(data=[{"acao": "CONTA_BLOQUEADA"}])
+
+        resultado = AccountAdminService(
+            "ator-1", user_db, Mock()
+        ).listar_logs(9999)
+
+        self.assertEqual(resultado[0]["acao"], "CONTA_BLOQUEADA")
+        (
+            user_db.table.return_value.select.return_value.order.return_value
+            .limit.assert_called_once_with(500)
+        )
