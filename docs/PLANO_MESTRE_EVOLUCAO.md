@@ -1116,3 +1116,13 @@ depende da cópia durável do backup em armazenamento privado.
 - suíte offline ampliada para 136 testes aprovados e 3 integrações opcionais;
 - próximo gate: backup restaurável, aplicação remota e continuidade do bloco de
   estratégia e racional.
+
+### 27 de julho de 2026 — Backup pré-briefing estratégico
+
+- backup completo anterior à migration `20260727080000` foi exportado,
+  restaurado e copiado ao Google Drive privado;
+- cinco artefatos tiveram tamanho, SHA-256 e ausência de compartilhamento
+  confirmados;
+- duas identidades Auth e os dados públicos foram restaurados;
+- os dois briefings legados permaneceram válidos após a migration aditiva;
+- próximo gate: aplicação remota e regressão conectada.

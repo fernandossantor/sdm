@@ -191,6 +191,24 @@ A sequência da auditoria foi sincronizada com o maior identificador restaurado.
 As migrations de compartilhamento e inventários foram então aplicadas, e seus
 testes de RLS passaram no banco recuperado.
 
+Antes da migration `20260727080000`, um sétimo conjunto foi copiado para a
+pasta privada [PlanOS Backups / pre-migration
+20260727080000](https://drive.google.com/drive/folders/15nCg8Bd0CxWesMhPJk0fkoTTYqG1LMq0).
+
+Os cinco arquivos foram confirmados com `shared=false` e
+`source_visibility_status=not_shared`, com os mesmos tamanhos locais:
+
+- `schema.sql`: 166.160 bytes;
+- `data.sql`: 419.818 bytes;
+- `public-data.sql`: 409.373 bytes;
+- `roles.sql`: 358 bytes;
+- `SHA256SUMS`: 310 bytes.
+
+O ensaio restaurou Auth e dados públicos, recompôs o gatilho entre schemas e
+aplicou a migration do briefing estratégico. Os dois briefings legados foram
+preservados e receberam a lista vazia de concorrentes, sem exigir preenchimento
+retroativo.
+
 ## Pendências operacionais
 
 - definir retenção e responsáveis;
