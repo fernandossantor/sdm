@@ -682,3 +682,17 @@ de criar ou aplicar a migration aditiva do catálogo de métricas.
 O procedimento e as pendências estão em `BACKUP_RESTAURACAO.md`. A migration
 aditiva da Fase 1 pode ser preparada localmente, mas sua aplicação remota ainda
 depende da cópia durável do backup em armazenamento privado.
+
+### 27 de julho de 2026 — Fase 1, persistência metodológica
+
+- migration aditiva criada para unidades, métricas, fórmulas, conversões e
+  valores com proveniência;
+- catálogo inicial inclui alcance, audiência, impressões, impactos, contatos
+  estimados, GRP, frequência e investimento;
+- fatos medidos exigem fonte e resultados exigem fórmula, versão e entradas;
+- conversões são registros explícitos e exigem aprovação por padrão;
+- RLS foi habilitada nas cinco tabelas, sem acesso para `anon` e
+  `authenticated`;
+- migration aplicada duas vezes com sucesso na restauração isolada, confirmando
+  compatibilidade e idempotência;
+- nenhuma migration foi aplicada ao projeto remoto.
