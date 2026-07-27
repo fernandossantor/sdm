@@ -1,0 +1,4 @@
+-- Fonte canônica:
+-- ../../supabase/migrations/20260727080000_briefing_estrategico.sql
+--
+-- Mantido como índice para a sequência histórica em database/sql.

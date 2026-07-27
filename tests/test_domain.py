@@ -64,6 +64,43 @@ class TestBriefing(unittest.TestCase):
         self.assertEqual(briefing.frequencia_alvo, 4)
         self.assertEqual(briefing.frequencia_objetivo, "MEDIA")
 
+    def test_contexto_estrategico_reconcilia_com_registro(self):
+        service = BriefingService()
+        briefing = service.criar(
+            cliente="Cliente",
+            campanha="Campanha",
+            objetivo_id="objetivo-1",
+            objetivo="Alcance",
+            kpi="Alcance",
+            orcamento=1000,
+            contexto_mercado="Categoria em expansão.",
+            concorrentes=[{"nome": "Concorrente A"}],
+            situacao_marca="Marca desafiante.",
+            situacao_categoria="Alta concentração.",
+            objetivo_negocio="Aumentar receita.",
+            objetivo_comunicacao="Ampliar consideração.",
+            objetivo_midia="Gerar alcance qualificado.",
+            jornada_compra="Descoberta até recompra.",
+            ciclo_compra="Trinta dias.",
+            sazonalidade="Pico no segundo semestre.",
+            capacidade_distribuicao="Região Sul.",
+            criterios_criativos="Vídeo e formatos acessíveis.",
+            riscos_regulatorios="Revisão jurídica obrigatória.",
+        )
+
+        registro = service._para_registro(briefing, "projeto-1")
+
+        self.assertEqual(
+            registro["concorrentes"], [{"nome": "Concorrente A"}]
+        )
+        self.assertEqual(
+            registro["objetivo_midia"], "Gerar alcance qualificado."
+        )
+        self.assertEqual(
+            registro["riscos_regulatorios"],
+            "Revisão jurídica obrigatória.",
+        )
+
     def test_frequencia_define_a_faixa_correspondente(self):
 
         briefing = BriefingService().criar(

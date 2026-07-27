@@ -72,6 +72,32 @@ class BriefingService:
 
         produto="",
 
+        contexto_mercado="",
+
+        concorrentes=None,
+
+        situacao_marca="",
+
+        situacao_categoria="",
+
+        objetivo_negocio="",
+
+        objetivo_comunicacao="",
+
+        objetivo_midia="",
+
+        jornada_compra="",
+
+        ciclo_compra="",
+
+        sazonalidade="",
+
+        capacidade_distribuicao="",
+
+        criterios_criativos="",
+
+        riscos_regulatorios="",
+
         objetivos_secundarios=None,
 
         kpis=None,
@@ -123,6 +149,8 @@ class BriefingService:
         kpis = kpis or []
 
         publicos = publicos or []
+
+        concorrentes = concorrentes or []
 
         if sum(
             valor is not None
@@ -195,6 +223,32 @@ class BriefingService:
             marca=marca,
 
             produto=produto,
+
+            contexto_mercado=contexto_mercado,
+
+            concorrentes=concorrentes,
+
+            situacao_marca=situacao_marca,
+
+            situacao_categoria=situacao_categoria,
+
+            objetivo_negocio=objetivo_negocio,
+
+            objetivo_comunicacao=objetivo_comunicacao,
+
+            objetivo_midia=objetivo_midia,
+
+            jornada_compra=jornada_compra,
+
+            ciclo_compra=ciclo_compra,
+
+            sazonalidade=sazonalidade,
+
+            capacidade_distribuicao=capacidade_distribuicao,
+
+            criterios_criativos=criterios_criativos,
+
+            riscos_regulatorios=riscos_regulatorios,
 
             objetivos_secundarios=objetivos_secundarios,
 
@@ -364,6 +418,19 @@ class BriefingService:
             "nome": briefing.campanha,
             "marca": briefing.marca,
             "produto": briefing.produto,
+            "contexto_mercado": briefing.contexto_mercado,
+            "concorrentes": briefing.concorrentes,
+            "situacao_marca": briefing.situacao_marca,
+            "situacao_categoria": briefing.situacao_categoria,
+            "objetivo_negocio": briefing.objetivo_negocio,
+            "objetivo_comunicacao": briefing.objetivo_comunicacao,
+            "objetivo_midia": briefing.objetivo_midia,
+            "jornada_compra": briefing.jornada_compra,
+            "ciclo_compra": briefing.ciclo_compra,
+            "sazonalidade": briefing.sazonalidade,
+            "capacidade_distribuicao": briefing.capacidade_distribuicao,
+            "criterios_criativos": briefing.criterios_criativos,
+            "riscos_regulatorios": briefing.riscos_regulatorios,
             "objetivo_id": briefing.objetivo_id,
             "kpi": briefing.kpi,
             "kpis": briefing.kpis,
@@ -390,6 +457,21 @@ class BriefingService:
             campanha=registro.get("nome", ""),
             marca=registro.get("marca") or "",
             produto=registro.get("produto") or "",
+            contexto_mercado=registro.get("contexto_mercado") or "",
+            concorrentes=registro.get("concorrentes") or [],
+            situacao_marca=registro.get("situacao_marca") or "",
+            situacao_categoria=registro.get("situacao_categoria") or "",
+            objetivo_negocio=registro.get("objetivo_negocio") or "",
+            objetivo_comunicacao=registro.get("objetivo_comunicacao") or "",
+            objetivo_midia=registro.get("objetivo_midia") or "",
+            jornada_compra=registro.get("jornada_compra") or "",
+            ciclo_compra=registro.get("ciclo_compra") or "",
+            sazonalidade=registro.get("sazonalidade") or "",
+            capacidade_distribuicao=(
+                registro.get("capacidade_distribuicao") or ""
+            ),
+            criterios_criativos=registro.get("criterios_criativos") or "",
+            riscos_regulatorios=registro.get("riscos_regulatorios") or "",
             objetivo_id=registro.get("objetivo_id"),
             objetivo=objetivo.get("nome", ""),
             kpi=registro.get("kpi", ""),
@@ -498,5 +580,14 @@ class BriefingService:
             ,"alcance_percentual": briefing.alcance_percentual
 
             ,"grp": briefing.grp
+
+            ,"concorrentes": len(briefing.concorrentes)
+
+            ,"contexto_estrategico": bool(
+                briefing.contexto_mercado
+                or briefing.objetivo_negocio
+                or briefing.objetivo_comunicacao
+                or briefing.objetivo_midia
+            )
 
         }

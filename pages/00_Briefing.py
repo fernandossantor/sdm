@@ -166,6 +166,88 @@ objetivo = next(
 
 )
 
+# ==========================================================
+# CONTEXTO E ENCADEAMENTO ESTRATÉGICO
+# ==========================================================
+
+st.divider()
+st.header("Contexto estratégico")
+st.caption(
+    "Registre fatos e premissas que sustentam a estratégia. "
+    "Esses campos não geram benchmarks ou conclusões automáticas."
+)
+
+contexto_mercado = st.text_area(
+    "Mercado e dinâmica competitiva",
+    value=getattr(edicao, "contexto_mercado", ""),
+    help="Tamanho, evolução, tendências, barreiras e mudanças relevantes.",
+)
+concorrentes_texto = st.text_area(
+    "Concorrentes — um por linha",
+    value="\n".join(
+        item.get("nome", "")
+        for item in getattr(edicao, "concorrentes", [])
+        if item.get("nome")
+    ),
+)
+concorrentes = [
+    {"nome": linha.strip()}
+    for linha in concorrentes_texto.splitlines()
+    if linha.strip()
+]
+
+marca_col, categoria_col = st.columns(2)
+situacao_marca = marca_col.text_area(
+    "Situação da marca",
+    value=getattr(edicao, "situacao_marca", ""),
+)
+situacao_categoria = categoria_col.text_area(
+    "Situação da categoria",
+    value=getattr(edicao, "situacao_categoria", ""),
+)
+
+st.subheader("Objetivos encadeados")
+objetivo_negocio = st.text_area(
+    "Objetivo de negócio",
+    value=getattr(edicao, "objetivo_negocio", ""),
+)
+objetivo_comunicacao = st.text_area(
+    "Objetivo de comunicação",
+    value=getattr(edicao, "objetivo_comunicacao", ""),
+)
+objetivo_midia = st.text_area(
+    "Objetivo de mídia",
+    value=getattr(edicao, "objetivo_midia", ""),
+)
+
+st.subheader("Condições de planejamento")
+jornada_compra = st.text_area(
+    "Jornada e pontos de contato",
+    value=getattr(edicao, "jornada_compra", ""),
+)
+ciclo_col, sazonal_col = st.columns(2)
+ciclo_compra = ciclo_col.text_area(
+    "Ciclo de compra",
+    value=getattr(edicao, "ciclo_compra", ""),
+)
+sazonalidade = sazonal_col.text_area(
+    "Sazonalidade",
+    value=getattr(edicao, "sazonalidade", ""),
+)
+capacidade_distribuicao = st.text_area(
+    "Praças, disponibilidade e capacidade de distribuição",
+    value=getattr(edicao, "capacidade_distribuicao", ""),
+)
+criativo_col, risco_col = st.columns(2)
+criterios_criativos = criativo_col.text_area(
+    "Critérios e dependências criativas",
+    value=getattr(edicao, "criterios_criativos", ""),
+)
+riscos_regulatorios = risco_col.text_area(
+    "Riscos e condições regulatórias",
+    value=getattr(edicao, "riscos_regulatorios", ""),
+)
+
 
 # ==========================================================
 # KPIs
@@ -477,6 +559,32 @@ if salvar:
         marca=marca,
 
         produto=produto,
+
+        contexto_mercado=contexto_mercado,
+
+        concorrentes=concorrentes,
+
+        situacao_marca=situacao_marca,
+
+        situacao_categoria=situacao_categoria,
+
+        objetivo_negocio=objetivo_negocio,
+
+        objetivo_comunicacao=objetivo_comunicacao,
+
+        objetivo_midia=objetivo_midia,
+
+        jornada_compra=jornada_compra,
+
+        ciclo_compra=ciclo_compra,
+
+        sazonalidade=sazonalidade,
+
+        capacidade_distribuicao=capacidade_distribuicao,
+
+        criterios_criativos=criterios_criativos,
+
+        riscos_regulatorios=riscos_regulatorios,
 
         orcamento=orcamento,
 

@@ -606,6 +606,9 @@ por padrão até a homologação e publicação gradual da Fase 7.
 
 Saída: plano completo, não apenas cálculo tático.
 
+Status: iniciada em 27 de julho de 2026. Auditoria e referências registradas em
+`REVISAO_REFERENCIAS_FASE_6.md`; briefing estratégico é o primeiro incremento.
+
 ### Fase 7 — Homologação e publicação
 
 1. segurança e privacidade;
@@ -1097,3 +1100,19 @@ depende da cópia durável do backup em armazenamento privado.
 - backup restaurável e privado antecedeu todas as migrations estruturais;
 - login geral continua desligado por padrão; a próxima etapa é a Fase 6,
   produto completo, seguida da homologação e publicação gradual na Fase 7.
+
+### 27 de julho de 2026 — Início da Fase 6
+
+- seis blocos foram auditados contra o plano, o código e o acervo de
+  referências;
+- briefing atual cobre identificação, público, KPIs, flight e metas, mas não
+  preservava o contexto estratégico completo;
+- modelo aditivo foi preparado para mercado, concorrentes, situação de
+  marca/categoria, objetivos encadeados, jornada, ciclo, sazonalidade,
+  distribuição, critérios criativos e riscos regulatórios;
+- briefings legados permanecem compatíveis com valores vazios;
+- interface, domínio e persistência usam o mesmo contrato;
+- migration `20260727080000` validada localmente;
+- suíte offline ampliada para 136 testes aprovados e 3 integrações opcionais;
+- próximo gate: backup restaurável, aplicação remota e continuidade do bloco de
+  estratégia e racional.
