@@ -981,5 +981,11 @@ depende da cópia durável do backup em armazenamento privado.
 - senha redefinida nunca integra os detalhes de auditoria;
 - migration de logs administrativos foi preparada com leitura por
   administrador e escrita exclusiva por `service_role`;
-- próxima etapa: validar a migration localmente e construir a interface
-  administrativa antes de novo backup e aplicação remota.
+- migration validada duas vezes localmente e políticas confirmadas com
+  administrador e usuário comum;
+- área administrativa preparada para listar e criar contas, bloquear,
+  reativar e redefinir senha temporária;
+- acesso direto à página revalida o JWT e o papel no servidor;
+- ações sensíveis exigem confirmação e senhas são exibidas uma única vez;
+- próxima etapa: novo backup, aplicação remota da auditoria e teste controlado
+  da área administrativa antes de ativar o login.

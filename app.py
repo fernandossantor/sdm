@@ -110,6 +110,22 @@ base_links = [
     (st.Page("pages/16_Segmentos.py", title="Segmentos de Público", icon="🧭"), "Segmentos de Público", "🧭"),
     (st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"), "Públicos", "👥"),
 ]
+admin_links = []
+if (
+    autenticacao_habilitada()
+    and st.session_state.get("auth_papel_global") == "ADMINISTRADOR"
+):
+    admin_links.append(
+        (
+            st.Page(
+                "pages/18_Administracao.py",
+                title="Administração",
+                icon="🛡️",
+            ),
+            "Administração",
+            "🛡️",
+        )
+    )
 navegacao = st.navigation(
     [
         pagina_home,
@@ -117,6 +133,7 @@ navegacao = st.navigation(
         *[item[0] for item in workflow_links],
         *[item[0] for item in analise_links],
         *[item[0] for item in base_links],
+        *[item[0] for item in admin_links],
     ],
     position="hidden",
 )
@@ -144,6 +161,10 @@ with st.sidebar:
     st.caption("BASE DE CONHECIMENTO")
     for pagina, titulo, icone in base_links:
         st.page_link(pagina, label=titulo, icon=icone)
+    if admin_links:
+        st.caption("ADMINISTRAÇÃO")
+        for pagina, titulo, icone in admin_links:
+            st.page_link(pagina, label=titulo, icon=icone)
     st.divider()
     st.caption(
         "Desenvolvido por Fernando Silva Santor, professor de Planejamento "
