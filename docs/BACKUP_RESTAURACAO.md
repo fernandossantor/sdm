@@ -1,6 +1,6 @@
 # Backup e restauração
 
-Último ensaio: 26 de julho de 2026 (UTC).
+Último ensaio: 27 de julho de 2026 (UTC).
 
 ## Escopo
 
@@ -103,6 +103,31 @@ permissão do proprietário, e com os mesmos tamanhos dos dumps locais:
 - `data.sql`: 411.023 bytes;
 - `public-data.sql`: 402.180 bytes;
 - `roles.sql`: 358 bytes.
+
+Antes da migration `20260727030000`, um quarto conjunto foi gerado e copiado
+para a pasta privada [PlanOS Backups / pre-migration
+20260727030000](https://drive.google.com/drive/folders/14s1xBYS9CmOHhdt2OcfO_eW8G6zC6q_c).
+
+Os cinco arquivos foram confirmados com `shared=false` e
+`source_visibility_status=not_shared`, com os mesmos tamanhos locais:
+
+- `schema.sql`: 114.992 bytes;
+- `data.sql`: 411.761 bytes;
+- `public-data.sql`: 402.918 bytes;
+- `roles.sql`: 358 bytes;
+- `SHA256SUMS`: 310 bytes.
+
+O ensaio foi repetido em banco PostgreSQL isolado. Um banco vazio exigiu os
+pré-requisitos de plataforma `extensions`, `vault` e a publicação
+`supabase_realtime`, normalmente criados pelo bootstrap do Supabase. Depois
+deles:
+
+- o esquema foi restaurado com `ON_ERROR_STOP`;
+- os dados públicos foram restaurados integralmente;
+- 89 tabelas públicas e 106 chaves estrangeiras foram verificadas;
+- origem e restauração coincidiram em projetos (2), briefings (2),
+  planejamentos (1), inventários (16), versões (1) e métricas (8);
+- o banco temporário foi removido e o ambiente local desligado.
 
 ## Pendências operacionais
 

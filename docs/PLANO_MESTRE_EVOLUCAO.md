@@ -934,3 +934,13 @@ depende da cópia durável do backup em armazenamento privado.
 - cópias de entidades ainda sem escopo permanecem bloqueadas;
 - aplicação remota permanece bloqueada até novo backup e teste controlado de
   autenticação.
+
+### 27 de julho de 2026 — Backup pré-migration multiusuário
+
+- esquema, dados completos, dados públicos e papéis foram exportados;
+- checksums SHA-256 foram registrados em manifesto próprio;
+- esquema e dados públicos foram restaurados em PostgreSQL isolado;
+- 89 tabelas públicas, 106 chaves estrangeiras e seis contagens materiais
+  foram conferidas;
+- conjunto durável foi verificado no Google Drive como não compartilhado;
+- a migration remota não foi aplicada durante o procedimento.

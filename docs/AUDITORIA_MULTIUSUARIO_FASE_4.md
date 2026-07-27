@@ -47,6 +47,12 @@ Papéis no espaço:
 - inventários globais/privados e bibliotecas de público serão tratados depois;
 - testes locais e revisão das políticas precedem backup e aplicação remota.
 
+O backup pré-migration `20260727030000` e seu ensaio de restauração foram
+concluídos em 27 de julho de 2026. A cópia durável está privada no Google
+Drive, com manifesto SHA-256 e contagens materiais equivalentes à origem.
+A aplicação remota continua separada deste gate e ainda requer execução
+controlada e teste autenticado posterior.
+
 ## Ponte de cliente autenticado
 
 - repositories resolvem o cliente de dados no contexto da requisição;
