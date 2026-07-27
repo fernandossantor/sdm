@@ -14,6 +14,7 @@ from components.page_config import PAGE_ICON, PAGE_TITLE
 from components.auth_gate import render as auth_gate
 from components.workspace_gate import render as workspace_gate
 from application.services.auth_service import AuthService, autenticacao_habilitada
+from application.services.runtime_config_service import RuntimeConfigService
 from infrastructure.database.data_client import (
     bind_authenticated_client,
     clear_request_client,
@@ -22,6 +23,7 @@ from infrastructure.database.workspace_context import clear_workspace
 
 
 LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
+RuntimeConfigService.validar()
 
 # ==========================================================
 # CONFIGURAÇÃO

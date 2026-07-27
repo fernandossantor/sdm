@@ -619,6 +619,12 @@ aprovados nos gates offline, conectados, de saúde e segurança.
 5. publicação gradual;
 6. monitoramento de erros, uso, armazenamento e disponibilidade.
 
+Status: iniciada em 27 de julho de 2026. Revisão operacional e referências
+registradas em `REVISAO_REFERENCIAS_FASE_7.md`. CI e navegação foram corrigidos;
+produção agora falha fechada sem autenticação e segredos válidos. A abertura do
+piloto permanece bloqueada até a rotação da chave administrativa e a conclusão
+dos demais gates.
+
 ## Dependências entre trilhas
 
 - A precede B porque engines auditáveis exigem dados qualificados.
