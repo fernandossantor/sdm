@@ -578,7 +578,10 @@ else:
             frequencia_maxima = f.number_input(
                 "Frequência máxima", min_value=1, value=10, step=1,
                 key=f"freq_max_plano_{item['id']}",
-                help="Limite de frequência antes de sinalizar saturação.",
+                help=(
+                    "Limite para sinalizar sobre-exposição. Este controle não "
+                    "estima saturação econômica."
+                ),
             )
             ctr_item = g.number_input(
                 "CTR/resposta (%)", min_value=0.0, value=0.0, step=0.01, format="%.2f",

@@ -19,7 +19,7 @@ etapas = [
     ("4. Projeto", "Crie ou selecione um projeto na página Início. O código o acompanha por todo o processo."),
     ("5. Briefing de Mídia", "Informe campanha, orçamento, período, públicos, jornada, KPIs e metas globais."),
     ("6. Papéis dos Meios", "Escolha os inventários e avalie afinidade editorial, consumo e capacidade de cobertura."),
-    ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental, saturação e premissas. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
+    ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental, limite de sobre-exposição e premissas. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
     ("8. Cronograma", "Visualize flights e pressão semanal no calendário. A distribuição decorre das quantidades e do flight."),
     ("9. Diagnóstico e projeções", "Confira entrega, custos, retorno, limitações e confiança dos dados."),
     ("10. Relatório", "Salve o plano e confira as premissas e a auditoria antes da exportação."),
@@ -60,7 +60,7 @@ for problema, solucao in problemas.items():
 
 st.header("Análises Avançadas")
 analises = {
-    "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, saturação e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
+    "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, sobre-exposição e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
     "Simulação de Cenários": "Aplica perfis alternativos ao mesmo conjunto de inventários para observar mudanças de pressão e distribuição.",
     "Simulação Heurística de Verba": "Explora redistribuições proporcionais ao score com pisos, tetos, limites por ambiente e reserva para testes, sem afirmar ótimo.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",

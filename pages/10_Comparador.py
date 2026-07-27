@@ -63,7 +63,8 @@ colunas = st.columns(7)
 rotulos = [
     ("alcance", "Alcance", 25), ("frequencia", "Frequência", 20),
     ("conversoes", "Conversões", 15), ("roi", "ROI", 10),
-    ("jornada", "Jornada", 15), ("saturacao", "Baixa saturação", 10),
+    ("jornada", "Jornada", 15),
+    ("sobre_exposicao", "Baixa sobre-exposição", 10),
     ("investimento", "Menor custo", 5),
 ]
 pesos = {

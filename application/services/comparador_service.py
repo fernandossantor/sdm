@@ -9,9 +9,21 @@ class ComparadorService:
         "conversoes": ("conversoes", True),
         "roi": ("roi", True),
         "jornada": ("cobertura_jornada", True),
-        "saturacao": ("risco_saturacao", False),
+        "sobre_exposicao": ("excesso_frequencia_total", False),
         "investimento": ("investimento", False),
     }
+
+    @staticmethod
+    def _valor_criterio(item, criterio, campo):
+        if campo in item and item[campo] is not None:
+            return float(item[campo])
+        if criterio == "sobre_exposicao" and item.get("risco_saturacao") is not None:
+            # Compatibilidade de leitura para snapshots anteriores à correção
+            # metodológica. Novos cálculos não persistem essa nomenclatura.
+            return float(item["risco_saturacao"])
+        raise ValueError(
+            f"O critério '{criterio}' não está disponível nos dois planos."
+        )
 
     def comparar_configuravel(self, plano1, plano2, pesos):
         dados = [
@@ -26,8 +38,13 @@ class ComparadorService:
         scores = [0.0, 0.0]
         detalhes = []
         for criterio, peso in pesos.items():
+            if criterio not in self.CRITERIOS:
+                raise ValueError(f"Critério de comparação desconhecido: '{criterio}'.")
             campo, maior_melhor = self.CRITERIOS[criterio]
-            valores = [float(item.get(campo) or 0) for item in dados]
+            valores = [
+                self._valor_criterio(item, criterio, campo)
+                for item in dados
+            ]
             referencia = max(valores) if maior_melhor else max(valores)
             if maior_melhor:
                 notas = [v / referencia * 100 if referencia else 0 for v in valores]

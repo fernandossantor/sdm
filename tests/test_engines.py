@@ -85,6 +85,30 @@ class TestMediaPlanEngine(unittest.TestCase):
         self.assertEqual(alcance, 100)
         self.assertEqual(auditoria[1]["incremental"], 20)
 
+    def test_consolidado_nao_confunde_excesso_com_saturacao_economica(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10, "alcance_percentual": 20,
+                "frequencia": 4, "frequencia_maxima": 2,
+                "quantidade": 8, "unidade_compra": "Inserção",
+            },
+            publico_referencia=10000,
+            preco_unitario=100,
+        )
+
+        consolidado = MediaPlanEngine.consolidar(
+            [resultado],
+            [{"alcance_percentual": 20}],
+        )
+
+        self.assertEqual(consolidado["excesso_frequencia_total"], 2)
+        self.assertIsNone(consolidado["saturacao_economica"])
+        self.assertEqual(
+            consolidado["modelo_saturacao"]["situacao"],
+            "INDISPONIVEL",
+        )
+        self.assertNotIn("risco_saturacao", consolidado)
+
     def test_nao_inventa_alcance_por_independencia(self):
         alcance, auditoria = MediaPlanEngine.alcance_combinado(
             [

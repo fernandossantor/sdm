@@ -296,7 +296,17 @@ class MediaPlanEngine:
             "conversoes": round(sum(item.conversoes for item in resultados), 2),
             "retorno": retorno,
             "roi": round((retorno - investimento) / investimento, 4) if investimento else None,
-            "risco_saturacao": round(sum(item.excesso_frequencia for item in resultados), 2),
+            "excesso_frequencia_total": round(
+                sum(item.excesso_frequencia for item in resultados), 2
+            ),
+            "saturacao_economica": None,
+            "modelo_saturacao": {
+                "situacao": "INDISPONIVEL",
+                "motivo": (
+                    "Excesso de frequência não equivale a saturação econômica; "
+                    "é necessária uma curva de resposta calibrada."
+                ),
+            },
             "cobertura_jornada": round(
                 sum(float(item.get("cobertura_jornada") or 0) for item in premissas)
                 / len(premissas), 2

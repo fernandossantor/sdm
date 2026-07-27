@@ -209,15 +209,15 @@ class TestPlanejamentoService(unittest.TestCase):
         plano_a.resultados_consolidados = {
             "alcance_liquido_percentual": 90, "frequencia_combinada": 3,
             "conversoes": 10, "roi": 0.1, "cobertura_jornada": 70,
-            "risco_saturacao": 0, "investimento": 1000,
+            "excesso_frequencia_total": 0, "investimento": 1000,
         }
         plano_b.resultados_consolidados = {
             "alcance_liquido_percentual": 60, "frequencia_combinada": 8,
             "conversoes": 10, "roi": 0.1, "cobertura_jornada": 70,
-            "risco_saturacao": 2, "investimento": 1000,
+            "excesso_frequencia_total": 2, "investimento": 1000,
         }
         pesos = {"alcance": 80, "frequencia": 20, "conversoes": 0,
-                 "roi": 0, "jornada": 0, "saturacao": 0, "investimento": 0}
+                 "roi": 0, "jornada": 0, "sobre_exposicao": 0, "investimento": 0}
         resultado = ComparadorService().comparar_configuravel(plano_a, plano_b, pesos)
         self.assertEqual(resultado["vencedor"], "Plano A")
 
