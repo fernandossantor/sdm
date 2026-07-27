@@ -1239,8 +1239,10 @@ depende da cópia durável do backup em armazenamento privado.
 - health check passa a retornar falha ao processo quando encontra erro;
 - comando `scripts.homologar` reúne suíte offline, regressão, saúde, segurança,
   integrações e migrations;
-- execução conectada foi aprovada com 157 testes, 3 integrações, 10 tabelas
-  saudáveis e 23 migrations sincronizadas;
+- execução conectada foi aprovada com 157 testes, 3 integrações e 23 migrations
+  sincronizadas;
+- observabilidade de saúde e segurança foi ampliada de 10 para 20 tabelas,
+  incluindo estruturas multiusuário, versões, artefatos e auditoria;
 - roteiro do piloto define gates, fluxo, aceite e interrupção imediata;
 - runbook registra rotina, severidade, resposta, recuperação e retorno;
 - o gate deve ser repetido após rotação de segredos e antes de cada versão

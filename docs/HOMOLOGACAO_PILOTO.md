@@ -8,7 +8,8 @@ O gate automatizado conectado foi aprovado em 27 de julho de 2026:
 
 - 157 testes offline;
 - regressão funcional;
-- health check de 10 tabelas;
+- health check inicial de 10 tabelas, ampliado depois para 20 estruturas
+  operacionais e multiusuário;
 - auditoria de bloqueio público;
 - 3 testes de integração;
 - 23 migrations locais e remotas sincronizadas.

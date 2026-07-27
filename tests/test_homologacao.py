@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from scripts.health_check import main as health_main
+from scripts.health_check import TABELAS, main as health_main
 from scripts.homologar import executar_comando, homologar
 
 
@@ -35,7 +35,7 @@ class TestHomologacao(unittest.TestCase):
         with (
             patch(
                 "scripts.health_check.verificar_tabela",
-                side_effect=[(False, "erro")] + [(True, 1)] * 9,
+                side_effect=[(False, "erro")] + [(True, 1)] * (len(TABELAS) - 1),
             ),
             patch("builtins.print"),
         ):

@@ -127,3 +127,7 @@ PERFIS_USUARIOS = "perfis_usuarios"
 ESPACOS_TRABALHO = "espacos_trabalho"
 
 MEMBROS_ESPACOS = "membros_espacos"
+
+PROJETOS_MEMBROS = "projetos_membros"
+
+LOGS_AUDITORIA = "logs_auditoria"

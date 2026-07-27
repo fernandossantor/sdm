@@ -36,6 +36,11 @@ Também conferir:
 - crescimento de projetos, versões e artefatos;
 - logs administrativos e tentativas recorrentes de acesso.
 
+O health check cobre as estruturas históricas e as tabelas críticas de perfis,
+espaços, membros, projetos, compartilhamentos, planejamentos, versões,
+artefatos, preços e auditoria. Uma tabela inacessível encerra o comando com
+falha.
+
 ## Classificação de incidentes
 
 | Severidade | Exemplo | Resposta |

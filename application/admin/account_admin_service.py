@@ -3,6 +3,7 @@
 import secrets
 import string
 
+from infrastructure.database.database_schema import LOGS_AUDITORIA
 from infrastructure.database.admin_client import get_admin_client
 from infrastructure.database.data_client import (
     create_authenticated_client,
@@ -52,7 +53,7 @@ class AccountAdminService:
         return "".join(secrets.choice(alfabeto) for _ in range(24))
 
     def _auditar(self, acao, alvo_id, detalhes=None):
-        self.admin_db.table("logs_auditoria").insert(
+        self.admin_db.table(LOGS_AUDITORIA).insert(
             {
                 "ator_id": self.actor_id,
                 "acao": acao,
@@ -82,7 +83,7 @@ class AccountAdminService:
     def listar_logs(self, limite=200):
         limite = max(1, min(int(limite), 500))
         return (
-            self.user_db.table("logs_auditoria")
+            self.user_db.table(LOGS_AUDITORIA)
             .select(
                 "id,ator_id,acao,alvo_tipo,alvo_id,detalhes,criado_em"
             )
