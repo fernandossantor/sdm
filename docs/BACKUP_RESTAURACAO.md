@@ -48,10 +48,12 @@ workspace Git.
    registrados.
 6. Reaplicar as migrations idempotentes que criam objetos entre schemas,
    especialmente gatilhos pertencentes a `auth`.
-7. Conferir tabelas, constraints, identidades Auth e contagens de entidades
+7. Se a carga completa parar antes dos comandos `setval`, sincronizar as
+   sequências públicas com os maiores identificadores restaurados.
+8. Conferir tabelas, constraints, identidades Auth e contagens de entidades
    materiais.
-8. Aplicar a migration seguinte e executar seus testes SQL no banco restaurado.
-9. Encerrar o ambiente temporário.
+9. Aplicar a migration seguinte e executar seus testes SQL no banco restaurado.
+10. Encerrar o ambiente temporário.
 
 O dump completo inclui tabelas internas de `storage`. A restauração direta
 dessas tabelas pode exigir o proprietário administrativo do serviço. Para
@@ -64,6 +66,9 @@ ao schema `auth` que chamam funções de `public`. Por isso, restaurar somente
 `public-data.sql` deixou de ser um ensaio suficiente depois da adoção de
 usuários reais. A restauração deve incluir as identidades de `auth` e reaplicar
 a migration multiusuário idempotente para recompor esses objetos entre schemas.
+Como os comandos de ajuste de sequências ficam no final de `data.sql`, uma
+interrupção esperada ao iniciar o schema `storage` também exige executar os
+`setval` das sequências públicas antes de aceitar novas escritas.
 
 ## Resultado do ensaio de 26 de julho de 2026
 
@@ -164,6 +169,27 @@ Foram confirmadas 92 tabelas públicas, 114 chaves estrangeiras, 2 identidades,
 16 inventários, 2 versões e 8 métricas. Por fim, a migration
 `20260727040000` e o teste SQL de auditoria administrativa passaram no banco
 restaurado.
+
+Antes das migrations `20260727050000` e `20260727060000`, um sexto conjunto
+foi copiado para a pasta privada [PlanOS Backups / pre-migrations
+20260727050000-060000](https://drive.google.com/drive/folders/1U3GU-Qvg9sUArVvu9CbHNYYA-Wi3mgnR).
+
+Os cinco arquivos foram confirmados com `shared=false` e
+`source_visibility_status=not_shared`, com os mesmos tamanhos locais:
+
+- `schema.sql`: 134.969 bytes;
+- `data.sql`: 418.066 bytes;
+- `public-data.sql`: 407.621 bytes;
+- `roles.sql`: 358 bytes;
+- `SHA256SUMS`: 310 bytes.
+
+O ensaio restaurou duas identidades, dois perfis, dois espaços, duas
+membresias, dois projetos, dois briefings, um planejamento, 16 inventários,
+duas versões, oito métricas e três logs. A carga completa alcançou todos os
+blocos de `auth` e `public` antes de parar no schema interno `storage`.
+A sequência da auditoria foi sincronizada com o maior identificador restaurado.
+As migrations de compartilhamento e inventários foram então aplicadas, e seus
+testes de RLS passaram no banco recuperado.
 
 ## Pendências operacionais
 

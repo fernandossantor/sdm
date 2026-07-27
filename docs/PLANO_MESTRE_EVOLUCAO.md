@@ -1059,3 +1059,16 @@ depende da cópia durável do backup em armazenamento privado.
   foram aprovados;
 - próximo gate: backup restaurável, aplicação remota e validação com JWTs
   reais antes do encerramento da Fase 5.
+
+### 27 de julho de 2026 — Backup final da Fase 5
+
+- esquema, dados completos, dados públicos, papéis e manifesto SHA-256 foram
+  exportados antes das migrations `20260727050000` e `20260727060000`;
+- cinco artefatos foram copiados ao Google Drive privado e conferidos como não
+  compartilhados;
+- restauração incluiu duas identidades Auth e todas as contagens materiais;
+- o procedimento passou a sincronizar sequências públicas quando a carga
+  completa termina antes dos `setval` por encontrar o schema `storage`;
+- compartilhamento, revogação, transferência e inventários globais/privados
+  passaram seus testes RLS no banco restaurado;
+- próximo gate: aplicação remota, testes com JWTs reais e encerramento.
