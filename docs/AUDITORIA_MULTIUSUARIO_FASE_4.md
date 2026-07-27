@@ -2,6 +2,8 @@
 
 Data: 27 de julho de 2026.
 
+Status: concluída.
+
 ## Estado encontrado
 
 - todos os repositories herdam `BaseRepository`, que usa o cliente
@@ -147,3 +149,29 @@ Em 27 de julho de 2026:
 - projetos, briefings, planejamentos e artefatos ficaram com zero registros
   sem `espaco_id`;
 - `PLANOS_AUTH_ENABLED` permaneceu desligado.
+
+## Validação com Supabase Auth real
+
+Duas contas confirmadas foram criadas para a validação controlada:
+
+- uma administradora e proprietária do espaço legado;
+- uma usuária comum e proprietária de um segundo espaço.
+
+As senhas temporárias foram geradas somente em memória durante o teste, não
+foram exibidas nem persistidas, e os perfis permanecem com
+`trocar_senha=true`. O primeiro acesso dependerá de redefinição administrativa
+na Fase 5.
+
+Com JWTs reais, foi confirmado que:
+
+- a conta administradora acessa os dois espaços;
+- a conta comum acessa somente o próprio espaço;
+- a conta comum não lê projetos do espaço legado;
+- a conta comum cria projeto no próprio espaço;
+- tentativa de escrita no espaço legado retorna `42501`;
+- o token validado pelo servidor corresponde ao usuário autenticado;
+- o projeto temporário foi removido após o teste.
+
+Estado final verificado: 2 perfis, 1 administrador, 2 espaços, 2 membresias e
+zero projetos temporários. A autenticação de produção continua desligada até
+o fluxo administrativo de redefinição de senha e ativação gradual.

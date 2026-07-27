@@ -580,6 +580,8 @@ Saída: planejamento defensável e comparável.
 
 Saída: isolamento efetivo no servidor e no banco.
 
+Status: concluída em 27 de julho de 2026.
+
 ### Fase 5 — Administração e colaboração
 
 1. área administrativa;
@@ -954,3 +956,15 @@ depende da cópia durável do backup em armazenamento privado.
 - espaço legado permanece sem membros e autenticação permanece desativada;
 - próximo gate: criar contas controladas, atribuir membresias e repetir os
   testes de isolamento usando sessões Auth reais.
+
+### 27 de julho de 2026 — Encerramento da Fase 4
+
+- duas contas confirmadas foram criadas sem persistência de senha legível;
+- papéis de administrador e usuário comum foram atribuídos;
+- dois espaços e suas membresias foram validados com JWTs reais;
+- isolamento cruzado de leitura e escrita foi confirmado;
+- escrita legítima no espaço próprio foi confirmada;
+- dados temporários do teste foram removidos;
+- autenticação de produção permanece desligada até a área administrativa
+  fornecer redefinição segura e ativação gradual;
+- próxima etapa: Fase 5, administração e colaboração.
