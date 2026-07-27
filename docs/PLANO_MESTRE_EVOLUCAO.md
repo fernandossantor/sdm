@@ -775,3 +775,16 @@ depende da cópia durável do backup em armazenamento privado.
 - conflitos entre pisos e tetos produzem diagnóstico de inviabilidade;
 - restrições ativas ficam preservadas no plano, snapshot e exportação;
 - suíte offline ampliada para 82 testes e regressão conectada aprovadas.
+
+### 27 de julho de 2026 — Fase 2, GRP e alcance auditáveis
+
+- o contrato de comparabilidade passa a controlar a consolidação real do GRP;
+- universo, target, praça, período, métrica, metodologia e granularidade são
+  verificados antes da soma;
+- componentes incompatíveis ou indeterminados permanecem visíveis por meio,
+  mas não produzem `grp_total`;
+- o motivo da não agregação integra a auditoria e o snapshot do plano;
+- metas originais do briefing não são sobrescritas por agregado inválido;
+- ausência de superposição ou incremental deixa o alcance líquido indisponível;
+- hipótese de independência exige seleção explícita e recebe confiança baixa;
+- suíte offline ampliada para 86 testes e regressão conectada aprovadas.

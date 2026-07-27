@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 
 from engine.allocation_engine import AllocationEngine
 from engine.budget_optimizer import BudgetOptimizer
@@ -83,6 +84,83 @@ class TestMediaPlanEngine(unittest.TestCase):
         alcance, auditoria = MediaPlanEngine.alcance_combinado(premissas)
         self.assertEqual(alcance, 100)
         self.assertEqual(auditoria[1]["incremental"], 20)
+
+    def test_nao_inventa_alcance_por_independencia(self):
+        alcance, auditoria = MediaPlanEngine.alcance_combinado(
+            [
+                {"alcance_percentual": 50},
+                {"alcance_percentual": 30},
+            ]
+        )
+
+        self.assertIsNone(alcance)
+        self.assertIn("indisponível", auditoria[-1]["metodo"])
+
+    def test_independencia_exige_aprovacao_e_tem_baixa_confianca(self):
+        alcance, auditoria = MediaPlanEngine.alcance_combinado(
+            [
+                {"alcance_percentual": 50},
+                {
+                    "alcance_percentual": 30,
+                    "permitir_independencia": True,
+                },
+            ]
+        )
+
+        self.assertEqual(alcance, 65)
+        self.assertEqual(auditoria[-1]["metodo"], "hipótese de independência")
+        self.assertEqual(auditoria[-1]["confianca"], "BAIXA")
+
+    def test_grp_incompativel_permanece_por_meio_sem_total(self):
+        resultados = [SimpleNamespace(grp=100), SimpleNamespace(grp=50)]
+        base = {
+            "universo": "Adultos",
+            "publico_alvo": "18+",
+            "praca": "Brasil",
+            "inicio_referencia": "2026-07-01",
+            "fim_referencia": "2026-07-31",
+            "metrica_nativa": "GRP",
+            "metodologia": "Painel A",
+            "granularidade": "INVENTARIO",
+        }
+
+        total, auditoria = MediaPlanEngine.consolidar_grp(
+            resultados,
+            [
+                {**base, "inventario_id": "tv"},
+                {
+                    **base,
+                    "inventario_id": "radio",
+                    "universo": "Ouvintes",
+                },
+            ],
+        )
+
+        self.assertIsNone(total)
+        self.assertEqual(auditoria["situacao"], "NAO_COMPARAVEL")
+        self.assertEqual(auditoria["divergencias"], ["universo"])
+        self.assertEqual([item["grp"] for item in auditoria["componentes"]], [100, 50])
+
+    def test_grp_com_contextos_iguais_pode_ser_somado(self):
+        resultados = [SimpleNamespace(grp=100), SimpleNamespace(grp=50)]
+        contexto = {
+            "universo": "Adultos",
+            "publico_alvo": "18+",
+            "praca": "Brasil",
+            "inicio_referencia": "2026-07-01",
+            "fim_referencia": "2026-07-31",
+            "metrica_nativa": "GRP",
+            "metodologia": "Painel A",
+            "granularidade": "INVENTARIO",
+        }
+
+        total, auditoria = MediaPlanEngine.consolidar_grp(
+            resultados,
+            [contexto, contexto],
+        )
+
+        self.assertEqual(total, 150)
+        self.assertEqual(auditoria["situacao"], "COMPARAVEL")
 
     def test_modo_automatico_aplica_pisos_de_quantidade_e_verba(self):
         resultado = MediaPlanEngine.calcular_item(

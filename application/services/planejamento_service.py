@@ -339,9 +339,12 @@ class PlanejamentoService:
             item.percentual = round(item.verba / total * 100, 2) if total else 0
         consolidado = MediaPlanEngine.consolidar(resultados, premissas_ordenadas)
         plano.resultados_consolidados = consolidado
-        plano.alcance_percentual = consolidado["alcance_liquido_percentual"]
-        plano.frequencia_alvo = consolidado["frequencia_combinada"]
-        plano.grp = consolidado["grp_total"]
+        if consolidado["alcance_liquido_percentual"] is not None:
+            plano.alcance_percentual = consolidado["alcance_liquido_percentual"]
+        if consolidado["frequencia_combinada"] is not None:
+            plano.frequencia_alvo = consolidado["frequencia_combinada"]
+        if consolidado["grp_total"] is not None:
+            plano.grp = consolidado["grp_total"]
         plano.alcance_projetado = round(
             plano.publico_referencia * plano.alcance_percentual / 100
         )
@@ -349,6 +352,7 @@ class PlanejamentoService:
         plano.auditoria_calculo = {
             "motor": "cross-media-v2",
             "alcance": consolidado["auditoria_alcance"],
+            "grp": consolidado["comparabilidade_grp"],
             "observacao": "Valores informados pelo planejador; lacunas não são estimadas silenciosamente.",
         }
 

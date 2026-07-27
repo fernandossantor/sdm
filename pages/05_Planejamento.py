@@ -426,6 +426,41 @@ else:
                 "Frequência do meio", min_value=0, value=int(round(float(medicao_item.get("frequencia") or 0))), step=1,
                 key=f"frequencia_plano_{item['id']}",
             )
+            if ordem == 0:
+                metodo_incremental = "PRIMEIRO_MEIO"
+                st.caption(
+                    "O primeiro meio inicia o alcance líquido com seu alcance próprio."
+                )
+            else:
+                metodo_incremental = st.selectbox(
+                    "Método do alcance incremental",
+                    [
+                        "SEM_EVIDENCIA",
+                        "INCREMENTAL_INFORMADO",
+                        "HIPOTESE_INDEPENDENCIA",
+                    ],
+                    format_func={
+                        "SEM_EVIDENCIA": "Sem evidência — não consolidar alcance",
+                        "INCREMENTAL_INFORMADO": "Alcance incremental informado",
+                        "HIPOTESE_INDEPENDENCIA": (
+                            "Hipótese de independência — confiança baixa"
+                        ),
+                    }.get,
+                    key=f"metodo_incremental_plano_{item['id']}",
+                    help=(
+                        "A independência é apenas um cenário explícito de baixa "
+                        "confiança; não substitui dado de superposição."
+                    ),
+                )
+            permitir_independencia = (
+                metodo_incremental == "HIPOTESE_INDEPENDENCIA"
+            )
+            alcance_incremental_premissa = (
+                incremental_item
+                if ordem == 0
+                or metodo_incremental == "INCREMENTAL_INFORMADO"
+                else None
+            )
             modo_calculo = st.radio(
                 "Variável de decisão",
                 ["Metas geram a quantidade", "Quantidade informa a entrega"],
@@ -648,9 +683,12 @@ else:
                 f"{item['nome']}: " + "; ".join(limites_invalidos) + "."
             )
         premissas_inventarios[item["id"]] = {
+            "inventario_id": item["id"],
             "audiencia_percentual": audiencia_item,
             "alcance_percentual": alcance_item,
-            "alcance_incremental": incremental_item,
+            "alcance_incremental": alcance_incremental_premissa,
+            "metodo_alcance_incremental": metodo_incremental,
+            "permitir_independencia": permitir_independencia,
             "frequencia": frequencia_item,
             "frequencia_maxima": frequencia_maxima,
             "quantidade": quantidade_item,
@@ -671,6 +709,34 @@ else:
             "confianca": confianca,
             "medicao_origem_id": medicao_item.get("id"),
             "fonte": medicao_item.get("fonte") or "Informado no plano",
+            "universo": (
+                briefing_previa.get("universo")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "universo", None)
+            ),
+            "publico_alvo": (
+                briefing_previa.get("segmento")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "segmento", None)
+            ),
+            "praca": (
+                briefing_previa.get("praca")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "praca", None)
+            ),
+            "inicio_referencia": (
+                briefing_previa.get("periodo_inicio")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "inicio", None)
+            ),
+            "fim_referencia": (
+                briefing_previa.get("periodo_fim")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "fim", None)
+            ),
+            "metrica_nativa": "GRP",
+            "metodologia": medicao_item.get("metodologia"),
+            "granularidade": "INVENTARIO",
         }
         componentes_inventarios[item["id"]] = {
             "objetivo": score_objetivo, "kpi": score_kpi,

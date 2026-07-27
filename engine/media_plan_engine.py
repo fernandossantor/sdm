@@ -5,8 +5,14 @@ as premissas mínimas e a interface deve identificar a origem de cada valor.
 """
 
 from dataclasses import dataclass
+from datetime import date
 from math import ceil
 
+from domain.metric_catalog import (
+    ContextoMetrica,
+    SituacaoComparabilidade,
+    comparar_contextos,
+)
 from domain.restricoes import resolver_restricoes_compra
 
 
@@ -137,7 +143,7 @@ class MediaPlanEngine:
 
     @staticmethod
     def alcance_combinado(premissas):
-        """Alcance líquido sequencial: incremental explícito ou independência."""
+        """Alcance sequencial sem aplicar independência silenciosamente."""
         acumulado = 0.0
         auditoria = []
         for indice, item in enumerate(premissas):
@@ -149,28 +155,127 @@ class MediaPlanEngine:
             elif incremental is not None:
                 incremento = float(incremental)
                 metodo = "incremental informado"
-            else:
+            elif item.get("permitir_independencia") is True:
                 incremento = alcance * (1 - acumulado / 100)
-                metodo = "estimativa por independência"
+                metodo = "hipótese de independência"
+            else:
+                auditoria.append({
+                    "alcance_proprio": alcance,
+                    "alcance_anterior": round(acumulado, 2),
+                    "incremental": None,
+                    "metodo": "indisponível sem superposição ou hipótese aprovada",
+                    "confianca": "NAO_AVALIADA",
+                })
+                return None, auditoria
             antes = acumulado
             acumulado = min(100.0, acumulado + max(0, incremento))
             auditoria.append({
                 "alcance_proprio": alcance, "alcance_anterior": round(antes, 2),
                 "incremental": round(acumulado - antes, 2), "metodo": metodo,
+                "confianca": (
+                    "BAIXA"
+                    if metodo == "hipótese de independência"
+                    else str(item.get("confianca") or "NAO_AVALIADA").upper()
+                ),
             })
         return round(acumulado, 2), auditoria
 
     @staticmethod
+    def _data_contexto(valor):
+        if isinstance(valor, date):
+            return valor
+        if valor:
+            try:
+                return date.fromisoformat(str(valor)[:10])
+            except ValueError:
+                return None
+        return None
+
+    @staticmethod
+    def _contexto_grp(premissa):
+        return ContextoMetrica(
+            universo=premissa.get("universo"),
+            publico_alvo=premissa.get("publico_alvo"),
+            praca=premissa.get("praca"),
+            inicio_referencia=MediaPlanEngine._data_contexto(
+                premissa.get("inicio_referencia")
+            ),
+            fim_referencia=MediaPlanEngine._data_contexto(
+                premissa.get("fim_referencia")
+            ),
+            metrica_nativa=str(premissa.get("metrica_nativa") or "GRP"),
+            metodologia=premissa.get("metodologia"),
+            granularidade=premissa.get("granularidade"),
+        )
+
+    @staticmethod
+    def consolidar_grp(resultados, premissas):
+        componentes = [
+            {
+                "inventario_id": premissa.get("inventario_id"),
+                "grp": resultado.grp,
+            }
+            for resultado, premissa in zip(resultados, premissas)
+        ]
+        if len(resultados) <= 1:
+            return (
+                round(sum(item.grp for item in resultados), 2),
+                {
+                    "situacao": "COMPARAVEL",
+                    "divergencias": [],
+                    "componentes": componentes,
+                },
+            )
+
+        contextos = [
+            MediaPlanEngine._contexto_grp(premissa)
+            for premissa in premissas
+        ]
+        situacao = SituacaoComparabilidade.COMPARAVEL
+        divergencias = set()
+        primeiro = contextos[0]
+        for contexto in contextos[1:]:
+            comparacao = comparar_contextos(primeiro, contexto)
+            divergencias.update(comparacao.divergencias)
+            if comparacao.situacao is SituacaoComparabilidade.INDETERMINADO:
+                situacao = SituacaoComparabilidade.INDETERMINADO
+            elif (
+                comparacao.situacao is SituacaoComparabilidade.NAO_COMPARAVEL
+                and situacao is not SituacaoComparabilidade.INDETERMINADO
+            ):
+                situacao = SituacaoComparabilidade.NAO_COMPARAVEL
+
+        total = (
+            round(sum(item.grp for item in resultados), 2)
+            if situacao is SituacaoComparabilidade.COMPARAVEL
+            else None
+        )
+        return total, {
+            "situacao": situacao.value,
+            "divergencias": sorted(divergencias),
+            "componentes": componentes,
+        }
+
+    @staticmethod
     def consolidar(resultados, premissas):
         alcance, auditoria = MediaPlanEngine.alcance_combinado(premissas)
-        grp = round(sum(item.grp for item in resultados), 2)
-        frequencia = round(grp / alcance, 2) if alcance else 0
+        grp, comparabilidade_grp = MediaPlanEngine.consolidar_grp(
+            resultados,
+            premissas,
+        )
+        frequencia = (
+            round(grp / alcance, 2)
+            if grp is not None and alcance
+            else None
+        )
         investimento = round(sum(item.investimento for item in resultados), 2)
         retorno = round(sum(item.retorno for item in resultados), 2)
         return {
             "alcance_liquido_percentual": alcance,
             "frequencia_combinada": frequencia,
             "grp_total": grp,
+            "grp_por_meio": comparabilidade_grp["componentes"],
+            "comparabilidade_grp": comparabilidade_grp,
             "investimento": investimento,
             "custo_midia": round(sum(item.custo_midia for item in resultados), 2),
             "fees": {
