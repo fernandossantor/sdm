@@ -429,6 +429,31 @@ class TestAdminClient(unittest.TestCase):
 
         criar_cliente.assert_not_called()
 
+    def test_cliente_administrativo_nao_persiste_sessao(self):
+        admin_client.get_admin_client.cache_clear()
+        cliente = Mock()
+        with (
+            patch.object(admin_client, "load_dotenv"),
+            patch.dict(
+                admin_client.os.environ,
+                {
+                    "SUPABASE_URL": "https://project.example",
+                    "SUPABASE_SERVICE_KEY": "sb_secret_teste",
+                },
+            ),
+            patch.object(
+                admin_client,
+                "create_client",
+                return_value=cliente,
+            ) as criar_cliente,
+        ):
+            self.assertIs(admin_client.get_admin_client(), cliente)
+
+        opcoes = criar_cliente.call_args.kwargs["options"]
+        self.assertFalse(opcoes.persist_session)
+        self.assertFalse(opcoes.auto_refresh_token)
+        admin_client.get_admin_client.cache_clear()
+
 
 class TestScenarioService(unittest.TestCase):
 

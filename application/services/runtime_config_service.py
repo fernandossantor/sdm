@@ -37,4 +37,12 @@ class RuntimeConfigService:
             raise RuntimeError(
                 "A chave pública não pode ser a chave service_role."
             )
+        if not os.getenv("SUPABASE_KEY", "").startswith("sb_publishable_"):
+            raise RuntimeError(
+                "Produção exige uma chave pública sb_publishable_..."
+            )
+        if not os.getenv("SUPABASE_SERVICE_KEY", "").startswith("sb_secret_"):
+            raise RuntimeError(
+                "Produção exige uma chave administrativa sb_secret_..."
+            )
         return {"ambiente": ambiente, "autenticacao": True}

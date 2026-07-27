@@ -47,14 +47,29 @@ class TestRuntimeConfigService(unittest.TestCase):
                 "PLANOS_ENV": "production",
                 "PLANOS_AUTH_ENABLED": "true",
                 "SUPABASE_URL": "https://project.example",
-                "SUPABASE_KEY": "anon",
-                "SUPABASE_SERVICE_KEY": "service",
+                "SUPABASE_KEY": "sb_publishable_teste",
+                "SUPABASE_SERVICE_KEY": "sb_secret_teste",
             },
             clear=True,
         ):
             resultado = RuntimeConfigService.validar()
 
         self.assertTrue(resultado["autenticacao"])
+
+    def test_producao_rejeita_chaves_legadas(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "PLANOS_ENV": "production",
+                "PLANOS_AUTH_ENABLED": "true",
+                "SUPABASE_URL": "https://project.example",
+                "SUPABASE_KEY": "jwt-anon",
+                "SUPABASE_SERVICE_KEY": "jwt-service-role",
+            },
+            clear=True,
+        ):
+            with self.assertRaisesRegex(RuntimeError, "sb_publishable"):
+                RuntimeConfigService.validar()
 
 
 if __name__ == "__main__":

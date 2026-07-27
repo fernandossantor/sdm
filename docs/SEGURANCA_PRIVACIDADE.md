@@ -7,12 +7,25 @@ Revisão: 27 de julho de 2026 (UTC).
 O PlanOS somente aceita `PLANOS_ENV=production` quando:
 
 - `PLANOS_AUTH_ENABLED=true`;
-- URL, chave pública e chave `service_role` estão presentes;
+- URL, chave pública `sb_publishable_...` e chave administrativa
+  `sb_secret_...` estão presentes;
 - chave pública e chave administrativa são diferentes.
 
-A chave `service_role` pertence exclusivamente ao backend e às rotinas
+A chave `sb_secret_...` pertence exclusivamente ao backend e às rotinas
 administrativas. Ela não pode ser incluída no Git, enviada ao navegador,
-copiada para logs ou usada como `SUPABASE_KEY`.
+copiada para logs ou usada como `SUPABASE_KEY`. O cliente administrativo não
+persiste nem renova sessão automaticamente.
+
+## Migração das chaves
+
+Para o piloto, substituir as chaves JWT legadas:
+
+- `anon` → `sb_publishable_...`;
+- `service_role` → `sb_secret_...`.
+
+As chaves novas devem ser criadas no painel, instaladas localmente e na
+hospedagem, validadas e somente depois usadas para desativar as legadas. A
+desativação é um gate manual posterior ao teste e não faz parte do deploy.
 
 ## Dados e acesso
 
