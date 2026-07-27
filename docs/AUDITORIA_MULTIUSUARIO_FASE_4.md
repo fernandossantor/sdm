@@ -84,6 +84,21 @@ do [uso de JWT com RLS](https://supabase.com/docs/guides/auth/jwts) e com o
 Elas sustentam o uso do JWT do usuário nas políticas, a renovação por sessão,
 o logout visível e a não persistência do token em armazenamento do navegador.
 
+## Contexto de espaço de trabalho
+
+- após o login, a aplicação consulta somente espaços permitidos pela RLS;
+- usuário comum recebe o papel da própria membresia e administrador pode
+  selecionar qualquer espaço ativo;
+- um espaço único é selecionado automaticamente; múltiplos exigem escolha;
+- a escolha é revalidada a cada rerun e valores forjados são recusados;
+- inclusões de projetos, briefings, planejamentos e artefatos recebem sempre o
+  `espaco_id` do contexto validado, substituindo qualquer valor do payload;
+- listagens dessas tabelas recebem filtro adicional pelo espaço ativo, sem
+  substituir a proteção RLS do banco;
+- troca de espaço limpa projeto, briefing, plano e resultados derivados;
+- logout ou expiração limpa todo o estado privado da sessão, prevenindo
+  exposição residual quando outra pessoa usa o mesmo navegador.
+
 ## Validação local
 
 - migration executada duas vezes no PostgreSQL isolado sem erro;
@@ -100,3 +115,5 @@ o logout visível e a não persistência do token em armazenamento do navegador.
   fallback transitório e injeção de cliente nos repositories.
 - login, renovação, expiração, senha temporária e limpeza local também foram
   cobertos por testes unitários, ainda sem ativação na implantação.
+- seleção autorizada, troca de contexto, inclusão forçada no espaço e
+  filtragem de leituras foram validadas por testes específicos.

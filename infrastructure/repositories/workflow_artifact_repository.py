@@ -5,6 +5,7 @@ from infrastructure.repositories.base_repository import BaseRepository
 class WorkflowArtifactRepository(BaseRepository):
     def listar(self, tipo, projeto_id=None):
         consulta = self.db.table(ARTEFATOS_WORKFLOW).select("*").eq("tipo", tipo)
+        consulta = self._filtrar_espaco(consulta, ARTEFATOS_WORKFLOW)
         if projeto_id:
             consulta = consulta.eq("projeto_id", projeto_id)
         return consulta.execute().data

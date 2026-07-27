@@ -927,5 +927,8 @@ depende da cópia durável do backup em armazenamento privado.
   preparados sob `PLANOS_AUTH_ENABLED`, desligado por padrão;
 - cada login usa cliente isolado, em conformidade com Supabase Auth e gestão
   de sessões recomendada pela OWASP;
+- o espaço ativo passa a ser revalidado contra a membresia, propagado nas
+  inclusões centrais e aplicado como filtro adicional às leituras;
+- troca de espaço, logout e expiração removem contextos privados anteriores;
 - aplicação remota permanece bloqueada até novo backup, RPC de cópia segura,
   validação SQL local e teste controlado de autenticação.

@@ -30,7 +30,13 @@ class TestAuthService(unittest.TestCase):
         )
         consulta = cliente.table.return_value.select.return_value
         consulta.eq.return_value.single.return_value.execute.return_value = (
-            SimpleNamespace(data={"ativo": True, "trocar_senha": True})
+            SimpleNamespace(
+                data={
+                    "ativo": True,
+                    "papel_global": "USUARIO",
+                    "trocar_senha": True,
+                }
+            )
         )
         estado = {}
 
@@ -41,6 +47,7 @@ class TestAuthService(unittest.TestCase):
         self.assertEqual(estado["auth_access_token"], "access")
         self.assertEqual(estado["auth_user_id"], "user-1")
         self.assertTrue(estado["auth_trocar_senha"])
+        self.assertEqual(estado["auth_papel_global"], "USUARIO")
         self.assertNotIn("senha", estado)
         cliente.auth.sign_in_with_password.assert_called_once_with(
             {"email": "user@example.com", "password": "segredo-forte"}
@@ -64,6 +71,7 @@ class TestAuthService(unittest.TestCase):
             "auth_access_token": "old",
             "auth_refresh_token": "refresh",
             "auth_expires_at": time.time() - 1,
+            "projeto_id": "projeto-anterior",
         }
 
         self.assertTrue(
@@ -84,6 +92,7 @@ class TestAuthService(unittest.TestCase):
             AuthService(lambda: cliente).renovar_se_necessario(estado)
         )
         self.assertNotIn("auth_access_token", estado)
+        self.assertNotIn("projeto_id", estado)
 
     def test_senha_nova_exige_oito_caracteres(self):
         with self.assertRaisesRegex(ValueError, "8 caracteres"):

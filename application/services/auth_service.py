@@ -6,16 +6,6 @@ import time
 from infrastructure.database.data_client import create_auth_client
 
 
-CHAVES_AUTH = (
-    "auth_access_token",
-    "auth_refresh_token",
-    "auth_expires_at",
-    "auth_user_id",
-    "auth_email",
-    "auth_trocar_senha",
-)
-
-
 def autenticacao_habilitada():
     return os.getenv("PLANOS_AUTH_ENABLED", "").strip().lower() in {
         "1",
@@ -43,14 +33,13 @@ class AuthService:
 
     @staticmethod
     def limpar_sessao(session_state):
-        for chave in CHAVES_AUTH:
-            session_state.pop(chave, None)
+        session_state.clear()
 
     @staticmethod
     def _carregar_perfil(cliente, session_state):
         resposta = (
             cliente.table("perfis_usuarios")
-            .select("ativo,trocar_senha")
+            .select("ativo,papel_global,trocar_senha")
             .eq("id", session_state["auth_user_id"])
             .single()
             .execute()
@@ -59,6 +48,7 @@ class AuthService:
         if not perfil.get("ativo"):
             raise PermissionError("A conta está inativa.")
         session_state["auth_trocar_senha"] = bool(perfil.get("trocar_senha"))
+        session_state["auth_papel_global"] = perfil.get("papel_global")
 
     def entrar(self, email, senha, session_state):
         if not str(email or "").strip() or not senha:

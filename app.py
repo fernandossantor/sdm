@@ -12,11 +12,13 @@ from components.home.knowledge_card import render as knowledge_card
 from components.active_context import render as active_context
 from components.page_config import PAGE_ICON, PAGE_TITLE
 from components.auth_gate import render as auth_gate
+from components.workspace_gate import render as workspace_gate
 from application.services.auth_service import AuthService, autenticacao_habilitada
 from infrastructure.database.data_client import (
     bind_authenticated_client,
     clear_request_client,
 )
+from infrastructure.database.workspace_context import clear_workspace
 
 
 LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
@@ -38,10 +40,13 @@ st.set_page_config(
 )
 
 clear_request_client()
+clear_workspace()
 if autenticacao_habilitada():
     if not auth_gate():
         st.stop()
     bind_authenticated_client(st.session_state["auth_access_token"])
+    if not workspace_gate():
+        st.stop()
 elif st.session_state.get("auth_access_token"):
     bind_authenticated_client(st.session_state["auth_access_token"])
 
