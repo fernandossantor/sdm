@@ -49,6 +49,7 @@ class PlanoItem:
     fee_verificacao: float = 0.0
     fee_operacao: float = 0.0
     custo_total: float = 0.0
+    restricoes_ativas: List[str] = field(default_factory=list)
 
     quantidade_estimada: Optional[float] = None
 

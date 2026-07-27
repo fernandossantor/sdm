@@ -7,7 +7,7 @@ as premissas mínimas e a interface deve identificar a origem de cada valor.
 from dataclasses import dataclass
 from math import ceil
 
-from domain.custos import calcular_custo_compra
+from domain.restricoes import resolver_restricoes_compra
 
 
 @dataclass(frozen=True)
@@ -39,6 +39,7 @@ class DeliveryResult:
     fee_verificacao: float
     fee_operacao: float
     custo_total: float
+    restricoes_ativas: tuple[str, ...]
 
 
 class MediaPlanEngine:
@@ -77,35 +78,15 @@ class MediaPlanEngine:
                 quantidade = ceil(alcance * frequencia_meta / audiencia)
         else:
             quantidade = float(premissa.get("quantidade") or 0)
-        if quantidade < 0:
-            raise ValueError("A quantidade não pode ser negativa.")
-        minimo = float(premissa.get("quantidade_minima") or 0)
-        maximo = premissa.get("quantidade_maxima")
-        if quantidade < minimo:
-            if modo == "METAS":
-                quantidade = minimo
-            else:
-                raise ValueError("A quantidade está abaixo do piso informado.")
-        verba_minima = float(premissa.get("verba_minima") or 0)
-        if modo == "METAS" and verba_minima > 0:
-            if preco <= 0:
-                raise ValueError(
-                    "Informe um preço maior que zero para aplicar o piso de verba."
-                )
-            quantidade = max(quantidade, ceil(verba_minima / preco))
-        if maximo is not None and quantidade > float(maximo):
-            if modo == "METAS":
-                quantidade = float(maximo)
-            else:
-                raise ValueError("A quantidade excede o teto informado.")
-        quantidade = int(ceil(quantidade)) if modo == "METAS" else int(quantidade)
-        custo = calcular_custo_compra(quantidade, preco, premissa)
+        restricoes = resolver_restricoes_compra(
+            quantidade,
+            modo,
+            premissa,
+            preco,
+        )
+        quantidade = restricoes.quantidade
+        custo = restricoes.custo
         investimento = custo.custo_total
-        verba_maxima = premissa.get("verba_maxima")
-        if investimento < verba_minima:
-            raise ValueError(f"O investimento {investimento:.2f} está abaixo do piso {verba_minima:.2f}.")
-        if verba_maxima is not None and investimento > float(verba_maxima):
-            raise ValueError(f"O investimento {investimento:.2f} excede o teto {float(verba_maxima):.2f}.")
         pessoas = round(float(publico_referencia or 0) * alcance / 100)
 
         if "mil impress" in unidade:
@@ -151,6 +132,7 @@ class MediaPlanEngine:
             fee_verificacao=custo.fee_verificacao,
             fee_operacao=custo.fee_operacao,
             custo_total=custo.custo_total,
+            restricoes_ativas=restricoes.limites_ativos,
         )
 
     @staticmethod

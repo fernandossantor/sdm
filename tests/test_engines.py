@@ -101,6 +101,10 @@ class TestMediaPlanEngine(unittest.TestCase):
 
         self.assertEqual(resultado.quantidade, 12)
         self.assertEqual(resultado.investimento, 6000)
+        self.assertEqual(
+            resultado.restricoes_ativas,
+            ("QUANTIDADE_MINIMA", "VERBA_MINIMA"),
+        )
 
     def test_modo_manual_rejeita_quantidade_abaixo_do_piso(self):
         with self.assertRaisesRegex(ValueError, "abaixo do piso"):
@@ -167,6 +171,57 @@ class TestMediaPlanEngine(unittest.TestCase):
                     "desconto_percentual": 101,
                 },
                 publico_referencia=10000,
+                preco_unitario=100,
+            )
+
+    def test_piso_de_verba_considera_fees_no_arredondamento(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10,
+                "alcance_percentual": 10,
+                "frequencia": 1,
+                "unidade_compra": "Inserção",
+                "modo_calculo": "METAS",
+                "verba_minima": 550,
+                "fee_operacao_fixo": 50,
+            },
+            publico_referencia=1000,
+            preco_unitario=100,
+        )
+
+        self.assertEqual(resultado.quantidade, 5)
+        self.assertEqual(resultado.custo_total, 550)
+        self.assertEqual(resultado.restricoes_ativas, ("VERBA_MINIMA",))
+
+    def test_meta_acima_do_teto_falha_sem_reduzir_quantidade(self):
+        with self.assertRaisesRegex(ValueError, "meta é inviável"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 50,
+                    "frequencia": 2,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "METAS",
+                    "quantidade_maxima": 5,
+                },
+                publico_referencia=1000,
+                preco_unitario=100,
+            )
+
+    def test_piso_maior_que_teto_falha_com_causa(self):
+        with self.assertRaisesRegex(ValueError, "piso de quantidade 10"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 10,
+                    "frequencia": 1,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "COMPRA",
+                    "quantidade": 10,
+                    "quantidade_minima": 10,
+                    "quantidade_maxima": 5,
+                },
+                publico_referencia=1000,
                 preco_unitario=100,
             )
 

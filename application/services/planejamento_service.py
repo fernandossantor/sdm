@@ -314,6 +314,7 @@ class PlanejamentoService:
             item.fee_verificacao = resultado.fee_verificacao
             item.fee_operacao = resultado.fee_operacao
             item.custo_total = resultado.custo_total
+            item.restricoes_ativas = list(resultado.restricoes_ativas)
             item.quantidade_estimada = resultado.quantidade
             item.verba = resultado.investimento
             item.audiencia_percentual = resultado.audiencia_percentual
@@ -504,6 +505,7 @@ class PlanejamentoService:
                 "fee_verificacao": item.fee_verificacao,
                 "fee_operacao": item.fee_operacao,
                 "custo_total": item.custo_total,
+                "restricoes_ativas": item.restricoes_ativas,
                 "quantidade_estimada": item.quantidade_estimada,
                 "impressoes_estimadas": item.impressoes_estimadas,
                 "alcance_estimado": item.alcance_estimado,

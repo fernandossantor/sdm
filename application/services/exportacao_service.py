@@ -46,6 +46,7 @@ class ExportacaoService:
                     "Fee de verificação": item.fee_verificacao,
                     "Fee de operação": item.fee_operacao,
                     "Custo total": item.custo_total,
+                    "Restrições ativas": ", ".join(item.restricoes_ativas),
                     "Unidade de compra": item.unidade_compra,
                     "Quantidade comprada": item.quantidade_estimada,
                     "Impressões estimadas": item.impressoes_estimadas,

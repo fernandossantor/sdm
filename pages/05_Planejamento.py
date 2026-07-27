@@ -28,6 +28,7 @@ from components.grp_fields import render as render_grp
 from components.schedule_visual import render as render_schedule
 from application.services.identifier_service import IdentifierService
 from domain.custos import calcular_custo_compra
+from domain.restricoes import resolver_restricoes_compra
 
 
 # ==========================================================
@@ -508,16 +509,23 @@ else:
                 float(verba_minima),
                 float(preco_item.get("investimento_minimo") or 0),
             )
+            premissa_restricoes = {
+                **condicoes_comerciais,
+                "quantidade_minima": quantidade_minima_efetiva,
+                "quantidade_maxima": quantidade_maxima_efetiva or None,
+                "verba_minima": verba_minima_efetiva,
+                "verba_maxima": verba_maxima or None,
+            }
 
-            quantidade_automatica = int(ceil(quantidade_meta))
-            quantidade_automatica = max(
-                quantidade_automatica, int(ceil(quantidade_minima_efetiva))
-            )
-            if preco_liquido > 0 and verba_minima_efetiva > 0:
-                quantidade_automatica = max(
-                    quantidade_automatica,
-                    int(ceil(verba_minima_efetiva / preco_liquido)),
-                )
+            try:
+                quantidade_automatica = resolver_restricoes_compra(
+                    quantidade_meta,
+                    "METAS",
+                    premissa_restricoes,
+                    preco_liquido,
+                ).quantidade
+            except ValueError:
+                quantidade_automatica = int(ceil(quantidade_meta))
 
             e, f, g, h = st.columns(4)
             if modo_calculo == "Metas geram a quantidade":
@@ -612,45 +620,32 @@ else:
             impedimentos_geracao.append(
                 f"{item['nome']}: informe " + ", ".join(campos_ausentes) + "."
             )
-        custo_item = calcular_custo_compra(
-            quantidade_item,
-            preco_liquido,
-            condicoes_comerciais,
-        )
-        investimento_item = custo_item.custo_total
-        investimento_proposto += investimento_item
         limites_invalidos = []
-        if quantidade_item < quantidade_minima_efetiva:
-            limites_invalidos.append(
-                "quantidade abaixo do piso "
-                f"({numero_ptbr(quantidade_item)} calculada; "
-                f"{numero_ptbr(quantidade_minima_efetiva)} mínima)"
+        try:
+            resultado_restricoes = resolver_restricoes_compra(
+                quantidade_item,
+                (
+                    "METAS"
+                    if modo_calculo == "Metas geram a quantidade"
+                    else "COMPRA"
+                ),
+                premissa_restricoes,
+                preco_liquido,
             )
-        if (
-            quantidade_maxima_efetiva > 0
-            and quantidade_item > quantidade_maxima_efetiva
-        ):
-            limites_invalidos.append(
-                "quantidade acima do teto "
-                f"({numero_ptbr(quantidade_item)} calculada; "
-                f"{numero_ptbr(quantidade_maxima_efetiva)} máxima)"
-            )
-        if investimento_item < verba_minima_efetiva:
-            limites_invalidos.append(
-                "verba abaixo do piso "
-                f"({moeda_ptbr(investimento_item)} calculada; "
-                f"{moeda_ptbr(verba_minima_efetiva)} mínima)"
-            )
-        if verba_maxima > 0 and investimento_item > verba_maxima:
-            limites_invalidos.append(
-                "verba acima do teto "
-                f"({moeda_ptbr(investimento_item)} calculada; "
-                f"{moeda_ptbr(verba_maxima)} máxima)"
-            )
+            quantidade_item = resultado_restricoes.quantidade
+            investimento_item = resultado_restricoes.custo.custo_total
+        except ValueError as erro:
+            limites_invalidos.append(str(erro))
+            investimento_item = calcular_custo_compra(
+                quantidade_item,
+                preco_liquido,
+                condicoes_comerciais,
+            ).custo_total
+        investimento_proposto += investimento_item
         if limites_invalidos:
             premissas_validas = False
             impedimentos_geracao.append(
-                f"{item['nome']}: corrija " + ", ".join(limites_invalidos) + "."
+                f"{item['nome']}: " + "; ".join(limites_invalidos) + "."
             )
         premissas_inventarios[item["id"]] = {
             "audiencia_percentual": audiencia_item,

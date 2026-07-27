@@ -763,3 +763,15 @@ depende da cópia durável do backup em armazenamento privado.
 - ranking e alocador passam a usar a mesma semântica;
 - alocação registra elegíveis, excluídos, motivos e obrigatórios;
 - suíte offline ampliada para 79 testes e regressão conectada aprovadas.
+
+### 27 de julho de 2026 — Fase 2, limites de compra
+
+- criado resolvedor único para pisos e tetos de quantidade e verba;
+- interface e engine usam a mesma fórmula e a mesma ordem de aplicação;
+- quantidades discretas são arredondadas antes da validação final;
+- piso de verba considera preço líquido, fees percentuais e fees fixos;
+- disponibilidade e capacidade permanecem como tetos efetivos;
+- metas acima do teto não são mais reduzidas silenciosamente;
+- conflitos entre pisos e tetos produzem diagnóstico de inviabilidade;
+- restrições ativas ficam preservadas no plano, snapshot e exportação;
+- suíte offline ampliada para 82 testes e regressão conectada aprovadas.
