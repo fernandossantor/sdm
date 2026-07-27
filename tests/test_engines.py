@@ -11,6 +11,7 @@ from engine.insights_engine import InsightsEngine
 from engine.inventory_engine import InventoryEngine
 from engine.recommendation_engine import RecommendationEngine
 from engine.scenario_engine import ScenarioEngine
+from engine.sensitivity_engine import SensitivityEngine
 from engine.score_engine import ScoreEngine
 from domain.models.plano_tatico import PlanoTatico, PlanoTaticoItem
 from engine.media_plan_engine import MediaPlanEngine
@@ -422,6 +423,57 @@ class TestScenarioEngine(unittest.TestCase):
 
         self.assertEqual(resumo["inventarios"], 0)
         self.assertEqual(resumo["score_medio"], 0)
+
+
+class TestSensitivityEngine(unittest.TestCase):
+
+    @staticmethod
+    def _plano():
+        item = SimpleNamespace(
+            inventario="Digital",
+            verba=1000,
+            impressoes_estimadas=100000,
+            cliques_estimados=2000,
+            conversoes_estimadas=100,
+            premissas={"ctr": 2, "taxa_conversao": 5},
+        )
+        return SimpleNamespace(itens=[item])
+
+    def test_aplica_premissas_explicitas_em_cadeia(self):
+        resultado = SensitivityEngine().simular(
+            self._plano(),
+            {
+                "CONSERVADOR": {
+                    "impressoes": -10,
+                    "ctr": -10,
+                    "taxa_conversao": -10,
+                },
+                "BASE": {},
+                "OTIMISTA": {
+                    "impressoes": 10,
+                    "ctr": 10,
+                    "taxa_conversao": 10,
+                },
+            },
+        )
+
+        self.assertEqual(resultado["BASE"]["conversoes"], 100)
+        self.assertEqual(resultado["CONSERVADOR"]["conversoes"], 72.9)
+        self.assertEqual(resultado["OTIMISTA"]["conversoes"], 133.1)
+        self.assertEqual(resultado["BASE"]["investimento"], 1000)
+        self.assertIn("não intervalo estatístico", resultado["BASE"]["limitacoes"][0])
+
+    def test_lacuna_bloqueia_apenas_resultado_dependente(self):
+        plano = self._plano()
+        plano.itens[0].premissas = {}
+        plano.itens[0].cliques_estimados = None
+        plano.itens[0].conversoes_estimadas = None
+
+        resultado = SensitivityEngine().simular(plano, {"BASE": {}})["BASE"]
+
+        self.assertEqual(resultado["impressoes"], 100000)
+        self.assertIsNone(resultado["cliques"])
+        self.assertIsNone(resultado["conversoes"])
 
 
 class TestForecastEngine(unittest.TestCase):

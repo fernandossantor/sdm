@@ -73,7 +73,7 @@ workflow_links = [
 ]
 analise_links = [
     (st.Page("pages/10_Comparador.py", title="Comparação de Planos", icon="⚖️"), "Comparação de Planos", "⚖️"),
-    (st.Page("pages/11_Cenarios.py", title="Simulação de Cenários", icon="🎛️"), "Simulação de Cenários", "🎛️"),
+    (st.Page("pages/11_Cenarios.py", title="Cenários e Sensibilidade", icon="🎛️"), "Cenários e Sensibilidade", "🎛️"),
     (
         st.Page(
             "pages/12_Otimizador.py",

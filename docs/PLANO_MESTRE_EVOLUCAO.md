@@ -872,3 +872,16 @@ depende da cópia durável do backup em armazenamento privado.
 - ausência dos limiares necessários mantém o resultado indisponível;
 - distribuição integra item, snapshot, consolidado auditável e exportação;
 - saturação econômica continua indisponível sem curva de resposta calibrada.
+
+### 27 de julho de 2026 — Fase 3, cenários e sensibilidade
+
+- cenários antigos baseados em multiplicadores de papel deixam de orientar a
+  interface principal;
+- plano e investimento ficam fixos durante a análise;
+- conservador, base e otimista variam impressões, CTR e taxa de conversão por
+  premissas explícitas e editáveis;
+- a cadeia de dependência recalcula cliques e conversões sem defaults;
+- lacunas bloqueiam somente os resultados dependentes;
+- resultados são identificados como condicionais, não intervalos estatísticos;
+- revisão acadêmica e mercadológica fica registrada em
+  `REVISAO_REFERENCIAS_FASE_3.md`.
