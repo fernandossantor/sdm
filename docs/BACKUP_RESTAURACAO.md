@@ -36,6 +36,15 @@ sha256sum "$BACKUP_DIR"/*.sql
 `BACKUP_DIR` deve apontar para um diretório explícito e privado. Não usar o
 workspace Git.
 
+Antes da restauração, validar presença, tamanho e checksums:
+
+```bash
+python -m scripts.verificar_backup "$BACKUP_DIR"
+```
+
+O comando falha se qualquer um dos quatro dumps estiver ausente, vazio, fora
+do manifesto ou com SHA-256 divergente.
+
 ## Ensaio de restauração
 
 1. Inicializar um projeto Supabase temporário sem migrations da aplicação.
@@ -214,4 +223,5 @@ retroativo.
 - definir retenção e responsáveis;
 - versionar o esquema-base anterior à migration `20260721000000`;
 - criar ensaio separado para metadados e objetos do Storage;
-- automatizar comparação de contagens entre origem e restauração.
+- automatizar comparação de contagens entre origem e restauração;
+- gerar novo conjunto após a rotação da chave administrativa e antes do piloto.

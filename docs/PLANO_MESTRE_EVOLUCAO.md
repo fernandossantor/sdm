@@ -1218,3 +1218,18 @@ depende da cópia durável do backup em armazenamento privado.
 - referências acadêmicas, mercadológicas e decisões metodológicas foram
   confrontadas durante cada incremento;
 - próxima etapa: Fase 7 — homologação e publicação gradual.
+
+### 27 de julho de 2026 — Início da Fase 7
+
+- CI foi corrigido para executar pytest pelo mesmo interpretador que instala
+  as dependências; checks de push e PR foram aprovados;
+- Atribuição e Qualidade/Localização foram incorporadas à navegação;
+- produção passa a falhar fechada sem autenticação, URL e chaves distintas;
+- política operacional de segurança e privacidade foi documentada;
+- referências oficiais da ANPD e do OWASP foram incorporadas ao gate;
+- chave administrativa exposta durante diagnóstico deve ser rotacionada antes
+  do piloto;
+- verificador de conjuntos de backup confere presença, tamanho e SHA-256;
+- último backup completo foi revalidado com quatro dumps íntegros;
+- suíte offline ampliada para 154 testes aprovados e 3 integrações opcionais;
+- próximo gate: novo backup e restauração após rotação da chave.
