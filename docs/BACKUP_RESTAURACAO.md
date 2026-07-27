@@ -65,9 +65,24 @@ serviço e ter validação separada.
 - migrations locais atuais não recriam o banco desde o zero, pois partem de
   um esquema-base que ainda não está versionado.
 
+## Cópia durável de 27 de julho de 2026
+
+O conjunto anterior à migration `20260727000000` foi copiado para a pasta
+privada [PlanOS Backups / 2026-07-27 pre-migration
+20260727000000](https://drive.google.com/drive/folders/1d8ZtFBRiYJ6bnQ0V4fSJ6y_sDoxRuVx9)
+no Google Drive conectado.
+
+Foram verificados quatro arquivos com os mesmos tamanhos dos originais:
+
+- `schema.sql`: 95.301 bytes;
+- `data.sql`: 404.289 bytes;
+- `public-data.sql`: 395.446 bytes;
+- `roles.sql`: 358 bytes.
+
+Todos foram confirmados como não compartilhados (`not_shared`).
+
 ## Pendências operacionais
 
-- copiar o conjunto para armazenamento privado e criptografado;
 - definir retenção e responsáveis;
 - versionar o esquema-base anterior à migration `20260721000000`;
 - criar ensaio separado para metadados e objetos do Storage;

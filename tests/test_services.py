@@ -15,6 +15,47 @@ from application.services.comparador_service import ComparadorService
 
 class TestPlanejamentoService(unittest.TestCase):
 
+    def test_geracao_por_nome_preserva_frequencia_do_briefing(self):
+        service = PlanejamentoService()
+        service.context_service.carregar = Mock(
+            return_value={
+                "briefing": {
+                    "anunciante": "Cliente",
+                    "nome": "Campanha",
+                    "orcamento": 1000,
+                    "kpi": "GRP",
+                    "tipo_flight": "ONDA",
+                    "frequencia_objetivo": "ALTA",
+                    "frequencia_alvo": 8,
+                    "alcance_objetivo": "ALTO",
+                    "alcance_percentual": 85,
+                    "grp": 680,
+                    "publico_referencia": 10000,
+                },
+                "objetivo": {"nome": "Alcance"},
+            }
+        )
+        service.inventory_engine.calcular = Mock(return_value=[{"inventario": "TV"}])
+        service._montar_plano = Mock(
+            return_value=PlanoEstrategico(
+                cliente="Cliente",
+                campanha="Campanha",
+                objetivo="Alcance",
+                orcamento=1000,
+            )
+        )
+
+        with (
+            patch.object(service, "_calcular_entrega"),
+            patch.object(service, "_cronograma", return_value=[]),
+        ):
+            plano = service.gerar("Campanha")
+
+        self.assertEqual(plano.frequencia_objetivo, "ALTA")
+        self.assertEqual(plano.frequencia_alvo, 8)
+        self.assertEqual(plano.alcance_percentual, 85)
+        self.assertEqual(plano.grp, 680)
+
     def test_exportacao_contem_todas_as_abas_e_variaveis_do_plano(self):
         plano = PlanoEstrategico(
             cliente="Cliente", campanha="Campanha", objetivo="Alcance",

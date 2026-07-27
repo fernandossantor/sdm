@@ -234,8 +234,16 @@ class PlanejamentoService:
             inicio_cronograma, fim_cronograma = briefing.inicio, briefing.fim
         else:
             plano.tipo_flight = fonte.get("tipo_flight", briefing_bd.get("tipo_flight", "LINEAR"))
-            plano.frequencia_objetivo = fonte.get("frequencia_objetivo", "MEDIA")
-            plano.frequencia_alvo = float(fonte.get("frequencia_alvo", 5))
+            plano.frequencia_objetivo = fonte.get(
+                "frequencia_objetivo",
+                briefing_bd.get("frequencia_objetivo", "MEDIA"),
+            )
+            plano.frequencia_alvo = float(
+                fonte.get(
+                    "frequencia_alvo",
+                    briefing_bd.get("frequencia_alvo") or 5,
+                )
+            )
             plano.alcance_objetivo = fonte.get(
                 "alcance_objetivo", briefing_bd.get("alcance_objetivo", "MEDIO")
             )

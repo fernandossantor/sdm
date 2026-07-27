@@ -695,4 +695,11 @@ depende da cópia durável do backup em armazenamento privado.
   `authenticated`;
 - migration aplicada duas vezes com sucesso na restauração isolada, confirmando
   compatibilidade e idempotência;
-- nenhuma migration foi aplicada ao projeto remoto.
+- backup durável verificado no Google Drive sem compartilhamento;
+- migration `20260727000000` aplicada e confirmada no projeto remoto;
+- seeds remotos conferidos: 8 unidades e 8 métricas;
+- health check, auditoria de segurança, regressão e 3 integrações autenticadas
+  aprovados;
+- geração legada por nome corrigida para preservar a frequência e sua faixa
+  salvas no briefing;
+- suíte offline ampliada para 68 testes aprovados.
