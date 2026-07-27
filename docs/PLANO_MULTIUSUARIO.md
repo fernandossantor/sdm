@@ -1,6 +1,6 @@
 # Plano de evolução multiusuário
 
-Última revisão: 22 de julho de 2026 (UTC).
+Última revisão: 27 de julho de 2026 (UTC).
 
 ## Finalidade deste documento
 
@@ -14,9 +14,11 @@ Desde 26 de julho de 2026, estas decisões estão incorporadas à Trilha D do
 origem e das premissas da evolução multiusuário; o plano mestre define a
 sequência integrada de implementação.
 
-Nenhuma das funcionalidades descritas abaixo estava autorizada para
-implementação no momento desta revisão. Este registro não altera código,
-banco de dados, configuração ou publicação.
+As Fases 4 e 5 do plano mestre implementaram a fundação multiusuário, a
+administração e a colaboração em 27 de julho de 2026. Este documento permanece
+como registro das premissas originais; o estado executado e os gates atuais
+estão em `PLANO_MESTRE_EVOLUCAO.md`. A autenticação continua desabilitada por
+padrão até a homologação e publicação gradual.
 
 ## Contexto e premissas
 

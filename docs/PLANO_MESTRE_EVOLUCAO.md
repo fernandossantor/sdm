@@ -592,6 +592,9 @@ Status: concluída em 27 de julho de 2026.
 
 Saída: operação acadêmica controlada.
 
+Status: concluída em 27 de julho de 2026. A autenticação permanece desligada
+por padrão até a homologação e publicação gradual da Fase 7.
+
 ### Fase 6 — Produto completo
 
 1. briefing ampliado;
@@ -1074,3 +1077,23 @@ depende da cópia durável do backup em armazenamento privado.
 - compartilhamento, revogação, transferência e inventários globais/privados
   passaram seus testes RLS no banco restaurado;
 - próximo gate: aplicação remota, testes com JWTs reais e encerramento.
+
+### 27 de julho de 2026 — Encerramento da Fase 5
+
+- migrations `20260727050000`, `20260727060000` e `20260727070000`
+  aplicadas, com histórico local e remoto sincronizado;
+- duas sessões Auth reais confirmaram leitura, edição e revogação de projeto
+  nos papéis previstos, sem ampliar a membresia do espaço;
+- 16 inventários legados foram preservados como globais;
+- usuário comum leu inventários globais sem poder alterá-los e criou inventário
+  privado somente no próprio espaço;
+- catálogos de referência ficaram legíveis para autenticados e editáveis
+  somente por administrador;
+- dados temporários do teste foram removidos e senhas aleatórias não foram
+  exibidas nem persistidas;
+- suíte offline encerrou com 135 testes aprovados e 3 integrações opcionais;
+- regressão funcional, três integrações conectadas, health check e auditoria de
+  acesso público foram aprovados;
+- backup restaurável e privado antecedeu todas as migrations estruturais;
+- login geral continua desligado por padrão; a próxima etapa é a Fase 6,
+  produto completo, seguida da homologação e publicação gradual na Fase 7.
