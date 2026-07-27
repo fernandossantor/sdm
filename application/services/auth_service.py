@@ -107,6 +107,16 @@ class AuthService:
         cliente = self.client_factory()
         cliente.auth.set_session(token, refresh_token)
         resposta = cliente.auth.update_user({"password": nova_senha})
+        # Após update_user, o cliente Supabase pode manter o JWT anterior.
+        # Autenticar novamente garante que a RPC use um token válido após a
+        # rotação da senha.
+        email = str(session_state.get("auth_email") or "").strip()
+        if email:
+            sessao_nova = cliente.auth.sign_in_with_password(
+                {"email": email, "password": nova_senha}
+            ).session
+            self._salvar_sessao(session_state, sessao_nova)
+            cliente.postgrest.auth(str(sessao_nova.access_token))
         cliente.rpc("confirmar_troca_senha").execute()
         session_state["auth_trocar_senha"] = False
         return resposta
