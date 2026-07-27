@@ -930,5 +930,7 @@ depende da cópia durável do backup em armazenamento privado.
 - o espaço ativo passa a ser revalidado contra a membresia, propagado nas
   inclusões centrais e aplicado como filtro adicional às leituras;
 - troca de espaço, logout e expiração removem contextos privados anteriores;
-- aplicação remota permanece bloqueada até novo backup, RPC de cópia segura,
-  validação SQL local e teste controlado de autenticação.
+- cópias centrais usam RPC contextual que valida origem, espaço e permissão;
+- cópias de entidades ainda sem escopo permanecem bloqueadas;
+- aplicação remota permanece bloqueada até novo backup e teste controlado de
+  autenticação.

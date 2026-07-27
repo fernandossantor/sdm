@@ -84,6 +84,7 @@ class TestArquitetura(unittest.TestCase):
             "grant update (nome, atualizado_em)",
             "revoke execute on function public.proximo_codigo_copia",
             "create or replace function public.confirmar_troca_senha",
+            "create or replace function public.proximo_codigo_copia_espaco",
         ):
             self.assertIn(controle, migration)
         self.assertNotIn(

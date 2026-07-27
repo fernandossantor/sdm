@@ -43,10 +43,25 @@ select set_config(
 do $$
 declare
     quantidade integer;
+    origem_codigo varchar;
+    novo_codigo varchar;
 begin
     select count(*) into quantidade from public.projetos;
     if quantidade <> 1 then
         raise exception 'Owner A leu % projetos; esperado 1', quantidade;
+    end if;
+    select codigo into origem_codigo from public.projetos
+    where id = '30000000-0000-0000-0000-000000000001';
+    select public.proximo_codigo_copia_espaco(
+        origem_codigo,
+        'projetos',
+        '30000000-0000-0000-0000-000000000003',
+        '30000000-0000-0000-0000-000000000001',
+        '20000000-0000-0000-0000-000000000001'
+    ) into novo_codigo;
+    if left(novo_codigo, 11) <> left(origem_codigo, 11)
+       or novo_codigo = origem_codigo then
+        raise exception 'Código contextual inesperado: %', novo_codigo;
     end if;
 end;
 $$;
@@ -124,6 +139,7 @@ select set_config(
 do $$
 declare
     quantidade integer;
+    origem_codigo varchar;
 begin
     select count(*) into quantidade from public.projetos;
     if quantidade <> 2 then
@@ -135,6 +151,23 @@ begin
         raise exception 'Leitor conseguiu inserir projeto';
     exception
         when insufficient_privilege then null;
+    end;
+    select codigo into origem_codigo from public.projetos
+    where id = '30000000-0000-0000-0000-000000000001';
+    begin
+        perform public.proximo_codigo_copia_espaco(
+            origem_codigo,
+            'projetos',
+            '30000000-0000-0000-0000-000000000004',
+            '30000000-0000-0000-0000-000000000001',
+            '20000000-0000-0000-0000-000000000001'
+        );
+        raise exception 'Leitor conseguiu reservar código de cópia';
+    exception
+        when raise_exception then
+            if sqlerrm not like '%Sem permissão%' then
+                raise;
+            end if;
     end;
 end;
 $$;

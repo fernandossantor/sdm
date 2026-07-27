@@ -59,10 +59,19 @@ Papéis no espaço:
 
 A RPC legada `proximo_codigo_copia` usa `SECURITY DEFINER` e não valida o
 espaço do registro de origem. A migration revoga sua execução de `public`,
-`anon` e `authenticated`, preservando-a apenas para `service_role`. Portanto,
-o fluxo autenticado de cópia só será habilitado depois de uma RPC contextual,
-com autorização por espaço. Essa restrição evita trocar o bypass do cliente
-administrativo por um bypass dentro do banco.
+`anon` e `authenticated`, preservando-a apenas para `service_role`.
+
+A substituta `proximo_codigo_copia_espaco`:
+
+- aceita somente projetos, briefings e planejamentos;
+- exige usuário autenticado com permissão de edição;
+- confere ID, código e espaço do registro de origem;
+- evita SQL dinâmico e tabelas arbitrárias;
+- só então chama a reserva atômica legada.
+
+Cópias autenticadas de inventários, universos, segmentos e públicos continuam
+bloqueadas até a definição de escopo global ou privado na Fase 5. Isso evita
+trocar o bypass do cliente administrativo por um bypass dentro do banco.
 
 ## Login e sessão preparados
 
@@ -109,7 +118,9 @@ o logout visível e a não persistência do token em armazenamento do navegador.
   - escrita negada ao leitor;
   - autopromoção para administrador negada;
   - mudança de um registro entre espaços negada;
-  - vínculo entre entidades de espaços diferentes bloqueado;
+- vínculo entre entidades de espaços diferentes bloqueado;
+- atualização comum de projeto preservada sem acessar colunas exclusivas das
+  tabelas dependentes;
 - todos os registros e identidades de teste foram revertidos por `rollback`.
 - testes unitários confirmaram aplicação do JWT, isolamento do contexto,
   fallback transitório e injeção de cliente nos repositories.
@@ -117,3 +128,4 @@ o logout visível e a não persistência do token em armazenamento do navegador.
   cobertos por testes unitários, ainda sem ativação na implantação.
 - seleção autorizada, troca de contexto, inclusão forçada no espaço e
   filtragem de leituras foram validadas por testes específicos.
+- a cópia contextual foi testada para proprietário e negada para leitor.

@@ -199,20 +199,20 @@ begin
     if tg_op = 'UPDATE' and old.espaco_id is distinct from new.espaco_id then
         raise exception 'O espaço de um registro não pode ser alterado';
     end if;
-    if tg_table_name = 'briefings_v3'
-       and new.projeto_id is not null
-       and not exists (
-           select 1 from public.projetos
-           where id = new.projeto_id and espaco_id = new.espaco_id
-       ) then
-        raise exception 'Projeto e briefing pertencem a espaços diferentes';
-    elsif tg_table_name = 'planejamentos'
-       and new.briefing_id is not null
-       and not exists (
-           select 1 from public.briefings_v3
-           where id = new.briefing_id and espaco_id = new.espaco_id
-       ) then
-        raise exception 'Briefing e planejamento pertencem a espaços diferentes';
+    if tg_table_name = 'briefings_v3' then
+        if new.projeto_id is not null and not exists (
+            select 1 from public.projetos
+            where id = new.projeto_id and espaco_id = new.espaco_id
+        ) then
+            raise exception 'Projeto e briefing pertencem a espaços diferentes';
+        end if;
+    elsif tg_table_name = 'planejamentos' then
+        if new.briefing_id is not null and not exists (
+            select 1 from public.briefings_v3
+            where id = new.briefing_id and espaco_id = new.espaco_id
+        ) then
+            raise exception 'Briefing e planejamento pertencem a espaços diferentes';
+        end if;
     elsif tg_table_name = 'artefatos_workflow' then
         if new.projeto_id is not null and not exists (
             select 1 from public.projetos
@@ -378,6 +378,69 @@ end;
 $$;
 revoke execute on function public.confirmar_troca_senha() from public, anon;
 grant execute on function public.confirmar_troca_senha() to authenticated;
+
+create or replace function public.proximo_codigo_copia_espaco(
+    p_codigo_origem varchar,
+    p_tabela text,
+    p_id uuid,
+    p_origem_id uuid,
+    p_espaco_id uuid
+)
+returns varchar
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    v_origem_valida boolean := false;
+begin
+    if auth.uid() is null or not public.pode_editar_espaco(p_espaco_id) then
+        raise exception 'Sem permissão para copiar neste espaço';
+    end if;
+
+    case p_tabela
+        when 'projetos' then
+            select exists (
+                select 1 from public.projetos
+                where id = p_origem_id
+                  and espaco_id = p_espaco_id
+                  and codigo = p_codigo_origem
+            ) into v_origem_valida;
+        when 'briefings_v3' then
+            select exists (
+                select 1 from public.briefings_v3
+                where id = p_origem_id
+                  and espaco_id = p_espaco_id
+                  and codigo = p_codigo_origem
+            ) into v_origem_valida;
+        when 'planejamentos' then
+            select exists (
+                select 1 from public.planejamentos
+                where id = p_origem_id
+                  and espaco_id = p_espaco_id
+                  and codigo = p_codigo_origem
+            ) into v_origem_valida;
+        else
+            raise exception 'Tabela não autorizada para cópia contextual';
+    end case;
+
+    if not v_origem_valida then
+        raise exception 'Registro de origem não pertence ao espaço informado';
+    end if;
+
+    return public.proximo_codigo_copia(
+        p_codigo_origem,
+        p_tabela,
+        p_id
+    );
+end;
+$$;
+revoke execute on function public.proximo_codigo_copia_espaco(
+    varchar, text, uuid, uuid, uuid
+) from public, anon;
+grant execute on function public.proximo_codigo_copia_espaco(
+    varchar, text, uuid, uuid, uuid
+) to authenticated;
 
 -- A reserva de códigos é SECURITY DEFINER e ainda não valida o espaço de
 -- origem. Até sua substituição por uma RPC contextual, apenas operações
