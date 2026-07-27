@@ -1,4 +1,9 @@
-from infrastructure.database.database_schema import PLANEJAMENTOS
+from datetime import datetime, timezone
+
+from infrastructure.database.database_schema import (
+    PLANEJAMENTOS,
+    VERSOES_PLANEJAMENTO,
+)
 from infrastructure.repositories.base_repository import BaseRepository
 
 
@@ -17,4 +22,23 @@ class PlanningRepository(BaseRepository):
         return self.update(PLANEJAMENTOS, "id", planejamento_id, dados)
 
     def excluir(self, planejamento_id):
-        return self.delete(PLANEJAMENTOS, "id", planejamento_id)
+        return self.update(
+            PLANEJAMENTOS,
+            "id",
+            planejamento_id,
+            {
+                "status": "ARQUIVADO",
+                "arquivado_em": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+    def versoes(self, planejamento_id):
+        return (
+            self.db
+            .table(VERSOES_PLANEJAMENTO)
+            .select("*")
+            .eq("planejamento_id", planejamento_id)
+            .order("numero", desc=True)
+            .execute()
+            .data
+        )

@@ -703,3 +703,14 @@ depende da cópia durável do backup em armazenamento privado.
 - geração legada por nome corrigida para preservar a frequência e sua faixa
   salvas no briefing;
 - suíte offline ampliada para 68 testes aprovados.
+
+### 27 de julho de 2026 — Fase 1, versões e snapshots
+
+- criada estrutura imutável de versões de planejamento;
+- planos legados recebem versão inicial sem alteração dos resultados;
+- inserção, edição, recálculo e arquivamento geram snapshots transacionais;
+- entradas, resultados, versões de engines e fórmulas ficam separados;
+- cada versão recebe hash de conteúdo e número monotônico por plano;
+- atualização e exclusão de versões são bloqueadas no banco;
+- exclusão funcional passa a arquivamento para preservar o histórico;
+- migration validada na restauração isolada, ainda não aplicada remotamente.

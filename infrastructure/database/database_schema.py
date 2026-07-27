@@ -116,6 +116,8 @@ VALORES_METRICAS = "valores_metricas"
 
 PLANEJAMENTOS = "planejamentos"
 
+VERSOES_PLANEJAMENTO = "versoes_planejamento"
+
 ARTEFATOS_WORKFLOW = "artefatos_workflow"
 
 PROJETOS = "projetos"

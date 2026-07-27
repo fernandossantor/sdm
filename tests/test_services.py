@@ -10,6 +10,7 @@ from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
 from infrastructure.database import admin_client
 from infrastructure.repositories.decision_repository import DecisionRepository
+from infrastructure.repositories.planning_repository import PlanningRepository
 from application.services.comparador_service import ComparadorService
 
 
@@ -211,6 +212,23 @@ class TestPlanejamentoService(unittest.TestCase):
                  "roi": 0, "jornada": 0, "saturacao": 0, "investimento": 0}
         resultado = ComparadorService().comparar_configuravel(plano_a, plano_b, pesos)
         self.assertEqual(resultado["vencedor"], "Plano A")
+
+
+class TestPlanningRepository(unittest.TestCase):
+
+    def test_excluir_arquiva_sem_apagar_historico(self):
+        repository = PlanningRepository.__new__(PlanningRepository)
+        repository.update = Mock(return_value="arquivado")
+
+        resultado = repository.excluir("planejamento-1")
+
+        self.assertEqual(resultado, "arquivado")
+        tabela, campo, registro_id, dados = repository.update.call_args.args
+        self.assertEqual(tabela, "planejamentos")
+        self.assertEqual(campo, "id")
+        self.assertEqual(registro_id, "planejamento-1")
+        self.assertEqual(dados["status"], "ARQUIVADO")
+        self.assertIn("arquivado_em", dados)
 
 
 class TestContextoCampanha(unittest.TestCase):
