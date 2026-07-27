@@ -92,6 +92,18 @@ Os quatro arquivos também foram confirmados como não compartilhados:
 - `public-data.sql`: 399.860 bytes;
 - `roles.sql`: 358 bytes.
 
+Antes da migration `20260727020000`, um terceiro conjunto foi copiado para a
+pasta privada [PlanOS Backups / pre-migration
+20260727020000](https://drive.google.com/drive/folders/1So_nysbnRq8Y0ygwJiI9iv6ruQ7zSlaw).
+
+Os quatro arquivos foram confirmados com `shared=false`, somente com a
+permissão do proprietário, e com os mesmos tamanhos dos dumps locais:
+
+- `schema.sql`: 112.551 bytes;
+- `data.sql`: 411.023 bytes;
+- `public-data.sql`: 402.180 bytes;
+- `roles.sql`: 358 bytes.
+
 ## Pendências operacionais
 
 - definir retenção e responsáveis;

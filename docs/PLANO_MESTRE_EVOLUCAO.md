@@ -745,4 +745,9 @@ depende da cópia durável do backup em armazenamento privado.
   custo total com fees;
 - registros legados recebem `BRL` e `DIRETO` sem alteração de valores;
 - migration `20260727020000` validada duas vezes na restauração isolada;
-- suíte offline ampliada para 73 testes aprovados.
+- backup privado pré-migration verificado no Google Drive;
+- migration aplicada e confirmada no projeto remoto;
+- cinco preços legados conferidos com moeda, modelo e defaults íntegros;
+- acesso público ao cadastro de preços permanece bloqueado;
+- suíte offline ampliada para 73 testes; health check, auditoria, regressão e
+  integrações autenticadas aprovados.
