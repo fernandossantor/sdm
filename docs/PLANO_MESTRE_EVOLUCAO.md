@@ -1,6 +1,6 @@
 # Plano mestre de evolução do PlanOS
 
-Última revisão: 26 de julho de 2026 (UTC).
+Última revisão: 27 de julho de 2026 (UTC).
 
 ## Objetivo
 
@@ -989,3 +989,19 @@ depende da cópia durável do backup em armazenamento privado.
 - ações sensíveis exigem confirmação e senhas são exibidas uma única vez;
 - próxima etapa: novo backup, aplicação remota da auditoria e teste controlado
   da área administrativa antes de ativar o login.
+
+### 27 de julho de 2026 — Backup pré-auditoria administrativa
+
+- esquema, dados completos, dados públicos, papéis e manifesto SHA-256 foram
+  exportados antes da migration `20260727040000`;
+- os cinco artefatos foram copiados ao Google Drive privado e conferidos como
+  não compartilhados;
+- a restauração incluiu as identidades reais do Supabase Auth, além dos dados
+  públicos;
+- a migration multiusuário idempotente recompôs o gatilho entre `auth` e
+  `public`, que não pertence ao dump do schema público;
+- origem e restauração coincidiram nas contagens materiais, incluindo usuários,
+  perfis, espaços, projetos, planejamentos, versões e métricas;
+- a migration de auditoria e seu teste de RLS passaram no banco restaurado;
+- próximo gate: aplicar a migration remota, executar regressão conectada e
+  testar a área administrativa sem habilitar ainda o login geral.

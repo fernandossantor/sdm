@@ -40,16 +40,30 @@ workspace Git.
 
 1. Inicializar um projeto Supabase temporário sem migrations da aplicação.
 2. Subir somente o PostgreSQL para evitar dependência dos demais serviços.
-3. Restaurar `schema.sql` com `psql -v ON_ERROR_STOP=1`.
-4. Restaurar `public-data.sql` com a mesma opção.
-5. Conferir tabelas, constraints e contagens de entidades materiais.
-6. Encerrar o ambiente temporário.
+3. Se os dados públicos referenciarem `auth.users`, criar primeiro o esquema
+   `auth` da mesma versão local do Supabase.
+4. Restaurar `schema.sql` com `psql -v ON_ERROR_STOP=1`.
+5. Restaurar `data.sql` até concluir os blocos de `auth` e `public`; erros
+   posteriores em schemas internos não invalidam esses blocos, mas devem ser
+   registrados.
+6. Reaplicar as migrations idempotentes que criam objetos entre schemas,
+   especialmente gatilhos pertencentes a `auth`.
+7. Conferir tabelas, constraints, identidades Auth e contagens de entidades
+   materiais.
+8. Aplicar a migration seguinte e executar seus testes SQL no banco restaurado.
+9. Encerrar o ambiente temporário.
 
 O dump completo inclui tabelas internas de `storage`. A restauração direta
 dessas tabelas pode exigir o proprietário administrativo do serviço. Para
 validar os dados da aplicação de forma determinística, usar
 `public-data.sql`; objetos de Storage devem seguir o procedimento oficial do
 serviço e ter validação separada.
+
+O dump de esquema da aplicação não contém necessariamente gatilhos pertencentes
+ao schema `auth` que chamam funções de `public`. Por isso, restaurar somente
+`public-data.sql` deixou de ser um ensaio suficiente depois da adoção de
+usuários reais. A restauração deve incluir as identidades de `auth` e reaplicar
+a migration multiusuário idempotente para recompor esses objetos entre schemas.
 
 ## Resultado do ensaio de 26 de julho de 2026
 
@@ -128,6 +142,28 @@ deles:
 - origem e restauração coincidiram em projetos (2), briefings (2),
   planejamentos (1), inventários (16), versões (1) e métricas (8);
 - o banco temporário foi removido e o ambiente local desligado.
+
+Antes da migration `20260727040000`, um quinto conjunto foi copiado para a
+pasta privada [PlanOS Backups / pre-migration
+20260727040000](https://drive.google.com/drive/folders/10a82X6KMHsQJjcB7FfxuwKqBvSWW5V0F).
+
+Os cinco arquivos foram confirmados com `shared=false` e
+`source_visibility_status=not_shared`, com os mesmos tamanhos locais:
+
+- `schema.sql`: 133.139 bytes;
+- `data.sql`: 417.276 bytes;
+- `public-data.sql`: 406.832 bytes;
+- `roles.sql`: 358 bytes;
+- `SHA256SUMS`: 310 bytes.
+
+O ensaio desta cópia incluiu o schema e as duas identidades reais do Supabase
+Auth. Depois de restaurar os blocos de `auth` e `public`, a migration
+multiusuário idempotente foi reaplicada para recriar o gatilho entre schemas.
+Foram confirmadas 92 tabelas públicas, 114 chaves estrangeiras, 2 identidades,
+2 perfis, 2 espaços, 2 membresias, 2 projetos, 2 briefings, 1 planejamento,
+16 inventários, 2 versões e 8 métricas. Por fim, a migration
+`20260727040000` e o teste SQL de auditoria administrativa passaram no banco
+restaurado.
 
 ## Pendências operacionais
 
