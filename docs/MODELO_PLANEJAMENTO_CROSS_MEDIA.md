@@ -43,6 +43,16 @@ Excesso de frequência acima do limite informado é um sinal de sobre-exposiçã
 não uma estimativa de saturação econômica. Esta última permanece indisponível
 até existir uma curva de resposta calibrada para o contexto.
 
+Quando alcances `N+` são informados, o plano calcula a distribuição por meio:
+
+- subexposição = alcance `1+` menos alcance na frequência mínima eficiente;
+- faixa eficiente = alcance na frequência mínima menos alcance acima da máxima;
+- sobre-exposição = alcance `(máxima + 1)+`.
+
+As faixas devem ser monotônicas e o alcance `1+` deve reconciliar com o alcance
+do meio. Sem esses dados, a distribuição permanece indisponível; a frequência
+média não é convertida artificialmente em faixas.
+
 ## Compatibilidade
 
 Planos antigos continuam restauráveis. O cálculo legado existe apenas para

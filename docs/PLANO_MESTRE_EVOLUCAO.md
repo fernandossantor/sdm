@@ -862,3 +862,13 @@ depende da cópia durável do backup em armazenamento privado.
 - cada item preserva coeficiente e origem usados na função;
 - conversões são identificadas como extrapolação linear, sem alegar resposta
   marginal ou saturação calibrada.
+
+### 27 de julho de 2026 — Fase 3, frequência efetiva por faixas
+
+- planejamento aceita alcances `1+`, `2+`, `3+` e `4+` opcionais por meio;
+- faixas N+ devem ser monotônicas e o alcance `1+` reconcilia com o alcance;
+- subexposição, faixa eficiente e sobre-exposição são calculadas no universo e
+  entre as pessoas alcançadas;
+- ausência dos limiares necessários mantém o resultado indisponível;
+- distribuição integra item, snapshot, consolidado auditável e exportação;
+- saturação econômica continua indisponível sem curva de resposta calibrada.

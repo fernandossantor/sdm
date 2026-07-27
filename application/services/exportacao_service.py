@@ -82,6 +82,7 @@ class ExportacaoService:
                     "Retorno projetado": item.retorno_estimado,
                     "ROI": item.roi,
                     "Excesso de frequência": item.excesso_frequencia,
+                    "Distribuição de frequência": item.distribuicao_frequencia,
                     "Premissas": item.premissas,
                     "ID do inventário": item.inventario_id,
                     "Justificativas": "\n".join(item.justificativas),

@@ -330,6 +330,7 @@ class PlanejamentoService:
             item.cpp, item.cpm = resultado.cpp, resultado.cpm
             item.cpc, item.cpa, item.roi = resultado.cpc, resultado.cpa, resultado.roi
             item.excesso_frequencia = resultado.excesso_frequencia
+            item.distribuicao_frequencia = resultado.distribuicao_frequencia
             item.premissas = premissa
             resultados.append(resultado)
             premissas_ordenadas.append(premissa)
@@ -524,6 +525,7 @@ class PlanejamentoService:
                 "cpp": item.cpp, "cpm": item.cpm, "cpc": item.cpc,
                 "cpa": item.cpa, "roi": item.roi,
                 "excesso_frequencia": item.excesso_frequencia,
+                "distribuicao_frequencia": item.distribuicao_frequencia,
                 "premissas": item.premissas,
             }
             for item in plano.itens

@@ -601,6 +601,52 @@ else:
                     "ficar em zero."
                 ),
             )
+            alcances_frequencia = None
+            frequencia_minima_eficiente = 1
+            frequencia_maxima_eficiente = frequencia_maxima
+            with st.expander("Distribuição de frequência (opcional)"):
+                informar_distribuicao = st.checkbox(
+                    "Informar alcances 1+, 2+, 3+ e 4+",
+                    key=f"informar_dist_freq_{item['id']}",
+                    help=(
+                        "Use dados medidos ou fornecidos. Sem essas faixas, o "
+                        "sistema não estima subexposição ou sobre-exposição."
+                    ),
+                )
+                if informar_distribuicao:
+                    d1, d2 = st.columns(2)
+                    frequencia_minima_eficiente = d1.number_input(
+                        "Frequência mínima eficiente",
+                        min_value=1,
+                        max_value=3,
+                        value=2,
+                        step=1,
+                        key=f"freq_min_eficiente_{item['id']}",
+                    )
+                    frequencia_maxima_eficiente = d2.number_input(
+                        "Frequência máxima eficiente",
+                        min_value=frequencia_minima_eficiente,
+                        max_value=3,
+                        value=max(3, frequencia_minima_eficiente),
+                        step=1,
+                        key=f"freq_max_eficiente_{item['id']}",
+                    )
+                    faixas = st.columns(4)
+                    valores_faixas = [
+                        faixas[0].number_input(
+                            "Alcance 1+ (%)", 0.0, 100.0,
+                            float(alcance_item), 0.1,
+                            key=f"alcance_1mais_{item['id']}",
+                        )
+                    ]
+                    for limiar, coluna in zip((2, 3, 4), faixas[1:]):
+                        valores_faixas.append(coluna.number_input(
+                            f"Alcance {limiar}+ (%)", 0.0, 100.0, 0.0, 0.1,
+                            key=f"alcance_{limiar}mais_{item['id']}",
+                        ))
+                    alcances_frequencia = dict(
+                        zip((1, 2, 3, 4), valores_faixas)
+                    )
             st.caption(
                 f"Custo de mídia considerado: {moeda_ptbr(preco_liquido)} por "
                 f"{unidade_preco} · proposta inicial: "
@@ -694,6 +740,9 @@ else:
             "permitir_independencia": permitir_independencia,
             "frequencia": frequencia_item,
             "frequencia_maxima": frequencia_maxima,
+            "alcances_frequencia": alcances_frequencia,
+            "frequencia_minima_eficiente": frequencia_minima_eficiente,
+            "frequencia_maxima_eficiente": frequencia_maxima_eficiente,
             "quantidade": quantidade_item,
             "preco_unitario": preco_liquido,
             **condicoes_comerciais,
@@ -931,6 +980,15 @@ if "plano" in st.session_state:
                     "Retorno projetado": i.retorno_estimado,
                     "ROI": i.roi,
                     "Excesso de frequência": i.excesso_frequencia,
+                    "Subexposição (%)": i.distribuicao_frequencia.get(
+                        "subexposta_percentual"
+                    ),
+                    "Faixa eficiente (%)": i.distribuicao_frequencia.get(
+                        "faixa_eficiente_percentual"
+                    ),
+                    "Sobre-exposição (%)": i.distribuicao_frequencia.get(
+                        "sobre_exposta_percentual"
+                    ),
                     "Aderência ao objetivo": i.objetivo_score,
                     "Aderência aos KPIs": i.kpi_score,
                     "Aderência ao público": i.audiencia_score,

@@ -19,7 +19,7 @@ etapas = [
     ("4. Projeto", "Crie ou selecione um projeto na página Início. O código o acompanha por todo o processo."),
     ("5. Briefing de Mídia", "Informe campanha, orçamento, período, públicos, jornada, KPIs e metas globais."),
     ("6. Papéis dos Meios", "Escolha os inventários e avalie afinidade editorial, consumo e capacidade de cobertura."),
-    ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental, limite de sobre-exposição e premissas. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
+    ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental e premissas. Quando houver dados N+, informe 1+, 2+, 3+ e 4+ para separar subexposição, faixa eficiente e sobre-exposição. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
     ("8. Cronograma", "Visualize flights e pressão semanal no calendário. A distribuição decorre das quantidades e do flight."),
     ("9. Diagnóstico e projeções", "Confira entrega, custos, retorno, limitações e confiança dos dados."),
     ("10. Relatório", "Salve o plano e confira as premissas e a auditoria antes da exportação."),

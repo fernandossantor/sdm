@@ -14,6 +14,7 @@ from domain.metric_catalog import (
     comparar_contextos,
 )
 from domain.restricoes import resolver_restricoes_compra
+from engine.frequency_distribution_engine import FrequencyDistributionEngine
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,7 @@ class DeliveryResult:
     cpa: float | None
     roi: float | None
     excesso_frequencia: float
+    distribuicao_frequencia: dict
     confianca: str
     preco_tabela_unitario: float
     desconto_percentual: float
@@ -113,6 +115,12 @@ class MediaPlanEngine:
         conversoes = cliques * taxa_conversao
         retorno = conversoes * float(premissa.get("valor_conversao") or 0)
         maximo_frequencia = float(premissa.get("frequencia_maxima") or frequencia)
+        distribuicao_frequencia = FrequencyDistributionEngine.calcular(
+            premissa.get("alcances_frequencia"),
+            premissa.get("frequencia_minima_eficiente", 1),
+            premissa.get("frequencia_maxima_eficiente", maximo_frequencia),
+            alcance,
+        )
 
         def dividir(numerador, denominador):
             return round(numerador / denominador, 2) if denominador else None
@@ -128,6 +136,7 @@ class MediaPlanEngine:
             cpc=dividir(investimento, cliques), cpa=dividir(investimento, conversoes),
             roi=dividir(retorno - investimento, investimento),
             excesso_frequencia=round(max(0, frequencia - maximo_frequencia), 2),
+            distribuicao_frequencia=distribuicao_frequencia,
             confianca=str(premissa.get("confianca") or "INFORMADO").upper(),
             preco_tabela_unitario=custo.preco_tabela_unitario,
             desconto_percentual=custo.desconto_percentual,
@@ -307,6 +316,13 @@ class MediaPlanEngine:
                     "é necessária uma curva de resposta calibrada."
                 ),
             },
+            "distribuicao_frequencia_por_meio": [
+                {
+                    "inventario_id": premissa.get("inventario_id"),
+                    **item.distribuicao_frequencia,
+                }
+                for item, premissa in zip(resultados, premissas)
+            ],
             "cobertura_jornada": round(
                 sum(float(item.get("cobertura_jornada") or 0) for item in premissas)
                 / len(premissas), 2

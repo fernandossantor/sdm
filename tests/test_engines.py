@@ -6,6 +6,7 @@ from engine.budget_optimizer import BudgetOptimizer
 from engine.budget_solver import LinearBudgetSolver
 from engine.classificacao_papeis_engine import ClassificacaoPapeisEngine
 from engine.forecast_engine import ForecastEngine
+from engine.frequency_distribution_engine import FrequencyDistributionEngine
 from engine.insights_engine import InsightsEngine
 from engine.inventory_engine import InventoryEngine
 from engine.recommendation_engine import RecommendationEngine
@@ -327,6 +328,61 @@ class TestMediaPlanEngine(unittest.TestCase):
                 publico_referencia=1000,
                 preco_unitario=100,
             )
+
+
+class TestFrequencyDistributionEngine(unittest.TestCase):
+
+    def test_separa_subexposicao_faixa_e_sobre_exposicao(self):
+        resultado = FrequencyDistributionEngine.calcular(
+            {1: 60, 2: 45, 3: 30, 4: 10},
+            frequencia_minima_eficiente=2,
+            frequencia_maxima_eficiente=3,
+            alcance_total=60,
+        )
+
+        self.assertEqual(resultado["subexposta_percentual"], 15)
+        self.assertEqual(resultado["faixa_eficiente_percentual"], 35)
+        self.assertEqual(resultado["sobre_exposta_percentual"], 10)
+        self.assertEqual(
+            resultado["entre_alcancados"]["sobre_exposta_percentual"],
+            16.67,
+        )
+        self.assertIsNone(resultado["saturacao_economica"])
+
+    def test_rejeita_alcances_nao_monotonicos(self):
+        with self.assertRaisesRegex(ValueError, "não pode superar"):
+            FrequencyDistributionEngine.calcular(
+                {1: 60, 2: 45, 3: 50, 4: 10},
+                2,
+                3,
+            )
+
+    def test_media_plan_preserva_distribuicao_informada(self):
+        premissa = {
+            "inventario_id": "tv-1",
+            "audiencia_percentual": 10,
+            "alcance_percentual": 60,
+            "frequencia": 2,
+            "quantidade": 12,
+            "unidade_compra": "Inserção",
+            "alcances_frequencia": {1: 60, 2: 45, 3: 30, 4: 10},
+            "frequencia_minima_eficiente": 2,
+            "frequencia_maxima_eficiente": 3,
+        }
+
+        item = MediaPlanEngine.calcular_item(premissa, 10000, 100)
+        consolidado = MediaPlanEngine.consolidar([item], [premissa])
+
+        self.assertEqual(
+            item.distribuicao_frequencia["faixa_eficiente_percentual"],
+            35,
+        )
+        self.assertEqual(
+            consolidado["distribuicao_frequencia_por_meio"][0][
+                "inventario_id"
+            ],
+            "tv-1",
+        )
 
 
 class TestClassificacaoPapeisEngine(unittest.TestCase):

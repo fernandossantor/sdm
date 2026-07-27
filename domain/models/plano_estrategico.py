@@ -70,6 +70,7 @@ class PlanoItem:
     cpa: Optional[float] = None
     roi: Optional[float] = None
     excesso_frequencia: float = 0.0
+    distribuicao_frequencia: dict = field(default_factory=dict)
     premissas: dict = field(default_factory=dict)
 
 
