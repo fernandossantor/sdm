@@ -345,6 +345,55 @@ class TestBudgetOptimizer(unittest.TestCase):
 
         self.assertEqual(resultado, [])
 
+    def test_excluido_nao_recebe_verba(self):
+        ranking = [
+            {
+                "inventario": "TV",
+                "ambiente": "Vídeo",
+                "plataforma": "Aberta",
+                "score": 100,
+            },
+            {
+                "inventario": "Rádio",
+                "ambiente": "Áudio",
+                "plataforma": "FM",
+                "score": 50,
+            },
+        ]
+
+        resultado = BudgetOptimizer().otimizar(
+            ranking,
+            verba_total=1000,
+            excluidos=["TV"],
+        )
+
+        self.assertEqual(
+            [item["inventario"] for item in resultado["itens"]],
+            ["Rádio"],
+        )
+        self.assertEqual(
+            resultado["diagnostico_viabilidade"]["excluidos"][0]["motivos"],
+            ["inventário proibido"],
+        )
+
+    def test_obrigatorio_ausente_impede_alocacao(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "inventários obrigatórios ausentes: Rádio",
+        ):
+            BudgetOptimizer().otimizar(
+                [
+                    {
+                        "inventario": "TV",
+                        "ambiente": "Vídeo",
+                        "plataforma": "Aberta",
+                        "score": 100,
+                    }
+                ],
+                verba_total=1000,
+                obrigatorios=["Rádio"],
+            )
+
 
 class TestScoreEngine(unittest.TestCase):
 
@@ -454,6 +503,42 @@ class TestInventoryEngine(unittest.TestCase):
         self.assertEqual(item["papel"], "COMPLEMENTAR")
         self.assertEqual(item["score_mcp"], 95)
         self.assertEqual(item["preco_unitario"], 18)
+
+    def test_inventario_proibido_nunca_entra_no_ranking(self):
+        contexto = self.contexto_base()
+        segundo = dict(contexto["inventarios"][0])
+        segundo.update(
+            {
+                "id": "inventario-2",
+                "nome": "Rádio",
+                "plataformas_v3": {"nome": "FM"},
+                "ambientes_v3": {"nome": "Áudio"},
+            }
+        )
+        contexto["inventarios"].append(segundo)
+        contexto["briefing"]["inventarios_proibidos"] = ["inventario-1"]
+
+        engine = InventoryEngine()
+        resultado = engine.calcular(contexto)
+
+        self.assertEqual(
+            [item["inventario_id"] for item in resultado],
+            ["inventario-2"],
+        )
+        self.assertEqual(
+            engine.ultimo_diagnostico.excluidos[0].motivos,
+            ("inventário proibido",),
+        )
+
+    def test_obrigatorio_indisponivel_falha_com_diagnostico(self):
+        contexto = self.contexto_base()
+        contexto["briefing"]["inventarios_obrigatorios"] = ["inventario-2"]
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "inventários obrigatórios ausentes: inventario-2",
+        ):
+            InventoryEngine().calcular(contexto)
 
     def test_calcula_e_ordena_inventarios(self):
 

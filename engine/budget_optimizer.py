@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+from domain.restricoes import diagnosticar_viabilidade
+
 
 class BudgetOptimizer:
 
@@ -45,18 +47,26 @@ class BudgetOptimizer:
 
         maximo_plataforma = maximo_plataforma or {}
 
-        #
-        # Remove excluídos
-        #
-
+        restricoes = {
+            "inventarios_obrigatorios": obrigatorios,
+            "inventarios_proibidos": excluidos,
+        }
+        diagnostico = diagnosticar_viabilidade(restricoes, ranking)
+        if not diagnostico.viavel:
+            raise ValueError(
+                "Alocação inviável por restrições duras: "
+                + diagnostico.mensagem
+                + "."
+            )
+        elegiveis = set(diagnostico.elegiveis)
         ranking = [
-
             item
-
             for item in ranking
-
-            if item["inventario"] not in excluidos
-
+            if str(
+                item.get("id")
+                or item.get("inventario_id")
+                or item.get("inventario")
+            ) in elegiveis
         ]
 
         #
@@ -345,6 +355,19 @@ class BudgetOptimizer:
 
             ),
 
-            "reserva_testes": reserva
+            "reserva_testes": reserva,
+
+            "diagnostico_viabilidade": {
+                "viavel": diagnostico.viavel,
+                "elegiveis": list(diagnostico.elegiveis),
+                "excluidos": [
+                    {
+                        "inventario_id": item.inventario_id,
+                        "motivos": list(item.motivos),
+                    }
+                    for item in diagnostico.excluidos
+                ],
+                "obrigatorios": list(diagnostico.obrigatorios),
+            },
 
         }

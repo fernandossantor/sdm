@@ -1,6 +1,8 @@
 from engine.score_engine import ScoreEngine
 from datetime import date
 
+from domain.restricoes import diagnosticar_viabilidade
+
 
 class InventoryEngine:
 
@@ -243,6 +245,19 @@ class InventoryEngine:
                 item for item in inventarios
                 if item.get("id") in ids_selecionados
             ]
+
+        diagnostico = diagnosticar_viabilidade(briefing, inventarios)
+        self.ultimo_diagnostico = diagnostico
+        if not diagnostico.viavel:
+            raise ValueError(
+                "Plano inviável por restrições duras: "
+                + diagnostico.mensagem
+                + "."
+            )
+        ids_elegiveis = set(diagnostico.elegiveis)
+        inventarios = [
+            item for item in inventarios if str(item.get("id")) in ids_elegiveis
+        ]
 
         audiencias = contexto["audiencias"]
 
@@ -577,18 +592,6 @@ class InventoryEngine:
             )
 
             # --------------------------------------------------
-            # RESTRIÇÕES
-            # --------------------------------------------------
-
-            bonus, penalidade = ScoreEngine.restricoes(
-
-                briefing,
-
-                inventario
-
-            )
-
-            # --------------------------------------------------
             # SCORE FINAL
             # --------------------------------------------------
 
@@ -602,9 +605,9 @@ class InventoryEngine:
 
                 metricas_score,
 
-                bonus,
+                0,
 
-                penalidade,
+                0,
 
                 briefing
 
@@ -644,6 +647,13 @@ class InventoryEngine:
                     "score": score,
 
                     "papel": papel,
+
+                    "elegivel": True,
+
+                    "obrigatorio": (
+                        str(inventario["id"])
+                        in set(diagnostico.obrigatorios)
+                    ),
 
                     "score_mcp": score_mcp,
 

@@ -751,3 +751,15 @@ depende da cópia durável do backup em armazenamento privado.
 - acesso público ao cadastro de preços permanece bloqueado;
 - suíte offline ampliada para 73 testes; health check, auditoria, regressão e
   integrações autenticadas aprovados.
+
+### 27 de julho de 2026 — Fase 2, elegibilidade e restrições duras
+
+- criado contrato único de elegibilidade compatível com objetos e dicionários;
+- inventários, plataformas, ambientes e tecnologias proibidos são excluídos
+  antes do cálculo de score;
+- seleções obrigatórias funcionam como filtro de elegibilidade, não como bônus;
+- inventário obrigatório ausente torna a geração inviável com causa explícita;
+- score deixa de misturar qualidade e aderência com restrições duras;
+- ranking e alocador passam a usar a mesma semântica;
+- alocação registra elegíveis, excluídos, motivos e obrigatórios;
+- suíte offline ampliada para 79 testes e regressão conectada aprovadas.

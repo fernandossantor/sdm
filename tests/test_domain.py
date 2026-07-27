@@ -3,6 +3,42 @@ from datetime import date
 
 from domain.models.briefing import Briefing
 from domain.models.workflow_state import WorkflowState
+from domain.restricoes import (
+    avaliar_elegibilidade,
+    diagnosticar_viabilidade,
+)
+
+
+class TestRestricoesDuras(unittest.TestCase):
+
+    def test_funciona_com_objeto_e_dicionario(self):
+        inventario = {
+            "id": "inv-1",
+            "plataforma_id": "plat-1",
+            "ambiente_id": "amb-1",
+        }
+        briefing_dict = {
+            "inventarios_obrigatorios": ["inv-1"],
+            "ambientes_proibidos": ["amb-1"],
+        }
+
+        avaliacao = avaliar_elegibilidade(briefing_dict, inventario)
+
+        self.assertTrue(avaliacao.obrigatorio)
+        self.assertFalse(avaliacao.elegivel)
+        self.assertIn("ambiente proibido", avaliacao.motivos)
+
+    def test_obrigatorio_ausente_torna_plano_inviavel(self):
+        diagnostico = diagnosticar_viabilidade(
+            {"inventarios_obrigatorios": ["inv-ausente"]},
+            [{"id": "inv-1"}],
+        )
+
+        self.assertFalse(diagnostico.viavel)
+        self.assertEqual(
+            diagnostico.obrigatorios_ausentes,
+            ("inv-ausente",),
+        )
 from application.services.briefing_service import BriefingService
 from domain.media_metrics import resolver_grp
 
