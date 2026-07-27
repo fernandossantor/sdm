@@ -76,14 +76,6 @@ st.set_page_config(
 
 clear_request_client()
 clear_workspace()
-if autenticacao_habilitada():
-    if not auth_gate():
-        st.stop()
-    bind_authenticated_client(st.session_state["auth_access_token"])
-    if not workspace_gate():
-        st.stop()
-elif st.session_state.get("auth_access_token"):
-    bind_authenticated_client(st.session_state["auth_access_token"])
 
 def pagina_inicial():
 
@@ -200,6 +192,18 @@ navegacao = st.navigation(
     ],
     position="hidden",
 )
+
+# A navegação precisa ser registrada antes de qualquer st.stop(). Caso
+# contrário, o Streamlit usa automaticamente os arquivos de pages/ e expõe
+# os links laterais mesmo quando o portão de autenticação está na tela.
+if autenticacao_habilitada():
+    if not auth_gate():
+        st.stop()
+    bind_authenticated_client(st.session_state["auth_access_token"])
+    if not workspace_gate():
+        st.stop()
+elif st.session_state.get("auth_access_token"):
+    bind_authenticated_client(st.session_state["auth_access_token"])
 
 with st.sidebar:
     st.image(LOGO_PLANOS, width="stretch")
