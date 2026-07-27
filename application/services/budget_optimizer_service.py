@@ -72,6 +72,7 @@ class BudgetOptimizerService:
         obrigatorios=None,
         excluidos=None,
         percentual_teste=0,
+        funcao_objetivo="ADERENCIA",
     ):
         return self.solver.otimizar(
             ranking=ranking,
@@ -83,6 +84,7 @@ class BudgetOptimizerService:
             obrigatorios=obrigatorios,
             excluidos=excluidos,
             percentual_teste=percentual_teste,
+            funcao_objetivo=funcao_objetivo,
         )
 
     # =====================================================

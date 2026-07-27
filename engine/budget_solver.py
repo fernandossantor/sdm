@@ -9,7 +9,11 @@ from domain.restricoes import diagnosticar_viabilidade
 
 class LinearBudgetSolver:
     METODO = "SOLVER_LINEAR_HIGHS"
-    VERSAO = "score-linear-v1"
+    VERSAO = "objetivo-linear-v2"
+    FUNCOES_OBJETIVO = {
+        "ADERENCIA": "MAXIMIZAR_ADERENCIA_PONDERADA_PELA_VERBA",
+        "CONVERSOES": "MAXIMIZAR_CONVERSOES_PROJETADAS",
+    }
 
     @staticmethod
     def _identificador(item):
@@ -37,6 +41,42 @@ class LinearBudgetSolver:
         if not 0 <= float(percentual_teste) < 1:
             raise ValueError("A reserva para testes deve estar entre 0% e 100%.")
 
+    @classmethod
+    def _coeficientes_objetivo(cls, itens, funcao_objetivo):
+        funcao = str(funcao_objetivo or "ADERENCIA").upper()
+        if funcao not in cls.FUNCOES_OBJETIVO:
+            raise ValueError(f"Função objetivo desconhecida: '{funcao}'.")
+        if funcao == "ADERENCIA":
+            coeficientes = [
+                float(item.get("score") or 0)
+                for item in itens
+            ]
+            origem = "score estratégico do plano"
+        else:
+            coeficientes = []
+            for item in itens:
+                conversoes = item.get("conversoes_estimadas")
+                investimento = item.get("investimento_referencia")
+                if conversoes is None or investimento is None:
+                    raise ValueError(
+                        "A função CONVERSOES exige conversões estimadas e "
+                        "investimento de referência para todos os inventários."
+                    )
+                investimento = float(investimento)
+                if investimento <= 0:
+                    raise ValueError(
+                        "O investimento de referência deve ser maior que zero "
+                        "para a função CONVERSOES."
+                    )
+                coeficientes.append(float(conversoes) / investimento)
+            origem = "conversões estimadas por real no plano de referência"
+        if not any(valor > 0 for valor in coeficientes):
+            raise ValueError(
+                f"Otimização inviável: a função {funcao} não possui "
+                "coeficiente positivo."
+            )
+        return funcao, coeficientes, origem
+
     def otimizar(
         self,
         ranking,
@@ -48,6 +88,7 @@ class LinearBudgetSolver:
         obrigatorios=None,
         excluidos=None,
         percentual_teste=0,
+        funcao_objetivo="ADERENCIA",
     ):
         self._validar_parametros(verba_total, percentual_teste)
         ranking = deepcopy(ranking)
@@ -74,11 +115,9 @@ class LinearBudgetSolver:
         ]
         if not itens:
             raise ValueError("Otimização inviável: não há inventários elegíveis.")
-        if not any(float(item.get("score") or 0) > 0 for item in itens):
-            raise ValueError(
-                "Otimização inviável: nenhum inventário elegível possui "
-                "score positivo."
-            )
+        funcao, coeficientes, origem_coeficientes = (
+            self._coeficientes_objetivo(itens, funcao_objetivo)
+        )
 
         verba_disponivel = round(
             float(verba_total) * (1 - float(percentual_teste)), 2
@@ -108,7 +147,7 @@ class LinearBudgetSolver:
             ))
 
         solucao = linprog(
-            c=[-float(item.get("score") or 0) for item in itens],
+            c=[-valor for valor in coeficientes],
             A_ub=[linha for linha, _, _ in matriz] or None,
             b_ub=[limite for _, limite, _ in matriz] or None,
             A_eq=[[1.0] * len(itens)],
@@ -127,15 +166,17 @@ class LinearBudgetSolver:
         if diferenca:
             indice = max(
                 range(len(itens)),
-                key=lambda i: float(itens[i].get("score") or 0),
+                key=lambda i: coeficientes[i],
             )
             alocacoes[indice] = round(alocacoes[indice] + diferenca, 2)
 
         resultado = []
-        for item, verba in zip(itens, alocacoes):
+        for item, verba, coeficiente in zip(itens, alocacoes, coeficientes):
             resultado.append({
                 **item,
                 "verba": verba,
+                "coeficiente_objetivo": coeficiente,
+                "origem_coeficiente_objetivo": origem_coeficientes,
                 "percentual": (
                     round(verba / verba_disponivel * 100, 2)
                     if verba_disponivel else 0
@@ -164,7 +205,8 @@ class LinearBudgetSolver:
             "reserva_testes": reserva,
             "metodo_alocacao": self.METODO,
             "versao_metodo": self.VERSAO,
-            "funcao": "MAXIMIZAR_SCORE_PONDERADO_PELA_VERBA",
+            "funcao": self.FUNCOES_OBJETIVO[funcao],
+            "funcao_objetivo": funcao,
             "valor_funcao_objetivo": round(-float(solucao.fun), 4),
             "otimo_comprovado": True,
             "condicao_viabilidade": "VIAVEL",
@@ -184,6 +226,11 @@ class LinearBudgetSolver:
             },
             "limitacoes": [
                 "Alocação contínua; não resolve quantidades discretas de compra.",
-                "A função objetivo usa score linear, sem curva de resposta.",
+                (
+                    "Conversões são extrapoladas linearmente a partir do plano "
+                    "de referência; não há curva de resposta marginal."
+                    if funcao == "CONVERSOES"
+                    else "Aderência usa score linear, sem curva de resposta."
+                ),
             ],
         }

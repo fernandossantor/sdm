@@ -62,7 +62,7 @@ st.header("Análises Avançadas")
 analises = {
     "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, sobre-exposição e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
     "Simulação de Cenários": "Aplica perfis alternativos ao mesmo conjunto de inventários para observar mudanças de pressão e distribuição.",
-    "Otimização de Verba": "Use o solver linear para maximizar aderência sob pisos, tetos, limites por ambiente/plataforma e reserva para testes. A simulação proporcional permanece disponível como benchmark heurístico.",
+    "Otimização de Verba": "Use o solver linear para maximizar aderência ou conversões sob pisos, tetos, limites por ambiente/plataforma e reserva para testes. Conversões exigem resultados auditáveis do plano e usam extrapolação linear identificada. A simulação proporcional permanece disponível como benchmark heurístico.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",
 }
 for nome, descricao in analises.items():

@@ -571,6 +571,43 @@ class TestBudgetOptimizer(unittest.TestCase):
                 minimo_ambiente={"Vídeo": 700, "Display": 400},
             )
 
+    def test_maximiza_conversoes_com_coeficientes_auditaveis(self):
+        ranking = [
+            {
+                **self.RANKING[0],
+                "investimento_referencia": 500,
+                "conversoes_estimadas": 5,
+            },
+            {
+                **self.RANKING[1],
+                "investimento_referencia": 500,
+                "conversoes_estimadas": 20,
+            },
+        ]
+
+        resultado = LinearBudgetSolver().otimizar(
+            ranking,
+            verba_total=1000,
+            funcao_objetivo="CONVERSOES",
+        )
+
+        por_nome = {
+            item["inventario"]: item["verba"]
+            for item in resultado["itens"]
+        }
+        self.assertEqual(por_nome["TV"], 0)
+        self.assertEqual(por_nome["Display"], 1000)
+        self.assertEqual(resultado["funcao_objetivo"], "CONVERSOES")
+        self.assertIn("extrapoladas linearmente", resultado["limitacoes"][1])
+
+    def test_conversoes_bloqueia_coeficiente_ausente(self):
+        with self.assertRaisesRegex(ValueError, "exige conversões estimadas"):
+            LinearBudgetSolver().otimizar(
+                self.RANKING,
+                verba_total=1000,
+                funcao_objetivo="CONVERSOES",
+            )
+
     def test_falha_quando_nao_ha_score_positivo(self):
 
         with self.assertRaisesRegex(ValueError, "nenhum inventário elegível"):

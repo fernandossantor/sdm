@@ -851,3 +851,14 @@ depende da cópia durável do backup em armazenamento privado.
 - ótimo só é declarado quando o solver retorna solução ótima;
 - heurística proporcional permanece disponível como benchmark explícito;
 - quantidades discretas e curvas de resposta permanecem limitações declaradas.
+
+### 27 de julho de 2026 — Fase 3, funções objetivo iniciais
+
+- solver permite selecionar aderência estratégica ou conversões projetadas;
+- aderência usa o score estratégico versionado do plano;
+- conversões usam a razão entre conversões e investimento de referência;
+- coeficiente ausente, investimento não positivo ou objetivo sem ganho positivo
+  bloqueiam a solução;
+- cada item preserva coeficiente e origem usados na função;
+- conversões são identificadas como extrapolação linear, sem alegar resposta
+  marginal ou saturação calibrada.
