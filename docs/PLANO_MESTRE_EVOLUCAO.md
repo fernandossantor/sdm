@@ -608,7 +608,8 @@ Saída: plano completo, não apenas cálculo tático.
 
 Status: iniciada em 27 de julho de 2026. Auditoria e referências registradas em
 `REVISAO_REFERENCIAS_FASE_6.md`; briefing, racional e mapas/cronogramas estão
-concluídos. Atribuição é o próximo incremento.
+concluídos. Atribuição auditável também foi implementada; qualidade
+programática e localização formam o próximo incremento.
 
 ### Fase 7 — Homologação e publicação
 
@@ -1155,3 +1156,19 @@ depende da cópia durável do backup em armazenamento privado.
 - exportação ganhou abas próprias para os três mapas consolidados;
 - suíte offline ampliada para 137 testes aprovados e 3 integrações opcionais;
 - próxima entrega: modelo auditável de atribuição.
+
+### 27 de julho de 2026 — Atribuição auditável
+
+- primeiro toque, último toque, linear e posicional operam sobre eventos e
+  janela explicitamente informados;
+- toques posteriores à conversão ou fora da janela não recebem crédito;
+- o resíduo numérico é reconciliado no último toque elegível, garantindo 100%
+  de crédito e preservação da receita informada por conversão;
+- conversões diretas, assistidas e excluídas são identificadas separadamente;
+- identidade ausente, evento inválido e ausência de toque elegível produzem
+  exclusão com motivo, sem imputação;
+- resultados podem ser salvos como artefatos versionados do projeto;
+- a interface declara que atribuição distribui crédito, não mede
+  incrementalidade;
+- suíte offline ampliada para 140 testes aprovados e 3 integrações opcionais;
+- próxima entrega: qualidade programática e localização.
