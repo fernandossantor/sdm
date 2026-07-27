@@ -1233,3 +1233,15 @@ depende da cópia durável do backup em armazenamento privado.
 - último backup completo foi revalidado com quatro dumps íntegros;
 - suíte offline ampliada para 154 testes aprovados e 3 integrações opcionais;
 - próximo gate: novo backup e restauração após rotação da chave.
+
+### 27 de julho de 2026 — Gate unificado de homologação
+
+- health check passa a retornar falha ao processo quando encontra erro;
+- comando `scripts.homologar` reúne suíte offline, regressão, saúde, segurança,
+  integrações e migrations;
+- execução conectada foi aprovada com 157 testes, 3 integrações, 10 tabelas
+  saudáveis e 23 migrations sincronizadas;
+- roteiro do piloto define gates, fluxo, aceite e interrupção imediata;
+- runbook registra rotina, severidade, resposta, recuperação e retorno;
+- o gate deve ser repetido após rotação de segredos e antes de cada versão
+  candidata.

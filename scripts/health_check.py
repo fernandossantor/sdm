@@ -139,7 +139,8 @@ def main():
 
     print("=" * 80)
 
+    return erros
+
 
 if __name__ == "__main__":
-
-    main()
+    raise SystemExit(1 if main() else 0)

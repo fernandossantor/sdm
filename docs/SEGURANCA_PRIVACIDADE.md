@@ -48,3 +48,6 @@ Antes do piloto, os participantes devem receber:
 - executar auditoria RLS e teste multiusuário;
 - confirmar backup restaurável recente;
 - registrar participantes, período e aceite do piloto.
+
+O roteiro de aceite está em `HOMOLOGACAO_PILOTO.md`; resposta e recuperação
+operacional estão em `RUNBOOK_OPERACIONAL.md`.
