@@ -7,7 +7,7 @@ LOGO_MEDIAD_PLANNER = Path(__file__).parents[2] / "assets" / "Marca.png"
 
 def render():
 
-    st.image(LOGO_MEDIAD_PLANNER, width=450)
+    st.image(LOGO_MEDIAD_PLANNER, width=360)
 
     st.subheader(
 

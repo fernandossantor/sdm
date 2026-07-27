@@ -206,7 +206,7 @@ elif st.session_state.get("auth_access_token"):
     bind_authenticated_client(st.session_state["auth_access_token"])
 
 with st.sidebar:
-    st.image(LOGO_MEDIAD_PLANNER, width="stretch")
+    st.image(LOGO_MEDIAD_PLANNER, width=240)
     st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
     if autenticacao_habilitada():
         st.caption(st.session_state.get("auth_email") or "Usuário autenticado")
