@@ -944,3 +944,13 @@ depende da cópia durável do backup em armazenamento privado.
   foram conferidas;
 - conjunto durável foi verificado no Google Drive como não compartilhado;
 - a migration remota não foi aplicada durante o procedimento.
+
+### 27 de julho de 2026 — Aplicação da fundação multiusuário
+
+- migration `20260727030000` aplicada após backup restaurável;
+- histórico local e remoto ficou sincronizado;
+- regressão e integrações conectadas foram aprovadas;
+- todos os registros centrais receberam espaço, sem valores nulos;
+- espaço legado permanece sem membros e autenticação permanece desativada;
+- próximo gate: criar contas controladas, atribuir membresias e repetir os
+  testes de isolamento usando sessões Auth reais.

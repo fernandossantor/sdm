@@ -42,16 +42,16 @@ Papéis no espaço:
 
 ## Limites deste incremento
 
-- a migration ainda não deve ser aplicada remotamente;
-- login e sessão ainda não foram implementados;
+- login e sessão estão implementados, mas ainda não ativados na implantação;
 - inventários globais/privados e bibliotecas de público serão tratados depois;
-- testes locais e revisão das políticas precedem backup e aplicação remota.
+- a autenticação continuará desativada até existirem contas e membresias de
+  teste controladas.
 
 O backup pré-migration `20260727030000` e seu ensaio de restauração foram
 concluídos em 27 de julho de 2026. A cópia durável está privada no Google
 Drive, com manifesto SHA-256 e contagens materiais equivalentes à origem.
-A aplicação remota continua separada deste gate e ainda requer execução
-controlada e teste autenticado posterior.
+A migration foi aplicada remotamente de forma controlada após esse gate. O
+teste autenticado posterior continua pendente.
 
 ## Ponte de cliente autenticado
 
@@ -135,3 +135,15 @@ o logout visível e a não persistência do token em armazenamento do navegador.
 - seleção autorizada, troca de contexto, inclusão forçada no espaço e
   filtragem de leituras foram validadas por testes específicos.
 - a cópia contextual foi testada para proprietário e negada para leitor.
+
+## Aplicação remota
+
+Em 27 de julho de 2026:
+
+- `20260727030000` foi aplicada e confirmada no histórico remoto;
+- regressão funcional e três integrações conectadas foram aprovadas;
+- foi criado um espaço legado, ainda sem membros;
+- não havia usuários em `auth.users`, portanto não foram criados perfis;
+- projetos, briefings, planejamentos e artefatos ficaram com zero registros
+  sem `espaco_id`;
+- `PLANOS_AUTH_ENABLED` permaneceu desligado.
