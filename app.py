@@ -102,6 +102,20 @@ analise_links = [
         "🎯",
     ),
     (st.Page("pages/13_Insights.py", title="Insights de Mídia", icon="💡"), "Insights de Mídia", "💡"),
+    (
+        st.Page("pages/20_Atribuicao.py", title="Atribuição", icon="🔗"),
+        "Atribuição",
+        "🔗",
+    ),
+    (
+        st.Page(
+            "pages/21_Qualidade_e_Localizacao.py",
+            title="Qualidade e Localização",
+            icon="🛡️",
+        ),
+        "Qualidade e Localização",
+        "🛡️",
+    ),
 ]
 base_links = [
     (st.Page("pages/01_Catalogos.py", title="Catálogo de Mídia", icon="🗂️"), "Catálogo de Mídia", "🗂️"),
