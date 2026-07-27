@@ -6,6 +6,10 @@ as premissas mínimas e a interface deve identificar a origem de cada valor.
 
 from dataclasses import dataclass
 from math import ceil
+
+from domain.custos import calcular_custo_compra
+
+
 @dataclass(frozen=True)
 class DeliveryResult:
     quantidade: float
@@ -26,6 +30,15 @@ class DeliveryResult:
     roi: float | None
     excesso_frequencia: float
     confianca: str
+    preco_tabela_unitario: float
+    desconto_percentual: float
+    preco_liquido_unitario: float
+    custo_midia: float
+    fee_tecnologia: float
+    fee_dados: float
+    fee_verificacao: float
+    fee_operacao: float
+    custo_total: float
 
 
 class MediaPlanEngine:
@@ -86,7 +99,8 @@ class MediaPlanEngine:
             else:
                 raise ValueError("A quantidade excede o teto informado.")
         quantidade = int(ceil(quantidade)) if modo == "METAS" else int(quantidade)
-        investimento = quantidade * preco
+        custo = calcular_custo_compra(quantidade, preco, premissa)
+        investimento = custo.custo_total
         verba_maxima = premissa.get("verba_maxima")
         if investimento < verba_minima:
             raise ValueError(f"O investimento {investimento:.2f} está abaixo do piso {verba_minima:.2f}.")
@@ -128,6 +142,15 @@ class MediaPlanEngine:
             roi=dividir(retorno - investimento, investimento),
             excesso_frequencia=round(max(0, frequencia - maximo_frequencia), 2),
             confianca=str(premissa.get("confianca") or "INFORMADO").upper(),
+            preco_tabela_unitario=custo.preco_tabela_unitario,
+            desconto_percentual=custo.desconto_percentual,
+            preco_liquido_unitario=custo.preco_liquido_unitario,
+            custo_midia=custo.custo_midia,
+            fee_tecnologia=custo.fee_tecnologia,
+            fee_dados=custo.fee_dados,
+            fee_verificacao=custo.fee_verificacao,
+            fee_operacao=custo.fee_operacao,
+            custo_total=custo.custo_total,
         )
 
     @staticmethod
@@ -167,6 +190,20 @@ class MediaPlanEngine:
             "frequencia_combinada": frequencia,
             "grp_total": grp,
             "investimento": investimento,
+            "custo_midia": round(sum(item.custo_midia for item in resultados), 2),
+            "fees": {
+                "tecnologia": round(
+                    sum(item.fee_tecnologia for item in resultados), 2
+                ),
+                "dados": round(sum(item.fee_dados for item in resultados), 2),
+                "verificacao": round(
+                    sum(item.fee_verificacao for item in resultados), 2
+                ),
+                "operacao": round(
+                    sum(item.fee_operacao for item in resultados), 2
+                ),
+            },
+            "custo_total": investimento,
             "impressoes": sum(item.impressoes for item in resultados),
             "cliques": round(sum(item.cliques for item in resultados), 2),
             "conversoes": round(sum(item.conversoes for item in resultados), 2),

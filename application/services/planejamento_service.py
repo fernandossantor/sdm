@@ -305,6 +305,15 @@ class PlanejamentoService:
             )
             item.preco_unitario = preco_unitario
             item.unidade_compra = premissa.get("unidade_compra") or item.unidade_compra
+            item.preco_tabela_unitario = resultado.preco_tabela_unitario
+            item.desconto_percentual = resultado.desconto_percentual
+            item.preco_unitario = resultado.preco_liquido_unitario
+            item.custo_midia = resultado.custo_midia
+            item.fee_tecnologia = resultado.fee_tecnologia
+            item.fee_dados = resultado.fee_dados
+            item.fee_verificacao = resultado.fee_verificacao
+            item.fee_operacao = resultado.fee_operacao
+            item.custo_total = resultado.custo_total
             item.quantidade_estimada = resultado.quantidade
             item.verba = resultado.investimento
             item.audiencia_percentual = resultado.audiencia_percentual
@@ -348,6 +357,9 @@ class PlanejamentoService:
         for item in plano.itens:
             if item.preco_unitario <= 0:
                 continue
+            item.preco_tabela_unitario = item.preco_unitario
+            item.custo_midia = round(item.verba, 2)
+            item.custo_total = round(item.verba, 2)
             item.quantidade_estimada = round(item.verba / item.preco_unitario, 2)
             unidade = (item.unidade_compra or "").casefold()
             if "mil impress" in unidade:
@@ -484,6 +496,14 @@ class PlanejamentoService:
                 "inventario_id": item.inventario_id,
                 "preco_unitario": item.preco_unitario,
                 "unidade_compra": item.unidade_compra,
+                "preco_tabela_unitario": item.preco_tabela_unitario,
+                "desconto_percentual": item.desconto_percentual,
+                "custo_midia": item.custo_midia,
+                "fee_tecnologia": item.fee_tecnologia,
+                "fee_dados": item.fee_dados,
+                "fee_verificacao": item.fee_verificacao,
+                "fee_operacao": item.fee_operacao,
+                "custo_total": item.custo_total,
                 "quantidade_estimada": item.quantidade_estimada,
                 "impressoes_estimadas": item.impressoes_estimadas,
                 "alcance_estimado": item.alcance_estimado,

@@ -721,3 +721,15 @@ depende da cópia durável do backup em armazenamento privado.
 - health check, auditoria de segurança, regressão e integrações autenticadas
   aprovados;
 - suíte offline ampliada para 69 testes aprovados.
+
+### 27 de julho de 2026 — Fase 1, custos auditáveis
+
+- criado contrato monetário com arredondamento decimal determinístico;
+- preço de tabela, desconto e preço líquido ficam separados no item;
+- custo de mídia e fees de tecnologia, dados, verificação e operação são
+  calculados e reconciliados com o custo total;
+- preço unitário legado permanece compatível como preço líquido quando não há
+  detalhamento comercial;
+- consolidação, snapshot do plano e exportação preservam a decomposição;
+- descontos e fees inválidos são rejeitados explicitamente;
+- suíte offline ampliada para 71 testes e regressão conectada aprovadas.

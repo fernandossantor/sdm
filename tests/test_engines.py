@@ -124,6 +124,52 @@ class TestMediaPlanEngine(unittest.TestCase):
                 {"alcance_percentual": 30, "frequencia": 2}, 10000, 100
             )
 
+    def test_reconcilia_preco_desconto_fees_e_total(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10,
+                "alcance_percentual": 20,
+                "frequencia": 1,
+                "unidade_compra": "Inserção",
+                "modo_calculo": "COMPRA",
+                "quantidade": 10,
+                "preco_tabela_unitario": 100,
+                "desconto_percentual": 10,
+                "fee_tecnologia_percentual": 5,
+                "fee_dados_fixo": 20,
+                "fee_verificacao_percentual": 1,
+                "fee_operacao_fixo": 10,
+            },
+            publico_referencia=10000,
+            preco_unitario=999,
+        )
+
+        self.assertEqual(resultado.preco_liquido_unitario, 90)
+        self.assertEqual(resultado.custo_midia, 900)
+        self.assertEqual(resultado.fee_tecnologia, 45)
+        self.assertEqual(resultado.fee_dados, 20)
+        self.assertEqual(resultado.fee_verificacao, 9)
+        self.assertEqual(resultado.fee_operacao, 10)
+        self.assertEqual(resultado.investimento, 984)
+        self.assertEqual(resultado.custo_total, 984)
+
+    def test_rejeita_desconto_invalido(self):
+        with self.assertRaisesRegex(ValueError, "desconto percentual"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 20,
+                    "frequencia": 1,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "COMPRA",
+                    "quantidade": 1,
+                    "preco_tabela_unitario": 100,
+                    "desconto_percentual": 101,
+                },
+                publico_referencia=10000,
+                preco_unitario=100,
+            )
+
 
 class TestClassificacaoPapeisEngine(unittest.TestCase):
 

@@ -41,6 +41,15 @@ class PlanoItem:
 
     unidade_compra: str = ""
 
+    preco_tabela_unitario: float = 0.0
+    desconto_percentual: float = 0.0
+    custo_midia: float = 0.0
+    fee_tecnologia: float = 0.0
+    fee_dados: float = 0.0
+    fee_verificacao: float = 0.0
+    fee_operacao: float = 0.0
+    custo_total: float = 0.0
+
     quantidade_estimada: Optional[float] = None
 
     impressoes_estimadas: Optional[float] = None

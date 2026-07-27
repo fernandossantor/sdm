@@ -142,14 +142,21 @@ class TestPlanejamentoService(unittest.TestCase):
                 "quantidade": 5,
                 "modo_calculo": "COMPRA",
                 "preco_unitario": 125.50,
+                "preco_tabela_unitario": 150,
+                "desconto_percentual": 10,
+                "fee_operacao_fixo": 25,
                 "unidade_compra": "Inserção",
             }
         }
 
         PlanejamentoService._calcular_entrega_configuravel(plano, premissas)
 
-        self.assertEqual(plano.itens[0].preco_unitario, 125.50)
-        self.assertEqual(plano.itens[0].verba, 627.50)
+        self.assertEqual(plano.itens[0].preco_tabela_unitario, 150)
+        self.assertEqual(plano.itens[0].preco_unitario, 135)
+        self.assertEqual(plano.itens[0].custo_midia, 675)
+        self.assertEqual(plano.itens[0].fee_operacao, 25)
+        self.assertEqual(plano.itens[0].verba, 700)
+        self.assertEqual(plano.resultados_consolidados["custo_total"], 700)
 
     def test_publico_referencia_considera_pesos(self):
 
