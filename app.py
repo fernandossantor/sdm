@@ -42,7 +42,7 @@ for _nome in (
     if os.getenv(_nome):
         continue
     try:
-        _valor = st.secrets.get(_nome)
+        _valor = st.secrets[_nome]
     except Exception:
         _valor = None
     if _valor is not None:
