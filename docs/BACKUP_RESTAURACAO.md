@@ -81,6 +81,17 @@ Foram verificados quatro arquivos com os mesmos tamanhos dos originais:
 
 Todos foram confirmados como não compartilhados (`not_shared`).
 
+Antes da migration `20260727010000`, um segundo conjunto foi copiado para a
+pasta privada [PlanOS Backups / pre-migration
+20260727010000](https://drive.google.com/drive/folders/1CClQzjIfWGuPqW8JfdrPzaezLc6lWc1A).
+
+Os quatro arquivos também foram confirmados como não compartilhados:
+
+- `schema.sql`: 106.489 bytes;
+- `data.sql`: 408.703 bytes;
+- `public-data.sql`: 399.860 bytes;
+- `roles.sql`: 358 bytes.
+
 ## Pendências operacionais
 
 - definir retenção e responsáveis;

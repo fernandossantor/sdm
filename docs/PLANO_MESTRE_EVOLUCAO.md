@@ -713,4 +713,11 @@ depende da cópia durável do backup em armazenamento privado.
 - cada versão recebe hash de conteúdo e número monotônico por plano;
 - atualização e exclusão de versões são bloqueadas no banco;
 - exclusão funcional passa a arquivamento para preservar o histórico;
-- migration validada na restauração isolada, ainda não aplicada remotamente.
+- migration validada na restauração isolada e aplicada no projeto remoto após
+  novo backup privado;
+- backfill remoto conferido: 1 planejamento, 1 versão inicial e hash válido;
+- acesso público à nova tabela permanece bloqueado, enquanto o papel de serviço
+  consegue validar o schema;
+- health check, auditoria de segurança, regressão e integrações autenticadas
+  aprovados;
+- suíte offline ampliada para 69 testes aprovados.

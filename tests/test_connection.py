@@ -18,10 +18,12 @@ class TestConnection(unittest.TestCase):
 
         from infrastructure.database.supabase_client import supabase
 
-        with self.assertRaises(APIError) as contexto:
-            supabase.table("canais_v3").select("id").limit(1).execute()
+        for tabela in ("canais_v3", "versoes_planejamento"):
+            with self.subTest(tabela=tabela):
+                with self.assertRaises(APIError) as contexto:
+                    supabase.table(tabela).select("id").limit(1).execute()
 
-        self.assertEqual(contexto.exception.code, "42501")
+                self.assertEqual(contexto.exception.code, "42501")
 
     def test_service_role_acessa_supabase(self):
 
@@ -102,6 +104,11 @@ class TestConnection(unittest.TestCase):
             .select("id,inventario_id,tipo_original,unidade_original,fonte")
             .limit(1).execute()
         )
+        versoes = (
+            admin.table("versoes_planejamento")
+            .select("id,planejamento_id,numero,evento,hash_conteudo")
+            .limit(1).execute()
+        )
 
         self.assertIsInstance(universos.data, list)
         self.assertIsInstance(papeis.data, list)
@@ -114,6 +121,7 @@ class TestConnection(unittest.TestCase):
         self.assertIsInstance(modalidades_unidades.data, list)
         self.assertIsInstance(planejamentos.data, list)
         self.assertIsInstance(medicoes.data, list)
+        self.assertIsInstance(versoes.data, list)
 
 
 if __name__ == "__main__":
