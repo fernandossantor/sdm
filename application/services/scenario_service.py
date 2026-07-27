@@ -141,7 +141,7 @@ class ScenarioService:
 
             f"Cenário estratégico: {cenario}.",
 
-            "Plano gerado automaticamente pelo PlanOS.",
+            "Plano gerado automaticamente pelo MediAd Planner.",
 
             "Distribuição ajustada conforme o perfil estratégico do cenário."
 

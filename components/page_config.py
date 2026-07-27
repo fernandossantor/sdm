@@ -2,8 +2,8 @@ from pathlib import Path
 
 
 ASSETS_DIR = Path(__file__).parents[1] / "assets"
-PAGE_ICON = ASSETS_DIR / "barra.png"
-PAGE_TITLE = "PlanOS — Plataforma Inteligente de Planejamento Híbrido de Mídia"
+PAGE_ICON = ASSETS_DIR / "favicon.png"
+PAGE_TITLE = "MediAd Planner — Plataforma Inteligente de Planejamento Híbrido de Mídia"
 
 
 def titulo_pagina(nome=None):

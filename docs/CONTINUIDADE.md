@@ -9,7 +9,7 @@
 - Último checkpoint funcional: `9dfc8d2`
   (`Prepara migracao para chaves Supabase atuais`).
 - A branch de continuidade permanece disponível para retomada no Codespace.
-- O aplicativo publicado usa o nome **PlanOS** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
+- O aplicativo publicado usa o nome **MediAd Planner** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
 - A última rodada restaurou o logo na barra lateral, preservou o logo reduzido
   na página Início, manteve favicon e título completo no navegador, introduziu
   entradas monetárias em pt-BR e unificou pisos, tetos e quantidade automática
@@ -38,7 +38,7 @@
 - Gate unificado de homologação conectado aprovado.
 - Regressão funcional autenticada aprovada. A antiga asserção do forecast foi
   alinhada à regra do motor, que projeta apenas inventários com métricas.
-- Renderização da página inicial aprovada com duas imagens e sem texto PlanOS
+- Renderização da página inicial aprovada com duas imagens e sem texto MediAd Planner
   duplicado. Entrada `1.000.000,00` convertida corretamente para cálculo.
 
 ## Retomada rápida

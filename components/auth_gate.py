@@ -31,7 +31,7 @@ def render():
                     st.rerun()
         return False
 
-    st.title("Entrar no PlanOS")
+    st.title("Entrar no MediAd Planner")
     st.caption("O cadastro é controlado pela administração.")
     with st.form("login_planos", clear_on_submit=False):
         st.text_input("E-mail", key="login_email", autocomplete="email")
@@ -60,7 +60,7 @@ def render():
             # expor senha, tokens ou qualquer outro segredo da sessão.
             st.caption(f"Detalhe técnico: {type(exc).__name__}: {exc}")
         else:
-            st.success("Acesso validado. Carregando o PlanOS…")
+            st.success("Acesso validado. Carregando o MediAd Planner…")
             # O primeiro acesso ainda precisa passar pela troca obrigatória de
             # senha, que é renderizada no próximo ciclo com a sessão salva.
             st.rerun()

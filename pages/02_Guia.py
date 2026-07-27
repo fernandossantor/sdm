@@ -3,7 +3,7 @@ from components.page_config import PAGE_ICON, titulo_pagina
 
 
 st.set_page_config(page_title=titulo_pagina("Guia de Uso"), page_icon=PAGE_ICON, layout="wide")
-st.title("📖 Guia de Uso do PlanOS")
+st.title("📖 Guia de Uso do MediAd Planner")
 st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
 
 st.info(

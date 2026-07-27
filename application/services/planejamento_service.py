@@ -200,7 +200,7 @@ class PlanejamentoService:
 
             ranking=ranking,
 
-            observacao="Plano estratégico gerado automaticamente pelo PlanOS."
+            observacao="Plano estratégico gerado automaticamente pelo MediAd Planner."
 
         )
 
@@ -815,7 +815,7 @@ class PlanejamentoService:
 
             "Distribuição proporcional ao score estratégico.",
 
-            "Recomendações geradas automaticamente pelo PlanOS."
+            "Recomendações geradas automaticamente pelo MediAd Planner."
 
         ]
 

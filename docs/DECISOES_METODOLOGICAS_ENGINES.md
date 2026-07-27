@@ -5,18 +5,18 @@
 ## Finalidade
 
 Este documento fixa as decisões metodológicas que orientarão os cálculos, os
-dados e as explicações produzidas pelo PlanOS. Ele é normativo para novas
+dados e as explicações produzidas pelo MediAd Planner. Ele é normativo para novas
 implementações e substitui decisões implícitas, valores silenciosos e
 interpretações divergentes entre interface, serviços e engines.
 
 As decisões foram consolidadas a partir do código atual, da documentação do
 projeto e dos materiais acadêmicos e mercadológicos armazenados em
 `docs/pdfs/`. Os materiais dão fundamento conceitual; as regras abaixo definem
-como o PlanOS aplicará esse fundamento.
+como o MediAd Planner aplicará esse fundamento.
 
 ## Princípios obrigatórios
 
-1. O PlanOS propõe e calcula, mas não inventa fatos.
+1. O MediAd Planner propõe e calcula, mas não inventa fatos.
 2. Todo resultado deve ser reproduzível a partir de entradas versionadas.
 3. Fato, premissa, decisão e resultado são categorias distintas.
 4. Métricas de naturezas ou universos incompatíveis não são agregadas.
@@ -125,7 +125,7 @@ As identidades adotadas são:
 
 GRP pode ultrapassar 100. Alcance não pode ultrapassar 100% do universo.
 
-O PlanOS não somará GRPs de universos incompatíveis. Um total cross-media só
+O MediAd Planner não somará GRPs de universos incompatíveis. Um total cross-media só
 será denominado `GRP agregado` quando os componentes forem comparáveis ou
 convertidos para o mesmo universo e target. Caso contrário, serão exibidos
 GRPs por meio e contatos estimados, sem total enganoso.
@@ -166,7 +166,7 @@ O modelo deverá admitir:
 - parcela na faixa;
 - parcela sobre-exposta.
 
-Até haver distribuição ou curva calibrada, o PlanOS poderá sinalizar excesso
+Até haver distribuição ou curva calibrada, o MediAd Planner poderá sinalizar excesso
 de frequência, mas não afirmará calcular saturação econômica ou resposta
 decrescente.
 
@@ -236,7 +236,7 @@ O encadeamento obrigatório será:
 
 `objetivo de negocio -> objetivo de comunicacao -> objetivo de midia -> KPI -> metrica`
 
-O PlanOS terá famílias de objetivo:
+O MediAd Planner terá famílias de objetivo:
 
 - conhecimento e alcance;
 - consideração;
@@ -355,7 +355,7 @@ negócio só serão projetados quando houver uma cadeia de premissas compatível
 
 ## DM-015 — Atribuição e incrementalidade
 
-O PlanOS admitirá modelos configuráveis:
+O MediAd Planner admitirá modelos configuráveis:
 
 - primeira interação;
 - última interação;

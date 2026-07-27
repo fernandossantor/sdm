@@ -4,7 +4,7 @@ Revisão: 27 de julho de 2026 (UTC).
 
 ## Gate de produção
 
-O PlanOS somente aceita `PLANOS_ENV=production` quando:
+O MediAd Planner somente aceita `PLANOS_ENV=production` quando:
 
 - `PLANOS_AUTH_ENABLED=true`;
 - URL, chave pública `sb_publishable_...` e chave administrativa

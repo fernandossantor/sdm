@@ -96,7 +96,7 @@ interrupção esperada ao iniciar o schema `storage` também exige executar os
 ## Cópia durável de 27 de julho de 2026
 
 O conjunto anterior à migration `20260727000000` foi copiado para a pasta
-privada [PlanOS Backups / 2026-07-27 pre-migration
+privada [MediAd Planner Backups / 2026-07-27 pre-migration
 20260727000000](https://drive.google.com/drive/folders/1d8ZtFBRiYJ6bnQ0V4fSJ6y_sDoxRuVx9)
 no Google Drive conectado.
 
@@ -110,7 +110,7 @@ Foram verificados quatro arquivos com os mesmos tamanhos dos originais:
 Todos foram confirmados como não compartilhados (`not_shared`).
 
 Antes da migration `20260727010000`, um segundo conjunto foi copiado para a
-pasta privada [PlanOS Backups / pre-migration
+pasta privada [MediAd Planner Backups / pre-migration
 20260727010000](https://drive.google.com/drive/folders/1CClQzjIfWGuPqW8JfdrPzaezLc6lWc1A).
 
 Os quatro arquivos também foram confirmados como não compartilhados:
@@ -121,7 +121,7 @@ Os quatro arquivos também foram confirmados como não compartilhados:
 - `roles.sql`: 358 bytes.
 
 Antes da migration `20260727020000`, um terceiro conjunto foi copiado para a
-pasta privada [PlanOS Backups / pre-migration
+pasta privada [MediAd Planner Backups / pre-migration
 20260727020000](https://drive.google.com/drive/folders/1So_nysbnRq8Y0ygwJiI9iv6ruQ7zSlaw).
 
 Os quatro arquivos foram confirmados com `shared=false`, somente com a
@@ -133,7 +133,7 @@ permissão do proprietário, e com os mesmos tamanhos dos dumps locais:
 - `roles.sql`: 358 bytes.
 
 Antes da migration `20260727030000`, um quarto conjunto foi gerado e copiado
-para a pasta privada [PlanOS Backups / pre-migration
+para a pasta privada [MediAd Planner Backups / pre-migration
 20260727030000](https://drive.google.com/drive/folders/14s1xBYS9CmOHhdt2OcfO_eW8G6zC6q_c).
 
 Os cinco arquivos foram confirmados com `shared=false` e
@@ -158,7 +158,7 @@ deles:
 - o banco temporário foi removido e o ambiente local desligado.
 
 Antes da migration `20260727040000`, um quinto conjunto foi copiado para a
-pasta privada [PlanOS Backups / pre-migration
+pasta privada [MediAd Planner Backups / pre-migration
 20260727040000](https://drive.google.com/drive/folders/10a82X6KMHsQJjcB7FfxuwKqBvSWW5V0F).
 
 Os cinco arquivos foram confirmados com `shared=false` e
@@ -180,7 +180,7 @@ Foram confirmadas 92 tabelas públicas, 114 chaves estrangeiras, 2 identidades,
 restaurado.
 
 Antes das migrations `20260727050000` e `20260727060000`, um sexto conjunto
-foi copiado para a pasta privada [PlanOS Backups / pre-migrations
+foi copiado para a pasta privada [MediAd Planner Backups / pre-migrations
 20260727050000-060000](https://drive.google.com/drive/folders/1U3GU-Qvg9sUArVvu9CbHNYYA-Wi3mgnR).
 
 Os cinco arquivos foram confirmados com `shared=false` e
@@ -201,7 +201,7 @@ As migrations de compartilhamento e inventários foram então aplicadas, e seus
 testes de RLS passaram no banco recuperado.
 
 Antes da migration `20260727080000`, um sétimo conjunto foi copiado para a
-pasta privada [PlanOS Backups / pre-migration
+pasta privada [MediAd Planner Backups / pre-migration
 20260727080000](https://drive.google.com/drive/folders/15nCg8Bd0CxWesMhPJk0fkoTTYqG1LMq0).
 
 Os cinco arquivos foram confirmados com `shared=false` e
@@ -222,7 +222,7 @@ retroativo.
 
 Depois da substituição local das chaves legadas por `sb_publishable_...` e
 `sb_secret_...`, foi gerado um novo conjunto e copiado para a pasta privada
-[PlanOS Backups / 2026-07-27
+[MediAd Planner Backups / 2026-07-27
 post-key-migration](https://drive.google.com/drive/folders/1BmDyzE3oi_zStBYXIpcOPWSrL7OXnaWO).
 
 Os cinco arquivos foram confirmados com `shared=false` e

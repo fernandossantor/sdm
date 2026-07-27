@@ -1,4 +1,4 @@
-"""Executa os gates reproduzíveis de homologação do PlanOS."""
+"""Executa os gates reproduzíveis de homologação do MediAd Planner."""
 
 import argparse
 from datetime import datetime, timezone

@@ -2,12 +2,12 @@ import streamlit as st
 from pathlib import Path
 
 
-LOGO_PLANOS = Path(__file__).parents[2] / "assets" / "PlanOS.png"
+LOGO_MEDIAD_PLANNER = Path(__file__).parents[2] / "assets" / "Marca.png"
 
 
 def render():
 
-    st.image(LOGO_PLANOS, width=450)
+    st.image(LOGO_MEDIAD_PLANNER, width=450)
 
     st.subheader(
 

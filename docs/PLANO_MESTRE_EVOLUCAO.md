@@ -1,11 +1,11 @@
-# Plano mestre de evolução do PlanOS
+# Plano mestre de evolução do MediAd Planner
 
 Última revisão: 27 de julho de 2026 (UTC).
 
 ## Objetivo
 
 Este documento consolida a evolução metodológica, funcional, arquitetural e
-multiusuário do PlanOS. Ele integra as pendências encontradas na `main`, nas
+multiusuário do MediAd Planner. Ele integra as pendências encontradas na `main`, nas
 branches de continuidade e refatoração, nos materiais de mídia e no
 `PLANO_MULTIUSUARIO.md`.
 
@@ -40,7 +40,7 @@ As regras de cálculo que orientam este plano estão fixadas em
 
 ## Resultado esperado
 
-Ao final, o PlanOS deverá:
+Ao final, o MediAd Planner deverá:
 
 - gerar planos metodologicamente auditáveis;
 - distinguir medição, premissa, decisão e estimativa;

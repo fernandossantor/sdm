@@ -1,6 +1,6 @@
 # Modelo de planejamento cross-media
 
-O PlanOS propõe configurações, mas não inventa dados. Novos planos exigem
+O MediAd Planner propõe configurações, mas não inventa dados. Novos planos exigem
 audiência, alcance e frequência por inventário. Dados cadastrados são
 sugestões editáveis; substituições ficam registradas nas premissas do plano.
 
