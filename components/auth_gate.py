@@ -33,12 +33,25 @@ def render():
 
     st.title("Entrar no PlanOS")
     st.caption("O cadastro é controlado pela administração.")
-    email = st.text_input("E-mail", key="login_email")
-    senha = st.text_input("Senha", type="password", key="login_senha")
-    enviar = st.button("Entrar", type="primary", use_container_width=True)
+    with st.form("login_planos", clear_on_submit=False):
+        st.text_input("E-mail", key="login_email", autocomplete="email")
+        st.text_input(
+            "Senha",
+            type="password",
+            key="login_senha",
+            autocomplete="current-password",
+        )
+        enviar = st.form_submit_button(
+            "Entrar", type="primary", use_container_width=True
+        )
 
     if enviar:
         st.info("Validando acesso…")
+        email = str(st.session_state.get("login_email") or "").strip()
+        senha = st.session_state.get("login_senha") or ""
+        if not email or not senha:
+            st.error("Preencha o e-mail e a senha antes de entrar.")
+            return False
         try:
             service.entrar(email, senha, st.session_state)
         except Exception as exc:
