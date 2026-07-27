@@ -5,9 +5,9 @@
 ## Ponto de retomada
 
 - Branch: `agent/corrige-restricoes-e-moeda`.
-- Fases 4, 5 e 6 concluídas na branch de continuidade.
-- Último checkpoint funcional: `14871f9`
-  (`Completa relatorios e comparacao de versoes`).
+- Fases 4, 5 e 6 concluídas; Fase 7 em homologação controlada.
+- Último checkpoint funcional: `9dfc8d2`
+  (`Prepara migracao para chaves Supabase atuais`).
 - A branch de continuidade permanece disponível para retomada no Codespace.
 - O aplicativo publicado usa o nome **PlanOS** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
 - A última rodada restaurou o logo na barra lateral, preservou o logo reduzido
@@ -22,7 +22,7 @@
 - CLI Supabase: instalada localmente pelo `package-lock.json`; em uma reconstrução do Codespace, `npm ci` é executado automaticamente.
 - Credencial do Git: leitura de `origin` confirmada em 22/07/2026.
 - GitHub CLI (`gh`): autenticado como `fernandossantor`; operações Git e da API estavam disponíveis nesta revisão.
-- GitHub Actions: CI pós-merge `29955148246` concluído com sucesso.
+- GitHub Actions: checks de push e PR aprovados nos checkpoints recentes.
 - Configuração local: `.env` presente e ignorado pelo Git. Segredos não são copiados para arquivos versionados.
 - Produção: os segredos permanecem no mecanismo seguro do Streamlit Cloud/Supabase.
 
@@ -30,10 +30,12 @@
 
 - `git diff --check` aprovado.
 - Compilação de todos os módulos Python aprovada.
-- 147 testes automatizados aprovados; 3 testes de integração opcionais
+- 159 testes automatizados aprovados; 3 testes de integração opcionais
   ignorados na suíte offline.
 - 3 testes de integração autenticados aprovados.
-- Health check autenticado aprovado para as 10 tabelas verificadas.
+- Health check autenticado aprovado para 20 tabelas críticas.
+- Auditoria confirmou as tabelas críticas bloqueadas ao acesso público.
+- Gate unificado de homologação conectado aprovado.
 - Regressão funcional autenticada aprovada. A antiga asserção do forecast foi
   alinhada à regra do motor, que projeta apenas inventários com métricas.
 - Renderização da página inicial aprovada com duas imagens e sem texto PlanOS
@@ -55,7 +57,20 @@ Antes de uma nova alteração de banco, comparar as migrações locais e remotas
 
 ## Próximo trabalho
 
-Retomar pela Fase 7 em `docs/PLANO_MESTRE_EVOLUCAO.md`. As decisões obrigatórias para
+Retomar pela Fase 7 em `docs/PLANO_MESTRE_EVOLUCAO.md`. A próxima ação é
+migrar as chaves no painel do Supabase:
+
+1. criar/obter `sb_publishable_...` e uma nova `sb_secret_...`;
+2. atualizar `SUPABASE_KEY` e `SUPABASE_SERVICE_KEY` no `.env`, sem enviar os
+   valores pela conversa e sem versioná-los;
+3. manter `PLANOS_ENV=development` e `PLANOS_AUTH_ENABLED=false`;
+4. repetir saúde, segurança e homologação conectada;
+5. gerar e ensaiar novo backup;
+6. somente depois atualizar a hospedagem e desativar as chaves legadas.
+
+Não rotacionar a JWT Signing Key e não ativar o piloto antes desses gates.
+
+As decisões obrigatórias para
 fórmulas, dados, restrições, forecast, otimização, atribuição e auditoria estão
 em `docs/DECISOES_METODOLOGICAS_ENGINES.md`.
 
