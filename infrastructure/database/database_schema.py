@@ -121,3 +121,9 @@ VERSOES_PLANEJAMENTO = "versoes_planejamento"
 ARTEFATOS_WORKFLOW = "artefatos_workflow"
 
 PROJETOS = "projetos"
+
+PERFIS_USUARIOS = "perfis_usuarios"
+
+ESPACOS_TRABALHO = "espacos_trabalho"
+
+MEMBROS_ESPACOS = "membros_espacos"

@@ -48,6 +48,28 @@ class TestArquitetura(unittest.TestCase):
 
         self.assertFalse((RAIZ / "repositories").exists())
 
+    def test_migration_multiusuario_preserva_controles_criticos(self):
+        migration = (
+            RAIZ
+            / "supabase"
+            / "migrations"
+            / "20260727030000_fundacao_multiusuario.sql"
+        ).read_text(encoding="utf-8")
+
+        for controle in (
+            "create table if not exists public.membros_espacos",
+            "create or replace function public.eh_membro_espaco",
+            "create or replace function public.pode_editar_espaco",
+            "create or replace function public.eh_proprietario_espaco",
+            "O espaço de um registro não pode ser alterado",
+            "grant update (nome, atualizado_em)",
+        ):
+            self.assertIn(controle, migration)
+        self.assertNotIn(
+            "grant select, update on public.perfis_usuarios",
+            migration,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

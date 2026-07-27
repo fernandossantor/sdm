@@ -907,3 +907,15 @@ depende da cópia durável do backup em armazenamento privado.
   desabilitadas por padrão;
 - próxima etapa condicionada ao plano de migração multiusuário, backup e testes
   de isolamento por RLS.
+
+### 27 de julho de 2026 — Fase 4, fundação de propriedade e RLS
+
+- modelo adota perfis, espaços e membros com proprietário, editor e leitor;
+- cadeia projeto → briefing → planejamento → artefato recebe `espaco_id`;
+- dados atuais são encaminhados para um espaço legado sem exposição automática;
+- versões herdam autorização pela relação com o planejamento;
+- políticas separam leitura de membro e escrita de proprietário/editor;
+- autopromoção de papel global e vínculos cruzados entre espaços são bloqueados;
+- migration idempotente e isolamento entre três identidades validados localmente;
+- aplicação remota permanece bloqueada até novo backup e adaptação dos
+  repositories para JWT de usuário.
