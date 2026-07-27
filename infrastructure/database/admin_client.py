@@ -4,8 +4,7 @@ import os
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from supabase import create_client
-from supabase.lib.client_options import ClientOptions
+from supabase import ClientOptions, create_client
 
 
 @lru_cache(maxsize=1)

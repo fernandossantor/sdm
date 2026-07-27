@@ -57,16 +57,16 @@ Antes de uma nova alteração de banco, comparar as migrações locais e remotas
 
 ## Próximo trabalho
 
-Retomar pela Fase 7 em `docs/PLANO_MESTRE_EVOLUCAO.md`. A próxima ação é
-migrar as chaves no painel do Supabase:
+Retomar pela Fase 7 em `docs/PLANO_MESTRE_EVOLUCAO.md`. A migração local,
+a homologação conectada e o backup restaurável posterior à troca das chaves
+foram concluídos. A próxima ação é:
 
-1. criar/obter `sb_publishable_...` e uma nova `sb_secret_...`;
-2. atualizar `SUPABASE_KEY` e `SUPABASE_SERVICE_KEY` no `.env`, sem enviar os
-   valores pela conversa e sem versioná-los;
-3. manter `PLANOS_ENV=development` e `PLANOS_AUTH_ENABLED=false`;
-4. repetir saúde, segurança e homologação conectada;
-5. gerar e ensaiar novo backup;
-6. somente depois atualizar a hospedagem e desativar as chaves legadas.
+1. instalar `sb_publishable_...` e `sb_secret_...` no mecanismo seguro da
+   hospedagem, sem enviar ou versionar os valores;
+2. manter o piloto desativado durante a validação da versão candidata;
+3. repetir os gates de saúde, segurança e integração na hospedagem;
+4. conferir no painel do Supabase que as chaves legadas deixaram de ser usadas;
+5. somente então desativar `anon` e `service_role`.
 
 Não rotacionar a JWT Signing Key e não ativar o piloto antes desses gates.
 

@@ -218,10 +218,34 @@ aplicou a migration do briefing estratégico. Os dois briefings legados foram
 preservados e receberam a lista vazia de concorrentes, sem exigir preenchimento
 retroativo.
 
+## Backup posterior à migração das chaves
+
+Depois da substituição local das chaves legadas por `sb_publishable_...` e
+`sb_secret_...`, foi gerado um novo conjunto e copiado para a pasta privada
+[PlanOS Backups / 2026-07-27
+post-key-migration](https://drive.google.com/drive/folders/1BmDyzE3oi_zStBYXIpcOPWSrL7OXnaWO).
+
+Os cinco arquivos foram confirmados com `shared=false` e
+`source_visibility_status=not_shared`, com os mesmos tamanhos locais:
+
+- `schema.sql`: 166.711 bytes;
+- `data.sql`: 420.157 bytes;
+- `public-data.sql`: 409.712 bytes;
+- `roles.sql`: 358 bytes;
+- `SHA256SUMS`: 310 bytes.
+
+O ensaio em PostgreSQL 17 isolado restaurou o esquema sem erros, carregou os
+blocos de `auth` e `public` e apresentou somente as duas restrições esperadas
+de propriedade interna do Storage. A migration multiusuário foi reaplicada
+para recompor o gatilho entre schemas. A origem e a restauração coincidiram em
+duas identidades Auth, dois perfis, dois espaços, duas membresias, dois
+projetos, dois briefings, um planejamento, 16 inventários, duas versões, 13
+métricas de inventário e seis logs de auditoria. O banco temporário foi
+removido após a conferência.
+
 ## Pendências operacionais
 
 - definir retenção e responsáveis;
 - versionar o esquema-base anterior à migration `20260721000000`;
 - criar ensaio separado para metadados e objetos do Storage;
 - automatizar comparação de contagens entre origem e restauração;
-- gerar novo conjunto após a rotação da chave administrativa e antes do piloto.

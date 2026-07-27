@@ -3,6 +3,7 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -59,6 +60,8 @@ def executar_comando(nome, comando, ambiente=None, timeout=300):
 
 
 def homologar(conectado=False, ambiente=None):
+    ambiente = dict(ambiente or os.environ)
+    ambiente.setdefault("SUPABASE_TELEMETRY_DISABLED", "1")
     gates = list(GATES_OFFLINE)
     if conectado:
         gates.extend(GATES_CONECTADOS)
@@ -87,8 +90,6 @@ def main():
     parser.add_argument("--connected", action="store_true")
     parser.add_argument("--saida", type=Path)
     argumentos = parser.parse_args()
-    import os
-
     resultado = homologar(argumentos.connected, os.environ.copy())
     conteudo = json.dumps(resultado, ensure_ascii=False, indent=2)
     print(conteudo)

@@ -1247,3 +1247,22 @@ depende da cópia durável do backup em armazenamento privado.
 - runbook registra rotina, severidade, resposta, recuperação e retorno;
 - o gate deve ser repetido após rotação de segredos e antes de cada versão
   candidata.
+
+### 27 de julho de 2026 — Migração local para as chaves atuais
+
+- `SUPABASE_KEY` passou a usar `sb_publishable_...` e
+  `SUPABASE_SERVICE_KEY` passou a usar uma nova `sb_secret_...`, sem
+  versionamento ou exposição dos valores;
+- desenvolvimento permaneceu com autenticação e piloto desativados;
+- cliente administrativo foi alinhado à interface pública síncrona do SDK
+  Supabase atual e a CLI passou a executar sem telemetria no gate;
+- homologação conectada foi aprovada com 159 testes offline, regressão,
+  saúde de 20 tabelas, auditoria de bloqueio público, três integrações e 23
+  migrations sincronizadas;
+- backup posterior à troca foi validado, restaurado em PostgreSQL 17 isolado
+  e copiado ao Google Drive privado;
+- origem e restauração coincidiram em Auth e nas dez contagens materiais
+  verificadas;
+- as chaves legadas, a JWT Signing Key e o piloto permanecem inalterados;
+- próximo gate: instalar as novas chaves na hospedagem, validar a versão
+  candidata e somente então desativar as chaves legadas.
