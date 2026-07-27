@@ -606,12 +606,9 @@ por padrão até a homologação e publicação gradual da Fase 7.
 
 Saída: plano completo, não apenas cálculo tático.
 
-Status: iniciada em 27 de julho de 2026. Auditoria e referências registradas em
-`REVISAO_REFERENCIAS_FASE_6.md`; briefing, racional e mapas/cronogramas estão
-concluídos. Atribuição auditável também foi implementada; qualidade
-programática e localização também estão concluídas. Relatórios e comparação de
-versões também estão concluídos. Resta a regressão final e o encerramento
-documental da fase.
+Status: concluída em 27 de julho de 2026. Auditoria e referências registradas
+em `REVISAO_REFERENCIAS_FASE_6.md`; os seis blocos foram implementados e
+aprovados nos gates offline, conectados, de saúde e segurança.
 
 ### Fase 7 — Homologação e publicação
 
@@ -1202,3 +1199,16 @@ depende da cópia durável do backup em armazenamento privado.
 - comparação pode ser salva no projeto para revisão posterior;
 - suíte offline ampliada para 147 testes aprovados e 3 integrações opcionais;
 - próximo gate: regressão final, documentação e encerramento da Fase 6.
+
+### 27 de julho de 2026 — Encerramento da Fase 6
+
+- os seis blocos funcionais da fase foram concluídos;
+- 147 testes offline e 3 testes conectados foram aprovados;
+- regressão funcional, health check das 10 tabelas e auditoria de bloqueio
+  público foram aprovados;
+- migrations local e remota permanecem sincronizadas até
+  `20260727080000`;
+- nenhuma alteração de banco foi necessária após o briefing estratégico;
+- referências acadêmicas, mercadológicas e decisões metodológicas foram
+  confrontadas durante cada incremento;
+- próxima etapa: Fase 7 — homologação e publicação gradual.

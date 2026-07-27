@@ -1,21 +1,20 @@
 # Continuidade do desenvolvimento
 
-Última revisão: 22 de julho de 2026 (UTC).
+Última revisão: 27 de julho de 2026 (UTC).
 
 ## Ponto de retomada
 
 - Branch: `agent/corrige-restricoes-e-moeda`.
-- Base da branch: `bb4d6d1` (`Padroniza interface e corrige preços do plano (#5)`).
-- Última entrega funcional antes deste registro: `aa4fcda` (`Corrige restrições e moeda no planejamento`).
-- Publicação concluída pelo PR `#6`; merge em `origin/main`: `320fa5c`
-  (`Corrige restrições e moeda no planejamento (#6)`).
+- Fases 4, 5 e 6 concluídas na branch de continuidade.
+- Último checkpoint funcional: `14871f9`
+  (`Completa relatorios e comparacao de versoes`).
 - A branch de continuidade permanece disponível para retomada no Codespace.
 - O aplicativo publicado usa o nome **PlanOS** e o subtítulo **Plataforma Inteligente de Planejamento Híbrido de Mídia**.
 - A última rodada restaurou o logo na barra lateral, preservou o logo reduzido
   na página Início, manteve favicon e título completo no navegador, introduziu
   entradas monetárias em pt-BR e unificou pisos, tetos e quantidade automática
   entre a interface e o motor do Plano de Mídia.
-- As migrações remotas do Supabase estavam sincronizadas até `20260722110000`.
+- As migrações remotas do Supabase estão sincronizadas até `20260727080000`.
 
 ## Estado verificado
 
@@ -31,7 +30,8 @@
 
 - `git diff --check` aprovado.
 - Compilação de todos os módulos Python aprovada.
-- 60 testes automatizados aprovados; 3 testes de integração opcionais ignorados nessa execução.
+- 147 testes automatizados aprovados; 3 testes de integração opcionais
+  ignorados na suíte offline.
 - 3 testes de integração autenticados aprovados.
 - Health check autenticado aprovado para as 10 tabelas verificadas.
 - Regressão funcional autenticada aprovada. A antiga asserção do forecast foi
@@ -55,7 +55,7 @@ Antes de uma nova alteração de banco, comparar as migrações locais e remotas
 
 ## Próximo trabalho
 
-Retomar pelo `docs/PLANO_MESTRE_EVOLUCAO.md`. As decisões obrigatórias para
+Retomar pela Fase 7 em `docs/PLANO_MESTRE_EVOLUCAO.md`. As decisões obrigatórias para
 fórmulas, dados, restrições, forecast, otimização, atribuição e auditoria estão
 em `docs/DECISOES_METODOLOGICAS_ENGINES.md`.
 
@@ -64,6 +64,10 @@ e privados, o compartilhamento, a segurança, o backup e os testes de isolamento
 O histórico funcional e arquitetural permanece nos commits anteriores e nos
 demais documentos desta pasta; não é necessário reconstruir decisões já
 registradas.
+
+A Fase 6 entregou briefing ampliado, estratégia e racional, mapas e
+cronogramas reconciliados, atribuição auditável, qualidade programática e
+localização, relatórios completos e comparação histórica de versões.
 
 ## Evolução cross-media em andamento
 
