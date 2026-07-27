@@ -45,3 +45,19 @@ Esta revisão não autoriza:
 - aplicar CTR ou conversão genéricos a meios sem essas métricas;
 - chamar cenários determinísticos de intervalo de confiança;
 - extrapolar resposta linear sem declarar essa limitação.
+
+## Realizado e diagnóstico
+
+- `Ebook-IAB-Modelos-de-Atribuição-link-adjust.pdf`, páginas 26–31, destaca
+  limitações de dados, período de observação, viés para fundo de funil e a
+  inexistência de uma única fonte de verdade.
+- O mesmo material, página 33, diferencia validação de impacto por testes e
+  cita geo-testing como abordagem sujeita a desenho e ônus de prova próprios.
+- `2_Mídia Programática - aula 5.pdf`, página 4, apresenta atribuição como
+  distribuição de crédito entre pontos de contato, não como simples desvio de
+  entrega.
+
+Consequência no PlanOS: a comparação planejado × forecast × realizado calcula
+desvios descritivos somente quando período e contexto coincidem. Ela preserva a
+fonte observada e não chama diferença de impacto causal, incrementalidade ou
+atribuição.

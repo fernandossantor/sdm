@@ -60,6 +60,28 @@ class TestPlanejamentoService(unittest.TestCase):
         self.assertEqual(plano.alcance_percentual, 85)
         self.assertEqual(plano.grp, 680)
 
+    def test_restaurar_preserva_periodo_planejado(self):
+        registro = {
+            "codigo": "PLN-1",
+            "estrategia": {},
+            "premissas": {},
+            "auditoria_calculo": {},
+            "resultado": {
+                "cliente": "Cliente",
+                "campanha": "Campanha",
+                "objetivo": "Alcance",
+                "orcamento": 1000,
+                "inicio": "2026-07-01",
+                "fim": "2026-07-31",
+                "itens": [],
+            },
+        }
+
+        plano = PlanejamentoService.restaurar(registro)
+
+        self.assertEqual(plano.inicio, date(2026, 7, 1))
+        self.assertEqual(plano.fim, date(2026, 7, 31))
+
     def test_exportacao_contem_todas_as_abas_e_variaveis_do_plano(self):
         plano = PlanoEstrategico(
             cliente="Cliente", campanha="Campanha", objetivo="Alcance",

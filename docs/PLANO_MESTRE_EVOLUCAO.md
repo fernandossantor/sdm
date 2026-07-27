@@ -885,3 +885,15 @@ depende da cópia durável do backup em armazenamento privado.
 - resultados são identificados como condicionais, não intervalos estatísticos;
 - revisão acadêmica e mercadológica fica registrada em
   `REVISAO_REFERENCIAS_FASE_3.md`.
+
+### 27 de julho de 2026 — Fase 3, realizado e diagnóstico de desempenho
+
+- realizado passa a ser estado próprio, sem sobrescrever plano ou forecast;
+- fonte, período, universo, público e praça acompanham os valores observados;
+- datas do planejamento passam a integrar o objeto e o snapshot restaurável;
+- comparação cobre investimento, impressões, cliques e conversões por meio;
+- desvios só são calculados quando período e contexto são comparáveis;
+- período parcial ou contexto divergente permanece sem percentual de desvio;
+- comparação pode ser salva como artefato auditável do projeto;
+- diferenças são descritivas e não alegam causalidade, incrementalidade ou
+  atribuição.

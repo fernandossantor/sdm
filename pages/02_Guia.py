@@ -21,7 +21,7 @@ etapas = [
     ("6. Papéis dos Meios", "Escolha os inventários e avalie afinidade editorial, consumo e capacidade de cobertura."),
     ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental e premissas. Quando houver dados N+, informe 1+, 2+, 3+ e 4+ para separar subexposição, faixa eficiente e sobre-exposição. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
     ("8. Cronograma", "Visualize flights e pressão semanal no calendário. A distribuição decorre das quantidades e do flight."),
-    ("9. Diagnóstico e projeções", "Confira entrega, custos, retorno, limitações e confiança dos dados."),
+    ("9. Diagnóstico e projeções", "Confira entrega, custos, retorno, limitações e confiança. Se houver realizado, informe fonte, período e contexto para comparar planejado, forecast e observado sem confundir desvio com causalidade."),
     ("10. Relatório", "Salve o plano e confira as premissas e a auditoria antes da exportação."),
 ]
 for titulo, texto in etapas:

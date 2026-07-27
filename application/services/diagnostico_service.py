@@ -6,6 +6,7 @@ from domain.models.diagnostico import (
 from application.services.recomendacao_service import (
     RecomendacaoService
 )
+from engine.performance_diagnosis_engine import PerformanceDiagnosisEngine
 
 
 class DiagnosticoService:
@@ -13,6 +14,10 @@ class DiagnosticoService:
     def __init__(self):
 
         self.recomendacao = RecomendacaoService()
+        self.performance_engine = PerformanceDiagnosisEngine()
+
+    def comparar_desempenho(self, plano, forecast, realizado):
+        return self.performance_engine.comparar(plano, forecast, realizado)
 
     # =====================================================
     # GERAR

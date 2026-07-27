@@ -1,4 +1,5 @@
 import unittest
+from datetime import date
 from types import SimpleNamespace
 
 from engine.allocation_engine import AllocationEngine
@@ -15,6 +16,9 @@ from engine.sensitivity_engine import SensitivityEngine
 from engine.score_engine import ScoreEngine
 from domain.models.plano_tatico import PlanoTatico, PlanoTaticoItem
 from engine.media_plan_engine import MediaPlanEngine
+from engine.performance_diagnosis_engine import PerformanceDiagnosisEngine
+from domain.models.forecast import Forecast, ForecastItem
+from domain.models.realizado import RealizadoItem, RealizadoPlano
 
 
 class TestAllocationEngine(unittest.TestCase):
@@ -1002,6 +1006,85 @@ class TestInventoryEngine(unittest.TestCase):
         self.assertEqual(resultado[0]["inventario"], "TV")
         self.assertEqual(resultado[0]["papel"], "PRINCIPAL")
         self.assertEqual(resultado[0]["audiencia"], 100)
+
+
+class TestPerformanceDiagnosisEngine(unittest.TestCase):
+
+    @staticmethod
+    def _entradas(inicio=None, fim=None):
+        inicio = inicio or date(2026, 7, 1)
+        fim = fim or date(2026, 7, 31)
+        item_plano = SimpleNamespace(
+            inventario="TV",
+            inventario_id="tv-1",
+            verba=1000,
+            impressoes_estimadas=100000,
+            cliques_estimados=1000,
+            conversoes_estimadas=100,
+            premissas={},
+        )
+        plano = SimpleNamespace(
+            inicio=date(2026, 7, 1),
+            fim=date(2026, 7, 31),
+            itens=[item_plano],
+        )
+        forecast = Forecast(itens=[
+            ForecastItem(
+                inventario="TV",
+                verba=1000,
+                impressoes=90000,
+                alcance=30000,
+                cliques=900,
+                conversoes=90,
+                ctr=1,
+                cpm=11.11,
+                cpc=1.11,
+                cpa=11.11,
+            )
+        ])
+        realizado = RealizadoPlano(
+            fonte="Relatório do veículo",
+            inicio=inicio,
+            fim=fim,
+            itens=[
+                RealizadoItem(
+                    inventario="TV",
+                    inventario_id="tv-1",
+                    investimento=1000,
+                    impressoes=80000,
+                    cliques=800,
+                    conversoes=80,
+                )
+            ],
+        )
+        return plano, forecast, realizado
+
+    def test_compara_tres_estados_no_mesmo_periodo(self):
+        resultado = PerformanceDiagnosisEngine().comparar(*self._entradas())
+        conversoes = next(
+            item for item in resultado["linhas"]
+            if item["metrica"] == "conversoes"
+        )
+
+        self.assertEqual(resultado["situacao_comparabilidade"], "COMPARAVEL")
+        self.assertEqual(conversoes["planejado"], 100)
+        self.assertEqual(conversoes["forecast"], 90)
+        self.assertEqual(conversoes["realizado"], 80)
+        self.assertEqual(conversoes["desvio_planejado_percentual"], -20)
+        self.assertEqual(conversoes["desvio_forecast_percentual"], -11.11)
+
+    def test_periodo_parcial_nao_produz_desvio(self):
+        entradas = self._entradas(fim=date(2026, 7, 15))
+        resultado = PerformanceDiagnosisEngine().comparar(*entradas)
+
+        self.assertEqual(
+            resultado["situacao_comparabilidade"],
+            "NAO_COMPARAVEL",
+        )
+        self.assertTrue(all(
+            item["desvio_planejado_percentual"] is None
+            for item in resultado["linhas"]
+        ))
 
 
 class TestRecommendationEngine(unittest.TestCase):

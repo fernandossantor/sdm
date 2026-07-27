@@ -287,6 +287,8 @@ class PlanejamentoService:
             plano.tipo_flight,
             plano.itens,
         )
+        plano.inicio = inicio_cronograma
+        plano.fim = fim_cronograma
 
         return plano
 
@@ -558,6 +560,8 @@ class PlanejamentoService:
                     "kpis": plano.kpis,
                     "cronograma": plano.cronograma,
                     "resultados_consolidados": plano.resultados_consolidados,
+                    "inicio": plano.inicio.isoformat() if plano.inicio else None,
+                    "fim": plano.fim.isoformat() if plano.fim else None,
                 },
                 "status": "SALVO",
             }
@@ -615,6 +619,8 @@ class PlanejamentoService:
             premissas=registro.get("premissas") or {},
             resultados_consolidados=dados.get("resultados_consolidados") or {},
             auditoria_calculo=registro.get("auditoria_calculo") or {},
+            inicio=PlanejamentoService._data(dados.get("inicio")),
+            fim=PlanejamentoService._data(dados.get("fim")),
         )
 
         for item in dados.get("itens", []):

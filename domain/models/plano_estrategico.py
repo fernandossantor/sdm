@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import date
 from typing import List, Optional
 
 
@@ -119,6 +120,8 @@ class PlanoEstrategico:
     premissas: dict = field(default_factory=dict)
     resultados_consolidados: dict = field(default_factory=dict)
     auditoria_calculo: dict = field(default_factory=dict)
+    inicio: Optional[date] = None
+    fim: Optional[date] = None
 
     # ------------------------------------------------------
 
