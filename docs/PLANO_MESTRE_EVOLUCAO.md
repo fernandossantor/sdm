@@ -1005,3 +1005,14 @@ depende da cópia durável do backup em armazenamento privado.
 - a migration de auditoria e seu teste de RLS passaram no banco restaurado;
 - próximo gate: aplicar a migration remota, executar regressão conectada e
   testar a área administrativa sem habilitar ainda o login geral.
+
+### 27 de julho de 2026 — Aplicação da auditoria administrativa
+
+- migration `20260727040000` aplicada após o backup restaurável;
+- histórico local e remoto ficou sincronizado;
+- tabela `logs_auditoria` confirmada pela API administrativa, inicialmente sem
+  registros;
+- regressão funcional e três integrações conectadas foram aprovadas;
+- acesso público ao banco permanece bloqueado;
+- autenticação geral permanece desativada até o teste controlado da área
+  administrativa com uma sessão Auth real.
