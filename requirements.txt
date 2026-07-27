@@ -12,6 +12,7 @@ postgrest>=0.17.2
 # Dados
 pandas>=2.2.3
 numpy>=2.2.0
+scipy>=1.14,<2
 openpyxl>=3.1.5
 
 # Visualização

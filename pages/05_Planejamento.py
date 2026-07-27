@@ -27,6 +27,8 @@ from components.inputs import entrada_monetaria
 from components.grp_fields import render as render_grp
 from components.schedule_visual import render as render_schedule
 from application.services.identifier_service import IdentifierService
+from domain.custos import calcular_custo_compra
+from domain.restricoes import resolver_restricoes_compra
 
 
 # ==========================================================
@@ -212,6 +214,38 @@ peso_metricas = p4.number_input("Qualidade das métricas (%)", 0.0, 100.0, 10.0,
 peso_mcp = p5.number_input("Influência do MCP (%)", 0.0, 100.0, 20.0, format="%.2f")
 soma_pesos = peso_objetivo + peso_kpi + peso_publico + peso_metricas
 impedimentos_geracao = []
+
+st.markdown("#### Estratégia, tática e operação")
+st.caption(
+    "A estratégia define a direção; as táticas explicam o papel dos meios; "
+    "a operação detalha compras, períodos e execução."
+)
+diretriz_estrategica = st.text_area(
+    "Diretriz estratégica",
+    help="Síntese da escolha estratégica que orienta o plano.",
+)
+racional_geral = st.text_area(
+    "Racional da combinação de meios",
+    help="Explique complementaridade, sequência e cobertura da jornada.",
+)
+cobertura_jornada_estrategica = st.text_area(
+    "Mapa estratégico da jornada",
+    help="Descreva os pontos de contato e o papel esperado em cada etapa.",
+)
+alternativas_rejeitadas_texto = st.text_area(
+    "Alternativas rejeitadas — uma por linha, no formato alternativa: motivo",
+)
+alternativas_rejeitadas = []
+for linha in alternativas_rejeitadas_texto.splitlines():
+    if not linha.strip():
+        continue
+    alternativa, separador, motivo = linha.partition(":")
+    alternativas_rejeitadas.append(
+        {
+            "alternativa": alternativa.strip(),
+            "motivo": motivo.strip() if separador else "Motivo não informado",
+        }
+    )
 if soma_pesos != 100:
     st.error(
         "Os quatro pesos estratégicos devem somar 100,00% "
@@ -351,6 +385,23 @@ else:
         preco_cadastrado_liquido = float(preco_item.get("valor_bruto") or 0) * (
             1 - float(preco_item.get("desconto_percentual") or 0) / 100
         )
+        condicoes_comerciais = {
+            "preco_tabela_unitario": float(preco_item.get("valor_bruto") or 0),
+            "desconto_percentual": float(
+                preco_item.get("desconto_percentual") or 0
+            ),
+            "moeda": preco_item.get("moeda") or "BRL",
+            "modelo_negociacao": (
+                preco_item.get("modelo_negociacao") or "DIRETO"
+            ),
+        }
+        for campo in (
+            "fee_tecnologia_percentual", "fee_tecnologia_fixo",
+            "fee_dados_percentual", "fee_dados_fixo",
+            "fee_verificacao_percentual", "fee_verificacao_fixo",
+            "fee_operacao_percentual", "fee_operacao_fixo",
+        ):
+            condicoes_comerciais[campo] = float(preco_item.get(campo) or 0)
         unidade_cadastrada = str(
             preco_item.get("unidade") or item.get("unidade_compra") or "Unidade"
         )
@@ -406,6 +457,41 @@ else:
             frequencia_item = d.number_input(
                 "Frequência do meio", min_value=0, value=int(round(float(medicao_item.get("frequencia") or 0))), step=1,
                 key=f"frequencia_plano_{item['id']}",
+            )
+            if ordem == 0:
+                metodo_incremental = "PRIMEIRO_MEIO"
+                st.caption(
+                    "O primeiro meio inicia o alcance líquido com seu alcance próprio."
+                )
+            else:
+                metodo_incremental = st.selectbox(
+                    "Método do alcance incremental",
+                    [
+                        "SEM_EVIDENCIA",
+                        "INCREMENTAL_INFORMADO",
+                        "HIPOTESE_INDEPENDENCIA",
+                    ],
+                    format_func={
+                        "SEM_EVIDENCIA": "Sem evidência — não consolidar alcance",
+                        "INCREMENTAL_INFORMADO": "Alcance incremental informado",
+                        "HIPOTESE_INDEPENDENCIA": (
+                            "Hipótese de independência — confiança baixa"
+                        ),
+                    }.get,
+                    key=f"metodo_incremental_plano_{item['id']}",
+                    help=(
+                        "A independência é apenas um cenário explícito de baixa "
+                        "confiança; não substitui dado de superposição."
+                    ),
+                )
+            permitir_independencia = (
+                metodo_incremental == "HIPOTESE_INDEPENDENCIA"
+            )
+            alcance_incremental_premissa = (
+                incremental_item
+                if ordem == 0
+                or metodo_incremental == "INCREMENTAL_INFORMADO"
+                else None
             )
             modo_calculo = st.radio(
                 "Variável de decisão",
@@ -470,16 +556,43 @@ else:
                 container=r4,
                 ajuda="Investimento máximo permitido. Zero significa sem teto.",
             )
-
-            quantidade_automatica = int(ceil(quantidade_meta))
-            quantidade_automatica = max(
-                quantidade_automatica, int(quantidade_minima)
+            quantidade_minima_efetiva = max(
+                float(quantidade_minima),
+                float(preco_item.get("quantidade_minima") or 0),
             )
-            if preco_liquido > 0 and verba_minima > 0:
-                quantidade_automatica = max(
-                    quantidade_automatica,
-                    int(ceil(verba_minima / preco_liquido)),
+            limites_quantidade = [
+                float(valor)
+                for valor in (
+                    quantidade_maxima,
+                    preco_item.get("disponibilidade"),
+                    preco_item.get("capacidade"),
                 )
+                if valor is not None and float(valor) > 0
+            ]
+            quantidade_maxima_efetiva = (
+                min(limites_quantidade) if limites_quantidade else 0
+            )
+            verba_minima_efetiva = max(
+                float(verba_minima),
+                float(preco_item.get("investimento_minimo") or 0),
+            )
+            premissa_restricoes = {
+                **condicoes_comerciais,
+                "quantidade_minima": quantidade_minima_efetiva,
+                "quantidade_maxima": quantidade_maxima_efetiva or None,
+                "verba_minima": verba_minima_efetiva,
+                "verba_maxima": verba_maxima or None,
+            }
+
+            try:
+                quantidade_automatica = resolver_restricoes_compra(
+                    quantidade_meta,
+                    "METAS",
+                    premissa_restricoes,
+                    preco_liquido,
+                ).quantidade
+            except ValueError:
+                quantidade_automatica = int(ceil(quantidade_meta))
 
             e, f, g, h = st.columns(4)
             if modo_calculo == "Metas geram a quantidade":
@@ -497,7 +610,10 @@ else:
             frequencia_maxima = f.number_input(
                 "Frequência máxima", min_value=1, value=10, step=1,
                 key=f"freq_max_plano_{item['id']}",
-                help="Limite de frequência antes de sinalizar saturação.",
+                help=(
+                    "Limite para sinalizar sobre-exposição. Este controle não "
+                    "estima saturação econômica."
+                ),
             )
             ctr_item = g.number_input(
                 "CTR/resposta (%)", min_value=0.0, value=0.0, step=0.01, format="%.2f",
@@ -517,6 +633,52 @@ else:
                     "ficar em zero."
                 ),
             )
+            alcances_frequencia = None
+            frequencia_minima_eficiente = 1
+            frequencia_maxima_eficiente = frequencia_maxima
+            with st.expander("Distribuição de frequência (opcional)"):
+                informar_distribuicao = st.checkbox(
+                    "Informar alcances 1+, 2+, 3+ e 4+",
+                    key=f"informar_dist_freq_{item['id']}",
+                    help=(
+                        "Use dados medidos ou fornecidos. Sem essas faixas, o "
+                        "sistema não estima subexposição ou sobre-exposição."
+                    ),
+                )
+                if informar_distribuicao:
+                    d1, d2 = st.columns(2)
+                    frequencia_minima_eficiente = d1.number_input(
+                        "Frequência mínima eficiente",
+                        min_value=1,
+                        max_value=3,
+                        value=2,
+                        step=1,
+                        key=f"freq_min_eficiente_{item['id']}",
+                    )
+                    frequencia_maxima_eficiente = d2.number_input(
+                        "Frequência máxima eficiente",
+                        min_value=frequencia_minima_eficiente,
+                        max_value=3,
+                        value=max(3, frequencia_minima_eficiente),
+                        step=1,
+                        key=f"freq_max_eficiente_{item['id']}",
+                    )
+                    faixas = st.columns(4)
+                    valores_faixas = [
+                        faixas[0].number_input(
+                            "Alcance 1+ (%)", 0.0, 100.0,
+                            float(alcance_item), 0.1,
+                            key=f"alcance_1mais_{item['id']}",
+                        )
+                    ]
+                    for limiar, coluna in zip((2, 3, 4), faixas[1:]):
+                        valores_faixas.append(coluna.number_input(
+                            f"Alcance {limiar}+ (%)", 0.0, 100.0, 0.0, 0.1,
+                            key=f"alcance_{limiar}mais_{item['id']}",
+                        ))
+                    alcances_frequencia = dict(
+                        zip((1, 2, 3, 4), valores_faixas)
+                    )
             st.caption(
                 f"Custo de mídia considerado: {moeda_ptbr(preco_liquido)} por "
                 f"{unidade_preco} · proposta inicial: "
@@ -535,6 +697,19 @@ else:
                 step=0.01, format="%.2f",
                 key=f"jornada_plano_{item['id']}",
                 help="Avalie a contribuição deste inventário às etapas da jornada do público.",
+            )
+            racional_meio = st.text_area(
+                "Racional deste meio",
+                key=f"racional_meio_{item['id']}",
+                help=(
+                    "Explique por que o meio integra o plano e qual função "
+                    "estratégica ou tática ele cumpre."
+                ),
+            )
+            tatica_meio = st.text_area(
+                "Táticas previstas",
+                key=f"tatica_meio_{item['id']}",
+                help="Formatos, segmentação, contexto e orientação operacional.",
             )
             confianca = st.selectbox(
                 "Natureza dos dados", ["INFORMADO", "MEDIDO", "ESTIMADO"],
@@ -574,51 +749,53 @@ else:
             impedimentos_geracao.append(
                 f"{item['nome']}: informe " + ", ".join(campos_ausentes) + "."
             )
-        investimento_item = quantidade_item * preco_liquido
-        investimento_proposto += investimento_item
         limites_invalidos = []
-        if quantidade_item < quantidade_minima:
-            limites_invalidos.append(
-                "quantidade abaixo do piso "
-                f"({numero_ptbr(quantidade_item)} calculada; "
-                f"{numero_ptbr(quantidade_minima)} mínima)"
+        try:
+            resultado_restricoes = resolver_restricoes_compra(
+                quantidade_item,
+                (
+                    "METAS"
+                    if modo_calculo == "Metas geram a quantidade"
+                    else "COMPRA"
+                ),
+                premissa_restricoes,
+                preco_liquido,
             )
-        if quantidade_maxima > 0 and quantidade_item > quantidade_maxima:
-            limites_invalidos.append(
-                "quantidade acima do teto "
-                f"({numero_ptbr(quantidade_item)} calculada; "
-                f"{numero_ptbr(quantidade_maxima)} máxima)"
-            )
-        if investimento_item < verba_minima:
-            limites_invalidos.append(
-                "verba abaixo do piso "
-                f"({moeda_ptbr(investimento_item)} calculada; "
-                f"{moeda_ptbr(verba_minima)} mínima)"
-            )
-        if verba_maxima > 0 and investimento_item > verba_maxima:
-            limites_invalidos.append(
-                "verba acima do teto "
-                f"({moeda_ptbr(investimento_item)} calculada; "
-                f"{moeda_ptbr(verba_maxima)} máxima)"
-            )
+            quantidade_item = resultado_restricoes.quantidade
+            investimento_item = resultado_restricoes.custo.custo_total
+        except ValueError as erro:
+            limites_invalidos.append(str(erro))
+            investimento_item = calcular_custo_compra(
+                quantidade_item,
+                preco_liquido,
+                condicoes_comerciais,
+            ).custo_total
+        investimento_proposto += investimento_item
         if limites_invalidos:
             premissas_validas = False
             impedimentos_geracao.append(
-                f"{item['nome']}: corrija " + ", ".join(limites_invalidos) + "."
+                f"{item['nome']}: " + "; ".join(limites_invalidos) + "."
             )
         premissas_inventarios[item["id"]] = {
+            "inventario_id": item["id"],
             "audiencia_percentual": audiencia_item,
             "alcance_percentual": alcance_item,
-            "alcance_incremental": incremental_item,
+            "alcance_incremental": alcance_incremental_premissa,
+            "metodo_alcance_incremental": metodo_incremental,
+            "permitir_independencia": permitir_independencia,
             "frequencia": frequencia_item,
             "frequencia_maxima": frequencia_maxima,
+            "alcances_frequencia": alcances_frequencia,
+            "frequencia_minima_eficiente": frequencia_minima_eficiente,
+            "frequencia_maxima_eficiente": frequencia_maxima_eficiente,
             "quantidade": quantidade_item,
             "preco_unitario": preco_liquido,
+            **condicoes_comerciais,
             "unidade_compra": unidade_preco,
             "modo_calculo": "METAS" if modo_calculo == "Metas geram a quantidade" else "COMPRA",
-            "quantidade_minima": quantidade_minima,
-            "quantidade_maxima": quantidade_maxima or None,
-            "verba_minima": verba_minima,
+            "quantidade_minima": quantidade_minima_efetiva,
+            "quantidade_maxima": quantidade_maxima_efetiva or None,
+            "verba_minima": verba_minima_efetiva,
             "verba_maxima": verba_maxima or None,
             "obrigatorio": obrigatorio,
             "atualizar_cadastro": atualizar_cadastro,
@@ -626,9 +803,39 @@ else:
             "taxa_conversao": conversao_item,
             "valor_conversao": valor_conversao,
             "cobertura_jornada": cobertura_jornada,
+            "racional_meio": racional_meio,
+            "tatica_meio": tatica_meio,
             "confianca": confianca,
             "medicao_origem_id": medicao_item.get("id"),
             "fonte": medicao_item.get("fonte") or "Informado no plano",
+            "universo": (
+                briefing_previa.get("universo")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "universo", None)
+            ),
+            "publico_alvo": (
+                briefing_previa.get("segmento")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "segmento", None)
+            ),
+            "praca": (
+                briefing_previa.get("praca")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "praca", None)
+            ),
+            "inicio_referencia": (
+                briefing_previa.get("periodo_inicio")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "inicio", None)
+            ),
+            "fim_referencia": (
+                briefing_previa.get("periodo_fim")
+                if isinstance(briefing_previa, dict)
+                else getattr(briefing_previa, "fim", None)
+            ),
+            "metrica_nativa": "GRP",
+            "metodologia": medicao_item.get("metodologia"),
+            "granularidade": "INVENTARIO",
         }
         componentes_inventarios[item["id"]] = {
             "objetivo": score_objetivo, "kpi": score_kpi,
@@ -659,6 +866,10 @@ configuracao["estrategia"] = {
         "audiencia": peso_publico, "metricas": peso_metricas,
     },
     "peso_mcp": peso_mcp,
+    "diretriz": diretriz_estrategica,
+    "racional_geral": racional_geral,
+    "mapa_jornada": cobertura_jornada_estrategica,
+    "alternativas_rejeitadas": alternativas_rejeitadas,
 }
 
 if not inventarios_mcp:
@@ -820,6 +1031,15 @@ if "plano" in st.session_state:
                     "Retorno projetado": i.retorno_estimado,
                     "ROI": i.roi,
                     "Excesso de frequência": i.excesso_frequencia,
+                    "Subexposição (%)": i.distribuicao_frequencia.get(
+                        "subexposta_percentual"
+                    ),
+                    "Faixa eficiente (%)": i.distribuicao_frequencia.get(
+                        "faixa_eficiente_percentual"
+                    ),
+                    "Sobre-exposição (%)": i.distribuicao_frequencia.get(
+                        "sobre_exposta_percentual"
+                    ),
                     "Aderência ao objetivo": i.objetivo_score,
                     "Aderência aos KPIs": i.kpi_score,
                     "Aderência ao público": i.audiencia_score,

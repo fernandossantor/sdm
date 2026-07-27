@@ -6,6 +6,7 @@ from components.page_config import PAGE_ICON, titulo_pagina
 from application.services.base_conhecimento_service import BaseConhecimentoService
 from components.formatters import moeda_ptbr
 from components.inputs import entrada_monetaria
+from application.services.auth_service import autenticacao_habilitada
 
 
 st.set_page_config(page_title=titulo_pagina("Cadastro de Inventários"), page_icon=PAGE_ICON, layout="wide")
@@ -134,6 +135,32 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
     inventario = inventario or {}
     preco = preco or {}
 
+    autenticado = autenticacao_habilitada()
+    administrador = (
+        st.session_state.get("auth_papel_global") == "ADMINISTRADOR"
+    )
+    escopo_atual = inventario.get(
+        "escopo",
+        "GLOBAL" if not autenticado or administrador else "PRIVADO",
+    )
+    if autenticado and administrador:
+        escopo = st.selectbox(
+            "Escopo",
+            ("GLOBAL", "PRIVADO"),
+            index=0 if escopo_atual == "GLOBAL" else 1,
+            format_func=lambda valor: (
+                "Global — disponível para todos"
+                if valor == "GLOBAL"
+                else "Privado — somente no espaço atual"
+            ),
+            key=f"{prefixo}_escopo",
+        )
+    elif autenticado:
+        escopo = "PRIVADO"
+        st.caption("Escopo: **Privado — somente no espaço atual**")
+    else:
+        escopo = "GLOBAL"
+
     ambiente_atual = next(
         (item for item in ambientes if item["id"] == inventario.get("ambiente_id")),
         ambientes[0],
@@ -248,6 +275,75 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         value=float(preco.get("desconto_percentual") or 0), key=f"{prefixo}_desconto",
         step=0.01, format="%.2f",
     )
+    modelos_negociacao = {
+        "DIRETO": "Direto",
+        "OPEN_AUCTION": "Open auction",
+        "PMP": "PMP",
+        "PREFERRED_DEAL": "Preferred deal",
+        "GARANTIDO": "Garantido",
+    }
+    modelo_negociacao_atual = preco.get("modelo_negociacao", "DIRETO")
+    modelo_negociacao = st.selectbox(
+        "Modelo de negociação",
+        list(modelos_negociacao),
+        index=list(modelos_negociacao).index(modelo_negociacao_atual),
+        format_func=modelos_negociacao.get,
+        key=f"{prefixo}_modelo_negociacao",
+    )
+    with st.expander("Fees, mínimos e capacidade"):
+        fees = {}
+        for nome, rotulo in (
+            ("tecnologia", "Tecnologia"),
+            ("dados", "Dados"),
+            ("verificacao", "Verificação"),
+            ("operacao", "Operação"),
+        ):
+            percentual_col, fixo_col = st.columns(2)
+            fees[f"fee_{nome}_percentual"] = percentual_col.number_input(
+                f"Fee de {rotulo.lower()} (%)",
+                min_value=0.0,
+                value=float(preco.get(f"fee_{nome}_percentual") or 0),
+                step=0.01,
+                format="%.2f",
+                key=f"{prefixo}_fee_{nome}_percentual",
+            )
+            fees[f"fee_{nome}_fixo"] = entrada_monetaria(
+                f"Fee de {rotulo.lower()} fixo (R$)",
+                float(preco.get(f"fee_{nome}_fixo") or 0),
+                key=f"{prefixo}_fee_{nome}_fixo",
+                container=fixo_col,
+            )
+        minimo_col, investimento_col = st.columns(2)
+        quantidade_minima = minimo_col.number_input(
+            "Quantidade mínima comercial",
+            min_value=0.0,
+            value=float(preco.get("quantidade_minima") or 0),
+            step=1.0,
+            key=f"{prefixo}_quantidade_minima",
+        )
+        investimento_minimo = entrada_monetaria(
+            "Investimento mínimo (R$)",
+            float(preco.get("investimento_minimo") or 0),
+            key=f"{prefixo}_investimento_minimo",
+            container=investimento_col,
+        )
+        disponibilidade_col, capacidade_col = st.columns(2)
+        disponibilidade = disponibilidade_col.number_input(
+            "Disponibilidade",
+            min_value=0.0,
+            value=float(preco.get("disponibilidade") or 0),
+            step=1.0,
+            key=f"{prefixo}_disponibilidade",
+            help="Zero significa não informada.",
+        )
+        capacidade = capacidade_col.number_input(
+            "Capacidade",
+            min_value=0.0,
+            value=float(preco.get("capacidade") or 0),
+            step=1.0,
+            key=f"{prefixo}_capacidade",
+            help="Zero significa não informada.",
+        )
     inicio_data = date.fromisoformat(preco["inicio_vigencia"][:10]) if preco.get("inicio_vigencia") else date.today()
     fim_data = date.fromisoformat(preco["fim_vigencia"][:10]) if preco.get("fim_vigencia") else date.today()
     inicio, fim = st.columns(2)
@@ -266,10 +362,22 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         "modelo_comercial_id": modelo["id"], "modalidade_compra_id": modalidade["id"],
         "unidade_compra_id": unidade["id"], "kpi_principal_id": kpi["id"],
         "ativo": inventario.get("ativo", True),
+        "escopo": escopo,
+        "espaco_id": (
+            st.session_state.get("espaco_id")
+            if escopo == "PRIVADO"
+            else None
+        ),
     }
     preco_dados = {
         "unidade": unidade["nome"], "valor_bruto": float(valor),
         "desconto_percentual": float(desconto),
+        "moeda": "BRL", "modelo_negociacao": modelo_negociacao,
+        **fees,
+        "quantidade_minima": float(quantidade_minima),
+        "investimento_minimo": float(investimento_minimo),
+        "disponibilidade": float(disponibilidade) or None,
+        "capacidade": float(capacidade) or None,
         "inicio_vigencia": inicio.isoformat(), "fim_vigencia": fim.isoformat(),
     }
     return dados, preco_dados
@@ -330,6 +438,21 @@ else:
                     st.error(f"Não foi possível atualizar o inventário: {erro}")
                 else:
                     st.success("Inventário atualizado.")
+                    st.rerun()
+        confirmar_arquivo = st.checkbox(
+            "Confirmo o arquivamento; o histórico será preservado.",
+            key=f"confirmar_arquivo_{selecionado['id']}",
+        )
+        if st.button("Arquivar inventário", width="stretch"):
+            if not confirmar_arquivo:
+                st.error("Confirme o arquivamento.")
+            else:
+                try:
+                    service.arquivar_inventario(selecionado["id"])
+                except Exception as erro:
+                    st.error(f"Não foi possível arquivar: {erro}")
+                else:
+                    st.success("Inventário arquivado.")
                     st.rerun()
 
 st.divider()

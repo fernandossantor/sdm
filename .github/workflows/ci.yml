@@ -38,7 +38,7 @@ jobs:
 
       - name: Executar testes offline com cobertura
         run: >-
-          pytest -q
+          python -m pytest -q
           --cov=domain
           --cov=engine
           --cov=application.services

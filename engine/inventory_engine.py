@@ -1,6 +1,8 @@
 from engine.score_engine import ScoreEngine
 from datetime import date
 
+from domain.restricoes import diagnosticar_viabilidade
+
 
 class InventoryEngine:
 
@@ -243,6 +245,19 @@ class InventoryEngine:
                 item for item in inventarios
                 if item.get("id") in ids_selecionados
             ]
+
+        diagnostico = diagnosticar_viabilidade(briefing, inventarios)
+        self.ultimo_diagnostico = diagnostico
+        if not diagnostico.viavel:
+            raise ValueError(
+                "Plano inviável por restrições duras: "
+                + diagnostico.mensagem
+                + "."
+            )
+        ids_elegiveis = set(diagnostico.elegiveis)
+        inventarios = [
+            item for item in inventarios if str(item.get("id")) in ids_elegiveis
+        ]
 
         audiencias = contexto["audiencias"]
 
@@ -577,18 +592,6 @@ class InventoryEngine:
             )
 
             # --------------------------------------------------
-            # RESTRIÇÕES
-            # --------------------------------------------------
-
-            bonus, penalidade = ScoreEngine.restricoes(
-
-                briefing,
-
-                inventario
-
-            )
-
-            # --------------------------------------------------
             # SCORE FINAL
             # --------------------------------------------------
 
@@ -602,9 +605,9 @@ class InventoryEngine:
 
                 metricas_score,
 
-                bonus,
+                0,
 
-                penalidade,
+                0,
 
                 briefing
 
@@ -645,6 +648,13 @@ class InventoryEngine:
 
                     "papel": papel,
 
+                    "elegivel": True,
+
+                    "obrigatorio": (
+                        str(inventario["id"])
+                        in set(diagnostico.obrigatorios)
+                    ),
+
                     "score_mcp": score_mcp,
 
                     "objetivo": round(
@@ -684,6 +694,24 @@ class InventoryEngine:
                     ),
 
                     "unidade_compra": preco.get("unidade") if preco else None,
+
+                    "condicoes_comerciais": {
+                        campo: preco.get(campo)
+                        for campo in (
+                            "valor_bruto", "desconto_percentual", "moeda",
+                            "modelo_negociacao",
+                            "fee_tecnologia_percentual",
+                            "fee_tecnologia_fixo",
+                            "fee_dados_percentual", "fee_dados_fixo",
+                            "fee_verificacao_percentual",
+                            "fee_verificacao_fixo",
+                            "fee_operacao_percentual",
+                            "fee_operacao_fixo",
+                            "quantidade_minima",
+                            "investimento_minimo",
+                            "disponibilidade", "capacidade",
+                        )
+                    } if preco else {},
 
                 }
 

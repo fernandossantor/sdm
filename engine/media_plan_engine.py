@@ -5,7 +5,18 @@ as premissas mínimas e a interface deve identificar a origem de cada valor.
 """
 
 from dataclasses import dataclass
+from datetime import date
 from math import ceil
+
+from domain.metric_catalog import (
+    ContextoMetrica,
+    SituacaoComparabilidade,
+    comparar_contextos,
+)
+from domain.restricoes import resolver_restricoes_compra
+from engine.frequency_distribution_engine import FrequencyDistributionEngine
+
+
 @dataclass(frozen=True)
 class DeliveryResult:
     quantidade: float
@@ -25,7 +36,18 @@ class DeliveryResult:
     cpa: float | None
     roi: float | None
     excesso_frequencia: float
+    distribuicao_frequencia: dict
     confianca: str
+    preco_tabela_unitario: float
+    desconto_percentual: float
+    preco_liquido_unitario: float
+    custo_midia: float
+    fee_tecnologia: float
+    fee_dados: float
+    fee_verificacao: float
+    fee_operacao: float
+    custo_total: float
+    restricoes_ativas: tuple[str, ...]
 
 
 class MediaPlanEngine:
@@ -64,34 +86,15 @@ class MediaPlanEngine:
                 quantidade = ceil(alcance * frequencia_meta / audiencia)
         else:
             quantidade = float(premissa.get("quantidade") or 0)
-        if quantidade < 0:
-            raise ValueError("A quantidade não pode ser negativa.")
-        minimo = float(premissa.get("quantidade_minima") or 0)
-        maximo = premissa.get("quantidade_maxima")
-        if quantidade < minimo:
-            if modo == "METAS":
-                quantidade = minimo
-            else:
-                raise ValueError("A quantidade está abaixo do piso informado.")
-        verba_minima = float(premissa.get("verba_minima") or 0)
-        if modo == "METAS" and verba_minima > 0:
-            if preco <= 0:
-                raise ValueError(
-                    "Informe um preço maior que zero para aplicar o piso de verba."
-                )
-            quantidade = max(quantidade, ceil(verba_minima / preco))
-        if maximo is not None and quantidade > float(maximo):
-            if modo == "METAS":
-                quantidade = float(maximo)
-            else:
-                raise ValueError("A quantidade excede o teto informado.")
-        quantidade = int(ceil(quantidade)) if modo == "METAS" else int(quantidade)
-        investimento = quantidade * preco
-        verba_maxima = premissa.get("verba_maxima")
-        if investimento < verba_minima:
-            raise ValueError(f"O investimento {investimento:.2f} está abaixo do piso {verba_minima:.2f}.")
-        if verba_maxima is not None and investimento > float(verba_maxima):
-            raise ValueError(f"O investimento {investimento:.2f} excede o teto {float(verba_maxima):.2f}.")
+        restricoes = resolver_restricoes_compra(
+            quantidade,
+            modo,
+            premissa,
+            preco,
+        )
+        quantidade = restricoes.quantidade
+        custo = restricoes.custo
+        investimento = custo.custo_total
         pessoas = round(float(publico_referencia or 0) * alcance / 100)
 
         if "mil impress" in unidade:
@@ -112,6 +115,12 @@ class MediaPlanEngine:
         conversoes = cliques * taxa_conversao
         retorno = conversoes * float(premissa.get("valor_conversao") or 0)
         maximo_frequencia = float(premissa.get("frequencia_maxima") or frequencia)
+        distribuicao_frequencia = FrequencyDistributionEngine.calcular(
+            premissa.get("alcances_frequencia"),
+            premissa.get("frequencia_minima_eficiente", 1),
+            premissa.get("frequencia_maxima_eficiente", maximo_frequencia),
+            alcance,
+        )
 
         def dividir(numerador, denominador):
             return round(numerador / denominador, 2) if denominador else None
@@ -127,12 +136,23 @@ class MediaPlanEngine:
             cpc=dividir(investimento, cliques), cpa=dividir(investimento, conversoes),
             roi=dividir(retorno - investimento, investimento),
             excesso_frequencia=round(max(0, frequencia - maximo_frequencia), 2),
+            distribuicao_frequencia=distribuicao_frequencia,
             confianca=str(premissa.get("confianca") or "INFORMADO").upper(),
+            preco_tabela_unitario=custo.preco_tabela_unitario,
+            desconto_percentual=custo.desconto_percentual,
+            preco_liquido_unitario=custo.preco_liquido_unitario,
+            custo_midia=custo.custo_midia,
+            fee_tecnologia=custo.fee_tecnologia,
+            fee_dados=custo.fee_dados,
+            fee_verificacao=custo.fee_verificacao,
+            fee_operacao=custo.fee_operacao,
+            custo_total=custo.custo_total,
+            restricoes_ativas=restricoes.limites_ativos,
         )
 
     @staticmethod
     def alcance_combinado(premissas):
-        """Alcance líquido sequencial: incremental explícito ou independência."""
+        """Alcance sequencial sem aplicar independência silenciosamente."""
         acumulado = 0.0
         auditoria = []
         for indice, item in enumerate(premissas):
@@ -144,35 +164,165 @@ class MediaPlanEngine:
             elif incremental is not None:
                 incremento = float(incremental)
                 metodo = "incremental informado"
-            else:
+            elif item.get("permitir_independencia") is True:
                 incremento = alcance * (1 - acumulado / 100)
-                metodo = "estimativa por independência"
+                metodo = "hipótese de independência"
+            else:
+                auditoria.append({
+                    "alcance_proprio": alcance,
+                    "alcance_anterior": round(acumulado, 2),
+                    "incremental": None,
+                    "metodo": "indisponível sem superposição ou hipótese aprovada",
+                    "confianca": "NAO_AVALIADA",
+                })
+                return None, auditoria
             antes = acumulado
             acumulado = min(100.0, acumulado + max(0, incremento))
             auditoria.append({
                 "alcance_proprio": alcance, "alcance_anterior": round(antes, 2),
                 "incremental": round(acumulado - antes, 2), "metodo": metodo,
+                "confianca": (
+                    "BAIXA"
+                    if metodo == "hipótese de independência"
+                    else str(item.get("confianca") or "NAO_AVALIADA").upper()
+                ),
             })
         return round(acumulado, 2), auditoria
 
     @staticmethod
+    def _data_contexto(valor):
+        if isinstance(valor, date):
+            return valor
+        if valor:
+            try:
+                return date.fromisoformat(str(valor)[:10])
+            except ValueError:
+                return None
+        return None
+
+    @staticmethod
+    def _contexto_grp(premissa):
+        return ContextoMetrica(
+            universo=premissa.get("universo"),
+            publico_alvo=premissa.get("publico_alvo"),
+            praca=premissa.get("praca"),
+            inicio_referencia=MediaPlanEngine._data_contexto(
+                premissa.get("inicio_referencia")
+            ),
+            fim_referencia=MediaPlanEngine._data_contexto(
+                premissa.get("fim_referencia")
+            ),
+            metrica_nativa=str(premissa.get("metrica_nativa") or "GRP"),
+            metodologia=premissa.get("metodologia"),
+            granularidade=premissa.get("granularidade"),
+        )
+
+    @staticmethod
+    def consolidar_grp(resultados, premissas):
+        componentes = [
+            {
+                "inventario_id": premissa.get("inventario_id"),
+                "grp": resultado.grp,
+            }
+            for resultado, premissa in zip(resultados, premissas)
+        ]
+        if len(resultados) <= 1:
+            return (
+                round(sum(item.grp for item in resultados), 2),
+                {
+                    "situacao": "COMPARAVEL",
+                    "divergencias": [],
+                    "componentes": componentes,
+                },
+            )
+
+        contextos = [
+            MediaPlanEngine._contexto_grp(premissa)
+            for premissa in premissas
+        ]
+        situacao = SituacaoComparabilidade.COMPARAVEL
+        divergencias = set()
+        primeiro = contextos[0]
+        for contexto in contextos[1:]:
+            comparacao = comparar_contextos(primeiro, contexto)
+            divergencias.update(comparacao.divergencias)
+            if comparacao.situacao is SituacaoComparabilidade.INDETERMINADO:
+                situacao = SituacaoComparabilidade.INDETERMINADO
+            elif (
+                comparacao.situacao is SituacaoComparabilidade.NAO_COMPARAVEL
+                and situacao is not SituacaoComparabilidade.INDETERMINADO
+            ):
+                situacao = SituacaoComparabilidade.NAO_COMPARAVEL
+
+        total = (
+            round(sum(item.grp for item in resultados), 2)
+            if situacao is SituacaoComparabilidade.COMPARAVEL
+            else None
+        )
+        return total, {
+            "situacao": situacao.value,
+            "divergencias": sorted(divergencias),
+            "componentes": componentes,
+        }
+
+    @staticmethod
     def consolidar(resultados, premissas):
         alcance, auditoria = MediaPlanEngine.alcance_combinado(premissas)
-        grp = round(sum(item.grp for item in resultados), 2)
-        frequencia = round(grp / alcance, 2) if alcance else 0
+        grp, comparabilidade_grp = MediaPlanEngine.consolidar_grp(
+            resultados,
+            premissas,
+        )
+        frequencia = (
+            round(grp / alcance, 2)
+            if grp is not None and alcance
+            else None
+        )
         investimento = round(sum(item.investimento for item in resultados), 2)
         retorno = round(sum(item.retorno for item in resultados), 2)
         return {
             "alcance_liquido_percentual": alcance,
             "frequencia_combinada": frequencia,
             "grp_total": grp,
+            "grp_por_meio": comparabilidade_grp["componentes"],
+            "comparabilidade_grp": comparabilidade_grp,
             "investimento": investimento,
+            "custo_midia": round(sum(item.custo_midia for item in resultados), 2),
+            "fees": {
+                "tecnologia": round(
+                    sum(item.fee_tecnologia for item in resultados), 2
+                ),
+                "dados": round(sum(item.fee_dados for item in resultados), 2),
+                "verificacao": round(
+                    sum(item.fee_verificacao for item in resultados), 2
+                ),
+                "operacao": round(
+                    sum(item.fee_operacao for item in resultados), 2
+                ),
+            },
+            "custo_total": investimento,
             "impressoes": sum(item.impressoes for item in resultados),
             "cliques": round(sum(item.cliques for item in resultados), 2),
             "conversoes": round(sum(item.conversoes for item in resultados), 2),
             "retorno": retorno,
             "roi": round((retorno - investimento) / investimento, 4) if investimento else None,
-            "risco_saturacao": round(sum(item.excesso_frequencia for item in resultados), 2),
+            "excesso_frequencia_total": round(
+                sum(item.excesso_frequencia for item in resultados), 2
+            ),
+            "saturacao_economica": None,
+            "modelo_saturacao": {
+                "situacao": "INDISPONIVEL",
+                "motivo": (
+                    "Excesso de frequência não equivale a saturação econômica; "
+                    "é necessária uma curva de resposta calibrada."
+                ),
+            },
+            "distribuicao_frequencia_por_meio": [
+                {
+                    "inventario_id": premissa.get("inventario_id"),
+                    **item.distribuicao_frequencia,
+                }
+                for item, premissa in zip(resultados, premissas)
+            ],
             "cobertura_jornada": round(
                 sum(float(item.get("cobertura_jornada") or 0) for item in premissas)
                 / len(premissas), 2

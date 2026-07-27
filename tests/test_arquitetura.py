@@ -48,6 +48,67 @@ class TestArquitetura(unittest.TestCase):
 
         self.assertFalse((RAIZ / "repositories").exists())
 
+    def test_fluxo_comum_nao_importa_cliente_administrativo(self):
+        violacoes = []
+        diretorios = (
+            RAIZ / "application" / "services",
+            RAIZ / "infrastructure" / "repositories",
+        )
+
+        for diretorio in diretorios:
+            for arquivo in sorted(diretorio.glob("*.py")):
+                arvore = ast.parse(arquivo.read_text(encoding="utf-8"))
+                for no in ast.walk(arvore):
+                    if (
+                        isinstance(no, ast.ImportFrom)
+                        and no.module == "infrastructure.database.admin_client"
+                    ):
+                        violacoes.append(f"{arquivo.relative_to(RAIZ)}:{no.lineno}")
+
+        self.assertEqual(violacoes, [])
+
+    def test_migration_multiusuario_preserva_controles_criticos(self):
+        migration = (
+            RAIZ
+            / "supabase"
+            / "migrations"
+            / "20260727030000_fundacao_multiusuario.sql"
+        ).read_text(encoding="utf-8")
+
+        for controle in (
+            "create table if not exists public.membros_espacos",
+            "create or replace function public.eh_membro_espaco",
+            "create or replace function public.pode_editar_espaco",
+            "create or replace function public.eh_proprietario_espaco",
+            "O espaço de um registro não pode ser alterado",
+            "grant update (nome, atualizado_em)",
+            "revoke execute on function public.proximo_codigo_copia",
+            "create or replace function public.confirmar_troca_senha",
+            "create or replace function public.proximo_codigo_copia_espaco",
+        ):
+            self.assertIn(controle, migration)
+        self.assertNotIn(
+            "grant select, update on public.perfis_usuarios",
+            migration,
+        )
+
+    def test_migration_auditoria_restringe_escrita_ao_service_role(self):
+        migration = (
+            RAIZ
+            / "supabase"
+            / "migrations"
+            / "20260727040000_auditoria_administrativa.sql"
+        ).read_text(encoding="utf-8")
+
+        for controle in (
+            "alter table public.logs_auditoria enable row level security",
+            "using (public.eh_admin())",
+            "revoke all on public.logs_auditoria from anon, authenticated",
+            "grant select on public.logs_auditoria to authenticated",
+            "grant all on public.logs_auditoria to service_role",
+        ):
+            self.assertIn(controle, migration)
+
 
 if __name__ == "__main__":
     unittest.main()

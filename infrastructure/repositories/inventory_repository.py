@@ -6,13 +6,19 @@ from infrastructure.database.database_schema import (
     PRECOS_INVENTARIO,
 )
 from infrastructure.repositories.base_repository import BaseRepository
+from infrastructure.database.workspace_context import get_workspace
 
 
 class InventoryRepository(BaseRepository):
 
     def listar(self):
-
-        return self.ordered(INVENTARIOS, "nome")
+        consulta = self.db.table(INVENTARIOS).select("*")
+        espaco_id = get_workspace()
+        if espaco_id:
+            consulta = consulta.or_(
+                f"escopo.eq.GLOBAL,espaco_id.eq.{espaco_id}"
+            )
+        return consulta.order("nome").execute().data
 
     def salvar(self, dados):
 

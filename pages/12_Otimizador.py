@@ -28,6 +28,10 @@ st.set_page_config(
 )
 
 st.title("💰 Otimização de Verba")
+st.info(
+    "O solver linear maximiza o score ponderado sob as restrições informadas. "
+    "A alternativa heurística permanece disponível para comparação."
+)
 
 st.divider()
 
@@ -39,6 +43,21 @@ origem = selecionar_planejamento(PlanejamentoService(), "otimizador_planejamento
 # ==========================================================
 
 st.subheader("Parâmetros")
+
+metodo = st.radio(
+    "Método",
+    ["Solver linear (HiGHS)", "Simulação heurística"],
+    horizontal=True,
+)
+funcao_objetivo = st.selectbox(
+    "Função objetivo do solver",
+    ["ADERENCIA", "CONVERSOES"],
+    format_func=lambda valor: {
+        "ADERENCIA": "Maximizar aderência estratégica",
+        "CONVERSOES": "Maximizar conversões projetadas",
+    }[valor],
+    disabled=not metodo.startswith("Solver"),
+)
 
 col1, col2, col3 = st.columns(3)
 
@@ -86,7 +105,7 @@ with col3:
 
 executar = st.button(
 
-    "Otimizar",
+    "Otimizar distribuição" if metodo.startswith("Solver") else "Simular redistribuição",
 
     type="primary",
 
@@ -108,6 +127,8 @@ if executar:
             "ambiente": item.ambiente,
             "papel": item.papel,
             "score": item.score,
+            "investimento_referencia": item.verba,
+            "conversoes_estimadas": item.conversoes_estimadas,
         }
         for item in plano_atual.itens
     ]
@@ -141,21 +162,26 @@ if executar:
 
     }
 
-    resultado = BudgetOptimizerService().otimizar(
-
-        ranking=ranking,
-
-        verba_total=verba,
-
-        minimo_ambiente=minimo_ambiente,
-
-        maximo_ambiente=maximo_ambiente,
-
-        percentual_teste=percentual_teste / 100
-
-    )
-
-    st.session_state["otimizacao"] = resultado
+    try:
+        service = BudgetOptimizerService()
+        parametros = {
+            "ranking": ranking,
+            "verba_total": verba,
+            "minimo_ambiente": minimo_ambiente,
+            "maximo_ambiente": maximo_ambiente,
+            "percentual_teste": percentual_teste / 100,
+        }
+        if metodo.startswith("Solver"):
+            parametros["funcao_objetivo"] = funcao_objetivo
+        resultado = (
+            service.otimizar_linear(**parametros)
+            if metodo.startswith("Solver")
+            else service.otimizar(**parametros)
+        )
+    except ValueError as erro:
+        st.error(str(erro))
+    else:
+        st.session_state["otimizacao"] = resultado
 
 # ==========================================================
 # RESULTADO
@@ -204,6 +230,19 @@ if "otimizacao" in st.session_state:
         moeda_ptbr(resumo["reserva_testes"])
 
     )
+    st.caption(
+        f"Método: {resumo['metodo']} · versão: "
+        f"{resumo['versao_metodo']} · ótimo comprovado: "
+        f"{'sim' if resumo['otimo_comprovado'] else 'não'} · "
+        f"condição: {resumo['condicao_viabilidade']}."
+    )
+    if resultado.get("funcao_objetivo"):
+        st.caption(
+            f"Função objetivo: {resultado['funcao_objetivo']} · "
+            f"valor: {resultado['valor_funcao_objetivo']:.4f}."
+        )
+    for limitacao in resultado.get("limitacoes", []):
+        st.caption(f"Limitação: {limitacao}")
 
     st.divider()
 
@@ -215,7 +254,14 @@ if "otimizacao" in st.session_state:
 
     st.dataframe(
 
-        dataframe_ptbr(df, moedas=["verba"], percentuais=["percentual"], decimais=["score"]),
+        dataframe_ptbr(
+            df,
+            moedas=["verba", "investimento_referencia"],
+            percentuais=["percentual"],
+            decimais=[
+                "score", "conversoes_estimadas", "coeficiente_objetivo",
+            ],
+        ),
 
         hide_index=True,
 
@@ -301,7 +347,7 @@ if "otimizacao" in st.session_state:
 
         st.success(
 
-            "Plano otimizado com sucesso."
+            "Simulação heurística reconciliada com a verba."
 
         )
 
@@ -309,5 +355,6 @@ if "otimizacao" in st.session_state:
 
         st.error(
 
-            "A distribuição apresenta inconsistências."
+            "Simulação inviável com os limites informados. "
+            f"Sobra/déficit: {moeda_ptbr(resumo['saldo_orcamento'])}."
         )

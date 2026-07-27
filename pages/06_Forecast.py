@@ -106,6 +106,11 @@ if (
         forecast
 
     )
+    st.caption(
+        "Totais calculados a partir do consolidado cross-media auditável do plano."
+        if resumo["origem"] == "PLANO_CROSS_MEDIA"
+        else "Totais calculados somente quando todos os itens possuem a métrica."
+    )
 
     c1, c2, c3, c4 = st.columns(4)
 

@@ -104,8 +104,30 @@ INVENTARIOS_PAPEIS = "inventarios_papeis"
 
 MEDICOES_INVENTARIO = "medicoes_inventario"
 
+UNIDADES_METRICAS = "unidades_metricas"
+
+METRICAS_CATALOGO = "metricas_catalogo"
+
+FORMULAS_METRICAS = "formulas_metricas"
+
+CONVERSOES_METRICAS = "conversoes_metricas"
+
+VALORES_METRICAS = "valores_metricas"
+
 PLANEJAMENTOS = "planejamentos"
+
+VERSOES_PLANEJAMENTO = "versoes_planejamento"
 
 ARTEFATOS_WORKFLOW = "artefatos_workflow"
 
 PROJETOS = "projetos"
+
+PERFIS_USUARIOS = "perfis_usuarios"
+
+ESPACOS_TRABALHO = "espacos_trabalho"
+
+MEMBROS_ESPACOS = "membros_espacos"
+
+PROJETOS_MEMBROS = "projetos_membros"
+
+LOGS_AUDITORIA = "logs_auditoria"

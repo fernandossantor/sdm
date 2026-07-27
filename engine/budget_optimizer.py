@@ -1,7 +1,12 @@
 from copy import deepcopy
 
+from domain.restricoes import diagnosticar_viabilidade
+
 
 class BudgetOptimizer:
+
+    METODO = "ALOCACAO_HEURISTICA"
+    VERSAO = "score-proporcional-v1"
 
     # =====================================================
     # OTIMIZAÇÃO
@@ -45,19 +50,38 @@ class BudgetOptimizer:
 
         maximo_plataforma = maximo_plataforma or {}
 
-        #
-        # Remove excluídos
-        #
-
+        restricoes = {
+            "inventarios_obrigatorios": obrigatorios,
+            "inventarios_proibidos": excluidos,
+        }
+        diagnostico = diagnosticar_viabilidade(restricoes, ranking)
+        if not diagnostico.viavel:
+            raise ValueError(
+                "Alocação inviável por restrições duras: "
+                + diagnostico.mensagem
+                + "."
+            )
+        elegiveis = set(diagnostico.elegiveis)
         ranking = [
-
             item
-
             for item in ranking
-
-            if item["inventario"] not in excluidos
-
+            if str(
+                item.get("id")
+                or item.get("inventario_id")
+                or item.get("inventario")
+            ) in elegiveis
         ]
+        obrigatorios_sem_peso = [
+            item["inventario"]
+            for item in ranking
+            if item["inventario"] in obrigatorios
+            and float(item.get("score") or 0) <= 0
+        ]
+        if obrigatorios_sem_peso:
+            raise ValueError(
+                "Alocação inviável: inventários obrigatórios sem score "
+                "positivo: " + ", ".join(obrigatorios_sem_peso) + "."
+            )
 
         #
         # Score ponderado
@@ -73,7 +97,10 @@ class BudgetOptimizer:
 
         if total_score == 0:
 
-            return []
+            raise ValueError(
+                "Alocação inviável: nenhum inventário elegível possui "
+                "score positivo."
+            )
 
         #
         # Distribuição inicial
@@ -330,6 +357,9 @@ class BudgetOptimizer:
             2
 
         )
+        diferenca_orcamento = round(verba_total - total - reserva, 2)
+        valores_nao_negativos = all(item["verba"] >= 0 for item in resultado)
+        viavel = abs(diferenca_orcamento) <= 0.01 and valores_nao_negativos
 
         return {
 
@@ -345,6 +375,37 @@ class BudgetOptimizer:
 
             ),
 
-            "reserva_testes": reserva
+            "reserva_testes": reserva,
+
+            "diagnostico_viabilidade": {
+                "viavel": diagnostico.viavel,
+                "elegiveis": list(diagnostico.elegiveis),
+                "excluidos": [
+                    {
+                        "inventario_id": item.inventario_id,
+                        "motivos": list(item.motivos),
+                    }
+                    for item in diagnostico.excluidos
+                ],
+                "obrigatorios": list(diagnostico.obrigatorios),
+            },
+
+            "metodo_alocacao": self.METODO,
+
+            "versao_metodo": self.VERSAO,
+
+            "funcao": "DISTRIBUICAO_PROPORCIONAL_AO_SCORE",
+
+            "otimo_comprovado": False,
+
+            "condicao_viabilidade": "VIAVEL" if viavel else "INVIAVEL",
+
+            "saldo_orcamento": diferenca_orcamento,
+
+            "limitacoes": [
+                "Não usa solver matemático.",
+                "Não comprova ótimo global.",
+                "Ajustes de limites são sequenciais.",
+            ],
 
         }

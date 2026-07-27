@@ -19,9 +19,9 @@ etapas = [
     ("4. Projeto", "Crie ou selecione um projeto na página Início. O código o acompanha por todo o processo."),
     ("5. Briefing de Mídia", "Informe campanha, orçamento, período, públicos, jornada, KPIs e metas globais."),
     ("6. Papéis dos Meios", "Escolha os inventários e avalie afinidade editorial, consumo e capacidade de cobertura."),
-    ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental, saturação e premissas. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
+    ("7. Plano de Mídia", "Configure pesos, audiência, alcance, frequência, alcance incremental e premissas. Quando houver dados N+, informe 1+, 2+, 3+ e 4+ para separar subexposição, faixa eficiente e sobre-exposição. Por padrão, as metas calculam a quantidade; também é possível fixar a compra e recalcular a entrega."),
     ("8. Cronograma", "Visualize flights e pressão semanal no calendário. A distribuição decorre das quantidades e do flight."),
-    ("9. Diagnóstico e projeções", "Confira entrega, custos, retorno, limitações e confiança dos dados."),
+    ("9. Diagnóstico e projeções", "Confira entrega, custos, retorno, limitações e confiança. Se houver realizado, informe fonte, período e contexto para comparar planejado, forecast e observado sem confundir desvio com causalidade."),
     ("10. Relatório", "Salve o plano e confira as premissas e a auditoria antes da exportação."),
 ]
 for titulo, texto in etapas:
@@ -52,7 +52,7 @@ problemas = {
     "O resultado salvo não foi atualizado": "Depois de alterar premissas ou quantidades, gere e salve uma nova versão do plano. O cronograma é uma visualização calculada.",
     "Uma página posterior não abre": "Selecione Projeto, Briefing e Plano no contexto ativo da barra lateral. Registros já salvos não precisam ser refeitos.",
     "Não consigo gerar o plano": "Audiência, alcance e frequência são obrigatórios por inventário, e os pesos estratégicos devem somar 100%.",
-    "O alcance combinado parece incorreto": "Revise o alcance incremental. Sem valor informado, o sistema usa estimativa por independência e registra essa premissa.",
+    "O alcance combinado parece incorreto": "Revise o alcance incremental. Sem valor informado, o sistema só usa independência quando essa hipótese é aprovada explicitamente.",
 }
 for problema, solucao in problemas.items():
     with st.expander(problema):
@@ -60,10 +60,12 @@ for problema, solucao in problemas.items():
 
 st.header("Análises Avançadas")
 analises = {
-    "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, saturação e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
-    "Simulação de Cenários": "Aplica perfis alternativos ao mesmo conjunto de inventários para observar mudanças de pressão e distribuição.",
-    "Otimização de Verba": "Explora redistribuições com pisos, tetos, limites por ambiente e reserva para testes.",
+    "Comparação de Planos": "Compare planos distintos com pesos explícitos ou duas versões imutáveis do mesmo planejamento. A comparação histórica mostra mudanças de métricas, verba, quantidade e composição sem alegar causalidade.",
+    "Cenários e Sensibilidade": "Mantém plano e investimento fixos e aplica variações explícitas a impressões, CTR e taxa de conversão. Conservador, base e otimista são hipóteses editáveis, não benchmarks universais nem intervalos estatísticos.",
+    "Otimização de Verba": "Use o solver linear para maximizar aderência ou conversões sob pisos, tetos, limites por ambiente/plataforma e reserva para testes. Conversões exigem resultados auditáveis do plano e usam extrapolação linear identificada. A simulação proporcional permanece disponível como benchmark heurístico.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",
+    "Atribuição": "Distribui crédito por regras entre eventos elegíveis dentro de uma janela explícita. Receita atribuída não representa incrementalidade.",
+    "Qualidade e Localização": "Documenta viewability, tráfego inválido, fraude, brand safety, suitability e proveniência geográfica sem criar um índice composto opaco.",
 }
 for nome, descricao in analises.items():
     with st.expander(nome):

@@ -5,6 +5,7 @@ from application.services.planejamento_service import (
 from engine.scenario_engine import (
     ScenarioEngine
 )
+from engine.sensitivity_engine import SensitivityEngine
 
 from engine.allocation_engine import (
     AllocationEngine
@@ -23,6 +24,7 @@ class ScenarioService:
         self.planejamento = PlanejamentoService()
 
         self.scenario_engine = ScenarioEngine()
+        self.sensitivity_engine = SensitivityEngine()
 
         self.allocation_engine = AllocationEngine()
 
@@ -33,6 +35,9 @@ class ScenarioService:
     def listar(self):
 
         return self.scenario_engine.listar()
+
+    def simular_sensibilidade(self, plano, cenarios):
+        return self.sensitivity_engine.simular(plano, cenarios)
 
     # =====================================================
     # GERAR CENÁRIO

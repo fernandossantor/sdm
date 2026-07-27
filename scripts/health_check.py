@@ -1,4 +1,16 @@
 from infrastructure.database.admin_client import admin
+from infrastructure.database.database_schema import (
+    ARTEFATOS_WORKFLOW,
+    ESPACOS_TRABALHO,
+    LOGS_AUDITORIA,
+    MEMBROS_ESPACOS,
+    PERFIS_USUARIOS,
+    PLANEJAMENTOS,
+    PRECOS_INVENTARIO,
+    PROJETOS,
+    PROJETOS_MEMBROS,
+    VERSOES_PLANEJAMENTO,
+)
 
 
 TABELAS = [
@@ -21,7 +33,17 @@ TABELAS = [
 
     "inventarios_metricas_v3",
 
-    "consumo_midia_v3"
+    "consumo_midia_v3",
+    PERFIS_USUARIOS,
+    ESPACOS_TRABALHO,
+    MEMBROS_ESPACOS,
+    PROJETOS,
+    PROJETOS_MEMBROS,
+    PLANEJAMENTOS,
+    VERSOES_PLANEJAMENTO,
+    ARTEFATOS_WORKFLOW,
+    PRECOS_INVENTARIO,
+    LOGS_AUDITORIA,
 
 ]
 
@@ -139,7 +161,8 @@ def main():
 
     print("=" * 80)
 
+    return erros
+
 
 if __name__ == "__main__":
-
-    main()
+    raise SystemExit(1 if main() else 0)

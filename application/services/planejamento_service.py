@@ -234,8 +234,16 @@ class PlanejamentoService:
             inicio_cronograma, fim_cronograma = briefing.inicio, briefing.fim
         else:
             plano.tipo_flight = fonte.get("tipo_flight", briefing_bd.get("tipo_flight", "LINEAR"))
-            plano.frequencia_objetivo = fonte.get("frequencia_objetivo", "MEDIA")
-            plano.frequencia_alvo = float(fonte.get("frequencia_alvo", 5))
+            plano.frequencia_objetivo = fonte.get(
+                "frequencia_objetivo",
+                briefing_bd.get("frequencia_objetivo", "MEDIA"),
+            )
+            plano.frequencia_alvo = float(
+                fonte.get(
+                    "frequencia_alvo",
+                    briefing_bd.get("frequencia_alvo") or 5,
+                )
+            )
             plano.alcance_objetivo = fonte.get(
                 "alcance_objetivo", briefing_bd.get("alcance_objetivo", "MEDIO")
             )
@@ -279,6 +287,8 @@ class PlanejamentoService:
             plano.tipo_flight,
             plano.itens,
         )
+        plano.inicio = inicio_cronograma
+        plano.fim = fim_cronograma
 
         return plano
 
@@ -297,6 +307,16 @@ class PlanejamentoService:
             )
             item.preco_unitario = preco_unitario
             item.unidade_compra = premissa.get("unidade_compra") or item.unidade_compra
+            item.preco_tabela_unitario = resultado.preco_tabela_unitario
+            item.desconto_percentual = resultado.desconto_percentual
+            item.preco_unitario = resultado.preco_liquido_unitario
+            item.custo_midia = resultado.custo_midia
+            item.fee_tecnologia = resultado.fee_tecnologia
+            item.fee_dados = resultado.fee_dados
+            item.fee_verificacao = resultado.fee_verificacao
+            item.fee_operacao = resultado.fee_operacao
+            item.custo_total = resultado.custo_total
+            item.restricoes_ativas = list(resultado.restricoes_ativas)
             item.quantidade_estimada = resultado.quantidade
             item.verba = resultado.investimento
             item.audiencia_percentual = resultado.audiencia_percentual
@@ -312,6 +332,7 @@ class PlanejamentoService:
             item.cpp, item.cpm = resultado.cpp, resultado.cpm
             item.cpc, item.cpa, item.roi = resultado.cpc, resultado.cpa, resultado.roi
             item.excesso_frequencia = resultado.excesso_frequencia
+            item.distribuicao_frequencia = resultado.distribuicao_frequencia
             item.premissas = premissa
             resultados.append(resultado)
             premissas_ordenadas.append(premissa)
@@ -321,9 +342,12 @@ class PlanejamentoService:
             item.percentual = round(item.verba / total * 100, 2) if total else 0
         consolidado = MediaPlanEngine.consolidar(resultados, premissas_ordenadas)
         plano.resultados_consolidados = consolidado
-        plano.alcance_percentual = consolidado["alcance_liquido_percentual"]
-        plano.frequencia_alvo = consolidado["frequencia_combinada"]
-        plano.grp = consolidado["grp_total"]
+        if consolidado["alcance_liquido_percentual"] is not None:
+            plano.alcance_percentual = consolidado["alcance_liquido_percentual"]
+        if consolidado["frequencia_combinada"] is not None:
+            plano.frequencia_alvo = consolidado["frequencia_combinada"]
+        if consolidado["grp_total"] is not None:
+            plano.grp = consolidado["grp_total"]
         plano.alcance_projetado = round(
             plano.publico_referencia * plano.alcance_percentual / 100
         )
@@ -331,6 +355,7 @@ class PlanejamentoService:
         plano.auditoria_calculo = {
             "motor": "cross-media-v2",
             "alcance": consolidado["auditoria_alcance"],
+            "grp": consolidado["comparabilidade_grp"],
             "observacao": "Valores informados pelo planejador; lacunas não são estimadas silenciosamente.",
         }
 
@@ -340,6 +365,9 @@ class PlanejamentoService:
         for item in plano.itens:
             if item.preco_unitario <= 0:
                 continue
+            item.preco_tabela_unitario = item.preco_unitario
+            item.custo_midia = round(item.verba, 2)
+            item.custo_total = round(item.verba, 2)
             item.quantidade_estimada = round(item.verba / item.preco_unitario, 2)
             unidade = (item.unidade_compra or "").casefold()
             if "mil impress" in unidade:
@@ -442,8 +470,16 @@ class PlanejamentoService:
                 distribuicao[-1] += total_item - sum(distribuicao)
             linha = {
                 "Inventário": item.inventario,
+                "ID do inventário": item.inventario_id,
+                "Meio": item.plataforma,
+                "Ambiente": item.ambiente,
+                "Papel": item.papel,
                 "Unidade": item.unidade_compra or "Sem unidade",
                 "Total": total_item,
+                "Investimento total": round(
+                    float(item.custo_total or item.verba or 0),
+                    2,
+                ),
             }
             linha.update(dict(zip(colunas, distribuicao)))
             cronograma.append(linha)
@@ -455,6 +491,21 @@ class PlanejamentoService:
             return self.repository.listar()
         except Exception:
             return []
+
+    def versoes(self, planejamento_id):
+        return self.repository.versoes(planejamento_id)
+
+    @staticmethod
+    def restaurar_versao(versao):
+        entradas = versao.get("snapshot_entradas") or {}
+        resultados = versao.get("snapshot_resultados") or {}
+        return PlanejamentoService.restaurar({
+            "resultado": resultados.get("resultado") or {},
+            "estrategia": entradas.get("estrategia") or {},
+            "premissas": entradas.get("premissas") or {},
+            "auditoria_calculo": resultados.get("auditoria_calculo") or {},
+            "codigo": "",
+        })
 
     def salvar(self, nome, plano, configuracao, briefing_id=None):
 
@@ -476,6 +527,15 @@ class PlanejamentoService:
                 "inventario_id": item.inventario_id,
                 "preco_unitario": item.preco_unitario,
                 "unidade_compra": item.unidade_compra,
+                "preco_tabela_unitario": item.preco_tabela_unitario,
+                "desconto_percentual": item.desconto_percentual,
+                "custo_midia": item.custo_midia,
+                "fee_tecnologia": item.fee_tecnologia,
+                "fee_dados": item.fee_dados,
+                "fee_verificacao": item.fee_verificacao,
+                "fee_operacao": item.fee_operacao,
+                "custo_total": item.custo_total,
+                "restricoes_ativas": item.restricoes_ativas,
                 "quantidade_estimada": item.quantidade_estimada,
                 "impressoes_estimadas": item.impressoes_estimadas,
                 "alcance_estimado": item.alcance_estimado,
@@ -490,6 +550,7 @@ class PlanejamentoService:
                 "cpp": item.cpp, "cpm": item.cpm, "cpc": item.cpc,
                 "cpa": item.cpa, "roi": item.roi,
                 "excesso_frequencia": item.excesso_frequencia,
+                "distribuicao_frequencia": item.distribuicao_frequencia,
                 "premissas": item.premissas,
             }
             for item in plano.itens
@@ -522,6 +583,8 @@ class PlanejamentoService:
                     "kpis": plano.kpis,
                     "cronograma": plano.cronograma,
                     "resultados_consolidados": plano.resultados_consolidados,
+                    "inicio": plano.inicio.isoformat() if plano.inicio else None,
+                    "fim": plano.fim.isoformat() if plano.fim else None,
                 },
                 "status": "SALVO",
             }
@@ -579,6 +642,8 @@ class PlanejamentoService:
             premissas=registro.get("premissas") or {},
             resultados_consolidados=dados.get("resultados_consolidados") or {},
             auditoria_calculo=registro.get("auditoria_calculo") or {},
+            inicio=PlanejamentoService._data(dados.get("inicio")),
+            fim=PlanejamentoService._data(dados.get("fim")),
         )
 
         for item in dados.get("itens", []):

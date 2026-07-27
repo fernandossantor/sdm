@@ -1,6 +1,7 @@
 from engine.budget_optimizer import (
     BudgetOptimizer
 )
+from engine.budget_solver import LinearBudgetSolver
 
 
 class BudgetOptimizerService:
@@ -8,6 +9,7 @@ class BudgetOptimizerService:
     def __init__(self):
 
         self.optimizer = BudgetOptimizer()
+        self.solver = LinearBudgetSolver()
 
     # =====================================================
     # OTIMIZAÇÃO
@@ -59,6 +61,32 @@ class BudgetOptimizerService:
 
         )
 
+    def otimizar_linear(
+        self,
+        ranking,
+        verba_total,
+        minimo_ambiente=None,
+        maximo_ambiente=None,
+        minimo_plataforma=None,
+        maximo_plataforma=None,
+        obrigatorios=None,
+        excluidos=None,
+        percentual_teste=0,
+        funcao_objetivo="ADERENCIA",
+    ):
+        return self.solver.otimizar(
+            ranking=ranking,
+            verba_total=verba_total,
+            minimo_ambiente=minimo_ambiente,
+            maximo_ambiente=maximo_ambiente,
+            minimo_plataforma=minimo_plataforma,
+            maximo_plataforma=maximo_plataforma,
+            obrigatorios=obrigatorios,
+            excluidos=excluidos,
+            percentual_teste=percentual_teste,
+            funcao_objetivo=funcao_objetivo,
+        )
+
     # =====================================================
     # RESUMO
     # =====================================================
@@ -82,6 +110,16 @@ class BudgetOptimizerService:
             "verba_distribuida": resultado["verba_distribuida"],
 
             "reserva_testes": resultado["reserva_testes"],
+
+            "metodo": resultado["metodo_alocacao"],
+
+            "versao_metodo": resultado["versao_metodo"],
+
+            "otimo_comprovado": resultado["otimo_comprovado"],
+
+            "condicao_viabilidade": resultado["condicao_viabilidade"],
+
+            "saldo_orcamento": resultado["saldo_orcamento"],
 
             "maior_investimento": max(
 
@@ -197,4 +235,7 @@ class BudgetOptimizerService:
 
         )
 
-        return diferenca <= tolerancia
+        return (
+            diferenca <= tolerancia
+            and resultado.get("condicao_viabilidade") == "VIAVEL"
+        )

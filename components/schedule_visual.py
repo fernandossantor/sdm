@@ -8,7 +8,20 @@ def render(plano):
         st.info("Defina as datas do briefing para gerar a linha do tempo semanal.")
         return
     quadro = pd.DataFrame(plano.cronograma)
-    fixas = [c for c in ("Inventário", "Unidade", "Total") if c in quadro.columns]
+    fixas = [
+        c
+        for c in (
+            "Inventário",
+            "ID do inventário",
+            "Meio",
+            "Ambiente",
+            "Papel",
+            "Unidade",
+            "Total",
+            "Investimento total",
+        )
+        if c in quadro.columns
+    ]
     semanas = [c for c in quadro.columns if c not in fixas]
     if not semanas:
         st.dataframe(quadro, hide_index=True, width="stretch")

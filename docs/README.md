@@ -83,3 +83,13 @@ Validado atualmente:
 - testes automatizados e CI sem dependência de segredos.
 
 Fora do escopo do 1.0: histórico persistente, usuários, PDF e PowerPoint.
+
+---
+
+## Evolução planejada
+
+- [Decisões metodológicas dos engines](DECISOES_METODOLOGICAS_ENGINES.md)
+- [Plano mestre de evolução](PLANO_MESTRE_EVOLUCAO.md)
+- [Backup e restauração](BACKUP_RESTAURACAO.md)
+- [Plano multiusuário original](PLANO_MULTIUSUARIO.md)
+- [Modelo de planejamento cross-media](MODELO_PLANEJAMENTO_CROSS_MEDIA.md)

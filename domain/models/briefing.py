@@ -36,6 +36,20 @@ class Briefing:
 
     produto: str = ""
 
+    contexto_mercado: str = ""
+    concorrentes: List[dict] = field(default_factory=list)
+    situacao_marca: str = ""
+    situacao_categoria: str = ""
+    objetivo_negocio: str = ""
+    objetivo_comunicacao: str = ""
+    objetivo_midia: str = ""
+    jornada_compra: str = ""
+    ciclo_compra: str = ""
+    sazonalidade: str = ""
+    capacidade_distribuicao: str = ""
+    criterios_criativos: str = ""
+    riscos_regulatorios: str = ""
+
     objetivos_secundarios: List[str] = field(
         default_factory=list
     )
@@ -143,6 +157,9 @@ class Briefing:
     def validar(self):
 
         erros = []
+
+        if not isinstance(self.concorrentes, list):
+            erros.append("Concorrentes devem formar uma lista.")
 
         if not self.cliente:
 

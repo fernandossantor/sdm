@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import date
 from typing import List, Optional
 
 
@@ -41,6 +42,16 @@ class PlanoItem:
 
     unidade_compra: str = ""
 
+    preco_tabela_unitario: float = 0.0
+    desconto_percentual: float = 0.0
+    custo_midia: float = 0.0
+    fee_tecnologia: float = 0.0
+    fee_dados: float = 0.0
+    fee_verificacao: float = 0.0
+    fee_operacao: float = 0.0
+    custo_total: float = 0.0
+    restricoes_ativas: List[str] = field(default_factory=list)
+
     quantidade_estimada: Optional[float] = None
 
     impressoes_estimadas: Optional[float] = None
@@ -60,6 +71,7 @@ class PlanoItem:
     cpa: Optional[float] = None
     roi: Optional[float] = None
     excesso_frequencia: float = 0.0
+    distribuicao_frequencia: dict = field(default_factory=dict)
     premissas: dict = field(default_factory=dict)
 
 
@@ -108,6 +120,8 @@ class PlanoEstrategico:
     premissas: dict = field(default_factory=dict)
     resultados_consolidados: dict = field(default_factory=dict)
     auditoria_calculo: dict = field(default_factory=dict)
+    inicio: Optional[date] = None
+    fim: Optional[date] = None
 
     # ------------------------------------------------------
 

@@ -1,0 +1,4 @@
+-- Fonte canônica:
+-- ../../supabase/migrations/20260727050000_compartilhamento_projetos.sql
+--
+-- Mantido como índice para a sequência histórica em database/sql.

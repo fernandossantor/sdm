@@ -17,6 +17,11 @@ from application.services.planejamento_service import (
 from application.services.context_service import (
     ContextService
 )
+from application.services.version_comparison_service import (
+    VersionComparisonService
+)
+from application.services.workflow_artifact_service import WorkflowArtifactService
+from components.artifact_manager import render as gerenciar_artefatos
 from components.planning_selector import selecionar_planejamento
 from components.formatters import moeda_ptbr, numero_ptbr
 
@@ -46,6 +51,97 @@ planejamento = PlanejamentoService()
 forecast_service = ForecastService()
 
 comparador = ComparadorService()
+comparador_versoes = VersionComparisonService()
+artefatos = WorkflowArtifactService()
+gerenciar_artefatos(artefatos, "COMPARACAO", "Comparações salvas")
+
+with st.expander("Comparar versões do mesmo planejamento", expanded=False):
+    salvos = planejamento.listar()
+    if not salvos:
+        st.info("Salve um planejamento para consultar seu histórico.")
+    else:
+        registro_historico = st.selectbox(
+            "Planejamento com histórico",
+            salvos,
+            format_func=lambda item: (
+                f"{item.get('codigo') or item['id'][:8]} · {item['nome']}"
+            ),
+            key="historico_planejamento",
+        )
+        try:
+            versoes = planejamento.versoes(registro_historico["id"])
+        except Exception as erro:
+            st.error(f"Não foi possível carregar as versões: {erro}")
+            versoes = []
+        if len(versoes) < 2:
+            st.info("Este planejamento ainda não possui duas versões.")
+        else:
+            v1, v2 = st.columns(2)
+            versao_anterior = v1.selectbox(
+                "Versão anterior",
+                versoes,
+                index=len(versoes) - 1,
+                format_func=lambda item: (
+                    f"v{item['numero']} · {item['evento']} · "
+                    f"{item['criado_em']}"
+                ),
+                key="versao_historica_anterior",
+            )
+            versao_atual = v2.selectbox(
+                "Versão atual",
+                versoes,
+                index=0,
+                format_func=lambda item: (
+                    f"v{item['numero']} · {item['evento']} · "
+                    f"{item['criado_em']}"
+                ),
+                key="versao_historica_atual",
+            )
+            if st.button("Comparar histórico", type="primary"):
+                if versao_anterior["numero"] == versao_atual["numero"]:
+                    st.error("Selecione versões diferentes.")
+                else:
+                    st.session_state["comparacao_historica"] = (
+                        comparador_versoes.comparar(
+                            planejamento.restaurar_versao(versao_anterior),
+                            planejamento.restaurar_versao(versao_atual),
+                            {
+                                "planejamento_id": registro_historico["id"],
+                                "versao_anterior": versao_anterior["numero"],
+                                "versao_atual": versao_atual["numero"],
+                                "hash_anterior": versao_anterior["hash_conteudo"],
+                                "hash_atual": versao_atual["hash_conteudo"],
+                            },
+                        )
+                    )
+
+if "comparacao_historica" in st.session_state:
+    historico = st.session_state["comparacao_historica"]
+    st.subheader("Mudanças entre versões")
+    st.caption(historico["natureza"])
+    st.dataframe(
+        pd.DataFrame(historico["metricas"]),
+        hide_index=True,
+        width="stretch",
+    )
+    st.dataframe(
+        pd.DataFrame(historico["itens"]),
+        hide_index=True,
+        width="stretch",
+    )
+    if st.button("Salvar comparação histórica"):
+        artefatos.salvar_no_projeto(
+            "COMPARACAO",
+            (
+                "Comparação histórica — "
+                f"v{historico['metadados']['versao_anterior']} × "
+                f"v{historico['metadados']['versao_atual']}"
+            ),
+            historico,
+            st.session_state,
+            historico["metadados"]["planejamento_id"],
+        )
+        st.success("Comparação histórica salva no projeto.")
 
 col1, col2 = st.columns(2)
 
@@ -63,7 +159,8 @@ colunas = st.columns(7)
 rotulos = [
     ("alcance", "Alcance", 25), ("frequencia", "Frequência", 20),
     ("conversoes", "Conversões", 15), ("roi", "ROI", 10),
-    ("jornada", "Jornada", 15), ("saturacao", "Baixa saturação", 10),
+    ("jornada", "Jornada", 15),
+    ("sobre_exposicao", "Baixa sobre-exposição", 10),
     ("investimento", "Menor custo", 5),
 ]
 pesos = {

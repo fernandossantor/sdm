@@ -3,17 +3,85 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from application.services.scenario_service import ScenarioService
+from application.services.schedule_service import ScheduleService
 from application.services.workflow_service import WorkflowService
 from application.services.planejamento_service import PlanejamentoService
 from application.services.exportacao_service import ExportacaoService
+from application.services.forecast_service import ForecastService
 from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
+from domain.models.forecast import Forecast, ForecastItem
 from infrastructure.database import admin_client
 from infrastructure.repositories.decision_repository import DecisionRepository
+from infrastructure.repositories.planning_repository import PlanningRepository
 from application.services.comparador_service import ComparadorService
+from application.services.base_conhecimento_service import BaseConhecimentoService
 
 
 class TestPlanejamentoService(unittest.TestCase):
+
+    def test_geracao_por_nome_preserva_frequencia_do_briefing(self):
+        service = PlanejamentoService()
+        service.context_service.carregar = Mock(
+            return_value={
+                "briefing": {
+                    "anunciante": "Cliente",
+                    "nome": "Campanha",
+                    "orcamento": 1000,
+                    "kpi": "GRP",
+                    "tipo_flight": "ONDA",
+                    "frequencia_objetivo": "ALTA",
+                    "frequencia_alvo": 8,
+                    "alcance_objetivo": "ALTO",
+                    "alcance_percentual": 85,
+                    "grp": 680,
+                    "publico_referencia": 10000,
+                },
+                "objetivo": {"nome": "Alcance"},
+            }
+        )
+        service.inventory_engine.calcular = Mock(return_value=[{"inventario": "TV"}])
+        service._montar_plano = Mock(
+            return_value=PlanoEstrategico(
+                cliente="Cliente",
+                campanha="Campanha",
+                objetivo="Alcance",
+                orcamento=1000,
+            )
+        )
+
+        with (
+            patch.object(service, "_calcular_entrega"),
+            patch.object(service, "_cronograma", return_value=[]),
+        ):
+            plano = service.gerar("Campanha")
+
+        self.assertEqual(plano.frequencia_objetivo, "ALTA")
+        self.assertEqual(plano.frequencia_alvo, 8)
+        self.assertEqual(plano.alcance_percentual, 85)
+        self.assertEqual(plano.grp, 680)
+
+    def test_restaurar_preserva_periodo_planejado(self):
+        registro = {
+            "codigo": "PLN-1",
+            "estrategia": {},
+            "premissas": {},
+            "auditoria_calculo": {},
+            "resultado": {
+                "cliente": "Cliente",
+                "campanha": "Campanha",
+                "objetivo": "Alcance",
+                "orcamento": 1000,
+                "inicio": "2026-07-01",
+                "fim": "2026-07-31",
+                "itens": [],
+            },
+        }
+
+        plano = PlanejamentoService.restaurar(registro)
+
+        self.assertEqual(plano.inicio, date(2026, 7, 1))
+        self.assertEqual(plano.fim, date(2026, 7, 31))
 
     def test_exportacao_contem_todas_as_abas_e_variaveis_do_plano(self):
         plano = PlanoEstrategico(
@@ -30,15 +98,45 @@ class TestPlanejamentoService(unittest.TestCase):
                 score_mcp=85, preco_unitario=10, unidade_compra="Mil impressões",
             )
         )
+        plano.resultados_consolidados = {
+            "investimento": 1000,
+            "alcance_liquido_percentual": 60,
+            "fees": {"operacao": 0},
+        }
+        plano.estrategia = {
+            "diretriz": "Construir alcance e conduzir consideração.",
+            "racional_geral": "Vídeo cria cobertura e busca captura demanda.",
+            "mapa_jornada": "Descoberta → consideração → ação.",
+            "alternativas_rejeitadas": [
+                {
+                    "alternativa": "Concentração em busca",
+                    "motivo": "Cobertura insuficiente",
+                }
+            ],
+        }
 
         tabelas = ExportacaoService().tabelas(plano)
 
         self.assertEqual(
-            set(tabelas), {"Resumo", "Plano", "Cronograma", "KPIs", "Observações"}
+            set(tabelas),
+            {
+                "Resumo", "Resultados", "Plano", "Cronograma", "KPIs",
+                "Estratégia", "Alternativas", "Cronograma Semanal",
+                "Cronograma Mensal", "Mapa por Meio", "Reconciliação",
+                "Premissas", "Auditoria", "Observações",
+            },
         )
         self.assertIn("Score do papel", tabelas["Plano"].columns)
         self.assertIn("GRP", tabelas["Plano"].columns)
         self.assertIn("Preço unitário", tabelas["Plano"].columns)
+        self.assertEqual(
+            tabelas["Alternativas"].iloc[0]["motivo"],
+            "Cobertura insuficiente",
+        )
+        self.assertEqual(
+            set(tabelas["Resultados"]["Métrica"]),
+            {"investimento", "alcance_liquido_percentual", "fees.operacao"},
+        )
         self.assertEqual(
             list(tabelas["Plano"].columns[:9]),
             [
@@ -100,14 +198,21 @@ class TestPlanejamentoService(unittest.TestCase):
                 "quantidade": 5,
                 "modo_calculo": "COMPRA",
                 "preco_unitario": 125.50,
+                "preco_tabela_unitario": 150,
+                "desconto_percentual": 10,
+                "fee_operacao_fixo": 25,
                 "unidade_compra": "Inserção",
             }
         }
 
         PlanejamentoService._calcular_entrega_configuravel(plano, premissas)
 
-        self.assertEqual(plano.itens[0].preco_unitario, 125.50)
-        self.assertEqual(plano.itens[0].verba, 627.50)
+        self.assertEqual(plano.itens[0].preco_tabela_unitario, 150)
+        self.assertEqual(plano.itens[0].preco_unitario, 135)
+        self.assertEqual(plano.itens[0].custo_midia, 675)
+        self.assertEqual(plano.itens[0].fee_operacao, 25)
+        self.assertEqual(plano.itens[0].verba, 700)
+        self.assertEqual(plano.resultados_consolidados["custo_total"], 700)
 
     def test_publico_referencia_considera_pesos(self):
 
@@ -153,23 +258,120 @@ class TestPlanejamentoService(unittest.TestCase):
             12,
         )
 
+    def test_mapas_do_cronograma_reconciliam_quantidade_e_investimento(self):
+        item = PlanoItem(
+            inventario="TV", plataforma="Emissora", ambiente="TV Aberta",
+            papel="PRINCIPAL", score=90, verba=1200, percentual=100,
+            unidade_compra="Inserção", quantidade_estimada=12,
+        )
+        plano = PlanoEstrategico(
+            cliente="Cliente", campanha="Campanha", objetivo="Alcance",
+            orcamento=1200, itens=[item],
+        )
+        plano.cronograma = PlanejamentoService._cronograma(
+            date(2026, 7, 1), date(2026, 7, 28), "LINEAR", [item]
+        )
+
+        mapas = ScheduleService().consolidar(plano)
+
+        self.assertEqual(sum(linha["Quantidade"] for linha in mapas["semanal"]), 12)
+        self.assertEqual(sum(linha["Investimento"] for linha in mapas["mensal"]), 1200)
+        self.assertEqual(mapas["por_meio"][0]["Meio"], "Emissora")
+        self.assertTrue(mapas["reconciliacao"]["quantidade_reconciliada"])
+        self.assertTrue(mapas["reconciliacao"]["investimento_reconciliado"])
+
     def test_comparador_respeita_prioridade_configurada(self):
         plano_a = PlanoEstrategico("Cliente", "Alcance", "Awareness", 1000)
         plano_b = PlanoEstrategico("Cliente", "Frequência", "Awareness", 1000)
         plano_a.resultados_consolidados = {
             "alcance_liquido_percentual": 90, "frequencia_combinada": 3,
             "conversoes": 10, "roi": 0.1, "cobertura_jornada": 70,
-            "risco_saturacao": 0, "investimento": 1000,
+            "excesso_frequencia_total": 0, "investimento": 1000,
         }
         plano_b.resultados_consolidados = {
             "alcance_liquido_percentual": 60, "frequencia_combinada": 8,
             "conversoes": 10, "roi": 0.1, "cobertura_jornada": 70,
-            "risco_saturacao": 2, "investimento": 1000,
+            "excesso_frequencia_total": 2, "investimento": 1000,
         }
         pesos = {"alcance": 80, "frequencia": 20, "conversoes": 0,
-                 "roi": 0, "jornada": 0, "saturacao": 0, "investimento": 0}
+                 "roi": 0, "jornada": 0, "sobre_exposicao": 0, "investimento": 0}
         resultado = ComparadorService().comparar_configuravel(plano_a, plano_b, pesos)
         self.assertEqual(resultado["vencedor"], "Plano A")
+
+
+class TestForecastService(unittest.TestCase):
+
+    @staticmethod
+    def _item(nome, verba, impressoes, alcance, cliques, conversoes):
+        return ForecastItem(
+            inventario=nome,
+            verba=verba,
+            impressoes=impressoes,
+            alcance=alcance,
+            cliques=cliques,
+            conversoes=conversoes,
+            ctr=None,
+            cpm=None,
+            cpc=None,
+            cpa=None,
+        )
+
+    def test_resumo_prioriza_consolidado_cross_media(self):
+        service = ForecastService()
+        service.gerar_itens = Mock(return_value=[
+            self._item("TV", 100, 600, 500, 60, 6),
+            self._item("Digital", 200, 400, 500, 40, 4),
+        ])
+        plano = SimpleNamespace(
+            resultados_consolidados={
+                "investimento": 300,
+                "impressoes": 1000,
+                "cliques": 100,
+                "conversoes": 10,
+                "alcance_liquido_percentual": 60,
+                "frequencia_combinada": 1.67,
+                "grp_total": 100,
+            },
+            publico_referencia=1000,
+        )
+
+        resumo = service.resumo(service.gerar(plano, []))
+
+        self.assertEqual(resumo["alcance"], 600)
+        self.assertEqual(resumo["ctr"], 10)
+        self.assertEqual(resumo["cpm"], 300)
+        self.assertEqual(resumo["cpc"], 3)
+        self.assertEqual(resumo["cpa"], 30)
+        self.assertEqual(resumo["origem"], "PLANO_CROSS_MEDIA")
+
+    def test_legado_nao_soma_total_parcial(self):
+        forecast = Forecast(itens=[
+            self._item("TV", 100, 1000, 500, 10, 1),
+            self._item("Digital", 100, None, None, None, None),
+        ])
+
+        self.assertIsNone(forecast.impressoes)
+        self.assertIsNone(forecast.alcance)
+        self.assertIsNone(forecast.cliques)
+        self.assertIsNone(forecast.conversoes)
+        self.assertIsNone(forecast.cpm_medio)
+
+
+class TestPlanningRepository(unittest.TestCase):
+
+    def test_excluir_arquiva_sem_apagar_historico(self):
+        repository = PlanningRepository.__new__(PlanningRepository)
+        repository.update = Mock(return_value="arquivado")
+
+        resultado = repository.excluir("planejamento-1")
+
+        self.assertEqual(resultado, "arquivado")
+        tabela, campo, registro_id, dados = repository.update.call_args.args
+        self.assertEqual(tabela, "planejamentos")
+        self.assertEqual(campo, "id")
+        self.assertEqual(registro_id, "planejamento-1")
+        self.assertEqual(dados["status"], "ARQUIVADO")
+        self.assertIn("arquivado_em", dados)
 
 
 class TestContextoCampanha(unittest.TestCase):
@@ -226,6 +428,31 @@ class TestAdminClient(unittest.TestCase):
                 admin_client.admin.table("inventarios_v3")
 
         criar_cliente.assert_not_called()
+
+    def test_cliente_administrativo_nao_persiste_sessao(self):
+        admin_client.get_admin_client.cache_clear()
+        cliente = Mock()
+        with (
+            patch.object(admin_client, "load_dotenv"),
+            patch.dict(
+                admin_client.os.environ,
+                {
+                    "SUPABASE_URL": "https://project.example",
+                    "SUPABASE_SERVICE_KEY": "sb_secret_teste",
+                },
+            ),
+            patch.object(
+                admin_client,
+                "create_client",
+                return_value=cliente,
+            ) as criar_cliente,
+        ):
+            self.assertIs(admin_client.get_admin_client(), cliente)
+
+        opcoes = criar_cliente.call_args.kwargs["options"]
+        self.assertFalse(opcoes.persist_session)
+        self.assertFalse(opcoes.auto_refresh_token)
+        admin_client.get_admin_client.cache_clear()
 
 
 class TestScenarioService(unittest.TestCase):
@@ -368,6 +595,43 @@ class TestWorkflowService(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             WorkflowService().concluir({}, "desconhecida")
+
+
+class TestCondicoesComerciais(unittest.TestCase):
+
+    def criar_service(self):
+        service = BaseConhecimentoService.__new__(BaseConhecimentoService)
+        service.inventarios = Mock()
+        service.inventarios.salvar_preco.return_value = SimpleNamespace(data=[])
+        return service
+
+    def test_rejeita_disponibilidade_acima_da_capacidade(self):
+        service = self.criar_service()
+
+        with self.assertRaisesRegex(ValueError, "exceder a capacidade"):
+            service.salvar_preco_inventario(
+                {
+                    "valor_bruto": 100,
+                    "disponibilidade": 11,
+                    "capacidade": 10,
+                }
+            )
+
+    def test_persiste_condicoes_validas_sem_descartar_campos(self):
+        service = self.criar_service()
+        dados = {
+            "valor_bruto": 100,
+            "desconto_percentual": 10,
+            "modelo_negociacao": "PMP",
+            "fee_tecnologia_percentual": 5,
+            "quantidade_minima": 10,
+            "disponibilidade": 20,
+            "capacidade": 30,
+        }
+
+        service.salvar_preco_inventario(dados)
+
+        service.inventarios.salvar_preco.assert_called_once_with(dados)
 
 
 if __name__ == "__main__":

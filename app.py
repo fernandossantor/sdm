@@ -11,10 +11,19 @@ from components.home.projects_card import render as projects_card
 from components.home.knowledge_card import render as knowledge_card
 from components.active_context import render as active_context
 from components.page_config import PAGE_ICON, PAGE_TITLE
+from components.auth_gate import render as auth_gate
+from components.workspace_gate import render as workspace_gate
+from application.services.auth_service import AuthService, autenticacao_habilitada
+from application.services.runtime_config_service import RuntimeConfigService
+from infrastructure.database.data_client import (
+    bind_authenticated_client,
+    clear_request_client,
+)
+from infrastructure.database.workspace_context import clear_workspace
 
 
 LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
-
+RuntimeConfigService.validar()
 
 # ==========================================================
 # CONFIGURAÇÃO
@@ -31,6 +40,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 
 )
+
+clear_request_client()
+clear_workspace()
+if autenticacao_habilitada():
+    if not auth_gate():
+        st.stop()
+    bind_authenticated_client(st.session_state["auth_access_token"])
+    if not workspace_gate():
+        st.stop()
+elif st.session_state.get("auth_access_token"):
+    bind_authenticated_client(st.session_state["auth_access_token"])
 
 def pagina_inicial():
 
@@ -73,9 +93,31 @@ workflow_links = [
 ]
 analise_links = [
     (st.Page("pages/10_Comparador.py", title="Comparação de Planos", icon="⚖️"), "Comparação de Planos", "⚖️"),
-    (st.Page("pages/11_Cenarios.py", title="Simulação de Cenários", icon="🎛️"), "Simulação de Cenários", "🎛️"),
-    (st.Page("pages/12_Otimizador.py", title="Otimização de Verba", icon="🎯"), "Otimização de Verba", "🎯"),
+    (st.Page("pages/11_Cenarios.py", title="Cenários e Sensibilidade", icon="🎛️"), "Cenários e Sensibilidade", "🎛️"),
+    (
+        st.Page(
+            "pages/12_Otimizador.py",
+            title="Otimização de Verba",
+            icon="🎯",
+        ),
+        "Otimização de Verba",
+        "🎯",
+    ),
     (st.Page("pages/13_Insights.py", title="Insights de Mídia", icon="💡"), "Insights de Mídia", "💡"),
+    (
+        st.Page("pages/20_Atribuicao.py", title="Atribuição", icon="🔗"),
+        "Atribuição",
+        "🔗",
+    ),
+    (
+        st.Page(
+            "pages/21_Qualidade_e_Localizacao.py",
+            title="Qualidade e Localização",
+            icon="🛡️",
+        ),
+        "Qualidade e Localização",
+        "🛡️",
+    ),
 ]
 base_links = [
     (st.Page("pages/01_Catalogos.py", title="Catálogo de Mídia", icon="🗂️"), "Catálogo de Mídia", "🗂️"),
@@ -84,6 +126,35 @@ base_links = [
     (st.Page("pages/16_Segmentos.py", title="Segmentos de Público", icon="🧭"), "Segmentos de Público", "🧭"),
     (st.Page("pages/14_Publicos.py", title="Públicos", icon="👥"), "Públicos", "👥"),
 ]
+collaboration_links = []
+if autenticacao_habilitada():
+    collaboration_links.append(
+        (
+            st.Page(
+                "pages/19_Colaboracao.py",
+                title="Colaboração",
+                icon="🤝",
+            ),
+            "Colaboração",
+            "🤝",
+        )
+    )
+admin_links = []
+if (
+    autenticacao_habilitada()
+    and st.session_state.get("auth_papel_global") == "ADMINISTRADOR"
+):
+    admin_links.append(
+        (
+            st.Page(
+                "pages/18_Administracao.py",
+                title="Administração",
+                icon="🛡️",
+            ),
+            "Administração",
+            "🛡️",
+        )
+    )
 navegacao = st.navigation(
     [
         pagina_home,
@@ -91,6 +162,8 @@ navegacao = st.navigation(
         *[item[0] for item in workflow_links],
         *[item[0] for item in analise_links],
         *[item[0] for item in base_links],
+        *[item[0] for item in collaboration_links],
+        *[item[0] for item in admin_links],
     ],
     position="hidden",
 )
@@ -98,6 +171,12 @@ navegacao = st.navigation(
 with st.sidebar:
     st.image(LOGO_PLANOS, width="stretch")
     st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
+    if autenticacao_habilitada():
+        st.caption(st.session_state.get("auth_email") or "Usuário autenticado")
+        if st.button("Sair", use_container_width=True):
+            AuthService().sair(st.session_state)
+            clear_request_client()
+            st.rerun()
     active_context()
     if st.session_state.get("projeto_nome"):
         st.caption(f"Projeto ativo: {st.session_state['projeto_nome']}")
@@ -112,6 +191,10 @@ with st.sidebar:
     st.caption("BASE DE CONHECIMENTO")
     for pagina, titulo, icone in base_links:
         st.page_link(pagina, label=titulo, icon=icone)
+    if admin_links:
+        st.caption("ADMINISTRAÇÃO")
+        for pagina, titulo, icone in admin_links:
+            st.page_link(pagina, label=titulo, icon=icone)
     st.divider()
     st.caption(
         "Desenvolvido por Fernando Silva Santor, professor de Planejamento "

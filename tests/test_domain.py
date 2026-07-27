@@ -3,6 +3,42 @@ from datetime import date
 
 from domain.models.briefing import Briefing
 from domain.models.workflow_state import WorkflowState
+from domain.restricoes import (
+    avaliar_elegibilidade,
+    diagnosticar_viabilidade,
+)
+
+
+class TestRestricoesDuras(unittest.TestCase):
+
+    def test_funciona_com_objeto_e_dicionario(self):
+        inventario = {
+            "id": "inv-1",
+            "plataforma_id": "plat-1",
+            "ambiente_id": "amb-1",
+        }
+        briefing_dict = {
+            "inventarios_obrigatorios": ["inv-1"],
+            "ambientes_proibidos": ["amb-1"],
+        }
+
+        avaliacao = avaliar_elegibilidade(briefing_dict, inventario)
+
+        self.assertTrue(avaliacao.obrigatorio)
+        self.assertFalse(avaliacao.elegivel)
+        self.assertIn("ambiente proibido", avaliacao.motivos)
+
+    def test_obrigatorio_ausente_torna_plano_inviavel(self):
+        diagnostico = diagnosticar_viabilidade(
+            {"inventarios_obrigatorios": ["inv-ausente"]},
+            [{"id": "inv-1"}],
+        )
+
+        self.assertFalse(diagnostico.viavel)
+        self.assertEqual(
+            diagnostico.obrigatorios_ausentes,
+            ("inv-ausente",),
+        )
 from application.services.briefing_service import BriefingService
 from domain.media_metrics import resolver_grp
 
@@ -27,6 +63,43 @@ class TestBriefing(unittest.TestCase):
 
         self.assertEqual(briefing.frequencia_alvo, 4)
         self.assertEqual(briefing.frequencia_objetivo, "MEDIA")
+
+    def test_contexto_estrategico_reconcilia_com_registro(self):
+        service = BriefingService()
+        briefing = service.criar(
+            cliente="Cliente",
+            campanha="Campanha",
+            objetivo_id="objetivo-1",
+            objetivo="Alcance",
+            kpi="Alcance",
+            orcamento=1000,
+            contexto_mercado="Categoria em expansão.",
+            concorrentes=[{"nome": "Concorrente A"}],
+            situacao_marca="Marca desafiante.",
+            situacao_categoria="Alta concentração.",
+            objetivo_negocio="Aumentar receita.",
+            objetivo_comunicacao="Ampliar consideração.",
+            objetivo_midia="Gerar alcance qualificado.",
+            jornada_compra="Descoberta até recompra.",
+            ciclo_compra="Trinta dias.",
+            sazonalidade="Pico no segundo semestre.",
+            capacidade_distribuicao="Região Sul.",
+            criterios_criativos="Vídeo e formatos acessíveis.",
+            riscos_regulatorios="Revisão jurídica obrigatória.",
+        )
+
+        registro = service._para_registro(briefing, "projeto-1")
+
+        self.assertEqual(
+            registro["concorrentes"], [{"nome": "Concorrente A"}]
+        )
+        self.assertEqual(
+            registro["objetivo_midia"], "Gerar alcance qualificado."
+        )
+        self.assertEqual(
+            registro["riscos_regulatorios"],
+            "Revisão jurídica obrigatória.",
+        )
 
     def test_frequencia_define_a_faixa_correspondente(self):
 

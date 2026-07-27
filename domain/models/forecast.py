@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, Dict, List, Optional
 
 
 # ==========================================================
@@ -13,21 +13,23 @@ class ForecastItem:
 
     verba: float
 
-    impressoes: int
+    impressoes: Optional[int]
 
-    alcance: int
+    alcance: Optional[int]
 
-    cliques: int
+    cliques: Optional[int]
 
-    conversoes: int
+    conversoes: Optional[int]
 
-    ctr: float
+    ctr: Optional[float]
 
-    cpm: float
+    cpm: Optional[float]
 
-    cpc: float
+    cpc: Optional[float]
 
-    cpa: float
+    cpa: Optional[float]
+
+    lacunas: List[str] = field(default_factory=list)
 
 
 # ==========================================================
@@ -38,6 +40,7 @@ class ForecastItem:
 class Forecast:
 
     itens: List[ForecastItem] = field(default_factory=list)
+    consolidado: Dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------
 
@@ -59,177 +62,87 @@ class Forecast:
 
     @property
     def verba_total(self):
+        valor = self.consolidado.get("investimento")
+        if valor is not None:
+            return round(float(valor), 2)
+        return round(sum(i.verba for i in self.itens), 2)
 
-        return round(
-
-            sum(
-
-                i.verba
-
-                for i in self.itens
-
-            ),
-
-            2
-
-        )
+    def _total(self, campo):
+        valor = self.consolidado.get(campo)
+        if valor is not None:
+            return valor
+        valores = [getattr(item, campo) for item in self.itens]
+        if not valores or any(item is None for item in valores):
+            return None
+        return sum(valores)
 
     # ------------------------------------------------------
 
     @property
     def impressoes(self):
-
-        return sum(
-
-            i.impressoes
-
-            for i in self.itens
-
-        )
+        return self._total("impressoes")
 
     # ------------------------------------------------------
 
     @property
     def alcance(self):
-
-        return sum(
-
-            i.alcance
-
-            for i in self.itens
-
-        )
+        valor = self.consolidado.get("alcance_liquido_pessoas")
+        if valor is not None:
+            return valor
+        return self._total("alcance")
 
     # ------------------------------------------------------
 
     @property
     def cliques(self):
-
-        return sum(
-
-            i.cliques
-
-            for i in self.itens
-
-        )
+        return self._total("cliques")
 
     # ------------------------------------------------------
 
     @property
     def conversoes(self):
-
-        return sum(
-
-            i.conversoes
-
-            for i in self.itens
-
-        )
+        return self._total("conversoes")
 
     # ------------------------------------------------------
 
     @property
     def ctr_medio(self):
-
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.ctr
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
+        if self.impressoes is None or self.cliques is None:
+            return None
+        return (
+            round(self.cliques / self.impressoes * 100, 2)
+            if self.impressoes
+            else None
         )
 
     # ------------------------------------------------------
 
     @property
     def cpm_medio(self):
-
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.cpm
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
+        if self.impressoes is None:
+            return None
+        return (
+            round(self.verba_total * 1000 / self.impressoes, 2)
+            if self.impressoes
+            else None
         )
 
     # ------------------------------------------------------
 
     @property
     def cpc_medio(self):
-
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.cpc
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
-        )
+        if self.cliques is None:
+            return None
+        return round(self.verba_total / self.cliques, 2) if self.cliques else None
 
     # ------------------------------------------------------
 
     @property
     def cpa_medio(self):
-
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.cpa
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
+        if self.conversoes is None:
+            return None
+        return (
+            round(self.verba_total / self.conversoes, 2)
+            if self.conversoes
+            else None
         )

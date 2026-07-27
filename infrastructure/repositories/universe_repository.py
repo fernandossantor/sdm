@@ -8,9 +8,9 @@ UNIVERSOS = "universos"
 
 class UniverseRepository(BaseRepository):
 
-    def __init__(self):
+    def __init__(self, db=None):
 
-        super().__init__()
+        super().__init__(db)
 
     # =====================================================
     # LISTAR

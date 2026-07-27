@@ -1,16 +1,24 @@
 import unittest
+from datetime import date
+from types import SimpleNamespace
 
 from engine.allocation_engine import AllocationEngine
 from engine.budget_optimizer import BudgetOptimizer
+from engine.budget_solver import LinearBudgetSolver
 from engine.classificacao_papeis_engine import ClassificacaoPapeisEngine
 from engine.forecast_engine import ForecastEngine
+from engine.frequency_distribution_engine import FrequencyDistributionEngine
 from engine.insights_engine import InsightsEngine
 from engine.inventory_engine import InventoryEngine
 from engine.recommendation_engine import RecommendationEngine
 from engine.scenario_engine import ScenarioEngine
+from engine.sensitivity_engine import SensitivityEngine
 from engine.score_engine import ScoreEngine
 from domain.models.plano_tatico import PlanoTatico, PlanoTaticoItem
 from engine.media_plan_engine import MediaPlanEngine
+from engine.performance_diagnosis_engine import PerformanceDiagnosisEngine
+from domain.models.forecast import Forecast, ForecastItem
+from domain.models.realizado import RealizadoItem, RealizadoPlano
 
 
 class TestAllocationEngine(unittest.TestCase):
@@ -84,6 +92,107 @@ class TestMediaPlanEngine(unittest.TestCase):
         self.assertEqual(alcance, 100)
         self.assertEqual(auditoria[1]["incremental"], 20)
 
+    def test_consolidado_nao_confunde_excesso_com_saturacao_economica(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10, "alcance_percentual": 20,
+                "frequencia": 4, "frequencia_maxima": 2,
+                "quantidade": 8, "unidade_compra": "Inserção",
+            },
+            publico_referencia=10000,
+            preco_unitario=100,
+        )
+
+        consolidado = MediaPlanEngine.consolidar(
+            [resultado],
+            [{"alcance_percentual": 20}],
+        )
+
+        self.assertEqual(consolidado["excesso_frequencia_total"], 2)
+        self.assertIsNone(consolidado["saturacao_economica"])
+        self.assertEqual(
+            consolidado["modelo_saturacao"]["situacao"],
+            "INDISPONIVEL",
+        )
+        self.assertNotIn("risco_saturacao", consolidado)
+
+    def test_nao_inventa_alcance_por_independencia(self):
+        alcance, auditoria = MediaPlanEngine.alcance_combinado(
+            [
+                {"alcance_percentual": 50},
+                {"alcance_percentual": 30},
+            ]
+        )
+
+        self.assertIsNone(alcance)
+        self.assertIn("indisponível", auditoria[-1]["metodo"])
+
+    def test_independencia_exige_aprovacao_e_tem_baixa_confianca(self):
+        alcance, auditoria = MediaPlanEngine.alcance_combinado(
+            [
+                {"alcance_percentual": 50},
+                {
+                    "alcance_percentual": 30,
+                    "permitir_independencia": True,
+                },
+            ]
+        )
+
+        self.assertEqual(alcance, 65)
+        self.assertEqual(auditoria[-1]["metodo"], "hipótese de independência")
+        self.assertEqual(auditoria[-1]["confianca"], "BAIXA")
+
+    def test_grp_incompativel_permanece_por_meio_sem_total(self):
+        resultados = [SimpleNamespace(grp=100), SimpleNamespace(grp=50)]
+        base = {
+            "universo": "Adultos",
+            "publico_alvo": "18+",
+            "praca": "Brasil",
+            "inicio_referencia": "2026-07-01",
+            "fim_referencia": "2026-07-31",
+            "metrica_nativa": "GRP",
+            "metodologia": "Painel A",
+            "granularidade": "INVENTARIO",
+        }
+
+        total, auditoria = MediaPlanEngine.consolidar_grp(
+            resultados,
+            [
+                {**base, "inventario_id": "tv"},
+                {
+                    **base,
+                    "inventario_id": "radio",
+                    "universo": "Ouvintes",
+                },
+            ],
+        )
+
+        self.assertIsNone(total)
+        self.assertEqual(auditoria["situacao"], "NAO_COMPARAVEL")
+        self.assertEqual(auditoria["divergencias"], ["universo"])
+        self.assertEqual([item["grp"] for item in auditoria["componentes"]], [100, 50])
+
+    def test_grp_com_contextos_iguais_pode_ser_somado(self):
+        resultados = [SimpleNamespace(grp=100), SimpleNamespace(grp=50)]
+        contexto = {
+            "universo": "Adultos",
+            "publico_alvo": "18+",
+            "praca": "Brasil",
+            "inicio_referencia": "2026-07-01",
+            "fim_referencia": "2026-07-31",
+            "metrica_nativa": "GRP",
+            "metodologia": "Painel A",
+            "granularidade": "INVENTARIO",
+        }
+
+        total, auditoria = MediaPlanEngine.consolidar_grp(
+            resultados,
+            [contexto, contexto],
+        )
+
+        self.assertEqual(total, 150)
+        self.assertEqual(auditoria["situacao"], "COMPARAVEL")
+
     def test_modo_automatico_aplica_pisos_de_quantidade_e_verba(self):
         resultado = MediaPlanEngine.calcular_item(
             {
@@ -101,6 +210,10 @@ class TestMediaPlanEngine(unittest.TestCase):
 
         self.assertEqual(resultado.quantidade, 12)
         self.assertEqual(resultado.investimento, 6000)
+        self.assertEqual(
+            resultado.restricoes_ativas,
+            ("QUANTIDADE_MINIMA", "VERBA_MINIMA"),
+        )
 
     def test_modo_manual_rejeita_quantidade_abaixo_do_piso(self):
         with self.assertRaisesRegex(ValueError, "abaixo do piso"):
@@ -123,6 +236,158 @@ class TestMediaPlanEngine(unittest.TestCase):
             MediaPlanEngine.calcular_item(
                 {"alcance_percentual": 30, "frequencia": 2}, 10000, 100
             )
+
+    def test_reconcilia_preco_desconto_fees_e_total(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10,
+                "alcance_percentual": 20,
+                "frequencia": 1,
+                "unidade_compra": "Inserção",
+                "modo_calculo": "COMPRA",
+                "quantidade": 10,
+                "preco_tabela_unitario": 100,
+                "desconto_percentual": 10,
+                "fee_tecnologia_percentual": 5,
+                "fee_dados_fixo": 20,
+                "fee_verificacao_percentual": 1,
+                "fee_operacao_fixo": 10,
+            },
+            publico_referencia=10000,
+            preco_unitario=999,
+        )
+
+        self.assertEqual(resultado.preco_liquido_unitario, 90)
+        self.assertEqual(resultado.custo_midia, 900)
+        self.assertEqual(resultado.fee_tecnologia, 45)
+        self.assertEqual(resultado.fee_dados, 20)
+        self.assertEqual(resultado.fee_verificacao, 9)
+        self.assertEqual(resultado.fee_operacao, 10)
+        self.assertEqual(resultado.investimento, 984)
+        self.assertEqual(resultado.custo_total, 984)
+
+    def test_rejeita_desconto_invalido(self):
+        with self.assertRaisesRegex(ValueError, "desconto percentual"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 20,
+                    "frequencia": 1,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "COMPRA",
+                    "quantidade": 1,
+                    "preco_tabela_unitario": 100,
+                    "desconto_percentual": 101,
+                },
+                publico_referencia=10000,
+                preco_unitario=100,
+            )
+
+    def test_piso_de_verba_considera_fees_no_arredondamento(self):
+        resultado = MediaPlanEngine.calcular_item(
+            {
+                "audiencia_percentual": 10,
+                "alcance_percentual": 10,
+                "frequencia": 1,
+                "unidade_compra": "Inserção",
+                "modo_calculo": "METAS",
+                "verba_minima": 550,
+                "fee_operacao_fixo": 50,
+            },
+            publico_referencia=1000,
+            preco_unitario=100,
+        )
+
+        self.assertEqual(resultado.quantidade, 5)
+        self.assertEqual(resultado.custo_total, 550)
+        self.assertEqual(resultado.restricoes_ativas, ("VERBA_MINIMA",))
+
+    def test_meta_acima_do_teto_falha_sem_reduzir_quantidade(self):
+        with self.assertRaisesRegex(ValueError, "meta é inviável"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 50,
+                    "frequencia": 2,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "METAS",
+                    "quantidade_maxima": 5,
+                },
+                publico_referencia=1000,
+                preco_unitario=100,
+            )
+
+    def test_piso_maior_que_teto_falha_com_causa(self):
+        with self.assertRaisesRegex(ValueError, "piso de quantidade 10"):
+            MediaPlanEngine.calcular_item(
+                {
+                    "audiencia_percentual": 10,
+                    "alcance_percentual": 10,
+                    "frequencia": 1,
+                    "unidade_compra": "Inserção",
+                    "modo_calculo": "COMPRA",
+                    "quantidade": 10,
+                    "quantidade_minima": 10,
+                    "quantidade_maxima": 5,
+                },
+                publico_referencia=1000,
+                preco_unitario=100,
+            )
+
+
+class TestFrequencyDistributionEngine(unittest.TestCase):
+
+    def test_separa_subexposicao_faixa_e_sobre_exposicao(self):
+        resultado = FrequencyDistributionEngine.calcular(
+            {1: 60, 2: 45, 3: 30, 4: 10},
+            frequencia_minima_eficiente=2,
+            frequencia_maxima_eficiente=3,
+            alcance_total=60,
+        )
+
+        self.assertEqual(resultado["subexposta_percentual"], 15)
+        self.assertEqual(resultado["faixa_eficiente_percentual"], 35)
+        self.assertEqual(resultado["sobre_exposta_percentual"], 10)
+        self.assertEqual(
+            resultado["entre_alcancados"]["sobre_exposta_percentual"],
+            16.67,
+        )
+        self.assertIsNone(resultado["saturacao_economica"])
+
+    def test_rejeita_alcances_nao_monotonicos(self):
+        with self.assertRaisesRegex(ValueError, "não pode superar"):
+            FrequencyDistributionEngine.calcular(
+                {1: 60, 2: 45, 3: 50, 4: 10},
+                2,
+                3,
+            )
+
+    def test_media_plan_preserva_distribuicao_informada(self):
+        premissa = {
+            "inventario_id": "tv-1",
+            "audiencia_percentual": 10,
+            "alcance_percentual": 60,
+            "frequencia": 2,
+            "quantidade": 12,
+            "unidade_compra": "Inserção",
+            "alcances_frequencia": {1: 60, 2: 45, 3: 30, 4: 10},
+            "frequencia_minima_eficiente": 2,
+            "frequencia_maxima_eficiente": 3,
+        }
+
+        item = MediaPlanEngine.calcular_item(premissa, 10000, 100)
+        consolidado = MediaPlanEngine.consolidar([item], [premissa])
+
+        self.assertEqual(
+            item.distribuicao_frequencia["faixa_eficiente_percentual"],
+            35,
+        )
+        self.assertEqual(
+            consolidado["distribuicao_frequencia_por_meio"][0][
+                "inventario_id"
+            ],
+            "tv-1",
+        )
 
 
 class TestClassificacaoPapeisEngine(unittest.TestCase):
@@ -162,6 +427,57 @@ class TestScenarioEngine(unittest.TestCase):
 
         self.assertEqual(resumo["inventarios"], 0)
         self.assertEqual(resumo["score_medio"], 0)
+
+
+class TestSensitivityEngine(unittest.TestCase):
+
+    @staticmethod
+    def _plano():
+        item = SimpleNamespace(
+            inventario="Digital",
+            verba=1000,
+            impressoes_estimadas=100000,
+            cliques_estimados=2000,
+            conversoes_estimadas=100,
+            premissas={"ctr": 2, "taxa_conversao": 5},
+        )
+        return SimpleNamespace(itens=[item])
+
+    def test_aplica_premissas_explicitas_em_cadeia(self):
+        resultado = SensitivityEngine().simular(
+            self._plano(),
+            {
+                "CONSERVADOR": {
+                    "impressoes": -10,
+                    "ctr": -10,
+                    "taxa_conversao": -10,
+                },
+                "BASE": {},
+                "OTIMISTA": {
+                    "impressoes": 10,
+                    "ctr": 10,
+                    "taxa_conversao": 10,
+                },
+            },
+        )
+
+        self.assertEqual(resultado["BASE"]["conversoes"], 100)
+        self.assertEqual(resultado["CONSERVADOR"]["conversoes"], 72.9)
+        self.assertEqual(resultado["OTIMISTA"]["conversoes"], 133.1)
+        self.assertEqual(resultado["BASE"]["investimento"], 1000)
+        self.assertIn("não intervalo estatístico", resultado["BASE"]["limitacoes"][0])
+
+    def test_lacuna_bloqueia_apenas_resultado_dependente(self):
+        plano = self._plano()
+        plano.itens[0].premissas = {}
+        plano.itens[0].cliques_estimados = None
+        plano.itens[0].conversoes_estimadas = None
+
+        resultado = SensitivityEngine().simular(plano, {"BASE": {}})["BASE"]
+
+        self.assertEqual(resultado["impressoes"], 100000)
+        self.assertIsNone(resultado["cliques"])
+        self.assertIsNone(resultado["conversoes"])
 
 
 class TestForecastEngine(unittest.TestCase):
@@ -222,9 +538,38 @@ class TestForecastEngine(unittest.TestCase):
 
         self.assertEqual(resultado[0].alcance, 20000)
 
-    def test_ignora_inventario_sem_metrica(self):
+    def test_mantem_inventario_sem_inventar_metricas(self):
+        resultado = ForecastEngine().calcular(self.criar_plano(), [])
 
-        self.assertEqual(ForecastEngine().calcular(self.criar_plano(), []), [])
+        self.assertEqual(len(resultado), 1)
+        self.assertIsNone(resultado[0].impressoes)
+        self.assertIsNone(resultado[0].cliques)
+        self.assertIsNone(resultado[0].conversoes)
+        self.assertIn("CPM ou impressões do plano", resultado[0].lacunas)
+
+    def test_metricas_nulas_sao_tratadas_como_ausentes(self):
+        resultado = ForecastEngine().calcular(self.criar_plano(), None)
+
+        self.assertEqual(len(resultado), 1)
+        self.assertIsNone(resultado[0].impressoes)
+        self.assertIn("CPM ou impressões do plano", resultado[0].lacunas)
+
+    def test_zero_explicito_nao_vira_default(self):
+        resultado = ForecastEngine().calcular(
+            self.criar_plano(),
+            [{
+                "inventario": "TV",
+                "cpm": 10,
+                "ctr": 0,
+                "taxa_conversao": 0,
+                "frequencia_media": 2,
+            }],
+        )
+
+        self.assertEqual(resultado[0].cliques, 0)
+        self.assertEqual(resultado[0].conversoes, 0)
+        self.assertIsNone(resultado[0].cpc)
+        self.assertIsNone(resultado[0].cpa)
 
 
 class TestInsightsEngine(unittest.TestCase):
@@ -282,22 +627,183 @@ class TestBudgetOptimizer(unittest.TestCase):
         self.assertEqual(resultado["verba_distribuida"], 900)
         self.assertEqual(resultado["reserva_testes"], 100)
         self.assertEqual(resultado["itens"][0]["percentual"], 100)
+        self.assertEqual(resultado["metodo_alocacao"], "ALOCACAO_HEURISTICA")
+        self.assertFalse(resultado["otimo_comprovado"])
+        self.assertTrue(resultado["limitacoes"])
+        self.assertEqual(resultado["condicao_viabilidade"], "VIAVEL")
+        self.assertEqual(resultado["saldo_orcamento"], 0)
 
-    def test_retorna_vazio_quando_nao_ha_score(self):
 
-        resultado = BudgetOptimizer().otimizar(
-            [
-                {
-                    "inventario": "TV",
-                    "ambiente": "Vídeo",
-                    "plataforma": "Aberta",
-                    "score": 0,
-                }
-            ],
+    RANKING = [
+        {
+            "inventario": "TV",
+            "ambiente": "Vídeo",
+            "plataforma": "Aberta",
+            "score": 100,
+        },
+        {
+            "inventario": "Display",
+            "ambiente": "Display",
+            "plataforma": "Digital",
+            "score": 60,
+        },
+        {
+            "inventario": "Social",
+            "ambiente": "Social",
+            "plataforma": "Digital",
+            "score": 40,
+        },
+    ]
+
+    def test_encontra_otimo_respeitando_limite_de_ambiente(self):
+        resultado = LinearBudgetSolver().otimizar(
+            self.RANKING,
             verba_total=1000,
+            maximo_ambiente={"Vídeo": 600},
+            minimo_plataforma={"Digital": 400},
         )
 
-        self.assertEqual(resultado, [])
+        por_nome = {
+            item["inventario"]: item["verba"]
+            for item in resultado["itens"]
+        }
+        self.assertEqual(por_nome["TV"], 600)
+        self.assertEqual(por_nome["Display"], 400)
+        self.assertEqual(por_nome["Social"], 0)
+        self.assertEqual(resultado["verba_distribuida"], 1000)
+        self.assertTrue(resultado["otimo_comprovado"])
+        self.assertEqual(resultado["metodo_alocacao"], "SOLVER_LINEAR_HIGHS")
+        self.assertEqual(resultado["condicao_viabilidade"], "VIAVEL")
+
+    def test_inviabilidade_e_reportada_pelo_solver(self):
+        with self.assertRaisesRegex(ValueError, "inviável ou não resolvida"):
+            LinearBudgetSolver().otimizar(
+                self.RANKING,
+                verba_total=1000,
+                minimo_ambiente={"Vídeo": 700, "Display": 400},
+            )
+
+    def test_maximiza_conversoes_com_coeficientes_auditaveis(self):
+        ranking = [
+            {
+                **self.RANKING[0],
+                "investimento_referencia": 500,
+                "conversoes_estimadas": 5,
+            },
+            {
+                **self.RANKING[1],
+                "investimento_referencia": 500,
+                "conversoes_estimadas": 20,
+            },
+        ]
+
+        resultado = LinearBudgetSolver().otimizar(
+            ranking,
+            verba_total=1000,
+            funcao_objetivo="CONVERSOES",
+        )
+
+        por_nome = {
+            item["inventario"]: item["verba"]
+            for item in resultado["itens"]
+        }
+        self.assertEqual(por_nome["TV"], 0)
+        self.assertEqual(por_nome["Display"], 1000)
+        self.assertEqual(resultado["funcao_objetivo"], "CONVERSOES")
+        self.assertIn("extrapoladas linearmente", resultado["limitacoes"][1])
+
+    def test_conversoes_bloqueia_coeficiente_ausente(self):
+        with self.assertRaisesRegex(ValueError, "exige conversões estimadas"):
+            LinearBudgetSolver().otimizar(
+                self.RANKING,
+                verba_total=1000,
+                funcao_objetivo="CONVERSOES",
+            )
+
+    def test_falha_quando_nao_ha_score_positivo(self):
+
+        with self.assertRaisesRegex(ValueError, "nenhum inventário elegível"):
+            BudgetOptimizer().otimizar(
+                [
+                    {
+                        "inventario": "TV",
+                        "ambiente": "Vídeo",
+                        "plataforma": "Aberta",
+                        "score": 0,
+                    }
+                ],
+                verba_total=1000,
+            )
+
+    def test_excluido_nao_recebe_verba(self):
+        ranking = [
+            {
+                "inventario": "TV",
+                "ambiente": "Vídeo",
+                "plataforma": "Aberta",
+                "score": 100,
+            },
+            {
+                "inventario": "Rádio",
+                "ambiente": "Áudio",
+                "plataforma": "FM",
+                "score": 50,
+            },
+        ]
+
+        resultado = BudgetOptimizer().otimizar(
+            ranking,
+            verba_total=1000,
+            excluidos=["TV"],
+        )
+
+        self.assertEqual(
+            [item["inventario"] for item in resultado["itens"]],
+            ["Rádio"],
+        )
+        self.assertEqual(
+            resultado["diagnostico_viabilidade"]["excluidos"][0]["motivos"],
+            ["inventário proibido"],
+        )
+
+    def test_obrigatorio_ausente_impede_alocacao(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "inventários obrigatórios ausentes: Rádio",
+        ):
+            BudgetOptimizer().otimizar(
+                [
+                    {
+                        "inventario": "TV",
+                        "ambiente": "Vídeo",
+                        "plataforma": "Aberta",
+                        "score": 100,
+                    }
+                ],
+                verba_total=1000,
+                obrigatorios=["Rádio"],
+            )
+
+    def test_obrigatorio_sem_score_positivo_impede_alocacao(self):
+        with self.assertRaisesRegex(ValueError, "obrigatórios sem score positivo"):
+            BudgetOptimizer().otimizar(
+                [
+                    {
+                        "inventario": "TV",
+                        "ambiente": "Vídeo",
+                        "plataforma": "Aberta",
+                        "score": 0,
+                    },
+                    {
+                        "inventario": "Rádio",
+                        "ambiente": "Áudio",
+                        "plataforma": "FM",
+                        "score": 100,
+                    },
+                ],
+                verba_total=1000,
+                obrigatorios=["TV"],
+            )
 
 
 class TestScoreEngine(unittest.TestCase):
@@ -409,6 +915,42 @@ class TestInventoryEngine(unittest.TestCase):
         self.assertEqual(item["score_mcp"], 95)
         self.assertEqual(item["preco_unitario"], 18)
 
+    def test_inventario_proibido_nunca_entra_no_ranking(self):
+        contexto = self.contexto_base()
+        segundo = dict(contexto["inventarios"][0])
+        segundo.update(
+            {
+                "id": "inventario-2",
+                "nome": "Rádio",
+                "plataformas_v3": {"nome": "FM"},
+                "ambientes_v3": {"nome": "Áudio"},
+            }
+        )
+        contexto["inventarios"].append(segundo)
+        contexto["briefing"]["inventarios_proibidos"] = ["inventario-1"]
+
+        engine = InventoryEngine()
+        resultado = engine.calcular(contexto)
+
+        self.assertEqual(
+            [item["inventario_id"] for item in resultado],
+            ["inventario-2"],
+        )
+        self.assertEqual(
+            engine.ultimo_diagnostico.excluidos[0].motivos,
+            ("inventário proibido",),
+        )
+
+    def test_obrigatorio_indisponivel_falha_com_diagnostico(self):
+        contexto = self.contexto_base()
+        contexto["briefing"]["inventarios_obrigatorios"] = ["inventario-2"]
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "inventários obrigatórios ausentes: inventario-2",
+        ):
+            InventoryEngine().calcular(contexto)
+
     def test_calcula_e_ordena_inventarios(self):
 
         contexto = {
@@ -464,6 +1006,85 @@ class TestInventoryEngine(unittest.TestCase):
         self.assertEqual(resultado[0]["inventario"], "TV")
         self.assertEqual(resultado[0]["papel"], "PRINCIPAL")
         self.assertEqual(resultado[0]["audiencia"], 100)
+
+
+class TestPerformanceDiagnosisEngine(unittest.TestCase):
+
+    @staticmethod
+    def _entradas(inicio=None, fim=None):
+        inicio = inicio or date(2026, 7, 1)
+        fim = fim or date(2026, 7, 31)
+        item_plano = SimpleNamespace(
+            inventario="TV",
+            inventario_id="tv-1",
+            verba=1000,
+            impressoes_estimadas=100000,
+            cliques_estimados=1000,
+            conversoes_estimadas=100,
+            premissas={},
+        )
+        plano = SimpleNamespace(
+            inicio=date(2026, 7, 1),
+            fim=date(2026, 7, 31),
+            itens=[item_plano],
+        )
+        forecast = Forecast(itens=[
+            ForecastItem(
+                inventario="TV",
+                verba=1000,
+                impressoes=90000,
+                alcance=30000,
+                cliques=900,
+                conversoes=90,
+                ctr=1,
+                cpm=11.11,
+                cpc=1.11,
+                cpa=11.11,
+            )
+        ])
+        realizado = RealizadoPlano(
+            fonte="Relatório do veículo",
+            inicio=inicio,
+            fim=fim,
+            itens=[
+                RealizadoItem(
+                    inventario="TV",
+                    inventario_id="tv-1",
+                    investimento=1000,
+                    impressoes=80000,
+                    cliques=800,
+                    conversoes=80,
+                )
+            ],
+        )
+        return plano, forecast, realizado
+
+    def test_compara_tres_estados_no_mesmo_periodo(self):
+        resultado = PerformanceDiagnosisEngine().comparar(*self._entradas())
+        conversoes = next(
+            item for item in resultado["linhas"]
+            if item["metrica"] == "conversoes"
+        )
+
+        self.assertEqual(resultado["situacao_comparabilidade"], "COMPARAVEL")
+        self.assertEqual(conversoes["planejado"], 100)
+        self.assertEqual(conversoes["forecast"], 90)
+        self.assertEqual(conversoes["realizado"], 80)
+        self.assertEqual(conversoes["desvio_planejado_percentual"], -20)
+        self.assertEqual(conversoes["desvio_forecast_percentual"], -11.11)
+
+    def test_periodo_parcial_nao_produz_desvio(self):
+        entradas = self._entradas(fim=date(2026, 7, 15))
+        resultado = PerformanceDiagnosisEngine().comparar(*entradas)
+
+        self.assertEqual(
+            resultado["situacao_comparabilidade"],
+            "NAO_COMPARAVEL",
+        )
+        self.assertTrue(all(
+            item["desvio_planejado_percentual"] is None
+            for item in resultado["linhas"]
+        ))
 
 
 class TestRecommendationEngine(unittest.TestCase):

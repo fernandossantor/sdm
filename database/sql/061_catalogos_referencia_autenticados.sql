@@ -1,0 +1,4 @@
+-- Fonte canônica:
+-- ../../supabase/migrations/20260727070000_catalogos_referencia_autenticados.sql
+--
+-- Mantido como índice para a sequência histórica em database/sql.
