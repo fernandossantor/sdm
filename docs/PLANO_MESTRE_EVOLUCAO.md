@@ -667,3 +667,18 @@ base de dados versionada, recuperável e metodologicamente consistente.
 
 Próximo bloqueio: concluir o backup e o ensaio de restauração da Fase 0 antes
 de criar ou aplicar a migration aditiva do catálogo de métricas.
+
+### 26 de julho de 2026 — Fase 0, backup e restauração
+
+- backup de esquema, dados, dados públicos e papéis gerado fora do repositório;
+- checksums SHA-256 calculados;
+- esquema restaurado em PostgreSQL 17 isolado;
+- 83 tabelas públicas e 93 chaves estrangeiras verificadas;
+- dados da aplicação restaurados e contagens materiais conferidas;
+- identificada a necessidade de restauração administrativa separada para
+  tabelas internas do Storage;
+- identificada a ausência do esquema-base nas migrations versionadas.
+
+O procedimento e as pendências estão em `BACKUP_RESTAURACAO.md`. A migration
+aditiva da Fase 1 pode ser preparada localmente, mas sua aplicação remota ainda
+depende da cópia durável do backup em armazenamento privado.
