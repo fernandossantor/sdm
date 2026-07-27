@@ -83,6 +83,7 @@ class TestArquitetura(unittest.TestCase):
             "O espaço de um registro não pode ser alterado",
             "grant update (nome, atualizado_em)",
             "revoke execute on function public.proximo_codigo_copia",
+            "create or replace function public.confirmar_troca_senha",
         ):
             self.assertIn(controle, migration)
         self.assertNotIn(

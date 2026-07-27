@@ -358,6 +358,27 @@ grant select, insert, update, delete on public.planejamentos to authenticated;
 grant select, insert, update, delete on public.artefatos_workflow to authenticated;
 grant select on public.versoes_planejamento to authenticated;
 
+create or replace function public.confirmar_troca_senha()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    if auth.uid() is null then
+        raise exception 'Autenticação obrigatória';
+    end if;
+    update public.perfis_usuarios
+    set trocar_senha = false, atualizado_em = now()
+    where id = auth.uid() and ativo;
+    if not found then
+        raise exception 'Perfil ativo não encontrado';
+    end if;
+end;
+$$;
+revoke execute on function public.confirmar_troca_senha() from public, anon;
+grant execute on function public.confirmar_troca_senha() to authenticated;
+
 -- A reserva de códigos é SECURITY DEFINER e ainda não valida o espaço de
 -- origem. Até sua substituição por uma RPC contextual, apenas operações
 -- administrativas explícitas podem executá-la.

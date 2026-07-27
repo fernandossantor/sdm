@@ -11,6 +11,8 @@ from components.home.projects_card import render as projects_card
 from components.home.knowledge_card import render as knowledge_card
 from components.active_context import render as active_context
 from components.page_config import PAGE_ICON, PAGE_TITLE
+from components.auth_gate import render as auth_gate
+from application.services.auth_service import AuthService, autenticacao_habilitada
 from infrastructure.database.data_client import (
     bind_authenticated_client,
     clear_request_client,
@@ -18,11 +20,6 @@ from infrastructure.database.data_client import (
 
 
 LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
-
-clear_request_client()
-if st.session_state.get("auth_access_token"):
-    bind_authenticated_client(st.session_state["auth_access_token"])
-
 
 # ==========================================================
 # CONFIGURAÇÃO
@@ -39,6 +36,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 
 )
+
+clear_request_client()
+if autenticacao_habilitada():
+    if not auth_gate():
+        st.stop()
+    bind_authenticated_client(st.session_state["auth_access_token"])
+elif st.session_state.get("auth_access_token"):
+    bind_authenticated_client(st.session_state["auth_access_token"])
 
 def pagina_inicial():
 
@@ -114,6 +119,12 @@ navegacao = st.navigation(
 with st.sidebar:
     st.image(LOGO_PLANOS, width="stretch")
     st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
+    if autenticacao_habilitada():
+        st.caption(st.session_state.get("auth_email") or "Usuário autenticado")
+        if st.button("Sair", use_container_width=True):
+            AuthService().sair(st.session_state)
+            clear_request_client()
+            st.rerun()
     active_context()
     if st.session_state.get("projeto_nome"):
         st.caption(f"Projeto ativo: {st.session_state['projeto_nome']}")

@@ -27,7 +27,12 @@ def _configuracao_publica():
 
 @lru_cache(maxsize=1)
 def get_public_client():
-    """Cliente público usado somente para autenticação."""
+    """Cliente anônimo compartilhado, sem estado de autenticação."""
+    return create_client(*_configuracao_publica())
+
+
+def create_auth_client():
+    """Cria cliente isolado para não compartilhar sessão entre usuários."""
     return create_client(*_configuracao_publica())
 
 
@@ -35,7 +40,7 @@ def create_authenticated_client(access_token):
     """Cria cliente PostgREST com o JWT do usuário, sem usar service_role."""
     if not str(access_token or "").strip():
         raise ValueError("Token de acesso do usuário é obrigatório.")
-    cliente = create_client(*_configuracao_publica())
+    cliente = create_auth_client()
     cliente.postgrest.auth(str(access_token))
     return cliente
 

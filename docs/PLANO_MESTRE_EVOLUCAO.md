@@ -923,5 +923,9 @@ depende da cópia durável do backup em armazenamento privado.
   diretamente no fluxo comum;
 - a RPC legada de cópia fica reservada ao `service_role` até ganhar validação
   contextual de espaço;
-- aplicação remota permanece bloqueada até novo backup, RPC de cópia segura e
-  implementação de login/sessão.
+- login, renovação, logout e troca obrigatória da senha temporária foram
+  preparados sob `PLANOS_AUTH_ENABLED`, desligado por padrão;
+- cada login usa cliente isolado, em conformidade com Supabase Auth e gestão
+  de sessões recomendada pela OWASP;
+- aplicação remota permanece bloqueada até novo backup, RPC de cópia segura,
+  validação SQL local e teste controlado de autenticação.

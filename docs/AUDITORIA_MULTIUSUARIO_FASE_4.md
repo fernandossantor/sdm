@@ -64,6 +64,26 @@ o fluxo autenticado de cópia só será habilitado depois de uma RPC contextual,
 com autorização por espaço. Essa restrição evita trocar o bypass do cliente
 administrativo por um bypass dentro do banco.
 
+## Login e sessão preparados
+
+- o login aceita somente contas previamente criadas; não há cadastro público;
+- cada autenticação usa um cliente Supabase isolado, evitando estado global
+  compartilhado entre sessões Streamlit;
+- tokens ficam apenas na sessão do servidor e são renovados perto da expiração;
+- logout invalida a sessão no provedor e remove os dados locais;
+- contas inativas são recusadas;
+- `trocar_senha=true` bloqueia a navegação até a definição de uma senha nova;
+- a RPC contextual `confirmar_troca_senha()` só altera o perfil de `auth.uid()`;
+- a interface inteira permanece atrás de `PLANOS_AUTH_ENABLED`, desabilitada
+  por padrão até a migração e os testes remotos controlados.
+
+As escolhas foram confrontadas com a documentação oficial do
+[Supabase Auth para Python](https://supabase.com/docs/reference/python/auth-signinwithpassword),
+do [uso de JWT com RLS](https://supabase.com/docs/guides/auth/jwts) e com o
+[guia de sessões da OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
+Elas sustentam o uso do JWT do usuário nas políticas, a renovação por sessão,
+o logout visível e a não persistência do token em armazenamento do navegador.
+
 ## Validação local
 
 - migration executada duas vezes no PostgreSQL isolado sem erro;
@@ -78,3 +98,5 @@ administrativo por um bypass dentro do banco.
 - todos os registros e identidades de teste foram revertidos por `rollback`.
 - testes unitários confirmaram aplicação do JWT, isolamento do contexto,
   fallback transitório e injeção de cliente nos repositories.
+- login, renovação, expiração, senha temporária e limpeza local também foram
+  cobertos por testes unitários, ainda sem ativação na implantação.
