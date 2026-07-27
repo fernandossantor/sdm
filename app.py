@@ -1,4 +1,5 @@
 import streamlit as st
+from dotenv import load_dotenv
 from pathlib import Path
 
 from application.services.workflow_service import (
@@ -23,6 +24,9 @@ from infrastructure.database.workspace_context import clear_workspace
 
 
 LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
+# Streamlit não carrega automaticamente o arquivo .env. Isso precisa ocorrer
+# antes da validação e da decisão de renderizar o portão de autenticação.
+load_dotenv()
 RuntimeConfigService.validar()
 
 # ==========================================================
