@@ -897,3 +897,13 @@ depende da cópia durável do backup em armazenamento privado.
 - comparação pode ser salva como artefato auditável do projeto;
 - diferenças são descritivas e não alegam causalidade, incrementalidade ou
   atribuição.
+
+### 27 de julho de 2026 — Encerramento da Fase 3
+
+- solver, funções objetivo, frequência efetiva, sensibilidade e realizado
+  integram um pipeline auditável;
+- revisão acadêmica e mercadológica foi incorporada às decisões e limitações;
+- suíte offline encerrada com 104 testes aprovados e 3 integrações opcionais
+  desabilitadas por padrão;
+- próxima etapa condicionada ao plano de migração multiusuário, backup e testes
+  de isolamento por RLS.
