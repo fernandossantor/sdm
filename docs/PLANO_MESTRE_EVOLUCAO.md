@@ -609,7 +609,8 @@ Saída: plano completo, não apenas cálculo tático.
 Status: iniciada em 27 de julho de 2026. Auditoria e referências registradas em
 `REVISAO_REFERENCIAS_FASE_6.md`; briefing, racional e mapas/cronogramas estão
 concluídos. Atribuição auditável também foi implementada; qualidade
-programática e localização formam o próximo incremento.
+programática e localização também estão concluídas. Relatórios e comparação de
+versões formam o próximo incremento.
 
 ### Fase 7 — Homologação e publicação
 
@@ -1172,3 +1173,18 @@ depende da cópia durável do backup em armazenamento privado.
   incrementalidade;
 - suíte offline ampliada para 140 testes aprovados e 3 integrações opcionais;
 - próxima entrega: qualidade programática e localização.
+
+### 27 de julho de 2026 — Qualidade programática e localização
+
+- viewability, tráfego inválido, fraude, brand safety e brand suitability são
+  dimensões independentes, sem índice composto arbitrário;
+- qualquer dimensão informada exige fonte e período válido;
+- localização exige fonte do sinal, precisão, raio, período, finalidade, base
+  legal, método de associação, confiança e natureza da visita;
+- visita observada e inferida permanecem distintas;
+- localização não aplicável não cria uma falsa lacuna; registros parciais são
+  marcados como incompletos;
+- análises podem ser salvas como artefatos versionados do projeto;
+- guia de uso passa a explicar atribuição, qualidade e localização;
+- suíte offline ampliada para 145 testes aprovados e 3 integrações opcionais;
+- próxima entrega: relatórios completos e comparação histórica de versões.

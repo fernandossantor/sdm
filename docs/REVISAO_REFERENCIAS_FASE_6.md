@@ -74,6 +74,15 @@ Consequências:
   declarada;
 - nenhum índice composto será criado sem componentes e pesos visíveis.
 
+Estado implementado:
+
+- dimensões de qualidade permanecem separadas e exigem fonte e período;
+- localização parcial é marcada como incompleta, enquanto localização não
+  aplicável não gera uma lacuna artificial;
+- visita observada e inferida são categorias distintas;
+- análises registram limitações e podem ser preservadas como artefatos do
+  projeto.
+
 ## Estado auditado
 
 | Bloco | Estado inicial | Principal lacuna |

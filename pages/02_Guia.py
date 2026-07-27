@@ -64,6 +64,8 @@ analises = {
     "Cenários e Sensibilidade": "Mantém plano e investimento fixos e aplica variações explícitas a impressões, CTR e taxa de conversão. Conservador, base e otimista são hipóteses editáveis, não benchmarks universais nem intervalos estatísticos.",
     "Otimização de Verba": "Use o solver linear para maximizar aderência ou conversões sob pisos, tetos, limites por ambiente/plataforma e reserva para testes. Conversões exigem resultados auditáveis do plano e usam extrapolação linear identificada. A simulação proporcional permanece disponível como benchmark heurístico.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",
+    "Atribuição": "Distribui crédito por regras entre eventos elegíveis dentro de uma janela explícita. Receita atribuída não representa incrementalidade.",
+    "Qualidade e Localização": "Documenta viewability, tráfego inválido, fraude, brand safety, suitability e proveniência geográfica sem criar um índice composto opaco.",
 }
 for nome, descricao in analises.items():
     with st.expander(nome):
