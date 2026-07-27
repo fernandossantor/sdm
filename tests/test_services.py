@@ -6,8 +6,10 @@ from application.services.scenario_service import ScenarioService
 from application.services.workflow_service import WorkflowService
 from application.services.planejamento_service import PlanejamentoService
 from application.services.exportacao_service import ExportacaoService
+from application.services.forecast_service import ForecastService
 from datetime import date
 from domain.models.plano_estrategico import PlanoEstrategico, PlanoItem
+from domain.models.forecast import Forecast, ForecastItem
 from infrastructure.database import admin_client
 from infrastructure.repositories.decision_repository import DecisionRepository
 from infrastructure.repositories.planning_repository import PlanningRepository
@@ -73,15 +75,28 @@ class TestPlanejamentoService(unittest.TestCase):
                 score_mcp=85, preco_unitario=10, unidade_compra="Mil impressões",
             )
         )
+        plano.resultados_consolidados = {
+            "investimento": 1000,
+            "alcance_liquido_percentual": 60,
+            "fees": {"operacao": 0},
+        }
 
         tabelas = ExportacaoService().tabelas(plano)
 
         self.assertEqual(
-            set(tabelas), {"Resumo", "Plano", "Cronograma", "KPIs", "Observações"}
+            set(tabelas),
+            {
+                "Resumo", "Resultados", "Plano", "Cronograma", "KPIs",
+                "Observações",
+            },
         )
         self.assertIn("Score do papel", tabelas["Plano"].columns)
         self.assertIn("GRP", tabelas["Plano"].columns)
         self.assertIn("Preço unitário", tabelas["Plano"].columns)
+        self.assertEqual(
+            set(tabelas["Resultados"]["Métrica"]),
+            {"investimento", "alcance_liquido_percentual", "fees.operacao"},
+        )
         self.assertEqual(
             list(tabelas["Plano"].columns[:9]),
             [
@@ -220,6 +235,64 @@ class TestPlanejamentoService(unittest.TestCase):
                  "roi": 0, "jornada": 0, "sobre_exposicao": 0, "investimento": 0}
         resultado = ComparadorService().comparar_configuravel(plano_a, plano_b, pesos)
         self.assertEqual(resultado["vencedor"], "Plano A")
+
+
+class TestForecastService(unittest.TestCase):
+
+    @staticmethod
+    def _item(nome, verba, impressoes, alcance, cliques, conversoes):
+        return ForecastItem(
+            inventario=nome,
+            verba=verba,
+            impressoes=impressoes,
+            alcance=alcance,
+            cliques=cliques,
+            conversoes=conversoes,
+            ctr=None,
+            cpm=None,
+            cpc=None,
+            cpa=None,
+        )
+
+    def test_resumo_prioriza_consolidado_cross_media(self):
+        service = ForecastService()
+        service.gerar_itens = Mock(return_value=[
+            self._item("TV", 100, 600, 500, 60, 6),
+            self._item("Digital", 200, 400, 500, 40, 4),
+        ])
+        plano = SimpleNamespace(
+            resultados_consolidados={
+                "investimento": 300,
+                "impressoes": 1000,
+                "cliques": 100,
+                "conversoes": 10,
+                "alcance_liquido_percentual": 60,
+                "frequencia_combinada": 1.67,
+                "grp_total": 100,
+            },
+            publico_referencia=1000,
+        )
+
+        resumo = service.resumo(service.gerar(plano, []))
+
+        self.assertEqual(resumo["alcance"], 600)
+        self.assertEqual(resumo["ctr"], 10)
+        self.assertEqual(resumo["cpm"], 300)
+        self.assertEqual(resumo["cpc"], 3)
+        self.assertEqual(resumo["cpa"], 30)
+        self.assertEqual(resumo["origem"], "PLANO_CROSS_MEDIA")
+
+    def test_legado_nao_soma_total_parcial(self):
+        forecast = Forecast(itens=[
+            self._item("TV", 100, 1000, 500, 10, 1),
+            self._item("Digital", 100, None, None, None, None),
+        ])
+
+        self.assertIsNone(forecast.impressoes)
+        self.assertIsNone(forecast.alcance)
+        self.assertIsNone(forecast.cliques)
+        self.assertIsNone(forecast.conversoes)
+        self.assertIsNone(forecast.cpm_medio)
 
 
 class TestPlanningRepository(unittest.TestCase):

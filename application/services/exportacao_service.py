@@ -1,9 +1,31 @@
 from pathlib import Path
+import json
 
 import pandas as pd
 
 
 class ExportacaoService:
+
+    @staticmethod
+    def _resultados_estruturados(resultados):
+        linhas = []
+
+        def adicionar(prefixo, valor):
+            if isinstance(valor, dict):
+                for chave, item in valor.items():
+                    adicionar(f"{prefixo}.{chave}" if prefixo else chave, item)
+            else:
+                linhas.append({
+                    "Métrica": prefixo,
+                    "Valor": (
+                        json.dumps(valor, ensure_ascii=False, default=str)
+                        if isinstance(valor, (list, tuple))
+                        else valor
+                    ),
+                })
+
+        adicionar("", resultados or {})
+        return pd.DataFrame(linhas, columns=["Métrica", "Valor"])
 
     # =====================================================
     # DATAFRAME
@@ -86,7 +108,6 @@ class ExportacaoService:
                 {"Campo": "Meta de alcance", "Valor": plano.alcance_meta},
                 {"Campo": "Alcance projetado", "Valor": plano.alcance_projetado},
                 {"Campo": "Estratégia", "Valor": plano.estrategia},
-                {"Campo": "Resultados consolidados", "Valor": plano.resultados_consolidados},
                 {"Campo": "Auditoria do cálculo", "Valor": plano.auditoria_calculo},
             ]
         )
@@ -97,6 +118,9 @@ class ExportacaoService:
         )
         return {
             "Resumo": resumo,
+            "Resultados": self._resultados_estruturados(
+                plano.resultados_consolidados
+            ),
             "Plano": self.dataframe(plano),
             "Cronograma": cronograma,
             "KPIs": kpis,

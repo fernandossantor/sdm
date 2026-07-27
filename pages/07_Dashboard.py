@@ -67,7 +67,7 @@ if st.button(
 
     plano = origem["plano"]
 
-    forecast = forecast_service.gerar_itens(plano)
+    forecast = forecast_service.gerar(plano, contexto_service.metricas())
 
     st.session_state["dashboard_plano"] = plano
 
@@ -108,6 +108,7 @@ if (
     plano = st.session_state["dashboard_plano"]
 
     forecast = st.session_state["dashboard_forecast"]
+    resumo = forecast_service.resumo(forecast)
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -131,15 +132,7 @@ if (
 
         "Conversões",
 
-        numero_ptbr(
-            sum(
-                f.conversoes
-                for f in forecast
-                if f.conversoes is not None
-            )
-            if any(f.conversoes is not None for f in forecast)
-            else None
-        )
+        numero_ptbr(resumo["conversoes"])
 
     )
 
@@ -147,11 +140,7 @@ if (
 
         "Cliques",
 
-        numero_ptbr(
-            sum(f.cliques for f in forecast if f.cliques is not None)
-            if any(f.cliques is not None for f in forecast)
-            else None
-        )
+        numero_ptbr(resumo["cliques"])
 
     )
 
@@ -263,7 +252,7 @@ if (
 
             }
 
-            for f in forecast
+            for f in forecast.itens
 
         ]
 
@@ -291,7 +280,7 @@ if (
 
         plano,
 
-        forecast
+        forecast.itens
 
     ):
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 # ==========================================================
@@ -40,6 +40,7 @@ class ForecastItem:
 class Forecast:
 
     itens: List[ForecastItem] = field(default_factory=list)
+    consolidado: Dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------
 
@@ -61,77 +62,87 @@ class Forecast:
 
     @property
     def verba_total(self):
+        valor = self.consolidado.get("investimento")
+        if valor is not None:
+            return round(float(valor), 2)
+        return round(sum(i.verba for i in self.itens), 2)
 
-        return round(
-
-            sum(
-
-                i.verba
-
-                for i in self.itens
-
-            ),
-
-            2
-
-        )
+    def _total(self, campo):
+        valor = self.consolidado.get(campo)
+        if valor is not None:
+            return valor
+        valores = [getattr(item, campo) for item in self.itens]
+        if not valores or any(item is None for item in valores):
+            return None
+        return sum(valores)
 
     # ------------------------------------------------------
 
     @property
     def impressoes(self):
-        valores = [i.impressoes for i in self.itens if i.impressoes is not None]
-        return sum(valores) if valores else None
+        return self._total("impressoes")
 
     # ------------------------------------------------------
 
     @property
     def alcance(self):
-        valores = [i.alcance for i in self.itens if i.alcance is not None]
-        return sum(valores) if valores else None
+        valor = self.consolidado.get("alcance_liquido_pessoas")
+        if valor is not None:
+            return valor
+        return self._total("alcance")
 
     # ------------------------------------------------------
 
     @property
     def cliques(self):
-        valores = [i.cliques for i in self.itens if i.cliques is not None]
-        return sum(valores) if valores else None
+        return self._total("cliques")
 
     # ------------------------------------------------------
 
     @property
     def conversoes(self):
-        valores = [i.conversoes for i in self.itens if i.conversoes is not None]
-        return sum(valores) if valores else None
+        return self._total("conversoes")
 
     # ------------------------------------------------------
 
     @property
     def ctr_medio(self):
-
-        valores = [i.ctr for i in self.itens if i.ctr is not None]
-        return round(sum(valores) / len(valores), 2) if valores else None
+        if self.impressoes is None or self.cliques is None:
+            return None
+        return (
+            round(self.cliques / self.impressoes * 100, 2)
+            if self.impressoes
+            else None
+        )
 
     # ------------------------------------------------------
 
     @property
     def cpm_medio(self):
-
-        valores = [i.cpm for i in self.itens if i.cpm is not None]
-        return round(sum(valores) / len(valores), 2) if valores else None
+        if self.impressoes is None:
+            return None
+        return (
+            round(self.verba_total * 1000 / self.impressoes, 2)
+            if self.impressoes
+            else None
+        )
 
     # ------------------------------------------------------
 
     @property
     def cpc_medio(self):
-
-        valores = [i.cpc for i in self.itens if i.cpc is not None]
-        return round(sum(valores) / len(valores), 2) if valores else None
+        if self.cliques is None:
+            return None
+        return round(self.verba_total / self.cliques, 2) if self.cliques else None
 
     # ------------------------------------------------------
 
     @property
     def cpa_medio(self):
-
-        valores = [i.cpa for i in self.itens if i.cpa is not None]
-        return round(sum(valores) / len(valores), 2) if valores else None
+        if self.conversoes is None:
+            return None
+        return (
+            round(self.verba_total / self.conversoes, 2)
+            if self.conversoes
+            else None
+        )

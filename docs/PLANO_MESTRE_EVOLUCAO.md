@@ -810,3 +810,20 @@ depende da cópia durável do backup em armazenamento privado.
 - obrigatório sem score positivo e conjunto sem peso viável falham com causa;
 - mensagens, guia e navegação adotam “Simulação Heurística de Verba”;
 - suíte offline ampliada para 88 testes e regressão conectada aprovadas.
+
+### 27 de julho de 2026 — Fase 2, sobre-exposição sem falsa saturação
+
+- frequência acima do limite passa a ser nomeada como sobre-exposição;
+- saturação econômica fica explicitamente indisponível sem curva calibrada;
+- o comparador deixa de interpretar métrica ausente como zero;
+- snapshots antigos com `risco_saturacao` continuam legíveis;
+- interface, guia e modelo cross-media adotam a mesma semântica.
+
+### 27 de julho de 2026 — Fase 2, plano, forecast e exportação reconciliados
+
+- totais do forecast passam a priorizar o consolidado auditável do plano;
+- alcance líquido deixa de ser substituído pela soma dos alcances dos meios;
+- CTR, CPM, CPC e CPA consolidados passam a usar razões sobre os totais;
+- forecast legado não soma resultados parciais quando algum item está ausente;
+- dashboard usa o mesmo contrato agregado da página de forecast;
+- exportação ganha aba estruturada para resultados consolidados.

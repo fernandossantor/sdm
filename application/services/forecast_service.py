@@ -38,7 +38,14 @@ class ForecastService:
 
         itens = self.gerar_itens(plano, metricas)
 
-        forecast = Forecast()
+        consolidado = dict(getattr(plano, "resultados_consolidados", None) or {})
+        alcance_percentual = consolidado.get("alcance_liquido_percentual")
+        publico = getattr(plano, "publico_referencia", None)
+        if alcance_percentual is not None and publico is not None:
+            consolidado["alcance_liquido_pessoas"] = round(
+                float(publico) * float(alcance_percentual) / 100
+            )
+        forecast = Forecast(consolidado=consolidado)
 
         for item in itens:
 
@@ -80,7 +87,17 @@ class ForecastService:
 
             "cpc": forecast.cpc_medio,
 
-            "cpa": forecast.cpa_medio
+            "cpa": forecast.cpa_medio,
+            "origem": (
+                "PLANO_CROSS_MEDIA"
+                if forecast.consolidado
+                else "ITENS_COMPLETOS"
+            ),
+            "alcance_percentual": forecast.consolidado.get(
+                "alcance_liquido_percentual"
+            ),
+            "frequencia": forecast.consolidado.get("frequencia_combinada"),
+            "grp": forecast.consolidado.get("grp_total"),
 
         }
 
