@@ -258,10 +258,10 @@ class ComparadorService:
 
     ):
 
-        return sum(
-
-            item.conversoes
-
-            for item in forecast
-
-        )
+        valores = [item.conversoes for item in forecast]
+        if any(valor is None for valor in valores):
+            raise ValueError(
+                "A comparação por conversões exige premissas explícitas "
+                "em todos os inventários."
+            )
+        return sum(valores)

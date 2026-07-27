@@ -122,7 +122,8 @@ class ForecastService:
 
                     "CPC": i.cpc,
 
-                    "CPA": i.cpa
+                    "CPA": i.cpa,
+                    "Lacunas": ", ".join(i.lacunas),
 
                 }
 

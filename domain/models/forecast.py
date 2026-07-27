@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 
 # ==========================================================
@@ -13,21 +13,23 @@ class ForecastItem:
 
     verba: float
 
-    impressoes: int
+    impressoes: Optional[int]
 
-    alcance: int
+    alcance: Optional[int]
 
-    cliques: int
+    cliques: Optional[int]
 
-    conversoes: int
+    conversoes: Optional[int]
 
-    ctr: float
+    ctr: Optional[float]
 
-    cpm: float
+    cpm: Optional[float]
 
-    cpc: float
+    cpc: Optional[float]
 
-    cpa: float
+    cpa: Optional[float]
+
+    lacunas: List[str] = field(default_factory=list)
 
 
 # ==========================================================
@@ -78,158 +80,58 @@ class Forecast:
 
     @property
     def impressoes(self):
-
-        return sum(
-
-            i.impressoes
-
-            for i in self.itens
-
-        )
+        valores = [i.impressoes for i in self.itens if i.impressoes is not None]
+        return sum(valores) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def alcance(self):
-
-        return sum(
-
-            i.alcance
-
-            for i in self.itens
-
-        )
+        valores = [i.alcance for i in self.itens if i.alcance is not None]
+        return sum(valores) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def cliques(self):
-
-        return sum(
-
-            i.cliques
-
-            for i in self.itens
-
-        )
+        valores = [i.cliques for i in self.itens if i.cliques is not None]
+        return sum(valores) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def conversoes(self):
-
-        return sum(
-
-            i.conversoes
-
-            for i in self.itens
-
-        )
+        valores = [i.conversoes for i in self.itens if i.conversoes is not None]
+        return sum(valores) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def ctr_medio(self):
 
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.ctr
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
-        )
+        valores = [i.ctr for i in self.itens if i.ctr is not None]
+        return round(sum(valores) / len(valores), 2) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def cpm_medio(self):
 
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.cpm
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
-        )
+        valores = [i.cpm for i in self.itens if i.cpm is not None]
+        return round(sum(valores) / len(valores), 2) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def cpc_medio(self):
 
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.cpc
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
-        )
+        valores = [i.cpc for i in self.itens if i.cpc is not None]
+        return round(sum(valores) / len(valores), 2) if valores else None
 
     # ------------------------------------------------------
 
     @property
     def cpa_medio(self):
 
-        if not self.itens:
-
-            return 0
-
-        return round(
-
-            sum(
-
-                i.cpa
-
-                for i in self.itens
-
-            )
-
-            /
-
-            len(self.itens),
-
-            2
-
-        )
+        valores = [i.cpa for i in self.itens if i.cpa is not None]
+        return round(sum(valores) / len(valores), 2) if valores else None

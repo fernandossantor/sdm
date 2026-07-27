@@ -162,13 +162,11 @@ class InsightsEngine:
 
         if forecast:
 
-            conversoes = sum(
-
+            conversoes_disponiveis = [
                 f.conversoes
-
                 for f in forecast
-
-            )
+                if f.conversoes is not None
+            ]
 
             investimento = sum(
 
@@ -178,9 +176,14 @@ class InsightsEngine:
 
             )
 
-            if conversoes > 0:
+            if len(conversoes_disponiveis) != len(forecast):
+                insights.append(
+                    "Conversões indisponíveis por falta de premissas explícitas."
+                )
 
-                cpa = investimento / conversoes
+            elif sum(conversoes_disponiveis) > 0:
+
+                cpa = investimento / sum(conversoes_disponiveis)
 
                 insights.append(
 
@@ -192,7 +195,7 @@ class InsightsEngine:
 
                 insights.append(
 
-                    "Não foram estimadas conversões."
+                    "As premissas explícitas resultam em zero conversões."
 
                 )
 

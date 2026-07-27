@@ -129,18 +129,29 @@ class RegressionTest:
             metrica.get("inventario") for metrica in metricas
             if metrica.get("inventario")
         }
-        itens_elegiveis = [
-            item for item in plano.itens
-            if getattr(item, "inventario_id", None) in ids_com_metricas
-            or item.inventario in nomes_com_metricas
-        ]
-
         self.check(
 
-            len(forecast) == len(itens_elegiveis),
+            len(forecast) == len(plano.itens),
 
-            "Forecast consistente com os inventários que possuem métricas."
+            "Forecast preserva todos os inventários do plano."
 
+        )
+        por_nome = {item.inventario: item for item in forecast}
+        sem_defaults = all(
+            (
+                getattr(item, "inventario_id", None) in ids_com_metricas
+                or item.inventario in nomes_com_metricas
+                or getattr(item, "impressoes_estimadas", None) is not None
+                or (
+                    por_nome[item.inventario].impressoes is None
+                    and bool(por_nome[item.inventario].lacunas)
+                )
+            )
+            for item in plano.itens
+        )
+        self.check(
+            sem_defaults,
+            "Forecast não preenche lacunas com defaults silenciosos."
         )
 
         diagnostico = self.diagnostico.gerar(
@@ -173,25 +184,23 @@ class RegressionTest:
 
             )
 
-            resultado = self.comparador.comparar(
-
-                plano,
-
-                forecast,
-
-                plano2,
-
-                forecast2
-
-            )
-
-            self.check(
-
-                resultado.vencedor is not None,
-
-                "Comparador executado."
-
-            )
+            try:
+                resultado = self.comparador.comparar(
+                    plano,
+                    forecast,
+                    plano2,
+                    forecast2,
+                )
+            except ValueError as erro:
+                self.check(
+                    "premissas explícitas" in str(erro),
+                    "Comparador bloqueia conversões incompletas."
+                )
+            else:
+                self.check(
+                    resultado.vencedor is not None,
+                    "Comparador executado."
+                )
 
 
 def main():

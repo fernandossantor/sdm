@@ -788,3 +788,15 @@ depende da cópia durável do backup em armazenamento privado.
 - ausência de superposição ou incremental deixa o alcance líquido indisponível;
 - hipótese de independência exige seleção explícita e recebe confiança baixa;
 - suíte offline ampliada para 86 testes e regressão conectada aprovadas.
+
+### 27 de julho de 2026 — Fase 2, forecast sem defaults silenciosos
+
+- removidos os defaults implícitos de CPM, conversão e frequência;
+- o forecast prioriza entrega e resultados já calculados no plano;
+- cada resultado dependente só é produzido quando suas entradas existem;
+- zero explicitamente informado permanece diferente de dado ausente;
+- inventários sem métricas continuam visíveis com a lista de lacunas;
+- dashboard e insights exibem indisponibilidade em vez de converter lacunas em
+  zero;
+- comparação por conversões incompletas é bloqueada com causa explícita;
+- suíte offline ampliada para 87 testes e regressão conectada aprovadas.

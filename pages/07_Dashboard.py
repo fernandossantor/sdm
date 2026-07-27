@@ -131,17 +131,15 @@ if (
 
         "Conversões",
 
-        numero_ptbr(int(
-
+        numero_ptbr(
             sum(
-
                 f.conversoes
-
                 for f in forecast
-
+                if f.conversoes is not None
             )
-
-        ))
+            if any(f.conversoes is not None for f in forecast)
+            else None
+        )
 
     )
 
@@ -149,17 +147,11 @@ if (
 
         "Cliques",
 
-        numero_ptbr(int(
-
-            sum(
-
-                f.cliques
-
-                for f in forecast
-
-            )
-
-        ))
+        numero_ptbr(
+            sum(f.cliques for f in forecast if f.cliques is not None)
+            if any(f.cliques is not None for f in forecast)
+            else None
+        )
 
     )
 

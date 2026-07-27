@@ -401,9 +401,31 @@ class TestForecastEngine(unittest.TestCase):
 
         self.assertEqual(resultado[0].alcance, 20000)
 
-    def test_ignora_inventario_sem_metrica(self):
+    def test_mantem_inventario_sem_inventar_metricas(self):
+        resultado = ForecastEngine().calcular(self.criar_plano(), [])
 
-        self.assertEqual(ForecastEngine().calcular(self.criar_plano(), []), [])
+        self.assertEqual(len(resultado), 1)
+        self.assertIsNone(resultado[0].impressoes)
+        self.assertIsNone(resultado[0].cliques)
+        self.assertIsNone(resultado[0].conversoes)
+        self.assertIn("CPM ou impressões do plano", resultado[0].lacunas)
+
+    def test_zero_explicito_nao_vira_default(self):
+        resultado = ForecastEngine().calcular(
+            self.criar_plano(),
+            [{
+                "inventario": "TV",
+                "cpm": 10,
+                "ctr": 0,
+                "taxa_conversao": 0,
+                "frequencia_media": 2,
+            }],
+        )
+
+        self.assertEqual(resultado[0].cliques, 0)
+        self.assertEqual(resultado[0].conversoes, 0)
+        self.assertIsNone(resultado[0].cpc)
+        self.assertIsNone(resultado[0].cpa)
 
 
 class TestInsightsEngine(unittest.TestCase):
