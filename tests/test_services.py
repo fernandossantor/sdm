@@ -122,7 +122,8 @@ class TestPlanejamentoService(unittest.TestCase):
             {
                 "Resumo", "Resultados", "Plano", "Cronograma", "KPIs",
                 "Estratégia", "Alternativas", "Cronograma Semanal",
-                "Cronograma Mensal", "Mapa por Meio", "Observações",
+                "Cronograma Mensal", "Mapa por Meio", "Reconciliação",
+                "Premissas", "Auditoria", "Observações",
             },
         )
         self.assertIn("Score do papel", tabelas["Plano"].columns)

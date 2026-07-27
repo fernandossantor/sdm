@@ -83,6 +83,22 @@ Estado implementado:
 - análises registram limitações e podem ser preservadas como artefatos do
   projeto.
 
+## Relatórios e versões
+
+- `Aula 06.pdf` sustenta a apresentação integrada de estratégia, mapa,
+  quantidades, períodos e custos.
+- as decisões `DM-018` e `DM-019` exigem plano completo, snapshots,
+  metodologia, auditoria e histórico imutável.
+
+Consequências implementadas:
+
+- estratégia, alternativas, resultados, premissas, auditoria, plano,
+  cronogramas, mapas, reconciliação, KPIs e observações têm abas próprias;
+- versões históricas são restauradas a partir de seus snapshots, sem
+  recalcular com o método atual;
+- comparação histórica preserva números e hashes das versões;
+- variações são descritivas e não recebem interpretação causal automática.
+
 ## Estado auditado
 
 | Bloco | Estado inicial | Principal lacuna |

@@ -610,7 +610,8 @@ Status: iniciada em 27 de julho de 2026. Auditoria e referências registradas em
 `REVISAO_REFERENCIAS_FASE_6.md`; briefing, racional e mapas/cronogramas estão
 concluídos. Atribuição auditável também foi implementada; qualidade
 programática e localização também estão concluídas. Relatórios e comparação de
-versões formam o próximo incremento.
+versões também estão concluídos. Resta a regressão final e o encerramento
+documental da fase.
 
 ### Fase 7 — Homologação e publicação
 
@@ -1188,3 +1189,16 @@ depende da cópia durável do backup em armazenamento privado.
 - guia de uso passa a explicar atribuição, qualidade e localização;
 - suíte offline ampliada para 145 testes aprovados e 3 integrações opcionais;
 - próxima entrega: relatórios completos e comparação histórica de versões.
+
+### 27 de julho de 2026 — Relatórios e comparação de versões
+
+- exportação passa a separar estratégia, alternativas, resultados, premissas,
+  auditoria, plano, cronogramas, mapas, reconciliação, KPIs e observações;
+- versões imutáveis podem ser restauradas diretamente de seus snapshots;
+- comparação histórica apresenta mudanças de métricas, verba, quantidade e
+  composição dos inventários;
+- números e hashes das versões comparadas acompanham o artefato;
+- mudanças são tratadas como descrição histórica, sem inferência causal;
+- comparação pode ser salva no projeto para revisão posterior;
+- suíte offline ampliada para 147 testes aprovados e 3 integrações opcionais;
+- próximo gate: regressão final, documentação e encerramento da Fase 6.

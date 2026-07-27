@@ -139,6 +139,10 @@ class ExportacaoService:
         )
         cronograma = pd.DataFrame(plano.cronograma)
         mapas_cronograma = ScheduleService().consolidar(plano)
+        reconciliacao = pd.DataFrame([
+            {"Métrica": chave, "Valor": valor}
+            for chave, valor in mapas_cronograma["reconciliacao"].items()
+        ])
         kpis = pd.DataFrame(plano.kpis)
         observacoes = pd.DataFrame(
             {"Observações": plano.observacoes or []}
@@ -149,6 +153,10 @@ class ExportacaoService:
             "Alternativas": alternativas,
             "Resultados": self._resultados_estruturados(
                 plano.resultados_consolidados
+            ),
+            "Premissas": self._resultados_estruturados(plano.premissas),
+            "Auditoria": self._resultados_estruturados(
+                plano.auditoria_calculo
             ),
             "Plano": self.dataframe(plano),
             "Cronograma": cronograma,
@@ -161,6 +169,7 @@ class ExportacaoService:
             "Mapa por Meio": pd.DataFrame(
                 mapas_cronograma["por_meio"]
             ),
+            "Reconciliação": reconciliacao,
             "KPIs": kpis,
             "Observações": observacoes,
         }

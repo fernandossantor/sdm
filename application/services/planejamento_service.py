@@ -492,6 +492,21 @@ class PlanejamentoService:
         except Exception:
             return []
 
+    def versoes(self, planejamento_id):
+        return self.repository.versoes(planejamento_id)
+
+    @staticmethod
+    def restaurar_versao(versao):
+        entradas = versao.get("snapshot_entradas") or {}
+        resultados = versao.get("snapshot_resultados") or {}
+        return PlanejamentoService.restaurar({
+            "resultado": resultados.get("resultado") or {},
+            "estrategia": entradas.get("estrategia") or {},
+            "premissas": entradas.get("premissas") or {},
+            "auditoria_calculo": resultados.get("auditoria_calculo") or {},
+            "codigo": "",
+        })
+
     def salvar(self, nome, plano, configuracao, briefing_id=None):
 
         itens = [

@@ -60,7 +60,7 @@ for problema, solucao in problemas.items():
 
 st.header("Análises Avançadas")
 analises = {
-    "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, sobre-exposição e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
+    "Comparação de Planos": "Compare planos distintos com pesos explícitos ou duas versões imutáveis do mesmo planejamento. A comparação histórica mostra mudanças de métricas, verba, quantidade e composição sem alegar causalidade.",
     "Cenários e Sensibilidade": "Mantém plano e investimento fixos e aplica variações explícitas a impressões, CTR e taxa de conversão. Conservador, base e otimista são hipóteses editáveis, não benchmarks universais nem intervalos estatísticos.",
     "Otimização de Verba": "Use o solver linear para maximizar aderência ou conversões sob pisos, tetos, limites por ambiente/plataforma e reserva para testes. Conversões exigem resultados auditáveis do plano e usam extrapolação linear identificada. A simulação proporcional permanece disponível como benchmark heurístico.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",
