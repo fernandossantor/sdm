@@ -1,13 +1,11 @@
-from supabase import create_client
-from dotenv import load_dotenv
-import os
+"""Compatibilidade para chamadas públicas, sem cliente criado no import."""
 
-load_dotenv()
+from infrastructure.database.data_client import get_public_client
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-supabase = create_client(
-    SUPABASE_URL,
-    SUPABASE_KEY
-)
+class _ClientePublicoPreguicoso:
+    def __getattr__(self, atributo):
+        return getattr(get_public_client(), atributo)
+
+
+supabase = _ClientePublicoPreguicoso()

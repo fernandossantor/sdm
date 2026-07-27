@@ -1,11 +1,11 @@
-from infrastructure.database.admin_client import admin
+from infrastructure.database.data_client import get_data_client
 
 
 class BaseRepository:
 
-    def __init__(self):
+    def __init__(self, db=None):
 
-        self.db = admin
+        self.db = db or get_data_client()
 
     # =====================================================
     # SELECT

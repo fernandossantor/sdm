@@ -917,5 +917,11 @@ depende da cópia durável do backup em armazenamento privado.
 - políticas separam leitura de membro e escrita de proprietário/editor;
 - autopromoção de papel global e vínculos cruzados entre espaços são bloqueados;
 - migration idempotente e isolamento entre três identidades validados localmente;
-- aplicação remota permanece bloqueada até novo backup e adaptação dos
-  repositories para JWT de usuário.
+- repositories e serviços comuns passam a resolver um cliente por requisição,
+  usando JWT quando a sessão o fornecer;
+- o `service_role` permanece como fallback transitório, sem ser injetado
+  diretamente no fluxo comum;
+- a RPC legada de cópia fica reservada ao `service_role` até ganhar validação
+  contextual de espaço;
+- aplicação remota permanece bloqueada até novo backup, RPC de cópia segura e
+  implementação de login/sessão.

@@ -43,10 +43,26 @@ Papéis no espaço:
 ## Limites deste incremento
 
 - a migration ainda não deve ser aplicada remotamente;
-- repositories ainda não usam JWT de usuário;
 - login e sessão ainda não foram implementados;
 - inventários globais/privados e bibliotecas de público serão tratados depois;
 - testes locais e revisão das políticas precedem backup e aplicação remota.
+
+## Ponte de cliente autenticado
+
+- repositories resolvem o cliente de dados no contexto da requisição;
+- quando há `auth_access_token` na sessão, o PostgREST recebe o JWT do usuário;
+- o token não é guardado em cache global e o contexto é limpo a cada rerun;
+- repositories aceitam injeção direta para testes e operações controladas;
+- o fallback para `service_role` permanece explícito somente durante a
+  transição, antes da ativação do login;
+- serviços de aplicação não importam mais o cliente administrativo.
+
+A RPC legada `proximo_codigo_copia` usa `SECURITY DEFINER` e não valida o
+espaço do registro de origem. A migration revoga sua execução de `public`,
+`anon` e `authenticated`, preservando-a apenas para `service_role`. Portanto,
+o fluxo autenticado de cópia só será habilitado depois de uma RPC contextual,
+com autorização por espaço. Essa restrição evita trocar o bypass do cliente
+administrativo por um bypass dentro do banco.
 
 ## Validação local
 
@@ -60,3 +76,5 @@ Papéis no espaço:
   - mudança de um registro entre espaços negada;
   - vínculo entre entidades de espaços diferentes bloqueado;
 - todos os registros e identidades de teste foram revertidos por `rollback`.
+- testes unitários confirmaram aplicação do JWT, isolamento do contexto,
+  fallback transitório e injeção de cliente nos repositories.

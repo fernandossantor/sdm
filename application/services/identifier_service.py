@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from infrastructure.database.admin_client import admin
+from infrastructure.database.data_client import get_data_client
 
 
 class IdentifierService:
@@ -12,7 +12,7 @@ class IdentifierService:
         if not codigo:
             raise ValueError("O registro legado ainda não possui código identificador.")
         novo_id = str(uuid4())
-        resposta = admin.rpc(
+        resposta = get_data_client().rpc(
             "proximo_codigo_copia",
             {"p_codigo_origem": codigo, "p_tabela": tabela, "p_id": novo_id},
         ).execute()

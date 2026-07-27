@@ -48,6 +48,25 @@ class TestArquitetura(unittest.TestCase):
 
         self.assertFalse((RAIZ / "repositories").exists())
 
+    def test_fluxo_comum_nao_importa_cliente_administrativo(self):
+        violacoes = []
+        diretorios = (
+            RAIZ / "application" / "services",
+            RAIZ / "infrastructure" / "repositories",
+        )
+
+        for diretorio in diretorios:
+            for arquivo in sorted(diretorio.glob("*.py")):
+                arvore = ast.parse(arquivo.read_text(encoding="utf-8"))
+                for no in ast.walk(arvore):
+                    if (
+                        isinstance(no, ast.ImportFrom)
+                        and no.module == "infrastructure.database.admin_client"
+                    ):
+                        violacoes.append(f"{arquivo.relative_to(RAIZ)}:{no.lineno}")
+
+        self.assertEqual(violacoes, [])
+
     def test_migration_multiusuario_preserva_controles_criticos(self):
         migration = (
             RAIZ
@@ -63,6 +82,7 @@ class TestArquitetura(unittest.TestCase):
             "create or replace function public.eh_proprietario_espaco",
             "O espaço de um registro não pode ser alterado",
             "grant update (nome, atualizado_em)",
+            "revoke execute on function public.proximo_codigo_copia",
         ):
             self.assertIn(controle, migration)
         self.assertNotIn(

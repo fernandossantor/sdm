@@ -358,4 +358,12 @@ grant select, insert, update, delete on public.planejamentos to authenticated;
 grant select, insert, update, delete on public.artefatos_workflow to authenticated;
 grant select on public.versoes_planejamento to authenticated;
 
+-- A reserva de códigos é SECURITY DEFINER e ainda não valida o espaço de
+-- origem. Até sua substituição por uma RPC contextual, apenas operações
+-- administrativas explícitas podem executá-la.
+revoke execute on function public.proximo_codigo_copia(varchar, text, uuid)
+    from public, anon, authenticated;
+grant execute on function public.proximo_codigo_copia(varchar, text, uuid)
+    to service_role;
+
 notify pgrst, 'reload schema';

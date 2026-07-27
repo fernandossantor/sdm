@@ -11,9 +11,17 @@ from components.home.projects_card import render as projects_card
 from components.home.knowledge_card import render as knowledge_card
 from components.active_context import render as active_context
 from components.page_config import PAGE_ICON, PAGE_TITLE
+from infrastructure.database.data_client import (
+    bind_authenticated_client,
+    clear_request_client,
+)
 
 
 LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
+
+clear_request_client()
+if st.session_state.get("auth_access_token"):
+    bind_authenticated_client(st.session_state["auth_access_token"])
 
 
 # ==========================================================
