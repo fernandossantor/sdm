@@ -1,4 +1,4 @@
--- Auditoria própria das ações administrativas do PlanOS.
+-- Auditoria própria das ações administrativas do MediAd Planner.
 
 create table if not exists public.logs_auditoria (
     id bigint generated always as identity primary key,

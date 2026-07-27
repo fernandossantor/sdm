@@ -1,4 +1,4 @@
-"""Verifica integridade mínima de um conjunto de backup do PlanOS."""
+"""Verifica integridade mínima de um conjunto de backup do MediAd Planner."""
 
 import argparse
 import hashlib

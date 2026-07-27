@@ -84,7 +84,7 @@ def mostrar(df, categoria):
     st.caption(
         "Fontes: [Cenp-Meios](https://www.cenp.com.br/cenp-meios), "
         "[IAB Brasil — Digital AdSpend]"
-        "(https://iabbrasil.com.br/internas/pesquisas/adspend/) e Base PlanOS."
+        "(https://iabbrasil.com.br/internas/pesquisas/adspend/) e Base MediAd Planner."
     )
 
 for aba, (titulo, chave) in zip(abas, categorias):

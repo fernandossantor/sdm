@@ -1,4 +1,4 @@
-# Runbook operacional do PlanOS
+# Runbook operacional do MediAd Planner
 
 Revisão: 27 de julho de 2026 (UTC).
 
@@ -62,7 +62,7 @@ falha.
 8. documentar causa, correção, risco residual e decisão de reabertura.
 
 Incidentes com dados pessoais devem ser avaliados pelo responsável institucional
-conforme a regulamentação e os procedimentos aplicáveis. O PlanOS não decide
+conforme a regulamentação e os procedimentos aplicáveis. O MediAd Planner não decide
 automaticamente se uma comunicação regulatória é necessária.
 
 ## Recuperação

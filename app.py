@@ -24,7 +24,7 @@ from infrastructure.database.data_client import (
 from infrastructure.database.workspace_context import clear_workspace
 
 
-LOGO_PLANOS = Path(__file__).parent / "assets" / "PlanOS.png"
+LOGO_MEDIAD_PLANNER = Path(__file__).parent / "assets" / "Marca.png"
 # Streamlit não carrega automaticamente o arquivo .env. Isso precisa ocorrer
 # antes da validação e da decisão de renderizar o portão de autenticação.
 load_dotenv()
@@ -206,7 +206,7 @@ elif st.session_state.get("auth_access_token"):
     bind_authenticated_client(st.session_state["auth_access_token"])
 
 with st.sidebar:
-    st.image(LOGO_PLANOS, width="stretch")
+    st.image(LOGO_MEDIAD_PLANNER, width="stretch")
     st.caption("Plataforma Inteligente de Planejamento Híbrido de Mídia")
     if autenticacao_habilitada():
         st.caption(st.session_state.get("auth_email") or "Usuário autenticado")

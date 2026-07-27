@@ -4,7 +4,7 @@
 
 ## Finalidade deste documento
 
-Este documento é o ponto de retomada para a futura evolução do PlanOS para um
+Este documento é o ponto de retomada para a futura evolução do MediAd Planner para um
 ambiente acadêmico multiusuário. Ele sistematiza as decisões tomadas na
 conversa de planejamento e deve ser consultado antes de iniciar a
 implementação.

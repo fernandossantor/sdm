@@ -12,7 +12,7 @@ metodológicas e os PDFs acadêmicos e mercadológicos disponíveis no repositó
 - `Aula 06.pdf`, página 3, distingue oportunidade de ver de exposição ideal e
   relaciona pressão a GRP, alcance, frequência e flight.
 
-Consequência no PlanOS: frequência média não é convertida em distribuição. As
+Consequência no MediAd Planner: frequência média não é convertida em distribuição. As
 faixas só são calculadas quando alcances `N+` são informados.
 
 ## Cenários e sensibilidade
@@ -57,7 +57,7 @@ Esta revisão não autoriza:
   distribuição de crédito entre pontos de contato, não como simples desvio de
   entrega.
 
-Consequência no PlanOS: a comparação planejado × forecast × realizado calcula
+Consequência no MediAd Planner: a comparação planejado × forecast × realizado calcula
 desvios descritivos somente quando período e contexto coincidem. Ela preserva a
 fonte observada e não chama diferença de impacto causal, incrementalidade ou
 atribuição.

@@ -18,7 +18,7 @@ st.set_page_config(
 exigir("diagnostico")
 st.title("🛡️ Qualidade programática e localização")
 st.write(
-    "Documente cada dimensão e sua proveniência. O PlanOS não combina esses "
+    "Documente cada dimensão e sua proveniência. O MediAd Planner não combina esses "
     "dados em um índice opaco."
 )
 
