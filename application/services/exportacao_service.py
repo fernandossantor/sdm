@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 
 import pandas as pd
+from application.services.schedule_service import ScheduleService
 
 
 class ExportacaoService:
@@ -137,6 +138,7 @@ class ExportacaoService:
             columns=["alternativa", "motivo"],
         )
         cronograma = pd.DataFrame(plano.cronograma)
+        mapas_cronograma = ScheduleService().consolidar(plano)
         kpis = pd.DataFrame(plano.kpis)
         observacoes = pd.DataFrame(
             {"Observações": plano.observacoes or []}
@@ -150,6 +152,15 @@ class ExportacaoService:
             ),
             "Plano": self.dataframe(plano),
             "Cronograma": cronograma,
+            "Cronograma Semanal": pd.DataFrame(
+                mapas_cronograma["semanal"]
+            ),
+            "Cronograma Mensal": pd.DataFrame(
+                mapas_cronograma["mensal"]
+            ),
+            "Mapa por Meio": pd.DataFrame(
+                mapas_cronograma["por_meio"]
+            ),
             "KPIs": kpis,
             "Observações": observacoes,
         }

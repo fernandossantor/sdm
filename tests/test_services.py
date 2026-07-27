@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from application.services.scenario_service import ScenarioService
+from application.services.schedule_service import ScheduleService
 from application.services.workflow_service import WorkflowService
 from application.services.planejamento_service import PlanejamentoService
 from application.services.exportacao_service import ExportacaoService
@@ -120,7 +121,8 @@ class TestPlanejamentoService(unittest.TestCase):
             set(tabelas),
             {
                 "Resumo", "Resultados", "Plano", "Cronograma", "KPIs",
-                "Estratégia", "Alternativas", "Observações",
+                "Estratégia", "Alternativas", "Cronograma Semanal",
+                "Cronograma Mensal", "Mapa por Meio", "Observações",
             },
         )
         self.assertIn("Score do papel", tabelas["Plano"].columns)
@@ -254,6 +256,28 @@ class TestPlanejamentoService(unittest.TestCase):
             ),
             12,
         )
+
+    def test_mapas_do_cronograma_reconciliam_quantidade_e_investimento(self):
+        item = PlanoItem(
+            inventario="TV", plataforma="Emissora", ambiente="TV Aberta",
+            papel="PRINCIPAL", score=90, verba=1200, percentual=100,
+            unidade_compra="Inserção", quantidade_estimada=12,
+        )
+        plano = PlanoEstrategico(
+            cliente="Cliente", campanha="Campanha", objetivo="Alcance",
+            orcamento=1200, itens=[item],
+        )
+        plano.cronograma = PlanejamentoService._cronograma(
+            date(2026, 7, 1), date(2026, 7, 28), "LINEAR", [item]
+        )
+
+        mapas = ScheduleService().consolidar(plano)
+
+        self.assertEqual(sum(linha["Quantidade"] for linha in mapas["semanal"]), 12)
+        self.assertEqual(sum(linha["Investimento"] for linha in mapas["mensal"]), 1200)
+        self.assertEqual(mapas["por_meio"][0]["Meio"], "Emissora")
+        self.assertTrue(mapas["reconciliacao"]["quantidade_reconciliada"])
+        self.assertTrue(mapas["reconciliacao"]["investimento_reconciliado"])
 
     def test_comparador_respeita_prioridade_configurada(self):
         plano_a = PlanoEstrategico("Cliente", "Alcance", "Awareness", 1000)

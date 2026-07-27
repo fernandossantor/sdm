@@ -470,8 +470,16 @@ class PlanejamentoService:
                 distribuicao[-1] += total_item - sum(distribuicao)
             linha = {
                 "Inventário": item.inventario,
+                "ID do inventário": item.inventario_id,
+                "Meio": item.plataforma,
+                "Ambiente": item.ambiente,
+                "Papel": item.papel,
                 "Unidade": item.unidade_compra or "Sem unidade",
                 "Total": total_item,
+                "Investimento total": round(
+                    float(item.custo_total or item.verba or 0),
+                    2,
+                ),
             }
             linha.update(dict(zip(colunas, distribuicao)))
             cronograma.append(linha)

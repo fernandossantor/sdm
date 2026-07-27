@@ -607,7 +607,8 @@ por padrão até a homologação e publicação gradual da Fase 7.
 Saída: plano completo, não apenas cálculo tático.
 
 Status: iniciada em 27 de julho de 2026. Auditoria e referências registradas em
-`REVISAO_REFERENCIAS_FASE_6.md`; briefing estratégico é o primeiro incremento.
+`REVISAO_REFERENCIAS_FASE_6.md`; briefing, racional e mapas/cronogramas estão
+concluídos. Atribuição é o próximo incremento.
 
 ### Fase 7 — Homologação e publicação
 
@@ -1141,3 +1142,16 @@ depende da cópia durável do backup em armazenamento privado.
 - exportação ganhou abas próprias para estratégia e alternativas;
 - suíte offline permanece com 136 testes aprovados e 3 integrações opcionais;
 - próxima entrega: mapas e cronogramas reconciliados.
+
+### 27 de julho de 2026 — Mapas e cronogramas reconciliados
+
+- o cronograma detalhado passa a identificar inventário, meio, ambiente, papel,
+  unidade, quantidade e investimento;
+- investimento é distribuído entre semanas na mesma proporção das quantidades,
+  preservando no último período eventual resíduo de arredondamento;
+- visões semanal, mensal e por meio derivam da mesma fonte operacional;
+- quantidade e investimento do cronograma são reconciliados contra os itens do
+  plano, com divergência explicitamente sinalizada;
+- exportação ganhou abas próprias para os três mapas consolidados;
+- suíte offline ampliada para 137 testes aprovados e 3 integrações opcionais;
+- próxima entrega: modelo auditável de atribuição.

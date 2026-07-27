@@ -29,6 +29,21 @@ Consequências:
   restrições ou condições documentadas;
 - briefings antigos permanecem válidos com campos estratégicos vazios.
 
+## Mapas e cronogramas
+
+- `Aula 06.pdf` estrutura o mapa de mídia a partir de meios, veículos,
+  mercados, períodos, formatos, quantidades e custos.
+- a decisão metodológica `DM-017` exige que flight e cronograma respeitem
+  disponibilidade, unidade de compra, sazonalidade e reconciliação financeira.
+
+Consequências:
+
+- mapas semanal, mensal e por meio são visões da mesma grade operacional;
+- quantidade e investimento devem reconciliar com os itens do plano;
+- arredondamentos permanecem explícitos e o resíduo financeiro fica no último
+  período, sem alterar o total contratado;
+- divergências são sinalizadas, não corrigidas silenciosamente.
+
 ## Atribuição
 
 - `Ebook-IAB-Modelos-de-Atribuição-link-adjust.pdf`, páginas 26–33, documenta
