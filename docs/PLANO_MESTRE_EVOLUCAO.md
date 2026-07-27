@@ -1057,6 +1057,8 @@ depende da cópia durável do backup em armazenamento privado.
   `REVISAO_REFERENCIAS_FASE_5.md`;
 - 135 testes offline, dois testes SQL de RLS e idempotência das migrations
   foram aprovados;
+- catálogos necessários ao inventário permitem leitura autenticada, mas
+  mantêm escrita restrita ao administrador por RLS;
 - próximo gate: backup restaurável, aplicação remota e validação com JWTs
   reais antes do encerramento da Fase 5.
 
