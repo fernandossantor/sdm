@@ -33,10 +33,9 @@ def render():
 
     st.title("Entrar no PlanOS")
     st.caption("O cadastro é controlado pela administração.")
-    with st.form("login_planos"):
-        email = st.text_input("E-mail")
-        senha = st.text_input("Senha", type="password")
-        enviar = st.form_submit_button("Entrar", type="primary")
+    email = st.text_input("E-mail", key="login_email")
+    senha = st.text_input("Senha", type="password", key="login_senha")
+    enviar = st.button("Entrar", type="primary", use_container_width=True)
 
     if enviar:
         st.info("Validando acesso…")
@@ -49,6 +48,8 @@ def render():
             st.caption(f"Detalhe técnico: {type(exc).__name__}: {exc}")
         else:
             st.success("Acesso validado. Carregando o PlanOS…")
+            # O primeiro acesso ainda precisa passar pela troca obrigatória de
+            # senha, que é renderizada no próximo ciclo com a sessão salva.
             st.rerun()
 
     return False
