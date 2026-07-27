@@ -1126,3 +1126,18 @@ depende da cópia durável do backup em armazenamento privado.
 - duas identidades Auth e os dados públicos foram restaurados;
 - os dois briefings legados permaneceram válidos após a migration aditiva;
 - próximo gate: aplicação remota e regressão conectada.
+
+### 27 de julho de 2026 — Briefing estratégico e racional
+
+- migration `20260727080000` aplicada após backup restaurável, com histórico
+  local e remoto sincronizado;
+- regressão funcional e três integrações conectadas foram aprovadas;
+- planejamento passa a separar direção estratégica, táticas por meio e
+  parâmetros operacionais de compra;
+- racional geral, mapa da jornada e racional/táticas de cada inventário
+  integram a configuração persistida;
+- alternativas rejeitadas preservam alternativa e motivo, sem interferir no
+  cálculo do plano;
+- exportação ganhou abas próprias para estratégia e alternativas;
+- suíte offline permanece com 136 testes aprovados e 3 integrações opcionais;
+- próxima entrega: mapas e cronogramas reconciliados.

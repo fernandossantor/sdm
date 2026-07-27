@@ -214,6 +214,38 @@ peso_metricas = p4.number_input("Qualidade das métricas (%)", 0.0, 100.0, 10.0,
 peso_mcp = p5.number_input("Influência do MCP (%)", 0.0, 100.0, 20.0, format="%.2f")
 soma_pesos = peso_objetivo + peso_kpi + peso_publico + peso_metricas
 impedimentos_geracao = []
+
+st.markdown("#### Estratégia, tática e operação")
+st.caption(
+    "A estratégia define a direção; as táticas explicam o papel dos meios; "
+    "a operação detalha compras, períodos e execução."
+)
+diretriz_estrategica = st.text_area(
+    "Diretriz estratégica",
+    help="Síntese da escolha estratégica que orienta o plano.",
+)
+racional_geral = st.text_area(
+    "Racional da combinação de meios",
+    help="Explique complementaridade, sequência e cobertura da jornada.",
+)
+cobertura_jornada_estrategica = st.text_area(
+    "Mapa estratégico da jornada",
+    help="Descreva os pontos de contato e o papel esperado em cada etapa.",
+)
+alternativas_rejeitadas_texto = st.text_area(
+    "Alternativas rejeitadas — uma por linha, no formato alternativa: motivo",
+)
+alternativas_rejeitadas = []
+for linha in alternativas_rejeitadas_texto.splitlines():
+    if not linha.strip():
+        continue
+    alternativa, separador, motivo = linha.partition(":")
+    alternativas_rejeitadas.append(
+        {
+            "alternativa": alternativa.strip(),
+            "motivo": motivo.strip() if separador else "Motivo não informado",
+        }
+    )
 if soma_pesos != 100:
     st.error(
         "Os quatro pesos estratégicos devem somar 100,00% "
@@ -666,6 +698,19 @@ else:
                 key=f"jornada_plano_{item['id']}",
                 help="Avalie a contribuição deste inventário às etapas da jornada do público.",
             )
+            racional_meio = st.text_area(
+                "Racional deste meio",
+                key=f"racional_meio_{item['id']}",
+                help=(
+                    "Explique por que o meio integra o plano e qual função "
+                    "estratégica ou tática ele cumpre."
+                ),
+            )
+            tatica_meio = st.text_area(
+                "Táticas previstas",
+                key=f"tatica_meio_{item['id']}",
+                help="Formatos, segmentação, contexto e orientação operacional.",
+            )
             confianca = st.selectbox(
                 "Natureza dos dados", ["INFORMADO", "MEDIDO", "ESTIMADO"],
                 index=["INFORMADO", "MEDIDO", "ESTIMADO"].index(
@@ -758,6 +803,8 @@ else:
             "taxa_conversao": conversao_item,
             "valor_conversao": valor_conversao,
             "cobertura_jornada": cobertura_jornada,
+            "racional_meio": racional_meio,
+            "tatica_meio": tatica_meio,
             "confianca": confianca,
             "medicao_origem_id": medicao_item.get("id"),
             "fonte": medicao_item.get("fonte") or "Informado no plano",
@@ -819,6 +866,10 @@ configuracao["estrategia"] = {
         "audiencia": peso_publico, "metricas": peso_metricas,
     },
     "peso_mcp": peso_mcp,
+    "diretriz": diretriz_estrategica,
+    "racional_geral": racional_geral,
+    "mapa_jornada": cobertura_jornada_estrategica,
+    "alternativas_rejeitadas": alternativas_rejeitadas,
 }
 
 if not inventarios_mcp:

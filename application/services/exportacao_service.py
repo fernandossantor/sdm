@@ -92,6 +92,7 @@ class ExportacaoService:
         )
 
     def tabelas(self, plano):
+        estrategia = plano.estrategia or {}
         resumo = pd.DataFrame(
             [
                 {"Campo": "Cliente", "Valor": plano.cliente},
@@ -108,9 +109,32 @@ class ExportacaoService:
                 {"Campo": "Público de referência", "Valor": plano.publico_referencia},
                 {"Campo": "Meta de alcance", "Valor": plano.alcance_meta},
                 {"Campo": "Alcance projetado", "Valor": plano.alcance_projetado},
-                {"Campo": "Estratégia", "Valor": plano.estrategia},
                 {"Campo": "Auditoria do cálculo", "Valor": plano.auditoria_calculo},
             ]
+        )
+        estrategia_resumo = pd.DataFrame(
+            [
+                {
+                    "Campo": "Diretriz estratégica",
+                    "Valor": estrategia.get("diretriz") or "",
+                },
+                {
+                    "Campo": "Racional da combinação",
+                    "Valor": estrategia.get("racional_geral") or "",
+                },
+                {
+                    "Campo": "Mapa da jornada",
+                    "Valor": estrategia.get("mapa_jornada") or "",
+                },
+                {
+                    "Campo": "Pesos",
+                    "Valor": estrategia.get("pesos") or {},
+                },
+            ]
+        )
+        alternativas = pd.DataFrame(
+            estrategia.get("alternativas_rejeitadas") or [],
+            columns=["alternativa", "motivo"],
         )
         cronograma = pd.DataFrame(plano.cronograma)
         kpis = pd.DataFrame(plano.kpis)
@@ -119,6 +143,8 @@ class ExportacaoService:
         )
         return {
             "Resumo": resumo,
+            "Estratégia": estrategia_resumo,
+            "Alternativas": alternativas,
             "Resultados": self._resultados_estruturados(
                 plano.resultados_consolidados
             ),

@@ -102,6 +102,17 @@ class TestPlanejamentoService(unittest.TestCase):
             "alcance_liquido_percentual": 60,
             "fees": {"operacao": 0},
         }
+        plano.estrategia = {
+            "diretriz": "Construir alcance e conduzir consideração.",
+            "racional_geral": "Vídeo cria cobertura e busca captura demanda.",
+            "mapa_jornada": "Descoberta → consideração → ação.",
+            "alternativas_rejeitadas": [
+                {
+                    "alternativa": "Concentração em busca",
+                    "motivo": "Cobertura insuficiente",
+                }
+            ],
+        }
 
         tabelas = ExportacaoService().tabelas(plano)
 
@@ -109,12 +120,16 @@ class TestPlanejamentoService(unittest.TestCase):
             set(tabelas),
             {
                 "Resumo", "Resultados", "Plano", "Cronograma", "KPIs",
-                "Observações",
+                "Estratégia", "Alternativas", "Observações",
             },
         )
         self.assertIn("Score do papel", tabelas["Plano"].columns)
         self.assertIn("GRP", tabelas["Plano"].columns)
         self.assertIn("Preço unitário", tabelas["Plano"].columns)
+        self.assertEqual(
+            tabelas["Alternativas"].iloc[0]["motivo"],
+            "Cobertura insuficiente",
+        )
         self.assertEqual(
             set(tabelas["Resultados"]["Métrica"]),
             {"investimento", "alcance_liquido_percentual", "fees.operacao"},
