@@ -733,3 +733,16 @@ depende da cópia durável do backup em armazenamento privado.
 - consolidação, snapshot do plano e exportação preservam a decomposição;
 - descontos e fees inválidos são rejeitados explicitamente;
 - suíte offline ampliada para 71 testes e regressão conectada aprovadas.
+
+### 27 de julho de 2026 — Fase 1, condições comerciais
+
+- preços passam a registrar moeda e modelo de negociação: open auction, PMP,
+  preferred deal, garantido ou direto;
+- fees percentuais e fixos, mínimos comerciais, disponibilidade e capacidade
+  ficam associados ao preço e à sua vigência;
+- o cadastro de inventários permite manter as novas condições;
+- o planejamento herda mínimos e limites cadastrados e valida o orçamento pelo
+  custo total com fees;
+- registros legados recebem `BRL` e `DIRETO` sem alteração de valores;
+- migration `20260727020000` validada duas vezes na restauração isolada;
+- suíte offline ampliada para 73 testes aprovados.

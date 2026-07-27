@@ -248,6 +248,75 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
         value=float(preco.get("desconto_percentual") or 0), key=f"{prefixo}_desconto",
         step=0.01, format="%.2f",
     )
+    modelos_negociacao = {
+        "DIRETO": "Direto",
+        "OPEN_AUCTION": "Open auction",
+        "PMP": "PMP",
+        "PREFERRED_DEAL": "Preferred deal",
+        "GARANTIDO": "Garantido",
+    }
+    modelo_negociacao_atual = preco.get("modelo_negociacao", "DIRETO")
+    modelo_negociacao = st.selectbox(
+        "Modelo de negociação",
+        list(modelos_negociacao),
+        index=list(modelos_negociacao).index(modelo_negociacao_atual),
+        format_func=modelos_negociacao.get,
+        key=f"{prefixo}_modelo_negociacao",
+    )
+    with st.expander("Fees, mínimos e capacidade"):
+        fees = {}
+        for nome, rotulo in (
+            ("tecnologia", "Tecnologia"),
+            ("dados", "Dados"),
+            ("verificacao", "Verificação"),
+            ("operacao", "Operação"),
+        ):
+            percentual_col, fixo_col = st.columns(2)
+            fees[f"fee_{nome}_percentual"] = percentual_col.number_input(
+                f"Fee de {rotulo.lower()} (%)",
+                min_value=0.0,
+                value=float(preco.get(f"fee_{nome}_percentual") or 0),
+                step=0.01,
+                format="%.2f",
+                key=f"{prefixo}_fee_{nome}_percentual",
+            )
+            fees[f"fee_{nome}_fixo"] = entrada_monetaria(
+                f"Fee de {rotulo.lower()} fixo (R$)",
+                float(preco.get(f"fee_{nome}_fixo") or 0),
+                key=f"{prefixo}_fee_{nome}_fixo",
+                container=fixo_col,
+            )
+        minimo_col, investimento_col = st.columns(2)
+        quantidade_minima = minimo_col.number_input(
+            "Quantidade mínima comercial",
+            min_value=0.0,
+            value=float(preco.get("quantidade_minima") or 0),
+            step=1.0,
+            key=f"{prefixo}_quantidade_minima",
+        )
+        investimento_minimo = entrada_monetaria(
+            "Investimento mínimo (R$)",
+            float(preco.get("investimento_minimo") or 0),
+            key=f"{prefixo}_investimento_minimo",
+            container=investimento_col,
+        )
+        disponibilidade_col, capacidade_col = st.columns(2)
+        disponibilidade = disponibilidade_col.number_input(
+            "Disponibilidade",
+            min_value=0.0,
+            value=float(preco.get("disponibilidade") or 0),
+            step=1.0,
+            key=f"{prefixo}_disponibilidade",
+            help="Zero significa não informada.",
+        )
+        capacidade = capacidade_col.number_input(
+            "Capacidade",
+            min_value=0.0,
+            value=float(preco.get("capacidade") or 0),
+            step=1.0,
+            key=f"{prefixo}_capacidade",
+            help="Zero significa não informada.",
+        )
     inicio_data = date.fromisoformat(preco["inicio_vigencia"][:10]) if preco.get("inicio_vigencia") else date.today()
     fim_data = date.fromisoformat(preco["fim_vigencia"][:10]) if preco.get("fim_vigencia") else date.today()
     inicio, fim = st.columns(2)
@@ -270,6 +339,12 @@ def formulario(prefixo, inventario=None, preco=None, kpi_atual=None):
     preco_dados = {
         "unidade": unidade["nome"], "valor_bruto": float(valor),
         "desconto_percentual": float(desconto),
+        "moeda": "BRL", "modelo_negociacao": modelo_negociacao,
+        **fees,
+        "quantidade_minima": float(quantidade_minima),
+        "investimento_minimo": float(investimento_minimo),
+        "disponibilidade": float(disponibilidade) or None,
+        "capacidade": float(capacidade) or None,
         "inicio_vigencia": inicio.isoformat(), "fim_vigencia": fim.isoformat(),
     }
     return dados, preco_dados

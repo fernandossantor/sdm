@@ -27,6 +27,7 @@ from components.inputs import entrada_monetaria
 from components.grp_fields import render as render_grp
 from components.schedule_visual import render as render_schedule
 from application.services.identifier_service import IdentifierService
+from domain.custos import calcular_custo_compra
 
 
 # ==========================================================
@@ -351,6 +352,23 @@ else:
         preco_cadastrado_liquido = float(preco_item.get("valor_bruto") or 0) * (
             1 - float(preco_item.get("desconto_percentual") or 0) / 100
         )
+        condicoes_comerciais = {
+            "preco_tabela_unitario": float(preco_item.get("valor_bruto") or 0),
+            "desconto_percentual": float(
+                preco_item.get("desconto_percentual") or 0
+            ),
+            "moeda": preco_item.get("moeda") or "BRL",
+            "modelo_negociacao": (
+                preco_item.get("modelo_negociacao") or "DIRETO"
+            ),
+        }
+        for campo in (
+            "fee_tecnologia_percentual", "fee_tecnologia_fixo",
+            "fee_dados_percentual", "fee_dados_fixo",
+            "fee_verificacao_percentual", "fee_verificacao_fixo",
+            "fee_operacao_percentual", "fee_operacao_fixo",
+        ):
+            condicoes_comerciais[campo] = float(preco_item.get(campo) or 0)
         unidade_cadastrada = str(
             preco_item.get("unidade") or item.get("unidade_compra") or "Unidade"
         )
@@ -470,15 +488,35 @@ else:
                 container=r4,
                 ajuda="Investimento máximo permitido. Zero significa sem teto.",
             )
+            quantidade_minima_efetiva = max(
+                float(quantidade_minima),
+                float(preco_item.get("quantidade_minima") or 0),
+            )
+            limites_quantidade = [
+                float(valor)
+                for valor in (
+                    quantidade_maxima,
+                    preco_item.get("disponibilidade"),
+                    preco_item.get("capacidade"),
+                )
+                if valor is not None and float(valor) > 0
+            ]
+            quantidade_maxima_efetiva = (
+                min(limites_quantidade) if limites_quantidade else 0
+            )
+            verba_minima_efetiva = max(
+                float(verba_minima),
+                float(preco_item.get("investimento_minimo") or 0),
+            )
 
             quantidade_automatica = int(ceil(quantidade_meta))
             quantidade_automatica = max(
-                quantidade_automatica, int(quantidade_minima)
+                quantidade_automatica, int(ceil(quantidade_minima_efetiva))
             )
-            if preco_liquido > 0 and verba_minima > 0:
+            if preco_liquido > 0 and verba_minima_efetiva > 0:
                 quantidade_automatica = max(
                     quantidade_automatica,
-                    int(ceil(verba_minima / preco_liquido)),
+                    int(ceil(verba_minima_efetiva / preco_liquido)),
                 )
 
             e, f, g, h = st.columns(4)
@@ -574,26 +612,34 @@ else:
             impedimentos_geracao.append(
                 f"{item['nome']}: informe " + ", ".join(campos_ausentes) + "."
             )
-        investimento_item = quantidade_item * preco_liquido
+        custo_item = calcular_custo_compra(
+            quantidade_item,
+            preco_liquido,
+            condicoes_comerciais,
+        )
+        investimento_item = custo_item.custo_total
         investimento_proposto += investimento_item
         limites_invalidos = []
-        if quantidade_item < quantidade_minima:
+        if quantidade_item < quantidade_minima_efetiva:
             limites_invalidos.append(
                 "quantidade abaixo do piso "
                 f"({numero_ptbr(quantidade_item)} calculada; "
-                f"{numero_ptbr(quantidade_minima)} mínima)"
+                f"{numero_ptbr(quantidade_minima_efetiva)} mínima)"
             )
-        if quantidade_maxima > 0 and quantidade_item > quantidade_maxima:
+        if (
+            quantidade_maxima_efetiva > 0
+            and quantidade_item > quantidade_maxima_efetiva
+        ):
             limites_invalidos.append(
                 "quantidade acima do teto "
                 f"({numero_ptbr(quantidade_item)} calculada; "
-                f"{numero_ptbr(quantidade_maxima)} máxima)"
+                f"{numero_ptbr(quantidade_maxima_efetiva)} máxima)"
             )
-        if investimento_item < verba_minima:
+        if investimento_item < verba_minima_efetiva:
             limites_invalidos.append(
                 "verba abaixo do piso "
                 f"({moeda_ptbr(investimento_item)} calculada; "
-                f"{moeda_ptbr(verba_minima)} mínima)"
+                f"{moeda_ptbr(verba_minima_efetiva)} mínima)"
             )
         if verba_maxima > 0 and investimento_item > verba_maxima:
             limites_invalidos.append(
@@ -614,11 +660,12 @@ else:
             "frequencia_maxima": frequencia_maxima,
             "quantidade": quantidade_item,
             "preco_unitario": preco_liquido,
+            **condicoes_comerciais,
             "unidade_compra": unidade_preco,
             "modo_calculo": "METAS" if modo_calculo == "Metas geram a quantidade" else "COMPRA",
-            "quantidade_minima": quantidade_minima,
-            "quantidade_maxima": quantidade_maxima or None,
-            "verba_minima": verba_minima,
+            "quantidade_minima": quantidade_minima_efetiva,
+            "quantidade_maxima": quantidade_maxima_efetiva or None,
+            "verba_minima": verba_minima_efetiva,
             "verba_maxima": verba_maxima or None,
             "obrigatorio": obrigatorio,
             "atualizar_cadastro": atualizar_cadastro,

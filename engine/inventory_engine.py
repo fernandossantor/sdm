@@ -685,6 +685,24 @@ class InventoryEngine:
 
                     "unidade_compra": preco.get("unidade") if preco else None,
 
+                    "condicoes_comerciais": {
+                        campo: preco.get(campo)
+                        for campo in (
+                            "valor_bruto", "desconto_percentual", "moeda",
+                            "modelo_negociacao",
+                            "fee_tecnologia_percentual",
+                            "fee_tecnologia_fixo",
+                            "fee_dados_percentual", "fee_dados_fixo",
+                            "fee_verificacao_percentual",
+                            "fee_verificacao_fixo",
+                            "fee_operacao_percentual",
+                            "fee_operacao_fixo",
+                            "quantidade_minima",
+                            "investimento_minimo",
+                            "disponibilidade", "capacidade",
+                        )
+                    } if preco else {},
+
                 }
 
             )

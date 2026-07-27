@@ -181,6 +181,30 @@ class BaseConhecimentoService:
 
         if float(dados.get("valor_bruto", -1)) < 0:
             raise ValueError("O preço não pode ser negativo.")
+        desconto = float(dados.get("desconto_percentual", 0))
+        if not 0 <= desconto <= 100:
+            raise ValueError("O desconto deve estar entre 0% e 100%.")
+        for campo in (
+            "fee_tecnologia_percentual", "fee_tecnologia_fixo",
+            "fee_dados_percentual", "fee_dados_fixo",
+            "fee_verificacao_percentual", "fee_verificacao_fixo",
+            "fee_operacao_percentual", "fee_operacao_fixo",
+            "quantidade_minima", "investimento_minimo",
+        ):
+            if float(dados.get(campo, 0) or 0) < 0:
+                raise ValueError("Fees e mínimos não podem ser negativos.")
+        disponibilidade = dados.get("disponibilidade")
+        capacidade = dados.get("capacidade")
+        if disponibilidade is not None and float(disponibilidade) < 0:
+            raise ValueError("A disponibilidade não pode ser negativa.")
+        if capacidade is not None and float(capacidade) < 0:
+            raise ValueError("A capacidade não pode ser negativa.")
+        if (
+            disponibilidade is not None
+            and capacidade is not None
+            and float(disponibilidade) > float(capacidade)
+        ):
+            raise ValueError("A disponibilidade não pode exceder a capacidade.")
 
         return self.inventarios.salvar_preco(dados)
 

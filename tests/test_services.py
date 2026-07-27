@@ -12,6 +12,7 @@ from infrastructure.database import admin_client
 from infrastructure.repositories.decision_repository import DecisionRepository
 from infrastructure.repositories.planning_repository import PlanningRepository
 from application.services.comparador_service import ComparadorService
+from application.services.base_conhecimento_service import BaseConhecimentoService
 
 
 class TestPlanejamentoService(unittest.TestCase):
@@ -434,6 +435,43 @@ class TestWorkflowService(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             WorkflowService().concluir({}, "desconhecida")
+
+
+class TestCondicoesComerciais(unittest.TestCase):
+
+    def criar_service(self):
+        service = BaseConhecimentoService.__new__(BaseConhecimentoService)
+        service.inventarios = Mock()
+        service.inventarios.salvar_preco.return_value = SimpleNamespace(data=[])
+        return service
+
+    def test_rejeita_disponibilidade_acima_da_capacidade(self):
+        service = self.criar_service()
+
+        with self.assertRaisesRegex(ValueError, "exceder a capacidade"):
+            service.salvar_preco_inventario(
+                {
+                    "valor_bruto": 100,
+                    "disponibilidade": 11,
+                    "capacidade": 10,
+                }
+            )
+
+    def test_persiste_condicoes_validas_sem_descartar_campos(self):
+        service = self.criar_service()
+        dados = {
+            "valor_bruto": 100,
+            "desconto_percentual": 10,
+            "modelo_negociacao": "PMP",
+            "fee_tecnologia_percentual": 5,
+            "quantidade_minima": 10,
+            "disponibilidade": 20,
+            "capacidade": 30,
+        }
+
+        service.salvar_preco_inventario(dados)
+
+        service.inventarios.salvar_preco.assert_called_once_with(dados)
 
 
 if __name__ == "__main__":
