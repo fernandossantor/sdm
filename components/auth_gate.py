@@ -39,11 +39,16 @@ def render():
         enviar = st.form_submit_button("Entrar", type="primary")
 
     if enviar:
+        st.info("Validando acesso…")
         try:
             service.entrar(email, senha, st.session_state)
-        except Exception:
-            st.error("Não foi possível entrar. Confira suas credenciais.")
+        except Exception as exc:
+            st.error("Não foi possível entrar. Confira suas credenciais e a configuração do Supabase.")
+            # Mantém a causa visível para diagnóstico no Streamlit Cloud sem
+            # expor senha, tokens ou qualquer outro segredo da sessão.
+            st.caption(f"Detalhe técnico: {type(exc).__name__}: {exc}")
         else:
+            st.success("Acesso validado. Carregando o PlanOS…")
             st.rerun()
 
     return False
