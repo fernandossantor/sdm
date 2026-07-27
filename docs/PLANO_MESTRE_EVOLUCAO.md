@@ -839,3 +839,15 @@ depende da cópia durável do backup em armazenamento privado.
 - decisões detalhadas ficam em `AUDITORIA_BRANCH_REFATORACAO.md`;
 - Fase 2 encerrada com 92 testes offline aprovados e 3 integrações opcionais
   desabilitadas por padrão.
+
+### 27 de julho de 2026 — Fase 3, solver linear inicial
+
+- criado solver contínuo com HiGHS para maximizar aderência ponderada pela verba;
+- orçamento, reserva, elegibilidade, obrigatoriedade, pisos e tetos por item,
+  ambiente e plataforma integram o modelo;
+- inviabilidade não produz distribuição fabricada;
+- resultado informa método, versão, função objetivo, status, iterações e
+  restrições ativas;
+- ótimo só é declarado quando o solver retorna solução ótima;
+- heurística proporcional permanece disponível como benchmark explícito;
+- quantidades discretas e curvas de resposta permanecem limitações declaradas.

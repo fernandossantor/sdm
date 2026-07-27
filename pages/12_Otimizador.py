@@ -19,7 +19,7 @@ from components.planning_selector import selecionar_planejamento
 
 st.set_page_config(
 
-    page_title=titulo_pagina("Simulação Heurística de Verba"),
+    page_title=titulo_pagina("Otimização de Verba"),
 
     page_icon=PAGE_ICON,
 
@@ -27,10 +27,10 @@ st.set_page_config(
 
 )
 
-st.title("💰 Simulação Heurística de Verba")
+st.title("💰 Otimização de Verba")
 st.info(
-    "Esta ferramenta redistribui a verba proporcionalmente ao score e aplica "
-    "ajustes sequenciais. Não usa solver e não afirma encontrar um ótimo."
+    "O solver linear maximiza o score ponderado sob as restrições informadas. "
+    "A alternativa heurística permanece disponível para comparação."
 )
 
 st.divider()
@@ -43,6 +43,12 @@ origem = selecionar_planejamento(PlanejamentoService(), "otimizador_planejamento
 # ==========================================================
 
 st.subheader("Parâmetros")
+
+metodo = st.radio(
+    "Método",
+    ["Solver linear (HiGHS)", "Simulação heurística"],
+    horizontal=True,
+)
 
 col1, col2, col3 = st.columns(3)
 
@@ -90,7 +96,7 @@ with col3:
 
 executar = st.button(
 
-    "Simular redistribuição",
+    "Otimizar distribuição" if metodo.startswith("Solver") else "Simular redistribuição",
 
     type="primary",
 
@@ -146,12 +152,18 @@ if executar:
     }
 
     try:
-        resultado = BudgetOptimizerService().otimizar(
-            ranking=ranking,
-            verba_total=verba,
-            minimo_ambiente=minimo_ambiente,
-            maximo_ambiente=maximo_ambiente,
-            percentual_teste=percentual_teste / 100,
+        service = BudgetOptimizerService()
+        parametros = {
+            "ranking": ranking,
+            "verba_total": verba,
+            "minimo_ambiente": minimo_ambiente,
+            "maximo_ambiente": maximo_ambiente,
+            "percentual_teste": percentual_teste / 100,
+        }
+        resultado = (
+            service.otimizar_linear(**parametros)
+            if metodo.startswith("Solver")
+            else service.otimizar(**parametros)
         )
     except ValueError as erro:
         st.error(str(erro))
@@ -207,9 +219,12 @@ if "otimizacao" in st.session_state:
     )
     st.caption(
         f"Método: {resumo['metodo']} · versão: "
-        f"{resumo['versao_metodo']} · ótimo comprovado: não · "
+        f"{resumo['versao_metodo']} · ótimo comprovado: "
+        f"{'sim' if resumo['otimo_comprovado'] else 'não'} · "
         f"condição: {resumo['condicao_viabilidade']}."
     )
+    for limitacao in resultado.get("limitacoes", []):
+        st.caption(f"Limitação: {limitacao}")
 
     st.divider()
 

@@ -52,7 +52,7 @@ problemas = {
     "O resultado salvo não foi atualizado": "Depois de alterar premissas ou quantidades, gere e salve uma nova versão do plano. O cronograma é uma visualização calculada.",
     "Uma página posterior não abre": "Selecione Projeto, Briefing e Plano no contexto ativo da barra lateral. Registros já salvos não precisam ser refeitos.",
     "Não consigo gerar o plano": "Audiência, alcance e frequência são obrigatórios por inventário, e os pesos estratégicos devem somar 100%.",
-    "O alcance combinado parece incorreto": "Revise o alcance incremental. Sem valor informado, o sistema usa estimativa por independência e registra essa premissa.",
+    "O alcance combinado parece incorreto": "Revise o alcance incremental. Sem valor informado, o sistema só usa independência quando essa hipótese é aprovada explicitamente.",
 }
 for problema, solucao in problemas.items():
     with st.expander(problema):
@@ -62,7 +62,7 @@ st.header("Análises Avançadas")
 analises = {
     "Comparação de Planos": "Compare duas versões salvas e defina pesos para alcance, frequência, conversões, ROI, jornada, sobre-exposição e custo. Não existe vencedor universal: a justificativa segue os critérios escolhidos.",
     "Simulação de Cenários": "Aplica perfis alternativos ao mesmo conjunto de inventários para observar mudanças de pressão e distribuição.",
-    "Simulação Heurística de Verba": "Explora redistribuições proporcionais ao score com pisos, tetos, limites por ambiente e reserva para testes, sem afirmar ótimo.",
+    "Otimização de Verba": "Use o solver linear para maximizar aderência sob pisos, tetos, limites por ambiente/plataforma e reserva para testes. A simulação proporcional permanece disponível como benchmark heurístico.",
     "Insights de Mídia": "Interpreta entrega, concentração, custos e projeções do plano selecionado.",
 }
 for nome, descricao in analises.items():

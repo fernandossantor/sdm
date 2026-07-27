@@ -1,6 +1,7 @@
 from engine.budget_optimizer import (
     BudgetOptimizer
 )
+from engine.budget_solver import LinearBudgetSolver
 
 
 class BudgetOptimizerService:
@@ -8,6 +9,7 @@ class BudgetOptimizerService:
     def __init__(self):
 
         self.optimizer = BudgetOptimizer()
+        self.solver = LinearBudgetSolver()
 
     # =====================================================
     # OTIMIZAÇÃO
@@ -57,6 +59,30 @@ class BudgetOptimizerService:
 
             percentual_teste=percentual_teste
 
+        )
+
+    def otimizar_linear(
+        self,
+        ranking,
+        verba_total,
+        minimo_ambiente=None,
+        maximo_ambiente=None,
+        minimo_plataforma=None,
+        maximo_plataforma=None,
+        obrigatorios=None,
+        excluidos=None,
+        percentual_teste=0,
+    ):
+        return self.solver.otimizar(
+            ranking=ranking,
+            verba_total=verba_total,
+            minimo_ambiente=minimo_ambiente,
+            maximo_ambiente=maximo_ambiente,
+            minimo_plataforma=minimo_plataforma,
+            maximo_plataforma=maximo_plataforma,
+            obrigatorios=obrigatorios,
+            excluidos=excluidos,
+            percentual_teste=percentual_teste,
         )
 
     # =====================================================

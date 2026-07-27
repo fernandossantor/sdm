@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 from engine.allocation_engine import AllocationEngine
 from engine.budget_optimizer import BudgetOptimizer
+from engine.budget_solver import LinearBudgetSolver
 from engine.classificacao_papeis_engine import ClassificacaoPapeisEngine
 from engine.forecast_engine import ForecastEngine
 from engine.insights_engine import InsightsEngine
@@ -519,6 +520,56 @@ class TestBudgetOptimizer(unittest.TestCase):
         self.assertTrue(resultado["limitacoes"])
         self.assertEqual(resultado["condicao_viabilidade"], "VIAVEL")
         self.assertEqual(resultado["saldo_orcamento"], 0)
+
+
+    RANKING = [
+        {
+            "inventario": "TV",
+            "ambiente": "Vídeo",
+            "plataforma": "Aberta",
+            "score": 100,
+        },
+        {
+            "inventario": "Display",
+            "ambiente": "Display",
+            "plataforma": "Digital",
+            "score": 60,
+        },
+        {
+            "inventario": "Social",
+            "ambiente": "Social",
+            "plataforma": "Digital",
+            "score": 40,
+        },
+    ]
+
+    def test_encontra_otimo_respeitando_limite_de_ambiente(self):
+        resultado = LinearBudgetSolver().otimizar(
+            self.RANKING,
+            verba_total=1000,
+            maximo_ambiente={"Vídeo": 600},
+            minimo_plataforma={"Digital": 400},
+        )
+
+        por_nome = {
+            item["inventario"]: item["verba"]
+            for item in resultado["itens"]
+        }
+        self.assertEqual(por_nome["TV"], 600)
+        self.assertEqual(por_nome["Display"], 400)
+        self.assertEqual(por_nome["Social"], 0)
+        self.assertEqual(resultado["verba_distribuida"], 1000)
+        self.assertTrue(resultado["otimo_comprovado"])
+        self.assertEqual(resultado["metodo_alocacao"], "SOLVER_LINEAR_HIGHS")
+        self.assertEqual(resultado["condicao_viabilidade"], "VIAVEL")
+
+    def test_inviabilidade_e_reportada_pelo_solver(self):
+        with self.assertRaisesRegex(ValueError, "inviável ou não resolvida"):
+            LinearBudgetSolver().otimizar(
+                self.RANKING,
+                verba_total=1000,
+                minimo_ambiente={"Vídeo": 700, "Display": 400},
+            )
 
     def test_falha_quando_nao_ha_score_positivo(self):
 

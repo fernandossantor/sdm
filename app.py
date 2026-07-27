@@ -77,10 +77,10 @@ analise_links = [
     (
         st.Page(
             "pages/12_Otimizador.py",
-            title="Simulação Heurística de Verba",
+            title="Otimização de Verba",
             icon="🎯",
         ),
-        "Simulação Heurística de Verba",
+        "Otimização de Verba",
         "🎯",
     ),
     (st.Page("pages/13_Insights.py", title="Insights de Mídia", icon="💡"), "Insights de Mídia", "💡"),
