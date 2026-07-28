@@ -431,3 +431,373 @@ Modela o processo de construção do conhecimento necessário para planejar camp
 Seu objetivo não é substituir o planejador.
 
 Seu objetivo é tornar explícito, estruturado, rastreável, coerente e simulável o raciocínio do planejamento cross media.
+
+---
+
+# 12. Ontologia Conceitual
+
+O MediAd Planner representa o planejamento cross media como uma rede de conceitos relacionados.
+
+Cada conceito possui identidade própria, atributos específicos e relações explícitas com outros conceitos.
+
+O sistema não trata essas entidades como simples tabelas ou formulários, mas como componentes de uma ontologia disciplinar fundamentada na literatura de Marketing, Comunicação, Planejamento de Mídia, Pesquisa e Administração.
+
+A ontologia organiza-se em quatro grandes domínios.
+
+---
+
+## 12.1 Domínio Estratégico
+
+Representa os elementos responsáveis pela definição do problema de marketing.
+
+Entidades principais:
+
+- Campanha
+- Mercado
+- Categoria
+- Marca
+- Produto
+- Concorrente
+- Objetivo de Marketing
+- Objetivo de Comunicação
+- Indicadores Competitivos
+- Restrições
+- Prioridades
+
+Esse domínio responde principalmente à pergunta:
+
+> "Qual problema precisa ser resolvido?"
+
+---
+
+## 12.2 Domínio Mercadológico
+
+Representa os elementos que descrevem a realidade observável.
+
+Entidades principais:
+
+- Praça
+- Universo
+- Público
+- Segmento
+- Jornada
+- Período
+- Verba
+- Mercado
+- Participação
+- Pressão Competitiva
+
+Esse domínio descreve o contexto no qual a campanha será desenvolvida.
+
+Não existem decisões.
+
+Existem descrições estruturadas.
+
+---
+
+## 12.3 Domínio do Planejamento
+
+Representa a transformação do conhecimento descritivo em decisões de mídia.
+
+Entidades principais:
+
+- Intenção de Mídia
+- Objetivos de Mídia
+- Estratégias
+- Papéis Estratégicos
+- Arquitetura de Mídia
+- Canais
+- Inventários
+- Veículos
+- Formatos
+- Distribuição Temporal
+- Distribuição Territorial
+
+Esse domínio transforma necessidades estratégicas em alternativas de planejamento.
+
+## 12.4 Domínio da Avaliação
+
+Representa a mensuração das alternativas.
+
+Entidades principais:
+
+- Indicadores
+- KPIs
+- Simulações
+- Cenários
+- Resultados
+- Comparações
+- Recomendações
+- Histórico
+
+Esse domínio permite avaliar diferentes soluções antes de sua consolidação.
+
+---
+
+## 12.5 Natureza das Relações
+
+As relações entre entidades podem assumir diferentes naturezas.
+
+### Hierárquicas
+
+Exemplo:
+
+Campanha
+
+↓
+
+Briefing
+
+↓
+
+Tradução Estratégica
+
+↓
+
+Plano
+
+---
+
+### Compositivas
+
+Exemplo:
+
+Público
+
+↓
+
+Segmentos
+
+↓
+
+Subsegmentos
+
+---
+
+### Dependência
+
+Exemplo:
+
+Objetivos de Comunicação
+
+dependem dos
+
+Objetivos de Marketing.
+
+---
+
+### Influência
+
+Exemplo:
+
+Mercado
+
+influencia
+
+Objetivos de Marketing.
+
+Mas não os determina.
+
+---
+
+### Consistência
+
+Exemplo:
+
+Objetivos de Marketing
+
+↓
+
+Objetivos de Comunicação
+
+↓
+
+Objetivos de Mídia
+
+↓
+
+KPIs
+
+Essas relações permitem verificar coerência sem impor soluções.
+
+---
+
+## 12.6 Princípio Ontológico
+
+Nenhum conceito existe isoladamente.
+
+O significado de qualquer entidade decorre simultaneamente de:
+
+- sua definição;
+- seus atributos;
+- suas relações;
+- sua posição no processo de planejamento.
+
+Assim, alterar qualquer conceito implica alterar a rede conceitual à qual pertence.
+
+---
+
+# 13. Grafo Conceitual do MediAd Planner
+
+O MediAd Planner representa o planejamento como um grafo dirigido de construção do conhecimento.
+
+Cada nó representa uma entidade conceitual.
+
+Cada aresta representa uma relação de dependência, influência ou transformação.
+
+O fluxo geral do conhecimento pode ser representado da seguinte forma.
+
+```
+
+```text
+Mercado
+        │
+        ▼
+Categoria
+        │
+        ▼
+Marca
+        │
+        ▼
+Produto
+        │
+        ▼
+Campanha
+        │
+        ▼
+Briefing
+        │
+        ▼
+Objetivos de Marketing
+        │
+        ▼
+Objetivos de Comunicação
+        │
+        ▼
+Intenções de Mídia
+        │
+        ▼
+Objetivos de Mídia
+        │
+        ▼
+Estratégias
+        │
+        ▼
+Arquitetura de Mídia
+        │
+        ▼
+Plano
+        │
+        ▼
+Simulações
+        │
+        ▼
+Resultados
+```
+
+13.1 Grafo Mercadológico
+
+Praça
+   │
+   ▼
+Universo
+   │
+   ▼
+Público
+   │
+   ▼
+Segmentos
+   │
+   ▼
+População
+
+13.2 Grafo Competitivo
+
+Mercado
+    │
+    ▼
+Concorrentes
+    │
+    ▼
+Indicadores Competitivos
+    │
+    ▼
+Marca
+
+13.3 Grafo Estratégico
+
+Objetivos de Marketing
+          │
+          ▼
+Objetivos de Comunicação
+          │
+          ▼
+Intenções de Mídia
+          │
+          ▼
+Objetivos de Mídia
+
+13.4 Grafo Operacional
+
+Arquitetura
+      │
+      ▼
+Canais
+      │
+      ▼
+Inventários
+      │
+      ▼
+Veículos
+      │
+      ▼
+Formatos
+
+13.5 Grafo de Avaliação
+
+Plano
+   │
+   ▼
+KPIs
+   │
+   ▼
+Simulações
+   │
+   ▼
+Comparações
+   │
+   ▼
+Resultados
+
+13.6 Princípio do Grafo
+
+Todo elemento existente no MediAd Planner deverá pertencer a pelo menos um grafo conceitual.
+
+Nenhuma entidade poderá existir sem relações explícitas.
+
+Todo novo parâmetro deverá responder, antes de sua implementação:
+
+A qual conceito pertence?
+Em qual grafo está inserido?
+Com quais entidades se relaciona?
+Quais decisões influencia?
+Quais decisões dependem dele?
+
+Caso essas relações não possam ser claramente identificadas, o parâmetro não deverá ser incorporado ao sistema.
+
+13.7 Princípio Geral da Ontologia
+
+O conhecimento produzido pelo MediAd Planner não é organizado em formulários, mas em uma rede de conceitos interdependentes.
+
+Os formulários constituem apenas a interface de entrada.
+
+A arquitetura real do sistema é dada pela ontologia conceitual e pelos grafos que representam as relações entre seus elementos.
+
+
+---
+
+### Há um último passo que considero importante
+
+Depois desses capítulos, eu acrescentaria um **Apêndice A – Glossário Canônico**. Ele conteria, em ordem alfabética, a definição oficial de cada conceito (por exemplo, *Campanha*, *Mercado*, *Intenção de Mídia*, *Papel Estratégico*, *KPIs*, *Universo*, *Segmento*). Esse glossário passaria a ser a única referência autorizada para a nomenclatura do sistema.
+
+Com isso, o MediAd Planner deixaria de ser apenas um software de planejamento e passaria a possuir um **modelo formal de conhecimento**, no qual a documentação, a implementação em Python, o banco de dados e a interface compartilham exatamente o mesmo vocabulário e a mesma estrutura conceitual. Na minha avaliação, esse é um diferencial metodológico muito significativo do projeto.
