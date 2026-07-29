@@ -35,6 +35,7 @@ O projeto é definido como uma plataforma de inteligência de mídia baseada em 
 - 17B — Protocolo de Formalização dos Objetos de Conhecimento Técnico;
 - 17C — Núcleo 1: Universo e Audiência;
 - 17D — Núcleo 2: Alcance e Frequência;
+- 17E — Núcleo 3: GRP e Equivalências Multimídia;
 - 18 — Problemas Técnicos de Planejamento de Mídia.
 
 ### Pendentes de confirmação arquitetural
@@ -114,16 +115,7 @@ Formalizado no documento:
 17C_NUCLEO_1_UNIVERSO_E_AUDIENCIA.md
 ```
 
-Foram estruturados:
-
-- conceito de universo;
-- validação de identidade de universo;
-- conceito e cálculo de audiência percentual;
-- conceito e cálculo de participação de audiência;
-- conceito de impactos;
-- cálculo de impactos por audiência e inserções.
-
-A separação lógica desses componentes não implica a criação de novas bibliotecas nem exige que cada componente se torne uma tabela, classe ou arquivo próprio na implementação.
+Foram estruturados conceito de universo, identidade de universo, audiência percentual, participação de audiência, impactos e cálculos correspondentes.
 
 ### Núcleo 2 — Alcance e frequência
 
@@ -142,58 +134,123 @@ KT_CONCEITO_FREQUENCIA_MEDIA
 KT_CALCULO_FREQUENCIA_MEDIA
 ```
 
-As validações de universo, deduplicação, tratamento de zero, interpretação e mensagens permanecem integradas aos objetos ou reutilizam conhecimentos já formalizados no Núcleo 1.
+As noções de alcance líquido, acumulado, incremental, distribuição de frequência, frequência eficiente e saturação permanecem como qualificadores ou tópicos relacionados até que uma necessidade operacional exija separação.
 
-As seguintes noções permanecem como qualificadores ou tópicos relacionados, sem objetos autônomos antecipados:
+### Núcleo 3 — GRP e equivalências multimídia
 
-- alcance líquido;
-- alcance acumulado;
-- alcance incremental;
-- alcance projetado e realizado;
-- distribuição de frequência;
-- frequência eficiente;
-- frequência excessiva;
-- saturação.
+Formalizado no documento:
 
-Elas somente serão separadas se os problemas técnicos ou a implementação exigirem cálculo, validade ou versionamento próprios.
+```text
+17E_NUCLEO_3_GRP_E_EQUIVALENCIAS_MULTIMIDIA.md
+```
 
-## Próxima etapa ativa
-
-### Núcleo 3 — GRP
-
-O núcleo deverá ser formalizado em um único documento coeso.
-
-A proposta inicial deve ser reduzida a um pequeno conjunto de objetos principais:
+Foram adotados quatro objetos principais:
 
 ```text
 KT_CONCEITO_GRP
 KT_CALCULO_GRP
 KT_CONVERSAO_GRP_IMPACTOS
-KT_RESTRICAO_COMPARABILIDADE_GRP
+KT_EQUIVALENCIA_PRESSAO_MULTIMIDIA
 ```
 
-O objeto `KT_CALCULO_GRP` poderá conter, como variantes internas:
+O cálculo de GRP reúne como variantes internas:
 
 ```text
 GRP por audiência percentual e inserções
+GRP por soma da programação
 GRP por alcance percentual e frequência média
-soma de GRPs de uma programação
+GRP por exposições brutas e universo
 ```
 
-A interpretação de pressão, os alertas e as validações de universo permanecerão integrados, salvo necessidade concreta de execução independente.
+A comparação entre mídias passa a utilizar o conceito de pontos de pressão qualificados.
+
+A regra de equivalência classifica cada conversão como:
+
+```text
+EQUIVALENCIA_DIRETA
+EQUIVALENCIA_APOS_CONVERSAO
+EQUIVALENCIA_CONDICIONADA
+NAO_EQUIVALENTE
+DADOS_INSUFICIENTES
+```
+
+A equivalência multimídia é uma equivalência de escala e pressão. Ela não transforma contatos de naturezas diferentes em experiências idênticas.
+
+O sistema deverá preservar simultaneamente:
+
+```text
+metrica_original
+valor_original
+pontos_de_pressao_convertidos
+estado_de_equivalencia
+qualificador_da_exposicao
+universo
+ressalvas
+confianca
+```
+
+Foram estabelecidas alternativas condicionadas para:
+
+- televisão linear;
+- rádio;
+- digital display, social e vídeo online;
+- CTV, OTT e streaming;
+- OOH e DOOH;
+- cinema;
+- jornal e revista;
+- mídia própria, e-mail e CRM;
+- eventos, PDV e no media.
+
+As diferenças entre mídias permanecem como variantes internas da regra de equivalência, sem criação de objetos separados para cada meio.
+
+## Princípios consolidados de comparação multimídia
+
+```text
+mesma forma algébrica
+não implica
+mesmo significado de exposição
+```
+
+```text
+comparar pressão
+≠
+somar alcance
+≠
+deduplicar pessoas
+```
+
+A conversão para pontos de pressão somente será permitida quando houver:
+
+- definição de exposição;
+- valor bruto;
+- universo compatível;
+- unidade populacional identificada;
+- target, praça e período;
+- fonte e metodologia;
+- qualificador da exposição;
+- estado de equivalência e confiança.
+
+Impressão, oportunidade de ver, circulação, fluxo, entrega, presença e interação não são sinônimos.
+
+## Próxima etapa ativa
+
+Revisar conjuntamente os Núcleos 1, 2 e 3 para:
+
+1. detectar duplicidades e decomposição excessiva;
+2. harmonizar nomenclaturas, estados e campos;
+3. criar um pequeno conjunto de casos válidos, inválidos e condicionados;
+4. verificar se os objetos formalizados são suficientes para os primeiros problemas da Biblioteca 18;
+5. evitar antecipar objetos que ainda não tenham uso demonstrado.
 
 ## Sequência posterior
 
-1. formalizar o Núcleo 3 — GRP com granularidade mínima sustentável;
-2. revisar os três núcleos em conjunto para detectar duplicidades ou decomposição excessiva;
-3. testar os objetos em casos válidos e inválidos;
-4. relacionar os conhecimentos aos indicadores da Biblioteca 15;
-5. relacionar os conhecimentos aos problemas da Biblioteca 18;
-6. avaliar quais elementos realmente exigem representação estruturada em YAML, JSON ou banco de dados;
-7. revisar a necessidade de existência autônoma das Bibliotecas 19, 20 e 21;
-8. especificar os motores especialistas;
-9. modelar o banco de dados definitivo;
-10. definir a arquitetura de inferência e explicabilidade.
+1. relacionar os conhecimentos aos indicadores da Biblioteca 15;
+2. relacionar os conhecimentos aos problemas da Biblioteca 18;
+3. avaliar quais elementos realmente exigem representação estruturada em YAML, JSON ou banco de dados;
+4. revisar a necessidade de existência autônoma das Bibliotecas 19, 20 e 21;
+5. especificar os motores especialistas;
+6. modelar o banco de dados definitivo;
+7. definir a arquitetura de inferência e explicabilidade.
 
 ## Observação
 
