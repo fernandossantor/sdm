@@ -3,563 +3,404 @@
 **Documento:** `04_ARQUITETURA_DE_MIDIA.md`  
 **Plano Mestre:** MediAd Planner  
 **Status:** Consolidado  
-**Última revisão:** 28/07/2026  
+**Última revisão:** 29/07/2026  
 **Natureza:** Documento normativo
 
 ---
 
 ## 1. Finalidade
 
-A Arquitetura de Mídia recebe o **Perfil Estratégico de Mídia** produzido pela Tradução Estratégica e o converte em funções, resultados pretendidos, indicadores prioritários, pontos de contato, meios, canais, papéis estratégicos, relações e inventários candidatos.
+A Arquitetura de Mídia recebe o Perfil Estratégico de Mídia e o converte em uma ou mais Arquiteturas Candidatas, tecnicamente justificadas, editáveis, versionadas e aptas à simulação.
 
-Seu resultado principal é uma ou mais **Arquiteturas Candidatas de Mídia**, tecnicamente justificadas, editáveis, versionadas e aptas à simulação.
+Ela não começa por meios ou inventários. Seu processo progride da estratégia comunicacional às alternativas concretas.
 
 ```text
-Campanha
-    ↓
 Briefing
     ↓
 Tradução Estratégica
     ↓
-Perfil Estratégico de Mídia
+Objetivos e resultados pretendidos
     ↓
-Objetivos e Resultados Pretendidos
+Indicadores prioritários
     ↓
-Indicadores Prioritários
+Jornada e etapa
     ↓
-Arquitetura de Mídia
+Necessidades comunicacionais
     ↓
-Arquiteturas Candidatas
+Funções comunicacionais da mídia
+    ↓
+Pontos de contato
+    ↓
+Tipologias e inventários compatíveis
+    ↓
+Arquiteturas candidatas
     ↓
 Simulações
-    ↓
-Comparação e Otimização
-    ↓
-Plano Consolidado
 ```
-
-A adequação das mídias nunca é propriedade fixa dos meios. Ela é calculada dinamicamente a partir das variáveis do Briefing, dos pesos da Tradução Estratégica, dos resultados pretendidos, dos indicadores priorizados, das condições da campanha, das capacidades das alternativas e das relações entre públicos e inventários.
 
 ---
 
 ## 2. Natureza do artefato
 
-Uma Arquitetura Candidata de Mídia deverá conter, progressivamente:
+Uma Arquitetura Candidata pode conter:
 
-- objetivos de mídia;
-- resultados pretendidos;
+- objetivos e resultados pretendidos;
 - indicadores prioritários;
-- funções de mídia;
-- públicos, segmentos, universos e praças vinculados;
-- etapas da jornada;
-- pontos de contato;
-- meios e canais candidatos;
+- públicos, segmentos, universos e praças;
+- jornada e etapas relevantes;
+- necessidades comunicacionais priorizadas;
+- funções comunicacionais requeridas;
+- pontos de contato candidatos;
+- meios, canais, veículos, plataformas, programas, formatos e inventários elegíveis;
 - papéis estratégicos;
 - relações entre mídias;
-- veículos, plataformas, programas, formatos e inventários elegíveis;
-- capacidades analíticas dos inventários;
 - modelos de compra;
-- hipóteses de overlap;
-- hipóteses de distribuição geográfica e temporal;
+- hipóteses de overlap, saturação e continuidade;
+- capacidades analíticas dos inventários;
 - critérios de seleção;
 - índices de aderência;
-- restrições;
-- graus de confiança;
-- alterações do planejador;
-- rastreabilidade;
-- versão e estado.
+- restrições, confiança, ajustes e rastreabilidade.
 
 A Arquitetura não é ainda uma grade final de veiculação, uma compra de mídia ou um plano consolidado.
 
 ---
 
-## 3. Limites da Arquitetura
+## 3. Limites
 
 A Arquitetura deve:
 
-- transformar parâmetros estratégicos em objetivos e funções de mídia;
-- relacionar objetivos com resultados pretendidos;
-- relacionar resultados com indicadores possíveis;
-- priorizar indicadores para o planejamento;
-- relacionar jornada e pontos de contato;
-- qualificar meios, canais, veículos, plataformas, programas, formatos e inventários;
-- incorporar a relação entre características dos públicos e propriedades das alternativas de mídia;
-- incorporar a relação entre indicadores prioritários e capacidades analíticas dos inventários;
-- classificar mídias como principal, complementar ou de apoio;
-- registrar relações entre mídias;
-- sugerir alternativas elegíveis;
+- relacionar objetivos a resultados pretendidos;
+- priorizar indicadores;
+- selecionar ou adaptar jornadas;
+- identificar etapas relevantes;
+- relacionar necessidades comunicacionais às etapas;
+- relacionar funções simultaneamente às etapas e necessidades;
+- selecionar pontos de contato como categorias de mídia;
+- consultar a Biblioteca de Inventários pela tipologia dos pontos de contato;
+- qualificar alternativas por público, território, contexto, indicadores, custos e restrições;
 - produzir arquiteturas candidatas;
 - fornecer configurações iniciais para simulação;
-- permitir inclusão, exclusão e ajuste pelo planejador.
+- permitir ajustes do planejador.
 
 A Arquitetura não deve, isoladamente:
 
-- calcular resultados finais de alcance ou frequência;
-- calcular GRP, TRP, CPM, CPP, CTR, CPC, CPA ou ROAS;
-- determinar quantidades finais de inserções ou impressões;
+- tratar jornada como tipo de cliente ou setor;
+- tratar função como propriedade essencial de um meio;
+- confundir ponto de contato com formato ou peça;
+- cadastrar inventários;
+- calcular resultados finais;
 - fechar a distribuição definitiva da verba;
-- executar a otimização final;
-- consolidar o plano;
 - acompanhar campanha em execução;
-- armazenar resultados realizados;
-- comparar planejado e realizado.
-
-Os cálculos pertencem ao Ambiente de Elaboração, sobretudo à Simulação, à Comparação e à Otimização. A mensuração posterior ocorre fora do MediAd Planner.
+- armazenar resultados realizados.
 
 ---
 
 ## 4. Contrato de entrada
 
-A Arquitetura deve consumir o Perfil Estratégico de Mídia vigente, especialmente:
+A Arquitetura consome, conforme disponibilidade:
 
-- dimensões técnicas;
-- intensidades requeridas;
-- pesos estratégicos;
-- prioridades;
-- condições de atendimento;
-- objetivos de mídia derivados;
+- objetivos de mídia;
 - resultados pretendidos;
-- indicadores possíveis e prioritários;
+- indicadores prioritários;
+- metas do planejamento;
 - públicos, segmentos e universos;
-- interesses e comportamentos relevantes;
+- jornada selecionada;
+- etapas relevantes;
+- necessidades comunicacionais;
+- funções comunicacionais;
+- pontos de contato candidatos;
+- interesses e comportamentos;
 - praças e territórios;
-- etapas da jornada;
-- pontos de contato e necessidades comunicacionais;
-- período;
-- verba disponível;
-- restrições;
-- tensões;
+- período e verba;
+- restrições e tensões;
+- pesos estratégicos;
 - graus de confiança;
-- valores calculados, ajustados e efetivos.
+- dados editoriais, contextuais, territoriais, analíticos e comerciais dos inventários.
 
-Também deve consultar:
-
-- relações objetivo–resultado;
-- relações resultado–indicador;
-- quatro famílias de indicadores;
-- requisitos dos indicadores;
-- proposta editorial e temas dos veículos, programas e ambientes;
-- contextos e comportamentos de contato atendidos pelos inventários;
-- funções de jornada compatíveis;
-- segmentações disponíveis;
-- cobertura territorial;
-- capacidades analíticas dos inventários;
-- fontes, datas, metodologias e confiança dos dados.
-
-Nenhuma recomendação deve ser produzida sem vínculo explícito com parâmetros do Perfil Estratégico ou regras metodológicas versionadas.
+Nenhuma recomendação deve ser produzida sem vínculo explícito com parâmetros estratégicos ou regras metodológicas versionadas.
 
 ---
 
 ## 5. Processo canônico
 
 ```text
-Perfil Estratégico de Mídia
-        ↓
-Objetivos de mídia
-        ↓
-Resultados pretendidos
-        ↓
-Indicadores possíveis
-        ↓
-Indicadores prioritários
-        ↓
-Funções de mídia requeridas
-        ↓
-Pontos de contato possíveis
-        ↓
-Capacidades técnicas necessárias
-        ↓
-Qualificação de meios e canais
-        ↓
-Qualificação de veículos, plataformas, programas e formatos
-        ↓
-Qualificação público–inventário
-        ↓
-Qualificação indicador–inventário
-        ↓
-Elegibilidade de inventários
-        ↓
-Classificação dos papéis estratégicos
-        ↓
-Construção de relações entre mídias
-        ↓
-Geração de arquiteturas candidatas
-        ↓
-Configurações iniciais para simulação
-```
-
-A seleção não deve começar diretamente pelo inventário. O movimento deve ser progressivo, do objetivo e do resultado pretendido até a unidade comercial disponível.
-
----
-
-## 6. Objetivos, resultados e indicadores
-
-### 6.1 Objetivos
-
-Objetivos expressam a direção estratégica do plano.
-
-### 6.2 Resultados pretendidos
-
-Resultados pretendidos descrevem a transformação esperada.
-
-### 6.3 Indicadores prioritários
-
-Indicadores prioritários são aqueles selecionados para orientar a avaliação das alternativas e as metas do planejamento.
-
-Um indicador torna-se KPI apenas quando recebe prioridade decisória em uma campanha, versão ou cenário.
-
-A Arquitetura deve considerar quatro famílias:
-
-1. Planejamento e pressão de mídia;
-2. Entrega;
-3. Eficiência;
-4. Resposta.
-
-Alcance, cobertura, frequência, impactos, GRP e TRP podem constituir metas centrais do plano.
-
----
-
-## 7. Funções de mídia
-
-A Arquitetura deve converter parâmetros estratégicos em funções de mídia, entre elas:
-
-- construir alcance;
-- ampliar cobertura territorial;
-- gerar frequência;
-- sustentar continuidade;
-- acelerar a construção de alcance;
-- produzir impacto;
-- reforçar lembrança;
-- alcançar segmentos específicos;
-- sustentar presença territorial;
-- acompanhar etapas da jornada;
-- gerar tráfego;
-- estimular resposta;
-- apoiar conversão;
-- permitir retargeting;
-- gerar dados;
-- apoiar mensuração posterior;
-- responder à pressão competitiva;
-- reforçar diferenciação;
-- integrar mídia e ponto de venda.
-
-Uma função pode ser atendida por várias mídias. Uma mesma mídia pode exercer várias funções.
-
----
-
-## 8. Jornada e pontos de contato
-
-```text
-Público
+Objetivo
     ↓
-Etapa da jornada
+Resultado pretendido
+    ↓
+Indicadores prioritários
+    ↓
+Jornada
+    ↓
+Etapa
     ↓
 Necessidade comunicacional
     ↓
-Ponto de contato possível
+Função comunicacional
     ↓
-Meios e canais aptos
+Ponto de contato
+    ↓
+Tipologia compatível
+    ↓
+Qualificação dos inventários
+    ↓
+Elegibilidade
+    ↓
+Papéis estratégicos
+    ↓
+Arquiteturas candidatas
 ```
 
-O ponto de contato representa uma situação de encontro entre o público e a comunicação. Não deve ser confundido com meio, canal, veículo ou plataforma.
+A seleção não deve começar diretamente pelo inventário.
 
 ---
 
-## 9. Qualificação das mídias
+## 6. Jornada, etapa, necessidade e função
 
-Cada alternativa deve ser qualificada por capacidades técnicas, relação contextual com o público e capacidades analíticas.
+A Arquitetura utiliza a Biblioteca 16 para interpretar a progressão comunicacional.
 
-### 9.1 Capacidades técnicas
+### 6.1 Jornada
 
-- potencial de alcance;
-- potencial de frequência;
-- cobertura geográfica;
-- seletividade;
-- impacto;
-- continuidade;
-- velocidade de entrega;
-- segmentação;
-- contextualidade;
-- capacidade audiovisual;
-- interatividade;
-- capacidade de resposta;
-- capacidade de conversão;
-- mensurabilidade;
-- rastreabilidade;
-- flexibilidade de compra;
-- flexibilidade criativa;
-- capacidade de otimização;
-- custo relativo;
-- disponibilidade;
+Modelo de progressão entre estados de conhecimento, relação, decisão, atitude ou comportamento. Não corresponde a cliente, setor ou organização.
+
+### 6.2 Etapa
+
+Estado contextual dentro da jornada. Pode haver percursos lineares, retornos, saltos, repetição ou simultaneidade.
+
+### 6.3 Necessidade comunicacional
+
+Aquilo que precisa ser atendido em determinada etapa para favorecer o resultado pretendido.
+
+### 6.4 Função comunicacional da mídia
+
+Papel que uma mídia pode desempenhar para atender uma necessidade em uma etapa específica.
+
+```text
+Etapa + Necessidade → Funções possíveis
+```
+
+A função é contextual. Nenhuma mídia possui função fixa por natureza.
+
+---
+
+## 7. Pontos de contato
+
+Ponto de contato é uma categoria de mídia pela qual o público pode encontrar a comunicação.
+
+Exemplos:
+
+- televisão;
+- rádio;
+- jornal;
+- revista;
+- cinema;
+- mídia exterior;
+- mídia digital;
+- ponto de venda;
+- evento;
+- atendimento;
+- mídia própria;
+- no media.
+
+Vídeo, banner, feed, stories, anúncio responsivo, landing page, programa, posicionamento ou unidade comercial não são pontos de contato. São desdobramentos tipológicos, formatos, ativos ou inventários.
+
+A Arquitetura termina a camada comunicacional no ponto de contato e consulta a Biblioteca 13 para materializá-lo em alternativas concretas.
+
+---
+
+## 8. Qualificação das alternativas
+
+Cada alternativa deve ser qualificada por:
+
+- compatibilidade com o ponto de contato;
+- aderência à função comunicacional;
+- aderência à etapa e à necessidade;
+- compatibilidade com os indicadores prioritários;
+- potencial de alcance, frequência, cobertura, impacto e continuidade;
+- seletividade e segmentação;
+- adequação editorial, contextual e comportamental;
+- compatibilidade demográfica e territorial;
+- mensurabilidade e rastreabilidade;
+- custo e disponibilidade;
+- flexibilidade de compra e criação;
 - risco de saturação;
-- compatibilidade temporal.
+- confiança das evidências.
 
-### 9.2 Qualificação público–inventário
+---
 
-Compara:
+## 9. Qualificação público–inventário
 
-- interesses do público e temas editoriais;
-- comportamentos e contextos de contato;
-- etapa da jornada e funções possíveis;
-- território do público e cobertura territorial;
-- características demográficas e segmentações disponíveis;
-- afinidade observada, quando disponível.
+Compara características estruturadas do público com propriedades das alternativas:
 
-### 9.3 Qualificação indicador–inventário
+```text
+Interesses ↔ temas e proposta editorial
+Comportamentos ↔ contextos de contato
+Território ↔ cobertura
+Demografia ↔ segmentação ou audiência observada
+Etapa e necessidade ↔ funções possíveis
+```
 
-Compara os indicadores prioritários com as capacidades analíticas concretas do inventário.
+Afinidade observada é evidência empírica entre público e mídia. Aderência estimada é cálculo estratégico do sistema. Não devem ser confundidas.
 
-Deve verificar:
+---
 
-- compatibilidade;
-- possibilidade de receber meta;
-- capacidade de cálculo ou projeção;
-- possibilidade de estimativa por benchmark;
+## 10. Qualificação indicador–inventário
+
+A Arquitetura compara:
+
+- indicadores prioritários;
+- indicadores compatíveis com o inventário;
+- capacidade de projeção;
 - possibilidade de mensuração posterior;
 - requisitos de dados;
 - fontes disponíveis;
 - limitações;
-- grau de confiança.
+- confiança.
 
-```text
-Indicador
-× Meio
-× Ambiente
-× Formato
-× Modelo de compra
-× Unidade de compra
-× Disponibilização
-× Fonte de dados
-```
-
-Não basta afirmar que um meio genericamente suporta um indicador.
+Inventários não possuem KPI permanente. Possuem capacidades analíticas.
 
 ---
 
-## 10. Índice de aderência
+## 11. Índice de aderência
 
-A recomendação deve resultar da correlação entre:
+A recomendação resulta da combinação contextual de:
 
 ```text
 Perfil Estratégico
-        ×
-Resultados e indicadores prioritários
-        ×
-Capacidades técnicas da mídia
-        ×
+×
+Etapa, necessidade e função
+×
+Ponto de contato
+×
+Capacidades da alternativa
+×
 Qualificação público–inventário
-        ×
+×
 Qualificação indicador–inventário
-        ×
+×
 Condições da campanha
 ```
 
-O índice deverá considerar:
+O sistema preserva fórmula, versão, contribuições por dimensão, penalizações, valor calculado, valor ajustado, valor efetivo e justificativa.
 
-- pesos estratégicos;
-- objetivos e resultados pretendidos;
-- indicadores prioritários;
-- capacidades da alternativa;
-- públicos e praças;
-- interesses e comportamentos relevantes;
-- jornada e pontos de contato;
-- compatibilidades editorial, comportamental, demográfica, territorial e contextual;
-- capacidades analíticas;
-- afinidade observada, quando houver;
-- período;
-- verba e preços;
-- restrições;
-- disponibilidade;
-- confiança dos dados;
-- penalizações por incompatibilidade ou saturação prevista.
-
-O índice orienta a recomendação, mas não substitui a decisão do planejador.
+O índice orienta, mas não substitui a decisão do planejador.
 
 ---
 
-## 11. Hierarquia de seleção
+## 12. Hierarquia de materialização
+
+Após a seleção do ponto de contato, a Biblioteca de Inventários pode desdobrar:
 
 ```text
-Meio
+Ponto de contato
+    ↓
+Tecnologia
     ↓
 Canal
     ↓
-Veículo ou plataforma
+Ambiente
     ↓
-Programa, faixa, ambiente ou posicionamento
+Estrutura
     ↓
 Formato
+    ↓
+Meio, veículo ou plataforma
+    ↓
+Programa, faixa, posicionamento ou contexto
     ↓
 Inventário
 ```
 
-Nem todo mercado exige todos os níveis, mas cada entidade deve possuir tipo e posição inequívocos.
+Nem todos os mercados exigem todos os níveis, mas cada entidade deve possuir posição inequívoca.
 
 ---
 
-## 12. Papéis estratégicos
+## 13. Papéis estratégicos
 
-Toda mídia selecionada deve poder receber um papel:
+Toda alternativa selecionada pode receber papel:
 
-- Principal;
-- Complementar;
-- Apoio.
+- principal;
+- complementar;
+- apoio.
 
-O papel é contextual e pode variar por:
-
-- público;
-- segmento;
-- praça;
-- etapa da jornada;
-- objetivo;
-- resultado pretendido;
-- indicador prioritário;
-- período.
-
-A atribuição deve considerar:
-
-- objetivos;
-- resultados;
-- indicadores;
-- orçamento;
-- complementaridade;
-- overlap;
-- saturação;
-- cobertura;
-- restrições;
-- disponibilidade;
-- capacidades analíticas.
+O papel é contextual e pode variar por público, praça, etapa, necessidade, função, objetivo e período.
 
 ---
 
-## 13. Overlap
+## 14. Overlap e saturação
 
-A Arquitetura registra hipóteses de overlap. A Simulação aplica valores quantitativos.
+A Arquitetura registra hipóteses. A Simulação aplica valores quantitativos.
 
-Regra metodológica:
-
-```text
-Mesma praça:
-o overlap tende a contribuir principalmente para frequência.
-
-Praças distintas:
-a combinação tende a contribuir principalmente para alcance territorial.
-```
-
-Essa regra não elimina a modelagem da sobreposição real de audiências.
+Mesma praça tende a aumentar frequência; praças distintas tendem a ampliar alcance territorial. Essa regra não elimina a modelagem da sobreposição real de audiências.
 
 ---
 
-## 14. Inventário elegível
+## 15. Inventário elegível
 
-A elegibilidade deverá considerar:
+A elegibilidade considera:
 
-- disponibilidade na praça;
-- sobreposição entre território do público e cobertura do veículo;
-- aderência às funções;
-- compatibilidade com objetivos e resultados;
-- compatibilidade com indicadores prioritários;
-- compatibilidade com a jornada;
-- aderência editorial e comportamental;
-- compatibilidade demográfica;
-- afinidade observada, quando houver;
-- preço;
-- modelo de compra;
-- período;
-- restrições;
-- formato;
-- capacidades analíticas;
+- compatibilidade tipológica com o ponto de contato;
+- função comunicacional requerida;
+- etapa e necessidade;
+- disponibilidade e cobertura;
+- público e afinidade;
+- indicadores prioritários e capacidades analíticas;
+- preço, modelo de compra e período;
+- formato e restrições;
 - limites operacionais;
 - dados suficientes para simulação.
 
 Estados possíveis:
 
-- Sugerido;
-- Elegível;
-- Selecionado para simulação;
-- Rejeitado;
-- Indisponível;
-- Substituído.
+```text
+SUGERIDO
+ELEGIVEL
+SELECIONADO_PARA_SIMULACAO
+REJEITADO
+INDISPONIVEL
+SUBSTITUIDO
+```
 
 ---
 
-## 15. Relação com a Simulação
+## 16. Relação com a Simulação
 
-A Arquitetura define:
+A Arquitetura define estrutura, critérios, alternativas e hipóteses.
 
-- objetivos;
-- resultados pretendidos;
-- indicadores prioritários;
-- funções;
-- pontos de contato;
-- meios e canais;
-- papéis;
-- relações;
-- inventários candidatos;
-- capacidades analíticas exigidas;
-- modelos de compra;
-- hipóteses de overlap;
-- critérios e restrições;
-- configurações iniciais.
+A Simulação calcula quantidades, investimento, audiência, impactos, alcance, cobertura, frequência, GRP, TRP, custos, respostas, saturação, contribuição marginal e distribuição geográfica e temporal.
 
-A Simulação calcula ou projeta, conforme disponibilidade de dados:
-
-- quantidades;
-- investimento;
-- audiência;
-- impactos;
-- alcance;
-- cobertura;
-- frequência;
-- GRP;
-- TRP;
-- CPM;
-- CPP;
-- CTR;
-- CPC;
-- CPA;
-- conversões;
-- ROAS;
-- saturação;
-- contribuição marginal;
-- distribuição geográfica e temporal.
-
-A Simulação produz projeções de planejamento. Não recebe resultados realizados de campanha.
+A mensuração posterior ocorre fora do MediAd Planner.
 
 ---
 
-## 16. Rastreabilidade
+## 17. Rastreabilidade
 
 Cada recomendação deve permitir reconstruir:
 
 ```text
-Dado do Briefing
+Briefing
     ↓
-Tradução Estratégica
-    ↓
-Objetivo
-    ↓
-Resultado pretendido
+Objetivo e resultado
     ↓
 Indicador prioritário
     ↓
-Capacidade da alternativa
+Jornada e etapa
     ↓
-Qualificação público–inventário
+Necessidade e função
     ↓
-Qualificação indicador–inventário
+Ponto de contato
     ↓
-Índice de aderência
+Tipologia e inventário
+    ↓
+Qualificações
     ↓
 Papel estratégico
     ↓
 Arquitetura candidata
 ```
 
-A interface deve apresentar justificativas legíveis, incluindo contribuições positivas, limitações, ausências de dados e graus de confiança.
-
 ---
 
-## 17. Formulação consolidada
+## 18. Princípio consolidado
 
-> A Arquitetura de Mídia conecta o Perfil Estratégico aos inventários por meio da cadeia Objetivo → Resultado Pretendido → Indicador Prioritário → Inventário Compatível. A seleção não depende de associações genéricas e fixas entre objetivos e meios. Ela combina capacidades técnicas, aderência aos públicos, cobertura territorial, contexto, custos, restrições e capacidades analíticas, produzindo arquiteturas candidatas explicáveis e aptas à simulação, sem acompanhar campanhas ou resultados realizados.
+> A Arquitetura de Mídia converte estratégia em alternativas sem começar pelo meio. Jornada organiza etapas; necessidades pertencem às etapas; funções respondem simultaneamente às etapas e necessidades; pontos de contato são mídias; formatos e inventários são desdobramentos posteriores da Biblioteca de Inventários.
