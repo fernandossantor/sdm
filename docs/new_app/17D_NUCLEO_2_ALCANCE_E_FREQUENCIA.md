@@ -13,9 +13,9 @@
 
 ## 1. Finalidade
 
-Este documento formaliza o núcleo técnico de alcance e frequência sem criar micro-objetos para cada variação terminológica, regra auxiliar ou interpretação.
+Este núcleo formaliza alcance e frequência sem criar objetos autônomos para cada variação terminológica ou interpretação auxiliar.
 
-O núcleo utiliza quatro objetos principais:
+Objetos principais:
 
 ```text
 KT_CONCEITO_ALCANCE
@@ -24,20 +24,22 @@ KT_CONCEITO_FREQUENCIA_MEDIA
 KT_CALCULO_FREQUENCIA_MEDIA
 ```
 
-Validações de universo, tratamento de zero, interpretação e alertas permanecem como componentes internos desses objetos ou reutilizam `KT_VALIDACAO_IDENTIDADE_DE_UNIVERSO`, formalizado no Núcleo 1.
-
-A ordem metodológica é:
+Ordem metodológica:
 
 ```text
-Definir o universo
+Definir universo e unidade
     ↓
-Identificar pessoas ou unidades distintas atingidas
+Definir critério mínimo de exposição
     ↓
-Calcular alcance absoluto ou percentual
+Identificar unidades distintas atingidas
     ↓
-Relacionar exposições totais ao alcance líquido
+Declarar método de deduplicação
     ↓
-Calcular e interpretar a frequência média
+Calcular alcance
+    ↓
+Relacionar exposições totais ao alcance
+    ↓
+Calcular e interpretar frequência média
 ```
 
 ---
@@ -54,27 +56,23 @@ subtipos: [DEFINICAO_OPERACIONAL]
 dominio_tecnico: ALCANCE_E_FREQUENCIA
 familia_tecnica: COBERTURA_DE_PUBLICO
 status: EM_VALIDACAO
-versao: 1.0.0
+versao: 1.1.0
 ```
 
 ## 2.2 Definição
 
-Alcance é a quantidade ou proporção de unidades distintas de um universo que tiveram pelo menos uma oportunidade de exposição ou contato, conforme a metodologia declarada, em determinado território e período.
+Alcance é a quantidade ou proporção de unidades distintas de um universo que tiveram pelo menos uma exposição ou oportunidade de contato válida segundo critério e metodologia declarados, em determinado território e período.
 
-A unidade normalmente é pessoa, domicílio, usuário, dispositivo ou outra unidade deduplicada explicitamente definida.
+A unidade pode ser pessoa, domicílio, usuário, conta, dispositivo ou outra unidade explicitamente definida e deduplicada.
 
-## 2.3 Finalidade
-
-Representar a extensão líquida da cobertura de uma ação, programação, veículo, meio ou combinação de alternativas.
-
-## 2.4 Formas de representação
+## 2.3 Formas de representação
 
 ```text
 alcance_absoluto
 alcance_percentual
 ```
 
-As expressões abaixo permanecem como qualificadores do mesmo domínio, e não como objetos autônomos nesta etapa:
+Qualificadores do mesmo domínio:
 
 ```text
 alcance_liquido
@@ -82,70 +80,81 @@ alcance_acumulado
 alcance_incremental
 alcance_projetado
 alcance_realizado
+alcance_por_meio
+alcance_multimidia
 ```
 
-Elas somente serão separadas futuramente se exigirem método de cálculo, validade ou execução realmente independentes.
+Esses qualificadores não se tornam objetos independentes enquanto não exigirem fórmula ou validade própria.
 
-## 2.5 Entradas conceituais
+## 2.4 Entradas conceituais
 
 ```text
 unidades_distintas_atingidas
 universo_correspondente
+unidade_de_identidade
 criterio_de_exposicao
 regra_de_deduplicacao
+estado_de_deduplicacao
 territorio
 periodo
+janela_de_acumulacao
 publico_ou_target
 fonte
 metodologia
 ```
 
-## 2.6 Saída
+## 2.5 Estados de deduplicação
 
-Quantidade absoluta ou percentual de unidades distintas atingidas pelo menos uma vez.
+```text
+DEDUPLICADO_POR_IDENTIDADE
+DEDUPLICADO_POR_PAINEL
+DEDUPLICADO_POR_MODELO
+ESTIMADO_POR_PROXY
+NAO_DEDUPLICADO
+INDETERMINADO
+```
 
-## 2.7 Condições de validade
+Somente os três primeiros estados podem sustentar alcance combinado sem ressalva estrutural. `ESTIMADO_POR_PROXY` exige confiança e limitações explícitas. `NAO_DEDUPLICADO` não pode ser apresentado como alcance líquido combinado.
 
-- O universo deve estar definido.
-- A unidade populacional deve ser conhecida.
-- A regra de deduplicação deve ser declarada.
-- O critério mínimo de exposição ou contato deve estar definido.
-- Território, período, público e metodologia devem estar identificados.
-- Em combinações de veículos ou meios, deve existir procedimento de deduplicação reconhecido.
+## 2.6 Condições de validade
 
-## 2.8 Restrições
+- universo e unidade identificados;
+- critério mínimo de exposição definido;
+- período, praça e target declarados;
+- regra e estado de deduplicação registrados;
+- fonte e metodologia identificadas;
+- em combinações, procedimento reconhecido para tratar sobreposição.
 
-- Alcance não é soma de audiências ou impressões.
-- Alcance não é impactos.
-- Alcance não informa quantas vezes cada unidade foi exposta.
-- A soma de alcances de alternativas distintas geralmente superestima o alcance combinado.
-- Alcances obtidos por metodologias incompatíveis não devem ser combinados diretamente.
-- Dispositivos únicos não equivalem necessariamente a pessoas únicas.
+## 2.7 Restrições
+
+- alcance não é soma de audiências, impressões ou alcances isolados;
+- alcance não é impactos;
+- dispositivo único não equivale automaticamente a pessoa única;
+- cobertura territorial não é alcance de audiência;
+- disponibilidade de rede não é alcance de campanha;
+- alcance institucional de veículo não é garantia de entrega;
+- alcance sem janela temporal não é interpretável;
+- alcances de metodologias incompatíveis não devem ser combinados diretamente.
+
+## 2.8 Coberturas que não são alcance
+
+Devem permanecer distintas:
+
+```text
+cobertura_territorial_do_inventario
+abrangencia_da_programacao
+alcance_de_audiencia
+```
+
+O termo `cobertura` deve sempre receber qualificador.
 
 ## 2.9 Interpretação
 
-Alcance responde prioritariamente à pergunta:
+Alcance responde:
 
-> Quantas unidades distintas do universo foram atingidas pelo menos uma vez?
+> Quantas unidades distintas do universo foram atingidas ao menos uma vez segundo a metodologia declarada?
 
-Um alcance de 60% significa que seis em cada dez unidades do universo declarado foram atingidas ao menos uma vez segundo a metodologia utilizada. Não informa a distribuição das exposições entre essas unidades.
-
-## 2.10 Relações
-
-```text
-DEPENDE_DE → KT_CONCEITO_UNIVERSO
-VALIDADO_POR → KT_VALIDACAO_IDENTIDADE_DE_UNIVERSO
-CALCULADO_POR → KT_CALCULO_ALCANCE_PERCENTUAL
-COMPLEMENTA → KT_CONCEITO_FREQUENCIA_MEDIA
-DIFERENTE_DE → KT_CONCEITO_IMPACTOS
-```
-
-## 2.11 Fontes e confiança
-
-```text
-fonte: inventário preliminar e decisões metodológicas do MediAd Planner
-confianca_metodologica: ALTA
-```
+Um alcance de 60% significa que seis em cada dez unidades do universo declarado foram atingidas ao menos uma vez. Não informa a distribuição das exposições.
 
 ---
 
@@ -161,90 +170,46 @@ subtipos: [FORMULA_DIRETA]
 dominio_tecnico: ALCANCE_E_FREQUENCIA
 familia_tecnica: COBERTURA_DE_PUBLICO
 status: EM_VALIDACAO
-versao: 1.0.0
+versao: 1.1.0
 ```
 
-## 3.2 Finalidade
-
-Converter alcance absoluto deduplicado em percentual do universo correspondente.
-
-## 3.3 Fórmula
+## 3.2 Fórmula
 
 ```text
 alcance_percentual = alcance_absoluto / universo_correspondente × 100
 ```
 
-## 3.4 Variáveis
+## 3.3 Validações
 
 ```text
-alcance_absoluto: quantidade de unidades distintas atingidas
-universo_correspondente: total de unidades elegíveis da mesma base
-alcance_percentual: proporção percentual atingida
+universo_correspondente > 0
+alcance_absoluto >= 0
+alcance_absoluto <= universo_correspondente
+unidade_alcance = unidade_universo
 ```
 
-## 3.5 Unidades
+Também devem ser equivalentes público, território, período, janela e metodologia.
+
+## 3.4 Tratamento de ausência
 
 ```text
-alcance_absoluto: pessoas, domicílios, usuários ou unidade definida
-universo_correspondente: mesma unidade do alcance absoluto
-alcance_percentual: percentual
-```
-
-## 3.6 Condições de validade
-
-- `universo_correspondente > 0`.
-- `alcance_absoluto >= 0`.
-- `alcance_absoluto <= universo_correspondente`, salvo metodologia explicitamente justificada.
-- Alcance e universo devem possuir a mesma unidade, público, território, período e metodologia.
-- O alcance absoluto deve ser deduplicado.
-
-## 3.7 Tratamento de zero e ausência
-
-```text
-universo_correspondente = 0 → DIVISAO_POR_ZERO / cálculo bloqueado
-alcance_absoluto = 0 → alcance_percentual = 0
-alcance_absoluto ausente → NAO_INFORMADO / cálculo não executado
-universo ausente → DADO_INDISPONIVEL / cálculo não executado
+universo = 0 → DIVISAO_POR_ZERO
+alcance = 0 observado → 0%
+alcance ausente → NAO_INFORMADO
+universo ausente → DADO_INDISPONIVEL
+regra de deduplicação ausente → CALCULO_BLOQUEADO_POR_METADADOS
 ```
 
 Ausência não deve ser convertida em zero.
 
-## 3.8 Precisão e arredondamento
+## 3.5 Alertas
 
-O cálculo deve preservar precisão interna superior à apresentada. O arredondamento é uma propriedade de exibição e deve ser configurável, com padrão inicial de duas casas decimais.
-
-## 3.9 Alertas
-
-- `O alcance informado não possui regra de deduplicação identificada.`
-- `O alcance absoluto excede o universo declarado.`
-- `Alcance e universo utilizam unidades incompatíveis.`
-- `O percentual calculado não pode ser combinado diretamente com outro alcance sem validação metodológica.`
-
-## 3.10 Exemplo
-
-```text
-alcance_absoluto = 30.000 pessoas
-universo_correspondente = 50.000 pessoas
-
-alcance_percentual = 30.000 / 50.000 × 100
-alcance_percentual = 60%
-```
-
-## 3.11 Relações
-
-```text
-CALCULA → KT_CONCEITO_ALCANCE
-DEPENDE_DE → KT_CONCEITO_UNIVERSO
-VALIDADO_POR → KT_VALIDACAO_IDENTIDADE_DE_UNIVERSO
-FORNECE_ENTRADA_PARA → KT_CALCULO_FREQUENCIA_MEDIA
-```
-
-## 3.12 Fontes e confiança
-
-```text
-fonte: inventário preliminar de conhecimentos técnicos
-confianca_metodologica: ALTA
-```
+- alcance sem deduplicação identificada;
+- alcance superior ao universo;
+- unidades incompatíveis;
+- janela temporal ausente;
+- alcance institucional usado como entrega de campanha;
+- soma de alcances isolados apresentada como alcance combinado.
 
 ---
 
@@ -260,55 +225,60 @@ subtipos: [DEFINICAO_OPERACIONAL]
 dominio_tecnico: ALCANCE_E_FREQUENCIA
 familia_tecnica: REPETICAO_DE_EXPOSICAO
 status: EM_VALIDACAO
-versao: 1.0.0
+versao: 1.1.0
 ```
 
 ## 4.2 Definição
 
-Frequência média é a média de exposições ou oportunidades de contato recebidas pelas unidades distintas que compõem o alcance líquido, em determinado período, território, público e metodologia.
+Frequência média é a média de exposições ou oportunidades de contato recebidas pelas unidades distintas que compõem o alcance líquido, em determinado período, território, público, critério de exposição e metodologia.
 
-## 4.3 Finalidade
-
-Representar a intensidade média de repetição entre as unidades efetivamente atingidas.
-
-## 4.4 Entradas conceituais
+## 4.3 Entradas conceituais
 
 ```text
-impactos_ou_exposicoes_totais
+exposicoes_totais_qualificadas
 alcance_absoluto_deduplicado
 periodo
 territorio
 publico_ou_target
 criterio_de_exposicao
+qualificador_da_exposicao
 fonte
 metodologia
 ```
 
-## 4.5 Saída
+## 4.4 Condições de validade
 
-Número médio de exposições por unidade distinta atingida.
+- exposições e alcance devem utilizar mesma unidade, público, território e período;
+- o alcance deve ser líquido e maior que zero;
+- a definição de exposição deve ser a mesma no numerador e no alcance;
+- em multimídia, deduplicação e combinação devem ser metodologicamente coerentes.
 
-## 4.6 Condições de validade
+## 4.5 Restrições
 
-- Impactos e alcance devem referir-se ao mesmo público, universo, território, período e critério de exposição.
-- O alcance deve ser líquido e maior que zero.
-- As unidades devem ser compatíveis.
-- Em combinações multimídia, impactos e alcance devem utilizar deduplicação coerente.
+- frequência média não é frequência individual;
+- não informa distribuição de frequência;
+- não comprova frequência eficiente;
+- não identifica isoladamente saturação;
+- não deve ser somada entre veículos;
+- não equivale ao número de inserções;
+- não deve combinar impressões servidas com alcance baseado em contato visível sem conversão validada.
 
-## 4.7 Restrições
+## 4.6 Limitação interpretativa obrigatória
 
-- Frequência média não representa a frequência recebida por cada indivíduo.
-- Não informa a distribuição de frequência.
-- Não comprova frequência eficiente.
-- Não identifica isoladamente saturação.
-- Não deve ser somada entre veículos ou meios.
-- Não equivale ao número de inserções.
+Duas campanhas podem ter a mesma frequência média e distribuições muito diferentes.
 
-## 4.8 Interpretação
+```text
+Campanha A:
+maior parte das pessoas entre 3 e 5 exposições
 
-Uma frequência média de 3 indica que o total de exposições equivale, em média, a três exposições para cada unidade distinta alcançada. Algumas unidades podem ter recebido uma exposição e outras, muitas mais.
+Campanha B:
+muitas pessoas com 1 exposição
+e poucas pessoas com 15 exposições
+```
 
-As seguintes noções permanecem relacionadas, mas não são objetos autônomos neste núcleo:
+Portanto, a frequência média é uma medida sintética de intensidade, não uma descrição da distribuição.
+
+As noções abaixo permanecem relacionadas, mas não se tornam objetos autônomos nesta etapa:
 
 ```text
 distribuicao_de_frequencia
@@ -316,24 +286,6 @@ frequencia_eficiente
 frequencia_minima
 frequencia_excessiva
 saturacao
-```
-
-Elas serão formalizadas somente quando os problemas técnicos e os motores exigirem métodos próprios.
-
-## 4.9 Relações
-
-```text
-DEPENDE_DE → KT_CONCEITO_IMPACTOS
-DEPENDE_DE → KT_CONCEITO_ALCANCE
-CALCULADO_POR → KT_CALCULO_FREQUENCIA_MEDIA
-COMPLEMENTA → KT_CONCEITO_ALCANCE
-```
-
-## 4.10 Fontes e confiança
-
-```text
-fonte: inventário preliminar e decisões metodológicas do MediAd Planner
-confianca_metodologica: ALTA
 ```
 
 ---
@@ -350,221 +302,64 @@ subtipos: [FORMULA_DIRETA, FORMULA_DERIVADA]
 dominio_tecnico: ALCANCE_E_FREQUENCIA
 familia_tecnica: REPETICAO_DE_EXPOSICAO
 status: EM_VALIDACAO
-versao: 1.0.0
+versao: 1.1.0
 ```
 
-## 5.2 Finalidade
-
-Calcular a quantidade média de exposições por unidade distinta alcançada.
-
-## 5.3 Fórmula principal
+## 5.2 Fórmula por valores absolutos
 
 ```text
-frequencia_media = impactos_ou_exposicoes_totais / alcance_absoluto
+frequencia_media = exposicoes_totais / alcance_absoluto
 ```
 
-A relação derivada abaixo pertence ao mesmo objeto enquanto utilizar as mesmas condições metodológicas:
+## 5.3 Fórmula derivada por GRP
 
 ```text
-frequencia_media = GRP / alcance_percentual
+frequencia_media = grp / alcance_percentual
 ```
 
-Não será criado objeto separado apenas para essa transformação, salvo se a implementação futura exigir versionamento ou validações independentes.
+A fórmula derivada somente é válida quando GRP e alcance usam o mesmo universo, target, período, território e definição de exposição.
 
-## 5.4 Variáveis
+## 5.4 Tratamento de zero e ausência
 
 ```text
-impactos_ou_exposicoes_totais: total bruto de exposições, admitindo repetição
-alcance_absoluto: quantidade de unidades distintas atingidas
-GRP: soma bruta de pontos percentuais de audiência
-alcance_percentual: proporção percentual do universo atingida
-frequencia_media: número médio de exposições por unidade alcançada
+alcance = 0 e exposicoes = 0 → NAO_APLICAVEL
+alcance = 0 e exposicoes > 0 → INCONSISTENCIA
+alcance ausente → CALCULO_NAO_EXECUTADO
+exposicoes ausentes → CALCULO_NAO_EXECUTADO
 ```
 
-## 5.5 Unidades
+## 5.5 Saída mínima
 
 ```text
-impactos / alcance absoluto → exposições por unidade atingida
-GRP / alcance percentual → frequência média adimensional
-```
-
-## 5.6 Condições de validade
-
-### Forma por impactos e alcance absoluto
-
-- `alcance_absoluto > 0`.
-- Impactos e alcance devem usar a mesma unidade populacional.
-- Devem corresponder ao mesmo público, território, período e critério de exposição.
-- O alcance deve ser deduplicado.
-
-### Forma por GRP e alcance percentual
-
-- `alcance_percentual > 0`.
-- GRP e alcance devem usar o mesmo universo, target, território, período e metodologia.
-- Ambos devem estar expressos em pontos percentuais compatíveis.
-
-## 5.7 Tratamento de zero e ausência
-
-```text
-alcance = 0 e impactos = 0 → NAO_APLICAVEL ou frequência zero, conforme o contexto declarado
-alcance = 0 e impactos > 0 → INCONSISTENCIA_METODOLOGICA
-alcance ausente → cálculo não executado
-impactos ou GRP ausente → cálculo não executado
-```
-
-O sistema não deve produzir infinito, zero artificial ou valor padrão quando o denominador for zero ou estiver ausente.
-
-## 5.8 Precisão e arredondamento
-
-A frequência deve manter precisão interna suficiente para cálculos posteriores. A exibição pode adotar duas casas decimais, sem alterar o valor bruto armazenado.
-
-## 5.9 Interpretação e alertas
-
-O resultado deve ser acompanhado da mensagem:
-
-```text
-A frequência média não descreve a distribuição individual das exposições.
-```
-
-Alertas adicionais:
-
-- `Impactos e alcance não utilizam a mesma base populacional.`
-- `O alcance não está identificado como líquido ou deduplicado.`
-- `GRP e alcance percentual pertencem a períodos ou targets diferentes.`
-- `A frequência média não deve ser interpretada automaticamente como frequência eficiente.`
-
-## 5.10 Exemplos
-
-### Por impactos e alcance
-
-```text
-impactos = 120.000
-alcance_absoluto = 40.000 pessoas
-
-frequencia_media = 120.000 / 40.000
-frequencia_media = 3
-```
-
-### Por GRP e alcance percentual
-
-```text
-GRP = 180
-alcance_percentual = 60
-
-frequencia_media = 180 / 60
-frequencia_media = 3
-```
-
-## 5.11 Relações
-
-```text
-CALCULA → KT_CONCEITO_FREQUENCIA_MEDIA
-DEPENDE_DE → KT_CONCEITO_IMPACTOS
-DEPENDE_DE → KT_CONCEITO_ALCANCE
-VALIDADO_POR → KT_VALIDACAO_IDENTIDADE_DE_UNIVERSO
-RELACIONA_SE_A → núcleo de GRP
-```
-
-## 5.12 Fontes e confiança
-
-```text
-fonte: inventário preliminar de conhecimentos técnicos
-confianca_metodologica: ALTA
-```
-
----
-
-## 6. Validações integradas do núcleo
-
-As validações abaixo não constituem objetos adicionais neste estágio. São regras internas reutilizáveis pelos quatro objetos principais.
-
-### 6.1 Identidade metodológica
-
-```text
-SE público, universo, unidade, território, período ou metodologia forem incompatíveis
-ENTAO bloquear cálculo ou combinação
-```
-
-### 6.2 Alcance deduplicado
-
-```text
-SE o alcance não for líquido ou sua deduplicação for desconhecida
-ENTAO permitir apenas uso com alerta ou bloquear, conforme o cálculo
-```
-
-### 6.3 Coerência entre impactos e alcance
-
-```text
-SE impactos > 0 E alcance = 0
-ENTAO classificar como INCONSISTENCIA_METODOLOGICA
-```
-
-### 6.4 Limites do alcance percentual
-
-```text
-SE alcance_percentual < 0 OU alcance_percentual > 100
-ENTAO bloquear, salvo metodologia explicitamente documentada
-```
-
----
-
-## 7. Casos de teste mínimos
-
-### 7.1 Válidos
-
-- alcance absoluto e universo de pessoas, mesma praça e período;
-- impactos e alcance líquido do mesmo target;
-- GRP e alcance percentual calculados sobre o mesmo universo;
-- alcance igual a zero em universo válido;
-- frequência média superior a um.
-
-### 7.2 Inválidos
-
-- alcance em pessoas dividido por universo de domicílios;
-- soma direta de alcances de dois veículos sem deduplicação;
-- frequência calculada com impactos mensais e alcance semanal;
-- frequência calculada com alcance zero e impactos positivos;
-- GRP do público geral dividido pelo alcance percentual de um target específico;
-- alcance percentual superior a 100 sem justificativa metodológica.
-
----
-
-## 8. Relação com indicadores e problemas
-
-### Indicadores da Biblioteca 15
-
-```text
-alcance_absoluto
-alcance_percentual
 frequencia_media
+forma_de_calculo
+qualificador_da_exposicao
+estado_de_deduplicacao
+periodo
+territorio
+publico
+fonte
+metodologia
+confianca
+alertas
 ```
 
-### Problemas da Biblioteca 18
+---
+
+## 6. Relação com overlap e saturação
+
+Overlap é dado ou hipótese sobre sobreposição de pessoas entre alternativas. Saturação é avaliação sobre repetição excessiva e retorno marginal.
 
 ```text
-ESTIMAR_ALCANCE
-VALIDAR_ALCANCE
-ESTIMAR_FREQUENCIA_MEDIA
-VALIDAR_FREQUENCIA_MEDIA
-COMPARAR_PRESSAO_E_COBERTURA
+overlap → influencia alcance combinado
+alcance combinado + exposições → influencia frequência
+frequência e distribuição → subsidiam saturação
 ```
 
-Os nomes dos problemas permanecem provisórios até a revisão sistemática da Biblioteca 18.
+Overlap não é frequência, e frequência média não é saturação.
 
 ---
 
-## 9. Decisões consolidadas
+## 7. Princípio consolidado
 
-1. Alcance absoluto e percentual pertencem ao mesmo domínio, mas o cálculo percentual permanece formalizado separadamente por possuir execução matemática própria.
-2. Alcance líquido, acumulado, incremental, projetado e realizado permanecem como qualificadores, não como novos objetos neste estágio.
-3. Frequência média possui um único conceito e um único objeto de cálculo com duas formas matemáticas relacionadas.
-4. A fórmula por GRP e alcance não gera novo objeto enquanto não houver necessidade de versionamento independente.
-5. Validações e interpretações permanecem integradas aos objetos principais.
-6. Distribuição de frequência, frequência eficiente e saturação serão formalizadas apenas diante de necessidade concreta dos motores.
-7. O núcleo prioriza sustentabilidade operacional sobre decomposição máxima.
-
----
-
-## 10. Princípio consolidado
-
-> Alcance descreve quantas unidades distintas foram atingidas; frequência média descreve quantas exposições, em média, corresponderam a cada unidade atingida. Os dois conceitos devem ser interpretados conjuntamente, mas não confundidos. Sua formalização deve preservar universo, deduplicação, período e metodologia sem transformar cada variação em um objeto autônomo.
+> Alcance mede extensão líquida; frequência média mede intensidade média entre as unidades alcançadas. Ambos dependem de universo, período, critério de exposição e deduplicação coerentes. Cobertura territorial, audiência institucional, impressões e número de inserções não os substituem.
