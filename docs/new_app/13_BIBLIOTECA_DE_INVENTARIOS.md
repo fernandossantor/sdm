@@ -10,377 +10,595 @@
 
 ## 1. Finalidade
 
-A Biblioteca de Inventários organiza, preserva e disponibiliza oportunidades de mídia reutilizáveis para os planejamentos do MediAd Planner.
+A Biblioteca de Inventários organiza, preserva e disponibiliza oportunidades reutilizáveis de veiculação, exposição, presença ou entrega publicitária.
 
-Ela recebe, como referência estratégica, os pontos de contato definidos pela Biblioteca 16 e os desdobra em tipologias, meios, ambientes, formatos, disponibilizações, ofertas e inventários concretos.
+Ela recebe os pontos de contato definidos pela Biblioteca 16 e os desdobra em estruturas operacionais e comerciais concretas, sem redefinir jornadas, necessidades ou funções.
 
 ```text
 Ponto de contato
     ↓
-Tipologia de mídia
+Meio e tipologia
     ↓
-Inventários de referência
+Ambiente, veículo e propriedade
     ↓
-Disponibilizações
+Inventário
     ↓
-Ofertas comerciais
+Formatos compatíveis
+    ↓
+Disponibilização
+    ↓
+Modalidade de comercialização
+    ↓
+Oferta comercial
 ```
-
-A Biblioteca não define jornadas, etapas, necessidades comunicacionais ou funções. Ela declara em quais tipologias e condições essas estruturas podem ser materializadas.
 
 ---
 
-## 2. Posição na arquitetura
+## 2. Definição normativa de inventário
+
+> Inventário de mídia é a capacidade identificável e disponibilizável de veiculação ou exposição publicitária em determinado ambiente, propriedade, veículo, posição, período e condição técnica.
+
+Inventário não é:
+
+- audiência;
+- preço;
+- formato criativo;
+- campanha;
+- pacote;
+- cota;
+- patrocínio;
+- projeto especial;
+- estimativa de impactos.
+
+Esses elementos podem qualificar, utilizar, agrupar, comercializar ou medir o inventário, mas não o substituem conceitualmente.
+
+---
+
+## 3. Posição na arquitetura
 
 ```text
 Biblioteca 16
 Jornadas, necessidades, funções e pontos de contato
     ↓
 Biblioteca 13
-Tipologias e inventários
+Meios, ambientes, inventários, formatos e comercialização
     ↓
 Arquitetura de Mídia
     ↓
-Simulações
+Plano Consolidado
+    ↓
+Mapa de Veiculação
 ```
 
-O ponto de contato é uma categoria de mídia. O inventário é uma oportunidade operacional e comercial mais específica.
+O ponto de contato descreve a situação de relação entre público e mensagem. O meio descreve uma categoria técnica e comunicacional. O inventário descreve a capacidade concreta de inserção ou exposição.
 
 ---
 
-## 3. Separações obrigatórias
+## 4. Separações obrigatórias
 
 ```text
-Ponto de contato ≠ formato
-Ponto de contato ≠ ambiente
-Ponto de contato ≠ veículo
-Ponto de contato ≠ plataforma
-Ponto de contato ≠ inventário
-Formato ≠ inventário completo
-Meio ≠ oferta comercial
-Indicador ≠ atributo permanente do inventário
+Ponto de contato ≠ meio
+Meio ≠ veículo
+Veículo ≠ proprietário
+Veículo ≠ propriedade
+Propriedade ≠ ambiente
+Ambiente ≠ inventário
+Inventário ≠ formato
+Formato ≠ especificação técnica
+Inventário ≠ produto comercial
+Produto comercial ≠ modalidade de compra
+Unidade de compra ≠ unidade de mensuração
+Audiência ≠ inventário
+Cobertura territorial ≠ alcance
+Fluxo ≠ audiência
+Impacto declarado ≠ impacto tecnicamente validado
+```
+
+---
+
+## 5. Camadas fundamentais
+
+### 5.1 Proprietário ou grupo
+
+Entidade econômica ou institucional que controla uma ou mais empresas, marcas, veículos ou plataformas.
+
+### 5.2 Veículo ou plataforma
+
+Entidade concreta que publica, transmite, distribui, exibe ou opera conteúdo e publicidade.
+
+### 5.3 Propriedade
+
+Contexto editorial, programático, espacial ou experiencial reconhecível, como programa, editoria, podcast, evento, campeonato, sessão, estação ou circuito.
+
+### 5.4 Ambiente
+
+Local ou situação técnica de exposição, como intervalo, feed, página de matéria, sala de cinema, foyer, vagão, estação, shopping, rua, edifício ou ponto de venda.
+
+### 5.5 Inventário
+
+Capacidade disponibilizável dentro de uma propriedade e ambiente.
+
+### 5.6 Formato publicitário
+
+Configuração expressiva ou material da mensagem que pode ocupar inventário compatível.
+
+### 5.7 Especificação técnica
+
+Requisitos de dimensão, duração, proporção, peso, arquivo, resolução, áudio, comportamento ou produção.
+
+### 5.8 Disponibilização
+
+Vínculo entre inventário de referência e entidade concreta que o oferece em determinado território, período e condição.
+
+### 5.9 Produto comercial
+
+Configuração padronizada de inventário, formato, quantidade, período e condições de entrega.
+
+### 5.10 Oferta comercial
+
+Aplicação de preço, validade, mínimos, descontos, fees, bonificações, disponibilidade, faturamento e regras de negociação a uma disponibilização ou produto comercial.
+
+---
+
+## 6. Hierarquia recomendada
+
+```text
+GRUPO_OU_PROPRIETARIO
+    ↓
+VEICULO_OU_PLATAFORMA
+    ↓
+PROPRIEDADE
+    ↓
+AMBIENTE
+    ↓
+INVENTARIO
+    ↓
+FORMATOS_COMPATIVEIS
+    ↓
+DISPONIBILIZACAO
+    ↓
+PRODUTO_COMERCIAL
+    ↓
+OFERTA_COMERCIAL
+```
+
+A hierarquia deve ser relacional, não uma cadeia rígida. Um inventário pode pertencer a circuitos, redes, pacotes e agregações diferentes.
+
+---
+
+## 7. Agregação e composição de inventários
+
+A Biblioteca deve permitir relações entre inventários:
+
+```text
+CONTEM
+PERTENCE_A
+AGRUPA
+DISTRIBUI_EM
+SUBSTITUI
+COMPARTILHA_CAPACIDADE_COM
+INCOMPATIVEL_COM
+```
+
+Exemplos:
+
+- rede de emissoras contendo emissoras locais;
+- circuito de DOOH contendo telas ou faces;
+- complexo de cinema contendo salas;
+- pacote regional contendo praças;
+- ROS contendo páginas elegíveis;
+- propriedade multiplataforma contendo entregas de TV, digital, áudio e evento.
+
+Um circuito ou pacote não deve apagar os inventários que o compõem.
+
+---
+
+## 8. Formato, especificação e experiência
+
+A Biblioteca deve separar:
+
+```text
+FORMATO_PUBLICITARIO
+ESPECIFICACAO_TECNICA
+COMPORTAMENTO_DO_FORMATO
+EXPERIENCIA_PUBLICITARIA
 ```
 
 Exemplo:
 
 ```text
-Ponto de contato: mídia digital
-    ↓
-Canal: social
-    ↓
-Ambiente: feed
-    ↓
-Formato: vídeo vertical
-    ↓
-Plataforma: rede social específica
-    ↓
-Inventário: oportunidade concreta de entrega
+Formato: vídeo
+Especificação: vertical 9:16, até 15 segundos
+Comportamento: autoplay, sem áudio inicial, pulável
+Experiência: in-stream, out-stream ou interstitial
 ```
+
+O inventário deve declarar formatos aceitos, especificações, comportamentos permitidos e restrições. Não se deve criar um novo inventário para cada combinação técnica possível.
 
 ---
 
-## 4. Princípio de composição
+## 9. Unidades de comercialização
 
-A composição pode utilizar:
+As unidades devem ser extensíveis e classificadas por natureza.
 
 ```text
-Ponto de contato
-→ Tecnologia
-→ Canal
-→ Ambiente
-→ Estrutura
-→ Formato
-→ Modelo comercial
-→ Modalidade de compra
-→ Unidade de compra
-→ Inventário de referência
-→ Meio / Veículo / Plataforma
-→ Programa / Faixa / Posicionamento
-→ Disponibilização
-→ Oferta comercial
+ESPACO
+TEMPO
+ENTREGA
+PERIODO
+COBERTURA
+COMPOSTA
 ```
 
-A ordem é progressiva na interface, mas relacional no banco de dados. Diversas compatibilidades são N:N.
+Exemplos:
+
+- segundo;
+- inserção;
+- centímetro-coluna;
+- página ou fração;
+- linha;
+- lâmina de encarte;
+- face;
+- tela;
+- sala;
+- sessão;
+- diária;
+- semana;
+- mês;
+- CPM;
+- pacote;
+- circuito;
+- cota;
+- patrocínio;
+- projeto.
+
+A unidade de comercialização não deve ser confundida com unidade de entrega ou mensuração.
 
 ---
 
-## 5. Objetos fundamentais
+## 10. Compra, entrega e mensuração
 
-### 5.1 Ponto de contato de origem
+Cada disponibilização ou oferta deve preservar, quando aplicável:
 
-Categoria de mídia proveniente da Biblioteca 16, como televisão, rádio, jornal, revista, cinema, mídia exterior, mídia digital, ponto de venda, evento, atendimento, mídia própria ou no media.
+```text
+unidade_de_compra
+unidade_de_entrega
+unidade_de_mensuracao
+```
 
-### 5.2 Catálogos taxonômicos
+Exemplo:
 
-Vocabulários controlados para classificar:
+```text
+Compra: patrocínio mensal
+Entrega: vinhetas + inserções + presença editorial
+Mensuração: audiência, impactos, reproduções e retenção
+```
 
-- tecnologias;
-- canais;
-- ambientes;
-- estruturas;
-- formatos;
-- modelos comerciais;
-- modalidades de compra;
-- unidades de compra;
-- meios, veículos e plataformas;
-- programas, faixas, contextos e posicionamentos.
-
-### 5.3 Inventário de referência
-
-Combinação validada de atributos tipológicos que representa uma possibilidade estruturada de exposição, inserção, presença ou entrega.
-
-### 5.4 Meio, veículo, plataforma ou empresa
-
-Entidade concreta que disponibiliza, opera, publica, transmite, representa ou comercializa inventário.
-
-### 5.5 Programa, faixa, publicação, ambiente ou posicionamento
-
-Camada contextual na qual a exposição ocorre. Pode carregar proposta editorial, temas, gêneros, contexto de exposição, audiência e restrições próprias.
-
-### 5.6 Disponibilização
-
-Vínculo entre um inventário de referência e um meio concreto.
-
-### 5.7 Oferta comercial
-
-Conjunto de condições comerciais aplicadas a uma disponibilização, podendo variar por fornecedor, praça, período, moeda, preço, desconto, fees, mínimos, capacidade e negociação.
+O custo somente pode ser comparado corretamente quando a base de compra estiver declarada.
 
 ---
 
-## 6. Tipologia de mídia
+## 11. Produtos compostos, cotas e projetos
 
-A Biblioteca deve permitir mapear cada ponto de contato para uma ou mais tipologias.
+Produtos compostos podem reunir inventários e entregas heterogêneas.
 
-Exemplos de pontos de contato:
+```text
+produto_composto
+    entregas[]
+    inventarios[]
+    direitos[]
+    restricoes[]
+    exclusividades[]
+    servicos[]
+    metricas_por_entrega[]
+    periodo
+    valor_total
+```
 
-- televisão;
-- rádio;
-- jornal;
-- revista;
-- cinema;
-- mídia exterior;
-- mídia digital;
-- ponto de venda;
-- evento;
-- atendimento;
-- mídia própria;
-- no media.
+Categorias internas possíveis:
 
-Exemplos de desdobramentos tipológicos:
+```text
+PRODUTO_PADRONIZADO
+PACOTE
+CIRCUITO
+COTA
+PATROCINIO
+PROJETO_ESPECIAL
+```
 
-- TV aberta e fechada;
-- rádio AM, FM, streaming e podcast;
-- OOH, DOOH e mobiliário urbano;
-- search, social, display, vídeo, CTV, e-mail e retail media;
-- gôndola, checkout, sampling e material de PDV.
+Essas categorias descrevem a comercialização. Não substituem a natureza do inventário.
 
-Esses desdobramentos não alteram a definição do ponto de contato; apenas materializam sua tipologia.
+Entregas compostas devem poder ser classificadas como:
 
----
+```text
+ENTREGA_DE_MIDIA
+ENTREGA_DE_CONTEUDO
+SERVICO_DE_PRODUCAO
+DIREITO_DE_ASSOCIACAO
+ATIVACAO
+TECNOLOGIA
+DADOS
+```
 
-## 7. Camada semântica e contextual
-
-A Biblioteca deve descrever inventários por dimensões comparáveis às dos públicos e às estruturas comunicacionais:
-
-- proposta editorial;
-- temas e gêneros;
-- contextos de contato;
-- comportamentos de consumo atendidos;
-- etapas de jornada compatíveis;
-- necessidades comunicacionais que podem apoiar;
-- funções comunicacionais que podem desempenhar;
-- segmentações disponíveis;
-- cobertura territorial;
-- restrições editoriais e operacionais.
-
-A relação com etapa, necessidade e função é contextual e não essencialista.
-
-Um inventário não “é de conversão”, “é de alcance” ou “é de consideração” por natureza. Ele pode desempenhar determinados papéis quando utilizado em condições compatíveis.
+Somente entregas de mídia elegíveis entram automaticamente nos cálculos de pressão.
 
 ---
 
-## 8. Capacidades analíticas
+## 12. Segmentação
+
+A Biblioteca 14 define quem é o público. A Biblioteca 13 registra como o inventário permite selecioná-lo.
+
+Campos mínimos:
+
+```text
+segmentacao_disponivel
+tipo_de_segmentacao
+fonte_do_dado
+unidade_de_identidade
+custo_adicional
+restricoes
+```
+
+Pessoa, conta, cookie, dispositivo e domicílio não devem ser tratados como unidades idênticas.
+
+---
+
+## 13. Posição, duração e condições técnicas
+
+Posição e duração são atributos operacionais e comerciais reais.
+
+O inventário ou produto pode registrar:
+
+```text
+posicao
+posicao_determinada
+prioridade
+break
+pagina
+secao
+pre_roll_mid_roll_post_roll
+altura
+distancia
+sentido
+iluminacao
+duracao_padrao
+fator_de_conversao_por_duracao
+regra_para_duracao_nao_padrao
+```
+
+Não se deve presumir proporcionalidade linear de preço ou efeito entre durações.
+
+---
+
+## 14. Cobertura e alcance
+
+A Biblioteca deve distinguir:
+
+```text
+cobertura_territorial_do_inventario
+abrangencia_da_programacao
+alcance_de_audiencia
+```
+
+Cobertura territorial descreve onde o inventário existe. Abrangência da programação descreve o subconjunto contratado. Alcance descreve unidades distintas atingidas ao menos uma vez.
+
+O termo `cobertura` nunca deve ser usado sem qualificador.
+
+---
+
+## 15. Audiência e período de referência
+
+Toda audiência deve preservar:
+
+```text
+unidade
+universo
+territorio
+periodo_de_referencia
+janela_de_acumulacao
+fonte
+metodologia
+natureza_do_valor
+```
+
+Estados para a natureza do valor:
+
+```text
+GARANTIDO
+ESTIMADO
+PROJETADO
+HISTORICO
+POTENCIAL
+NAO_GARANTIDO
+```
+
+Audiência institucional, público histórico e capacidade instalada não equivalem automaticamente à entrega de uma campanha.
+
+---
+
+## 16. Fluxo, OTS e contatos em OOH
+
+A cadeia conceitual deve ser preservada:
+
+```text
+FLUXO_BRUTO
+    ↓
+OPORTUNIDADE_DE_VER_OU_CONTATO
+    ↓
+PROBABILIDADE_DE_VER_OU_CONTATO
+    ↓
+CONTATO_AJUSTADO
+    ↓
+ALCANCE_E_FREQUENCIA_ESTIMADOS
+```
+
+Características de visibilidade podem incluir posição, sentido, velocidade, altura, tamanho, inclinação, iluminação, distância, tempo de exposição e ambiente.
+
+Fluxo não deve ser armazenado como sinônimo de audiência ou impactos.
+
+---
+
+## 17. Tipologia de impactos e exposições
+
+Valores comerciais chamados de `impactos` devem ser qualificados.
+
+```text
+IMPACTO_CALCULADO_POR_AUDIENCIA
+CONTATO_AJUSTADO
+OPORTUNIDADE_DE_CONTATO
+IMPACTO_DECLARADO_PELO_FORNECEDOR
+IMPRESSAO_SERVIDA
+IMPRESSAO_VALIDA
+IMPRESSAO_VISIVEL
+EXPOSICAO_ESTIMADA
+```
+
+Cada valor deve preservar:
+
+```text
+metrica_original
+nome_comercial
+metodologia
+fonte
+periodo
+universo
+auditabilidade
+grau_de_confianca
+```
+
+A terminologia do fornecedor deve ser preservada, mas sua equivalência técnica precisa ser validada pela Biblioteca 17.
+
+---
+
+## 18. Afinidade, composição e penetração
+
+Devem permanecer distintas:
+
+```text
+composicao_da_audiencia
+penetracao_no_target
+afinidade
+alcance_no_target
+```
+
+Afinidade exige comparação com a presença do target no universo de referência. A concentração do perfil no veículo, isoladamente, não constitui índice de afinidade.
+
+---
+
+## 19. Qualidade da exposição
+
+Dimensões como visibilidade, audibilidade, duração, completude, contexto, atenção e interação devem ser registradas separadamente.
+
+```text
+dimensao_de_qualidade
+metrica
+valor
+fonte
+metodo
+confianca
+```
+
+Não deve existir multiplicador universal de qualidade ou atenção sem metodologia específica e validada.
+
+---
+
+## 20. Condições comerciais e negociação
+
+A negociação não se reduz a desconto.
+
+```text
+preco_de_lista
+coeficientes
+acrescimos
+desconto
+bonificacao
+entregas_adicionais
+custos_adicionais
+condicao_de_pagamento
+regra_de_cancelamento
+substituicao_de_inventario
+valor_negociado
+```
+
+A oferta deve admitir custos fixos, variáveis, por entrega, por período e por produto composto.
+
+---
+
+## 21. Capacidades analíticas
 
 Cada inventário ou disponibilização pode declarar:
 
-- objetivos suportados;
-- resultados suportados;
+- objetivos e resultados suportados;
 - indicadores compatíveis;
 - indicadores projetáveis;
 - indicadores calculáveis;
 - indicadores posteriormente mensuráveis;
 - requisitos de dados;
 - fontes possíveis;
-- unidades;
 - limitações;
 - grau de confiança.
 
-O inventário não armazena KPI permanente. Um indicador torna-se KPI apenas quando priorizado em um planejamento.
+O inventário não armazena KPI permanente. Um indicador torna-se KPI quando priorizado no planejamento.
 
 ---
 
-## 9. Camada territorial
-
-Devem ser registradas disponibilidade e cobertura por:
-
-- país;
-- estado;
-- região;
-- município;
-- distrito;
-- bairro;
-- CEP;
-- setor censitário;
-- coordenada;
-- raio;
-- rota;
-- ponto;
-- polígono;
-- área personalizada.
-
-Cada registro deve preservar natureza da cobertura, fonte, data e confiança.
-
----
-
-## 10. Dimensões compartilhadas
-
-A Biblioteca deve utilizar catálogos compartilhados para:
-
-- pontos de contato;
-- etapas;
-- necessidades comunicacionais;
-- funções comunicacionais;
-- interesses;
-- comportamentos;
-- contextos de contato;
-- territórios;
-- temas editoriais;
-- indicadores;
-- famílias de indicadores.
-
-Não devem existir vocabulários redundantes e incompatíveis.
-
----
-
-## 11. Audiência, cobertura, alcance e afinidade
-
-Audiência é medida observada ou estimada de pessoas expostas em determinado contexto, período e praça.
-
-Cobertura pode representar alcance técnico, área territorial, população potencialmente alcançável ou disponibilidade comercial, desde que sua natureza seja declarada.
-
-Alcance e frequência são metas ou resultados projetados de cenários e planos. Não são atributos permanentes do inventário de referência.
-
-Afinidade observada é uma relação medida entre público e mídia. Aderência estimada é cálculo estratégico da Arquitetura.
-
----
-
-## 12. Relação com a Biblioteca 16
-
-A Biblioteca 16 termina no ponto de contato.
-
-A Biblioteca 13 inicia o desdobramento tipológico.
+## 22. Modelo lógico mínimo revisado
 
 ```text
-Etapa
-    ↓
-Necessidade
-    ↓
-Função
-    ↓
-Ponto de contato
-------------------------
-Limite entre bibliotecas
-------------------------
-Tecnologia
-    ↓
-Canal
-    ↓
-Ambiente
-    ↓
-Formato
-    ↓
-Inventário
-```
-
-A relação função–ponto de contato pertence à Biblioteca 16.
-
-A relação ponto de contato–tipologia–inventário pertence à Biblioteca 13.
-
----
-
-## 13. Relação com a Arquitetura de Mídia
-
-A Biblioteca fornece dados para que a Arquitetura avalie:
-
-- compatibilidade com o ponto de contato;
-- compatibilidade com etapa, necessidade e função;
-- aderência editorial e comportamental;
-- compatibilidade demográfica e territorial;
-- afinidade observada;
-- indicadores prioritários e capacidades analíticas;
-- custo, disponibilidade e restrições;
-- complementaridade, overlap e saturação;
-- confiança das evidências.
-
-Nenhuma relação isolada determina a recomendação final.
-
----
-
-## 14. Escopos, versionamento e snapshot
-
-Inventários e relações podem possuir escopo global, de espaço de trabalho, de projeto ou pessoal/rascunho.
-
-Toda instância utilizada deve preservar:
-
-- versão do inventário de referência;
-- versão da disponibilização;
-- versão da oferta;
-- ponto de contato de origem;
-- atributos tipológicos;
-- propriedades editoriais e contextuais;
-- capacidades analíticas;
-- cobertura territorial;
-- fontes e datas;
-- ajustes locais;
-- autoria.
-
-Alterações futuras não modificam retroativamente planejamentos anteriores.
-
----
-
-## 15. Modelo lógico mínimo
-
-```text
-pontos_contato
-tecnologias
-canais
-ambientes
-estruturas
-formatos
-modelos_comerciais
-modalidades_compra
-unidades_compra
+proprietarios_midia
+veiculos_plataformas
+propriedades_midia
+ambientes_midia
 inventarios_referencia
-meios
-contextos_midia
+inventarios_relacoes
+formatos_publicitarios
+especificacoes_tecnicas
+comportamentos_formato
+experiencias_publicitarias
+inventarios_formatos
 disponibilizacoes_inventario
+produtos_comerciais
+produtos_entregas
+produtos_inventarios
+modalidades_compra
+unidades_comercializacao
 ofertas_comerciais
-pontos_contato_tipologias
-inventarios_funcoes
-inventarios_etapas
-inventarios_necessidades
-inventarios_indicadores
-coberturas_inventario
-inventarios_temas
-inventarios_segmentacoes
+condicoes_negociadas
+segmentacoes_disponiveis
+coberturas_territoriais
 medicoes_audiencia
+medicoes_exposicao
+qualificadores_exposicao
 afinidades_observadas
+fontes_metodologias
 ```
 
-As relações devem preservar contexto, fonte, validade e confiança.
+As relações devem preservar contexto, fonte, validade, período, universo e confiança.
 
 ---
 
-## 16. Princípio consolidado
+## 23. Relação com o Mapa de Veiculação
 
-> O ponto de contato é uma mídia; o inventário é sua materialização tipológica, operacional e comercial. A Biblioteca de Inventários não define a jornada nem cria necessidades e funções. Ela declara quais alternativas concretas podem materializar os pontos de contato e quais capacidades contextuais, territoriais e analíticas possuem.
+A Biblioteca descreve o que pode ser comprado. O Mapa de Veiculação registra o que foi selecionado, negociado e programado.
+
+```text
+Biblioteca 13
+    ↓
+Inventário + produto + oferta
+    ↓
+Condição negociada
+    ↓
+Linha de programação
+    ↓
+Ocorrências
+    ↓
+Mapa de Veiculação
+```
+
+O Mapa deve preservar os identificadores e versões das entidades utilizadas.
+
+---
+
+## 24. Princípio consolidado
+
+> O ponto de contato descreve a relação; o meio descreve a categoria; o inventário descreve a capacidade disponível; o formato descreve a configuração da mensagem; o produto comercial organiza a venda; a oferta aplica condições; e o Mapa de Veiculação registra a decisão programada. Essas camadas podem se combinar, mas não devem ser confundidas.
