@@ -3,7 +3,7 @@
 **Documento:** `15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md`  
 **Plano Mestre:** MediAd Planner  
 **Status:** Consolidado  
-**Última revisão:** 28/07/2026  
+**Última revisão:** 29/07/2026  
 **Natureza:** Documento normativo
 
 ---
@@ -12,22 +12,17 @@
 
 A Biblioteca de Objetivos, Resultados e KPIs organiza os objetivos que podem orientar um plano de mídia, os resultados pretendidos associados a esses objetivos e os indicadores que podem receber metas, ser projetados nas simulações ou ser posteriormente mensurados por fontes externas ao MediAd Planner.
 
-A Biblioteca responde, de forma estruturada, às seguintes questões:
-
 ```text
-Para este objetivo,
-quais resultados podem ser pretendidos?
-
-Para este resultado,
-quais indicadores são pertinentes?
-
-Quais desses indicadores podem receber metas no plano?
-
-Em quais mídias, formatos, modelos de compra e inventários
-esses indicadores podem ser projetados ou posteriormente mensurados?
+Objetivo
+    ↓
+Resultado pretendido
+    ↓
+Indicadores possíveis
+    ↓
+Indicadores prioritários / KPIs do planejamento
 ```
 
-O MediAd Planner elabora planos de mídia. Não acompanha campanhas em execução e não armazena resultados realizados.
+O MediAd Planner elabora planos. Não acompanha campanhas em execução e não armazena resultados realizados.
 
 ---
 
@@ -36,175 +31,79 @@ O MediAd Planner elabora planos de mídia. Não acompanha campanhas em execuçã
 A Biblioteca deve:
 
 - manter vocabulários controlados de objetivos, resultados e indicadores;
-- organizar relações entre objetivos e resultados pretendidos;
-- organizar relações entre resultados e indicadores possíveis;
+- organizar relações objetivo–resultado;
+- organizar relações resultado–indicador;
 - classificar indicadores em quatro famílias;
 - declarar se um indicador pode receber meta;
-- declarar se pode ser calculado, projetado ou apenas recomendado;
+- declarar se pode ser projetado, calculado ou apenas recomendado;
 - registrar requisitos de dados;
-- relacionar indicadores com meios, ambientes, formatos, modelos de compra, unidades e inventários;
 - informar possibilidades e limites de mensuração posterior;
+- relacionar indicadores com tipologias e capacidades de inventário;
 - preservar fontes, versões, validade e confiança.
 
 A Biblioteca não deve:
 
-- receber resultados realizados de campanhas;
+- receber resultados realizados;
 - acompanhar veiculação;
 - comparar planejado e realizado;
 - emitir alertas de performance;
 - calcular cumprimento de metas;
 - otimizar campanha em curso;
-- substituir plataformas de mídia, ad servers, analytics, pesquisas ou sistemas de atribuição.
+- substituir plataformas de mídia, ad servers, analytics ou pesquisas.
 
 ---
 
-## 3. Cadeia conceitual
+## 3. Conceitos fundamentais
+
+### 3.1 Objetivo
+
+Direção estratégica que expressa o que o planejamento de mídia pretende favorecer.
+
+### 3.2 Resultado pretendido
+
+Mudança, condição ou efeito esperado que torna o objetivo mais observável e operacionalizável.
+
+### 3.3 Indicador
+
+Variável capaz de representar uma dimensão relevante do planejamento, da entrega, da eficiência ou da resposta.
+
+### 3.4 KPI
+
+Indicador que recebeu prioridade decisória em um planejamento específico.
 
 ```text
-Objetivo
-    ↓
-Resultado pretendido
-    ↓
-Indicadores possíveis
-    ↓
-Indicadores compatíveis com os inventários
-    ↓
-Metas do planejamento
-    ↓
-Projeções das simulações
-    ↓
-Plano consolidado
+Indicador da biblioteca
++
+Prioridade no planejamento
+=
+KPI contextual
 ```
 
-A mensuração posterior pode ser recomendada no plano, mas ocorre fora do MediAd Planner.
+### 3.5 Meta
+
+Valor pretendido atribuído a um indicador dentro de um planejamento, público, praça, período ou cenário determinado.
+
+Metas pertencem às instâncias de projeto, não ao cadastro permanente da biblioteca.
 
 ---
 
-## 4. Conceitos fundamentais
+## 4. Quatro famílias de indicadores
 
-### 4.1 Objetivo
-
-Objetivo é a direção estratégica do que o plano de mídia pretende produzir ou favorecer.
-
-Exemplos:
-
-- ampliar notoriedade;
-- aumentar consideração;
-- construir alcance;
-- ampliar cobertura territorial;
-- sustentar frequência;
-- gerar tráfego;
-- estimular resposta;
-- apoiar conversões;
-- reforçar presença de marca;
-- sustentar lançamento;
-- apoiar fidelização.
-
-O objetivo pode ser qualitativo e não precisa conter um valor numérico.
-
-### 4.2 Resultado pretendido
-
-Resultado pretendido é a transformação esperada associada ao objetivo.
-
-Exemplo:
-
-```text
-Objetivo:
-ampliar notoriedade
-
-Resultado pretendido:
-aumentar o reconhecimento da marca entre o público prioritário
-```
-
-### 4.3 Indicador
-
-Indicador é uma variável capaz de representar pressão, entrega, eficiência ou resposta relacionada ao plano.
-
-Um indicador pode ser:
-
-- fornecido como entrada;
-- calculado;
-- projetado;
-- estimado por benchmark;
-- recomendado para mensuração posterior;
-- indisponível em determinado contexto.
-
-### 4.4 Métrica
-
-Métrica é uma medida operacional, observada, fornecida, estimada ou calculada.
-
-Nem toda métrica é KPI.
-
-### 4.5 KPI
-
-KPI é um indicador selecionado como prioritário para avaliar um objetivo ou resultado dentro de um planejamento específico.
-
-```text
-Indicador = objeto reutilizável da biblioteca.
-KPI = função prioritária assumida pelo indicador no projeto.
-```
-
-O mesmo indicador pode ser KPI em uma campanha e apenas métrica diagnóstica em outra.
-
-### 4.6 Meta
-
-Meta é o valor pretendido para um indicador em determinado contexto de planejamento.
-
-Pode estar vinculada a:
-
-- campanha;
-- versão do planejamento;
-- cenário;
-- público;
-- segmento;
-- universo;
-- praça;
-- período;
-- etapa da jornada;
-- meio;
-- canal;
-- inventário.
-
-A meta não pertence permanentemente ao indicador. A biblioteca pode conter referências e benchmarks, mas a meta efetiva pertence ao planejamento.
-
----
-
-## 5. Quatro famílias de indicadores
-
-### 5.1 Planejamento e pressão de mídia
-
-Representam a intensidade, extensão, repetição, continuidade ou distribuição planejada da comunicação.
+### 4.1 Planejamento e pressão de mídia
 
 Exemplos:
 
 - alcance;
 - cobertura;
 - frequência;
-- impactos;
 - audiência;
+- impactos;
 - GRP;
 - TRP;
 - continuidade;
-- concentração temporal;
-- distribuição temporal;
-- presença territorial;
-- cobertura territorial;
-- participação de voz, quando aplicável.
+- afinidade.
 
-Esses indicadores podem constituir metas centrais do plano.
-
-Exemplos:
-
-```text
-Alcance planejado: 70% do universo prioritário
-Frequência média planejada: 4 exposições
-Cobertura territorial planejada: 90% das praças prioritárias
-Pressão planejada: 280 GRP no período
-```
-
-### 5.2 Entrega
-
-Representam o volume de exposição, presença, inserção ou disponibilização associado ao inventário e ao modelo de compra.
+### 4.2 Entrega
 
 Exemplos:
 
@@ -213,297 +112,172 @@ Exemplos:
 - exibições;
 - visualizações;
 - faces;
-- circuitos;
-- espaços;
-- sessões;
-- tempo de exposição;
 - ocupação;
-- volume contratado;
-- volume estimado de entrega.
+- volume distribuído.
 
-### 5.3 Eficiência
-
-Relacionam investimento, pressão, entrega ou resposta.
+### 4.3 Eficiência
 
 Exemplos:
 
 - CPM;
 - CPP;
 - CPC;
-- CPV;
 - CPA;
 - CPL;
+- CPV;
 - custo por alcance;
-- custo por impacto;
-- custo por ponto;
-- custo por inserção;
-- custo por período;
-- ROAS projetado, quando houver parâmetros suficientes.
+- custo por impacto.
 
-Indicadores de eficiência são geralmente derivados e dependem de métricas básicas e fórmulas definidas na Biblioteca de Parâmetros, Métricas e Fórmulas.
-
-### 5.4 Resposta
-
-Representam comportamentos ou efeitos observáveis do público.
+### 4.4 Resposta
 
 Exemplos:
 
 - cliques;
 - CTR;
-- visitas;
-- sessões;
-- downloads;
-- cadastros;
 - leads;
 - conversões;
+- downloads;
 - compras;
-- receita atribuída;
-- taxa de conversão;
-- share de busca;
-- interações;
-- respostas diretas.
+- receita;
+- ROAS.
 
-Esses indicadores dependem de mecanismos de rastreamento, atribuição, pesquisa ou coleta externos ao MediAd Planner.
+A classificação deve distinguir indicador, unidade, fórmula e natureza do dado.
+
+---
+
+## 5. Relações objetivo–resultado–indicador
+
+As relações não são universais nem exclusivas.
+
+Um objetivo pode admitir vários resultados. Um resultado pode ser observado por vários indicadores. Um indicador pode servir a diferentes resultados.
+
+Cada relação deve registrar:
+
+- contexto de aplicação;
+- prioridade sugerida;
+- condição de uso;
+- limitações;
+- fonte;
+- validade;
+- confiança.
 
 ---
 
 ## 6. Capacidades do indicador
 
-Cada indicador deverá declarar separadamente:
+Cada indicador deve declarar, quando aplicável:
 
+- família;
+- definição;
+- unidade;
+- natureza;
 - pode receber meta;
-- pode ser calculado no planejamento;
-- pode ser projetado em simulação;
-- pode ser estimado por benchmark;
-- pode ser fornecido pelo veículo, plataforma ou fornecedor;
+- pode ser projetado;
+- pode ser calculado;
+- pode ser estimado;
 - pode ser posteriormente mensurado;
-- exige fonte externa;
-- exige mecanismo de rastreamento;
-- exige pesquisa;
-- exige atribuição;
-- possui limitações conhecidas;
-- grau de confiança possível.
+- requisitos de dados;
+- dependências;
+- limitações;
+- grau de confiança.
 
-Essas capacidades não são equivalentes.
-
-```text
-Pode receber meta
-≠
-Pode ser projetado
-≠
-Pode ser posteriormente mensurado
-```
+Fórmulas e parâmetros detalhados pertencem à Biblioteca 17.
 
 ---
 
-## 7. Requisitos de dados
+## 7. Relação com jornadas e estruturas comunicacionais
 
-Cada indicador deve declarar suas dependências.
+Objetivos, resultados e indicadores não determinam diretamente um inventário.
 
-Exemplos:
-
-```text
-Frequência
-requer impactos e alcance,
-ou dados equivalentes de audiência e exposição.
-
-CTR
-requer impressões e cliques.
-
-GRP
-requer audiência percentual e quantidade de inserções,
-ou impactos e universo compatíveis.
-
-CPA
-requer investimento e conversões atribuídas.
-
-ROAS
-requer investimento e receita atribuída.
-
-Cobertura territorial
-requer territórios pretendidos e áreas atendidas.
-```
-
-A ausência de uma dependência deve impedir o cálculo ou reduzir explicitamente a confiança da projeção.
-
----
-
-## 8. Relações de conhecimento
-
-A Biblioteca deve manter relações N:N entre:
+A Biblioteca 16 introduz a mediação estratégica:
 
 ```text
-Objetivos ↔ Resultados pretendidos
-Resultados pretendidos ↔ Indicadores
-Indicadores ↔ Famílias
-Indicadores ↔ Etapas da jornada
-Indicadores ↔ Funções de mídia
-Indicadores ↔ Meios e canais
-Indicadores ↔ Ambientes
-Indicadores ↔ Formatos
-Indicadores ↔ Modelos de compra
-Indicadores ↔ Unidades de compra
-Indicadores ↔ Inventários
-```
-
-Cada relação pode registrar:
-
-- aplicabilidade;
-- intensidade ou prioridade sugerida;
-- condição;
-- requisitos;
-- restrições;
-- fonte;
-- validade;
-- confiança;
-- observações metodológicas.
-
----
-
-## 9. Relação com a Biblioteca de Inventários
-
-A Biblioteca 15 define os indicadores e suas propriedades gerais.
-
-A Biblioteca de Inventários declara quais indicadores são compatíveis com cada oportunidade concreta de mídia.
-
-```text
-Biblioteca 15
-Define o indicador
-        ↓
-Biblioteca 13
-Declara a capacidade do inventário
-        ↓
-Arquitetura de Mídia
-Relaciona prioridades e capacidades
-```
-
-O inventário não possui um KPI permanente. Ele possui capacidades analíticas.
-
-Exemplo:
-
-```text
-Indicador: CTR
-
-Inventário A:
-compatível = sim
-projetável = sim
-mensurável posteriormente = sim
-
-Inventário B:
-compatível = não
-```
-
-O indicador se torna KPI apenas quando priorizado no planejamento.
-
----
-
-## 10. Relação com a Biblioteca de Parâmetros, Métricas e Fórmulas
-
-A Biblioteca 15 responde:
-
-> O que deve ou pode ser observado para avaliar determinado objetivo ou resultado?
-
-A Biblioteca de Parâmetros, Métricas e Fórmulas responde:
-
-> Como o indicador é definido, calculado, convertido ou estimado?
-
-Portanto, fórmulas, unidades, conversões, dependências matemáticas, valores paramétricos e benchmarks numéricos não devem ser duplicados neste documento.
-
----
-
-## 11. Relação com a Arquitetura de Mídia
-
-A Arquitetura de Mídia deve operar pela cadeia:
-
-```text
-Objetivos
+Objetivo
     ↓
-Resultados pretendidos
+Resultado pretendido
     ↓
 Indicadores prioritários
     ↓
-Inventários compatíveis
+Jornada
     ↓
-Arquiteturas candidatas
+Etapa
+    ↓
+Necessidade comunicacional
+    ↓
+Função comunicacional
+    ↓
+Ponto de contato
 ```
 
-A seleção de inventários não deve depender apenas de associações genéricas como “bom para branding” ou “bom para performance”. Deve considerar quais indicadores o inventário é capaz de suportar, projetar ou permitir mensurar.
+A jornada organiza estados de progressão. As necessidades pertencem às etapas. As funções respondem simultaneamente às etapas e necessidades. Os pontos de contato são categorias de mídia.
+
+Os indicadores podem restringir ou priorizar pontos de contato e inventários, mas não substituem a interpretação da jornada.
 
 ---
 
-## 12. Metas do planejamento
+## 8. Relação com a Biblioteca de Inventários
 
-Uma meta deve registrar, no mínimo:
+A Biblioteca de Inventários declara:
 
-- indicador;
-- valor ou faixa pretendida;
-- unidade;
-- direção desejada;
-- contexto;
-- público ou universo;
+- indicadores compatíveis;
+- indicadores projetáveis;
+- indicadores calculáveis;
+- indicadores posteriormente mensuráveis;
+- requisitos de dados;
+- fontes;
+- limitações;
+- confiança.
+
+```text
+Indicador prioritário
+    ↔
+Capacidade analítica do inventário
+```
+
+Um inventário não possui KPI permanente.
+
+---
+
+## 9. Metas e valores projetados
+
+A Biblioteca oferece indicadores reutilizáveis. O planejamento define:
+
+- indicador selecionado;
+- prioridade;
+- meta;
+- público;
 - praça;
 - período;
-- escopo;
-- origem;
-- responsável;
-- grau de confiança;
-- observações.
+- cenário;
+- valor projetado;
+- tolerância;
+- fonte ou premissa;
+- confiança.
 
-Tipos de direção:
-
-- atingir;
-- no mínimo;
-- no máximo;
-- manter;
-- aumentar;
-- reduzir;
-- faixa desejada.
-
-Metas podem incidir sobre as quatro famílias.
+Resultados realizados não pertencem ao MediAd Planner.
 
 ---
 
-## 13. Natureza e confiança
-
-Indicadores, relações e referências devem declarar sua natureza:
-
-- observado;
-- fornecido;
-- calculado;
-- projetado;
-- estimado;
-- modelado;
-- benchmark;
-- recomendado;
-- não disponível.
-
-O sistema deve distinguir claramente valor calculado, valor ajustado e valor efetivo utilizado na simulação.
-
----
-
-## 14. Modelo lógico mínimo
-
-Entidades conceituais recomendadas:
+## 10. Modelo lógico mínimo
 
 ```text
 objetivos
 resultados_pretendidos
-familias_indicadores
 indicadores
+familias_indicadores
 objetivos_resultados
 resultados_indicadores
-indicadores_jornadas
-indicadores_funcoes
 indicadores_requisitos
-indicadores_aplicabilidades
-metas_planejamento
+indicadores_tipologias
+indicadores_inventarios
 planejamentos_indicadores
+planejamentos_metas
 ```
 
-As relações específicas com inventários pertencem à Biblioteca de Inventários, embora referenciem o catálogo canônico de indicadores.
+As relações devem preservar contexto, fonte, validade e confiança.
 
 ---
 
-## 15. Princípio consolidado
+## 11. Princípio consolidado
 
-> A Biblioteca de Objetivos, Resultados e KPIs define o que o plano pretende produzir, quais resultados podem evidenciar esse propósito e quais indicadores podem receber metas, ser projetados ou ser recomendados para mensuração posterior. O MediAd Planner não acompanha campanhas nem armazena resultados realizados. Um indicador somente se torna KPI quando recebe prioridade decisória em um planejamento específico.
+> A Biblioteca 15 define o que se pretende alcançar e o que pode ser observado. A Biblioteca 16 interpreta em quais jornadas, etapas, necessidades, funções e pontos de contato essa intenção se desdobra. A Biblioteca 13 declara quais inventários podem materializar esses pontos de contato e suportar os indicadores priorizados. Metas e KPIs são contextuais ao planejamento; resultados realizados permanecem fora do MediAd Planner.
