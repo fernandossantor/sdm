@@ -1,10 +1,18 @@
 # Biblioteca de Inventários do MediAd Planner
 
+**Documento:** `13_BIBLIOTECA_DE_INVENTARIOS.md`  
+**Plano Mestre:** MediAd Planner  
+**Status:** Consolidado  
+**Última revisão:** 28/07/2026  
+**Natureza:** Documento normativo
+
+---
+
 ## 1. Finalidade
 
 A Biblioteca de Inventários organiza, preserva e disponibiliza oportunidades de mídia reutilizáveis para os planejamentos do MediAd Planner.
 
-Seu objetivo é permitir que usuários encontrem, selecionem, adaptem, cadastrem, comparem e utilizem inventários estruturados sem reconstruir, em cada projeto, todas as classificações, relações, condições comerciais e métricas necessárias.
+Seu objetivo é permitir que usuários encontrem, selecionem, adaptem, cadastrem, comparem e utilizem inventários estruturados sem reconstruir, em cada projeto, todas as classificações, relações, condições comerciais, capacidades analíticas e métricas necessárias.
 
 A Biblioteca deve sustentar:
 
@@ -23,7 +31,8 @@ A taxonomia define.
 O inventário combina.
 O meio disponibiliza.
 A oferta comercializa.
-Os KPIs mensuram.
+O inventário declara capacidades analíticas.
+O planejamento seleciona indicadores e KPIs.
 O planejamento preserva a versão utilizada.
 ```
 
@@ -42,7 +51,7 @@ Disponibilizações por meios
         ↓
 Ofertas comerciais
         ↓
-KPIs, métricas e medições
+Capacidades analíticas
         ↓
 Instâncias nos planejamentos
 ```
@@ -67,19 +76,12 @@ Tecnologia
 → Inventário de referência
 → Meio / Plataforma / Empresa
 → Oferta comercial
-→ KPIs e métricas
+→ Capacidades analíticas
 ```
 
 Essa cadeia representa a ordem operacional de composição na interface.
 
 Ela não exige filiação exclusiva entre todos os níveis. Em vários pontos, as relações são de compatibilidade N:N.
-
-Portanto, a hierarquia é simultaneamente:
-
-- sequencial na experiência do usuário;
-- relacional no banco de dados;
-- multidimensional no domínio;
-- contextual nos planejamentos.
 
 ---
 
@@ -98,13 +100,13 @@ Vocabulários controlados utilizados para classificar inventários:
 7. modalidades de compra;
 8. unidades de compra;
 9. meios, plataformas ou empresas;
-10. KPIs.
+10. indicadores canônicos referenciados da Biblioteca 15.
 
 Os itens dos catálogos não são, isoladamente, inventários comercializáveis.
 
 ### 4.2 Inventário de referência
 
-É a combinação validada dos oito primeiros níveis:
+É a combinação validada de:
 
 ```text
 Tecnologia
@@ -118,8 +120,6 @@ Unidade de compra
 ```
 
 Representa uma possibilidade estruturada de exposição, inserção, presença ou entrega de mídia.
-
-O inventário de referência ainda não precisa informar quem o oferece, qual é o preço ou em quais praças está disponível.
 
 ### 4.3 Meio, plataforma ou empresa
 
@@ -159,8 +159,6 @@ Pode representar:
 - ambiente físico;
 - conteúdo adjacente.
 
-Essa camada pode carregar proposta editorial, temas, gêneros, contexto de exposição e evidências específicas de audiência.
-
 ### 4.5 Disponibilização do inventário
 
 É o vínculo entre um inventário de referência e um meio concreto.
@@ -168,8 +166,6 @@ Essa camada pode carregar proposta editorial, temas, gêneros, contexto de expos
 Responde:
 
 > Este meio disponibiliza este inventário?
-
-Uma disponibilização pode herdar atributos do meio, do programa, do ambiente ou do posicionamento, preservando a origem de cada informação.
 
 ### 4.6 Oferta comercial
 
@@ -192,15 +188,25 @@ Pode variar por:
 - segmento;
 - condição especial.
 
-Uma disponibilização pode possuir várias ofertas simultâneas ou históricas.
+### 4.7 Capacidade analítica
 
-### 4.7 KPI e métrica
+Capacidade analítica é a relação entre um inventário completo e um indicador canônico.
 
-KPI é o indicador utilizado para avaliar entrega, custo, qualidade ou resultado.
+Ela informa, em determinado contexto, se o inventário:
 
-Métrica é a medida operacional ou calculada relacionada ao inventário, à oferta ou ao planejamento.
+- é compatível com o indicador;
+- permite que o indicador receba meta;
+- permite projeção;
+- permite cálculo no planejamento;
+- permite estimativa por benchmark;
+- fornece o valor por veículo ou plataforma;
+- permite mensuração posterior;
+- exige fonte externa;
+- exige rastreamento, pesquisa ou atribuição;
+- possui limitações;
+- apresenta determinado grau de confiança.
 
-O KPI deve ser associado ao inventário completo e ao contexto em que é mensurável, e não apenas ao meio.
+O inventário não possui KPI permanente. O indicador torna-se KPI apenas quando priorizado no planejamento.
 
 ---
 
@@ -358,8 +364,6 @@ A estrutura operacional do inventário é necessária, mas insuficiente para qua
 
 A Biblioteca deve permitir descrever meios, programas, ambientes, disponibilizações e inventários por dimensões comparáveis às da Biblioteca de Públicos e Segmentos.
 
-Essas descrições alimentam a qualificação público–inventário da Arquitetura de Mídia.
-
 ### 6.1 Perfil editorial ou temático
 
 Pode registrar:
@@ -373,8 +377,6 @@ Pode registrar:
 - classificação etária;
 - contexto de marca segura;
 - restrições editoriais.
-
-A proposta editorial tende a pertencer ao veículo, programa, publicação, ambiente ou conteúdo. O inventário pode herdar esses atributos quando a exposição ocorre nesse contexto.
 
 ### 6.2 Contextos de contato
 
@@ -394,8 +396,6 @@ Podem ser associados ao inventário:
 - compra por impulso;
 - comparação antes da compra.
 
-Esses campos não afirmam que o inventário “possui comportamentos”. Eles descrevem comportamentos de contato ou consumo que o ambiente pode atender.
-
 ### 6.3 Funções de jornada
 
 O inventário pode ser relacionado a:
@@ -409,21 +409,9 @@ O inventário pode ser relacionado a:
 - fidelização;
 - recomendação.
 
-Também pode desempenhar funções como:
-
-- gerar notoriedade;
-- explicar;
-- demonstrar;
-- lembrar;
-- direcionar;
-- converter;
-- reforçar;
-- acompanhar;
-- retargetear.
-
 ### 6.4 Segmentações disponíveis
 
-Devem ser registradas as capacidades reais de segmentação, como:
+Devem ser registradas capacidades reais de segmentação:
 
 - geográfica;
 - demográfica;
@@ -437,18 +425,6 @@ Devem ser registradas as capacidades reais de segmentação, como:
 - por retargeting.
 
 Segmentação disponível não deve ser confundida com audiência efetivamente medida.
-
-### 6.5 Público editorial pretendido
-
-Pode ser registrado quando declarado pelo veículo ou publisher.
-
-Deve ser distinguido de audiência observada:
-
-```text
-Público editorial pretendido
-≠
-Audiência efetivamente medida
-```
 
 ---
 
@@ -473,19 +449,6 @@ Tipos de representação:
 - polígono;
 - área personalizada.
 
-Campos recomendados:
-
-- território;
-- tipo de cobertura;
-- cobertura total ou parcial;
-- latitude e longitude;
-- raio;
-- geometria;
-- código oficial;
-- fonte cartográfica;
-- data de atualização;
-- grau de confiança.
-
 A comparação territorial ocorre na Arquitetura de Mídia:
 
 ```text
@@ -494,107 +457,150 @@ Território do público
 Cobertura da alternativa de mídia
 ```
 
-O resultado pode indicar:
-
-- compatibilidade total;
-- compatibilidade parcial;
-- ausência de cobertura;
-- necessidade de validação;
-- percentual estimado de sobreposição geográfica.
-
 ---
 
-## 8. Dimensões compartilhadas
+## 8. Capacidades analíticas dos inventários
 
-A Biblioteca de Inventários deve usar os mesmos catálogos controlados da Biblioteca de Públicos e Segmentos para:
-
-- interesses;
-- comportamentos;
-- contextos de contato;
-- etapas da jornada;
-- pontos de contato;
-- funções;
-- territórios;
-- temas editoriais.
-
-Não devem existir listas incompatíveis e redundantes em cada biblioteca.
-
-Exemplo lógico:
+Cada capacidade deve ser registrada no nível mais específico necessário:
 
 ```text
-interesses
-    ↕
-inventarios_interesses
-
-comportamentos
-    ↕
-inventarios_contextos_comportamentais
-
-etapas_jornada
-    ↕
-inventarios_etapas_jornada
-
-territorios
-    ↕
-coberturas_inventarios
+Indicador
+× Meio
+× Programa ou posicionamento
+× Ambiente
+× Formato
+× Modelo de compra
+× Unidade de compra
+× Disponibilização
+× Fonte de dados
 ```
 
-Cada relação deve registrar intensidade, tipo de associação, fonte, validade e confiança.
+Não basta afirmar que um meio genericamente “mede” determinado indicador.
+
+A aplicabilidade pode depender de formato, compra, fonte e implementação.
+
+Exemplos:
+
+```text
+Search pago
+→ impressões, cliques, CTR, CPC, conversões e CPA,
+conforme rastreamento e atribuição.
+
+TV aberta com dados de audiência
+→ audiência, impactos, alcance, frequência, GRP e CPP,
+conforme praça, período e fonte.
+
+Jornal impresso
+→ inserções, circulação, cobertura e impactos estimados;
+respostas ou conversões exigem mecanismo externo.
+```
+
+### 8.1 Estados de capacidade
+
+Valores recomendados:
+
+- aplicável;
+- aplicável com requisitos;
+- estimável;
+- projetável;
+- fornecido externamente;
+- mensurável posteriormente;
+- não aplicável;
+- informação insuficiente;
+- requer validação.
+
+### 8.2 Requisitos
+
+Podem incluir:
+
+- dados de audiência;
+- universo;
+- cobertura territorial;
+- impressões;
+- cliques;
+- conversões;
+- investimento;
+- receita atribuída;
+- pixel ou tag;
+- ad server;
+- analytics;
+- CRM;
+- pesquisa;
+- cupom, URL ou código específico;
+- metodologia de atribuição.
+
+### 8.3 Fonte e confiança
+
+Cada capacidade deve registrar:
+
+- fonte;
+- data;
+- metodologia;
+- cobertura;
+- granularidade;
+- limitações;
+- natureza do dado;
+- grau de confiança.
 
 ---
 
-## 9. Audiência, cobertura, alcance e afinidade
+## 9. Quatro famílias de indicadores
 
-### 9.1 Audiência
+A Biblioteca de Inventários referencia as famílias definidas pela Biblioteca 15:
+
+1. Planejamento e pressão de mídia;
+2. Entrega;
+3. Eficiência;
+4. Resposta.
+
+A família pertence ao indicador. A Biblioteca de Inventários apenas declara a compatibilidade concreta.
+
+---
+
+## 10. Audiência, cobertura, alcance e frequência
+
+### 10.1 Audiência
 
 Audiência é uma medida observada ou estimada de pessoas expostas a um veículo, programa, ambiente ou inventário em determinado período e praça.
 
-Não é atributo permanente do público.
-
-### 9.2 Cobertura
+### 10.2 Cobertura
 
 Cobertura pode representar:
 
 - alcance técnico de sinal ou distribuição;
 - área territorial atendida;
 - população potencialmente alcançável;
-- disponibilidade comercial em determinada praça.
+- disponibilidade comercial em determinada praça;
+- meta de atendimento territorial no planejamento.
 
-Deve registrar sua natureza, fonte e metodologia.
+Sua natureza deve ser explicitada.
 
-### 9.3 Alcance e frequência
+### 10.3 Alcance e frequência
 
-Alcance e frequência são resultados de veiculação, cenário ou plano. Não devem ser armazenados como atributos permanentes do público ou do inventário de referência.
+Alcance e frequência não são atributos permanentes do inventário de referência.
 
-Podem existir benchmarks e capacidades estimadas, desde que identificados como tais.
+Podem ser:
 
-### 9.4 Afinidade observada
+- metas do plano;
+- projeções da simulação;
+- benchmarks;
+- valores fornecidos por fonte externa em contexto definido.
+
+### 10.4 Afinidade observada
 
 Afinidade observada é uma relação medida entre público e veículo, programa ou inventário.
 
-Deve registrar:
-
-- público ou segmento;
-- entidade de mídia;
-- praça;
-- período;
-- universo de comparação;
-- índice ou percentual;
-- fonte;
-- metodologia;
-- confiança.
-
-Ela não deve ser tratada como atributo isolado do inventário.
-
-### 9.5 Aderência estimada
-
-Aderência estimada é calculada pela Arquitetura de Mídia a partir da comparação entre características do público, propriedades da alternativa e condições da campanha.
+Não deve ser tratada como atributo isolado do inventário.
 
 ---
 
-## 10. Qualificação público–inventário
+## 11. Qualificação integrada
 
-A Biblioteca fornece dados para que a Arquitetura de Mídia avalie:
+A Biblioteca fornece dados para duas qualificações complementares.
+
+### 11.1 Público–inventário
+
+Avalia:
 
 - aderência editorial ou temática;
 - aderência comportamental;
@@ -605,24 +611,24 @@ A Biblioteca fornece dados para que a Arquitetura de Mídia avalie:
 - afinidade observada;
 - confiança das evidências.
 
-Essa qualificação é apenas uma das dimensões do cálculo de adequação.
+### 11.2 Indicador–inventário
 
-Também permanecem relevantes:
+Avalia:
 
-- objetivos;
-- KPIs;
-- orçamento;
-- custos;
-- disponibilidade;
-- complementaridade;
-- overlap;
-- saturação;
-- restrições;
-- mensurabilidade.
+- compatibilidade do indicador;
+- possibilidade de meta;
+- capacidade de projeção;
+- possibilidade de mensuração posterior;
+- requisitos de dados;
+- limitações;
+- fonte;
+- confiança.
+
+Essas qualificações integram o cálculo de adequação da Arquitetura de Mídia.
 
 ---
 
-## 11. Escopos
+## 12. Escopos, versionamento e snapshot
 
 Os inventários e suas relações podem possuir escopo:
 
@@ -631,12 +637,6 @@ Os inventários e suas relações podem possuir escopo:
 - projeto;
 - pessoal ou rascunho.
 
-Inventários locais, ofertas comerciais privadas e informações proprietárias devem respeitar o escopo e as permissões correspondentes.
-
----
-
-## 12. Versionamento e snapshot
-
 Toda instância utilizada em planejamento deve preservar:
 
 - versão do inventário de referência;
@@ -644,6 +644,7 @@ Toda instância utilizada em planejamento deve preservar:
 - versão da oferta comercial;
 - atributos editoriais e contextuais usados;
 - cobertura territorial usada;
+- capacidades analíticas usadas;
 - fontes e datas;
 - ajustes locais;
 - autoria;
@@ -676,14 +677,19 @@ inventarios_temas
 inventarios_contextos_comportamentais
 inventarios_etapas_jornada
 inventarios_segmentacoes
+inventarios_indicadores
+requisitos_inventarios_indicadores
+fontes_inventarios_indicadores
 medicoes_audiencia
 afinidades_observadas
 ```
 
-As tabelas relacionais devem preservar contexto, fonte, validade e confiança.
+A tabela `inventarios_indicadores` substitui conceitualmente associações rígidas entre inventários e KPIs.
+
+Cada relação deve preservar contexto, fonte, validade e confiança.
 
 ---
 
 ## 14. Princípio consolidado
 
-> A Biblioteca de Inventários descreve tanto a estrutura operacional da oportunidade de mídia quanto, quando aplicável, suas propriedades editoriais, contextuais, funcionais e territoriais. Essas informações não definem sozinhas a adequação do inventário. Elas são comparadas com os públicos e com o Perfil Estratégico pela Arquitetura de Mídia.
+> A Biblioteca de Inventários descreve a estrutura operacional da oportunidade de mídia, suas propriedades editoriais, contextuais, funcionais e territoriais e suas capacidades analíticas. O inventário não possui KPI permanente: ele declara quais indicadores suporta, projeta ou permite mensurar em determinado contexto. A Arquitetura de Mídia combina essas capacidades com objetivos, resultados pretendidos, indicadores prioritários, públicos, orçamento, restrições e demais condições do planejamento.
