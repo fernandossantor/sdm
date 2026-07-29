@@ -6,21 +6,23 @@ Este documento registra o estado atual da arquitetura conceitual do MediAd Plann
 
 ## Situação atual
 
-A arquitetura conceitual encontra-se estabilizada. O refinamento realizado em 29/07/2026 confirmou que não são necessárias novas bibliotecas, telas ou motores para incorporar as práticas observadas em materiais teóricos, guias técnicos, mídia kits, tabelas comerciais e propostas multiplataforma.
+A arquitetura conceitual encontra-se estabilizada e contida dentro da proposta funcional do MediAd Planner.
+
+O refinamento realizado em 29/07/2026 confirmou que não são necessárias novas bibliotecas, telas ou motores para incorporar as práticas observadas em materiais teóricos, guias técnicos, mídia kits, tabelas comerciais e propostas multiplataforma.
 
 O projeto permanece definido como plataforma de inteligência de mídia baseada em sistemas especialistas, composta por:
 
 - ontologias do domínio;
 - catálogos controlados;
 - bibliotecas de conhecimento;
-- bibliotecas de problemas técnicos;
+- biblioteca de problemas técnicos;
 - motores especialistas;
-- modelos reutilizáveis;
+- configurações e modelos reutilizáveis leves;
 - mecanismos de inferência, rastreabilidade e explicabilidade.
 
 ---
 
-## Bibliotecas
+## Bibliotecas principais da versão 1.0
 
 ### Consolidadas
 
@@ -30,7 +32,7 @@ O projeto permanece definido como plataforma de inteligência de mídia baseada 
 - 15 — Objetivos, Resultados e KPIs;
 - 16 — Jornadas, Necessidades, Funções e Pontos de Contato.
 
-### Em formalização progressiva
+### Em finalização
 
 - 17 — Conhecimento Técnico;
 - 17A — Inventário Preliminar de Conhecimentos Técnicos;
@@ -38,15 +40,33 @@ O projeto permanece definido como plataforma de inteligência de mídia baseada 
 - 17C — Núcleo 1: Universo e Audiência;
 - 17D — Núcleo 2: Alcance e Frequência;
 - 17E — Núcleo 3: GRP e Equivalências Multimídia;
-- 18 — Problemas Técnicos de Planejamento de Mídia.
+- 17F — Contrato Mínimo de Mensuração;
+- 18 — Problemas Técnicos de Planejamento de Mídia;
+- 18A — Primeiro Núcleo de Problemas Técnicos;
+- 18B — Casos de Validação do Primeiro Núcleo.
 
-### Pendentes de confirmação arquitetural
+### Estruturas incorporadas
 
-- 19 — Custos e Condições Comerciais;
-- 20 — Regras, Restrições e Referências Metodológicas;
-- 21 — Modelos e Componentes Reutilizáveis.
+As antigas propostas de Bibliotecas 19, 20 e 21 não serão implementadas como bibliotecas autônomas na versão 1.0.
 
-Essas estruturas somente permanecerão autônomas se a implementação demonstrar necessidade real.
+Seus conteúdos foram redistribuídos conforme o documento:
+
+`12A_CONSOLIDACAO_DAS_BIBLIOTECAS_OPERACIONAIS.md`
+
+A distribuição consolidada é:
+
+```text
+custos e condições comerciais
+→ Biblioteca 13 + Biblioteca 17 + Biblioteca 18
+
+regras, restrições e referências metodológicas
+→ bibliotecas correspondentes + Biblioteca 17 + Biblioteca 18
+
+modelos e componentes reutilizáveis
+→ simulações, cenários, cronograma, motores e artefatos de saída
+```
+
+Nenhum conteúdo essencial foi descartado. Foram eliminadas apenas estruturas autônomas cuja necessidade ainda não foi demonstrada.
 
 ---
 
@@ -63,17 +83,22 @@ Um objeto somente deve ser separado quando houver diferença relevante de:
 - interpretação;
 - metodologia;
 - versionamento;
-- execução independente.
+- execução independente;
+- decisão explícita do usuário.
 
-Sinônimos, exemplos, mensagens, pequenos ajustes e classificações devem permanecer como campos, estados ou variantes internas.
+Sinônimos, exemplos, mensagens, pequenos ajustes, exceções e classificações devem permanecer como campos, estados ou variantes internas.
+
+A implementação deve seguir o princípio:
+
+> rigor metodológico interno sem burocratização da experiência do usuário.
 
 ---
 
-## Refinamentos concluídos em 29/07/2026
+## Refinamentos concluídos
 
 ### Biblioteca 13 — Inventários
 
-O documento `13_BIBLIOTECA_DE_INVENTARIOS.md` foi revisado para formalizar:
+A cadeia consolidada é:
 
 ```text
 proprietário ou grupo
@@ -87,21 +112,9 @@ proprietário ou grupo
 → oferta comercial
 ```
 
-Foram consolidadas as separações entre:
-
-- inventário, formato, especificação e experiência;
-- produto comercial, pacote, cota, patrocínio e projeto;
-- unidade de compra, entrega e mensuração;
-- cobertura territorial, abrangência da programação e alcance;
-- fluxo, OTS, contato ajustado e impactos;
-- composição de audiência, penetração, afinidade e alcance no target;
-- mídia, produção, direitos, tecnologia, dados e ativação.
-
-A Biblioteca passa a admitir inventários hierárquicos, circuitos, redes e produtos compostos sem criar novas bibliotecas.
+A Biblioteca 13 admite inventários hierárquicos, circuitos, redes e produtos compostos. Custos e condições comerciais acompanham produtos, ofertas e disponibilidades, sem biblioteca paralela.
 
 ### Mapa de Veiculação
-
-O documento `10_MAPA_DE_VEICULACAO.md` foi incrementado.
 
 A cadeia operacional consolidada é:
 
@@ -116,59 +129,54 @@ Plano Consolidado
 → checking e pós-compra
 ```
 
-O Mapa permanece como saída operacional do Plano e passa a preservar:
-
-- hierarquia do inventário;
-- produtos e entregas compostas;
-- condições negociadas além do desconto;
-- modelos de remuneração;
-- métricas nativas;
-- natureza garantida, estimada, histórica ou potencial dos valores;
-- tipologia de impactos;
-- estados de equivalência e deduplicação;
-- dados necessários à autorização, PI, checking e conciliação.
-
 Não foi criado módulo autônomo de PI.
 
-### Núcleo 2 — Alcance e Frequência
+### Biblioteca 17 — Conhecimento Técnico
 
-O documento `17D_NUCLEO_2_ALCANCE_E_FREQUENCIA.md` foi revisado.
+Os três primeiros núcleos foram formalizados:
 
-Foram formalizados:
+- Universo e Audiência;
+- Alcance e Frequência;
+- GRP e Equivalências Multimídia.
 
-- estados de deduplicação;
-- distinção entre cobertura e alcance;
-- referência temporal obrigatória;
-- limites da frequência média;
-- incompatibilidade entre inserções, impressões, impacto e frequência;
-- relação entre overlap, alcance, frequência e saturação.
-
-A distribuição de frequência, frequência eficiente e saturação permanecem tópicos relacionados, não novos objetos.
-
-### Núcleo 3 — GRP e Equivalências Multimídia
-
-O documento `17E_NUCLEO_3_GRP_E_EQUIVALENCIAS_MULTIMIDIA.md` foi revisado.
-
-A comparação passa a operar em quatro camadas:
+O Contrato Mínimo de Mensuração harmoniza os seguintes metadados internos:
 
 ```text
-métrica nativa
-→ oportunidade de exposição
-→ contato qualificado
-→ efeito ou resultado
+unidade_de_observacao
+universo_de_referencia
+natureza_do_valor
+estado_de_deduplicacao
+estado_de_equivalencia
+nivel_de_confianca
 ```
 
-Estados mantidos:
+Esses campos não constituem novas telas ou cadastros obrigatórios. Devem ser herdados ou calculados sempre que possível.
+
+### Biblioteca 18 — Problemas Técnicos
+
+Foi formalizado o primeiro núcleo executável, cobrindo:
 
 ```text
-EQUIVALENCIA_DIRETA
-EQUIVALENCIA_APOS_CONVERSAO
-EQUIVALENCIA_CONDICIONADA
-NAO_EQUIVALENTE
-DADOS_INSUFICIENTES
+validar a base
+→ calcular ou recuperar audiência
+→ calcular impactos
+→ estimar alcance e frequência
+→ calcular pressão
+→ validar comparabilidade
+→ interpretar o resultado
 ```
 
-Os pontos de pressão foram definidos como índice analítico normalizado. Não equivalem automaticamente a GRP certificado, alcance deduplicado, pessoas únicas, atenção ou efeito.
+Os casos de validação abrangem televisão, rádio, digital, OOH/DOOH, mídia impressa, cinema e combinações multimídia.
+
+### Consolidação operacional
+
+Os conteúdos antes atribuídos às Bibliotecas 19, 20 e 21 foram incorporados à arquitetura existente:
+
+- preços, descontos, vigências e disponibilidade acompanham inventários e ofertas;
+- fórmulas econômicas e regras metodológicas permanecem na Biblioteca 17;
+- problemas de orçamento, eficiência e bloqueio permanecem na Biblioteca 18;
+- templates, cenários, flights e matrizes de pesos permanecem configurações dos módulos e motores;
+- referências são metadados dos objetos e permanecem consolidadas no documento 22.
 
 ---
 
@@ -197,44 +205,58 @@ unidade de mensuração
 ```
 
 ```text
-cobertura territorial
+custo cadastrado
 ≠
-alcance de audiência
+custo calculado
+≠
+custo projetado
 ```
 
 ```text
-fluxo
-≠
-OTS
-≠
-contato ajustado
-≠
-impacto validado
+regra técnica
+não exige
+biblioteca autônoma de regras
+```
+
+```text
+modelo reutilizável
+=
+configuração de objetos existentes
 ```
 
 ---
 
 ## Próxima etapa ativa
 
-Revisar conjuntamente os Núcleos 1, 2 e 3 e sua integração com as Bibliotecas 13, 15 e 18 para:
+Finalizar as Bibliotecas 17 e 18 sem ampliar o escopo:
 
-1. harmonizar nomes de campos, estados e qualificadores;
-2. revisar a tipologia de impactos no Núcleo 1;
-3. validar casos de televisão, rádio, digital, OOH, impresso e cinema;
-4. testar casos válidos, condicionados, inválidos e indeterminados;
-5. verificar suficiência para os primeiros problemas técnicos da Biblioteca 18;
-6. evitar antecipar objetos sem uso demonstrado.
+1. harmonizar definitivamente nomes de campos, estados e qualificadores;
+2. vincular os conhecimentos da Biblioteca 17 aos indicadores da Biblioteca 15;
+3. vincular os conhecimentos aos problemas da Biblioteca 18;
+4. revisar redundâncias e converter objetos excessivos em atributos ou variantes;
+5. limitar a Biblioteca 18 aos problemas efetivamente necessários aos motores;
+6. declarar as Bibliotecas 17 e 18 formalizadas para a versão 1.0.
 
 ## Sequência posterior
 
-1. relacionar conhecimentos aos indicadores da Biblioteca 15;
-2. relacionar conhecimentos aos problemas da Biblioteca 18;
-3. decidir o que exige YAML, JSON ou banco;
-4. revisar a autonomia das Bibliotecas 19, 20 e 21;
-5. especificar os motores especialistas;
-6. modelar o banco definitivo;
-7. definir inferência e explicabilidade.
+1. especificar os motores especialistas;
+2. revisar a arquitetura completa para eliminação de redundâncias;
+3. declarar a arquitetura funcional congelada na versão 1.0;
+4. decidir o que exige YAML, JSON ou banco;
+5. modelar o banco definitivo;
+6. implementar inferência, explicabilidade e rastreabilidade.
+
+## Limites da próxima fase
+
+Não devem ser criados, sem necessidade comprovada:
+
+- novas bibliotecas;
+- motores separados por meio ou formato;
+- telas gerais de regras;
+- cadastros obrigatórios de templates;
+- entidades próprias para cada exceção metodológica;
+- campos técnicos visíveis na jornada principal do usuário.
 
 ## Observação
 
-A proposta funcional permanece madura e com escopo estável. O trabalho atual é de precisão semântica, metodológica e operacional, não de expansão da plataforma.
+A proposta funcional permanece madura e com escopo estável. O trabalho atual é de consolidação semântica, metodológica e operacional. A próxima expansão permitida é a especificação dos motores especialistas, e não a criação de novas camadas conceituais.
