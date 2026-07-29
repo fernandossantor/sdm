@@ -14,17 +14,17 @@ A Arquitetura de Mídia recebe o **Perfil Estratégico de Mídia** produzido pel
 
 Seu resultado principal é uma ou mais **Arquiteturas Candidatas de Mídia**, tecnicamente justificadas, editáveis, versionadas e aptas à simulação.
 
-Fluxo canônico:
-
 ```text
 Campanha
     ↓
 Briefing
     ↓
 Tradução Estratégica
+    ↓
 Perfil Estratégico de Mídia
     ↓
 Arquitetura de Mídia
+    ↓
 Arquiteturas Candidatas
     ↓
 Simulações
@@ -34,42 +34,30 @@ Comparação e Otimização
 Plano Consolidado
 ```
 
-A Arquitetura de Mídia integra o **Ambiente de Elaboração**, composto por quatro capacidades codependentes:
+A adequação das mídias nunca é uma propriedade fixa dos meios. Ela é calculada dinamicamente a partir das variáveis do Briefing, dos pesos da Tradução Estratégica, das condições da campanha, das capacidades das alternativas e das relações entre públicos e inventários.
 
-```text
-Arquitetar
-Simular
-Comparar
-Otimizar
-```
-
-Essas capacidades não formam uma sequência rígida. O sistema deve permitir ciclos sucessivos de construção, teste, comparação, ajuste e nova simulação.
+A revisão atual não substitui esse modelo. Ela acrescenta uma nova camada de informação ao cálculo já existente: a **qualificação público–inventário**.
 
 ---
 
 ## 2. Natureza do artefato
 
-O artefato da etapa será denominado:
-
-```text
-Arquitetura Candidata de Mídia
-```
-
-Uma arquitetura candidata deverá conter, progressivamente:
+Uma Arquitetura Candidata de Mídia deverá conter, progressivamente:
 
 - funções de mídia;
-- públicos, segmentos e praças vinculados;
+- públicos, segmentos, universos e praças vinculados;
 - etapas da jornada;
 - pontos de contato;
 - meios e canais candidatos;
 - papéis estratégicos;
 - relações entre mídias;
-- veículos, plataformas, formatos e inventários elegíveis;
+- veículos, plataformas, programas, formatos e inventários elegíveis;
 - modelos de compra;
 - hipóteses de overlap;
 - hipóteses de distribuição geográfica e temporal;
 - critérios de seleção;
 - índices de aderência;
+- contribuições da qualificação público–inventário;
 - restrições;
 - graus de confiança;
 - alterações do planejador;
@@ -87,7 +75,8 @@ A Arquitetura deve:
 - transformar parâmetros estratégicos em funções de mídia;
 - relacionar jornada e pontos de contato;
 - relacionar objetivos e pretensões com resultados observáveis e KPIs;
-- qualificar meios, canais, veículos, plataformas, formatos e inventários;
+- qualificar meios, canais, veículos, plataformas, programas, formatos e inventários;
+- incorporar a relação entre características dos públicos e propriedades das alternativas de mídia;
 - classificar mídias como principal, complementar ou de apoio;
 - registrar relações entre mídias;
 - sugerir alternativas elegíveis;
@@ -104,7 +93,7 @@ A Arquitetura não deve, isoladamente:
 - executar a otimização final;
 - consolidar o plano.
 
-Esses cálculos e decisões pertencem ao Ambiente de Elaboração, sobretudo à Simulação, à Comparação e à Otimização.
+Esses cálculos pertencem ao Ambiente de Elaboração, sobretudo à Simulação, à Comparação e à Otimização.
 
 ---
 
@@ -119,14 +108,26 @@ A Arquitetura deve consumir o Perfil Estratégico de Mídia vigente, especialmen
 - condições de atendimento;
 - objetivos de mídia derivados;
 - públicos, segmentos e universos;
-- praças;
+- interesses e comportamentos relevantes;
+- praças e territórios;
 - etapas da jornada;
+- pontos de contato e necessidades comunicacionais;
 - período;
 - verba disponível;
 - restrições;
 - tensões;
 - graus de confiança;
 - valores calculados, ajustados e efetivos.
+
+Também deve consultar, conforme disponibilidade:
+
+- proposta editorial e temas dos veículos, programas e ambientes;
+- contextos e comportamentos de contato atendidos pelos inventários;
+- funções de jornada compatíveis;
+- segmentações disponíveis;
+- cobertura territorial;
+- afinidade observada e demais evidências empíricas;
+- fontes, datas, metodologias e confiança dos dados.
 
 Nenhuma recomendação deve ser produzida sem vínculo explícito com parâmetros do Perfil Estratégico ou regras metodológicas versionadas.
 
@@ -145,7 +146,9 @@ Capacidades técnicas necessárias
         ↓
 Qualificação de meios e canais
         ↓
-Qualificação de veículos, plataformas e formatos
+Qualificação de veículos, plataformas, programas e formatos
+        ↓
+Qualificação público–inventário
         ↓
 Elegibilidade de inventários
         ↓
@@ -158,15 +161,15 @@ Geração de arquiteturas candidatas
 Configurações iniciais para simulação
 ```
 
+A qualificação público–inventário é um componente da Arquitetura de Mídia. Não constitui um motor autônomo concorrente.
+
 A seleção não deve começar diretamente pelo inventário. O movimento deve ser progressivo, da função estratégica à unidade comercial disponível.
 
 ---
 
 ## 6. Funções de mídia
 
-A Arquitetura deve converter os parâmetros estratégicos em funções de mídia.
-
-Biblioteca inicial de funções:
+A Arquitetura deve converter parâmetros estratégicos em funções de mídia, entre elas:
 
 - construir alcance;
 - ampliar cobertura territorial;
@@ -175,7 +178,6 @@ Biblioteca inicial de funções:
 - acelerar a construção de alcance;
 - produzir impacto;
 - reforçar lembrança;
-- gerar afinidade;
 - alcançar segmentos específicos;
 - sustentar presença territorial;
 - acompanhar etapas da jornada;
@@ -191,26 +193,11 @@ Biblioteca inicial de funções:
 
 Uma função pode ser atendida por várias mídias. Uma mesma mídia pode exercer várias funções.
 
-Cada função deverá registrar:
-
-- identificador;
-- origem no Perfil Estratégico;
-- intensidade requerida;
-- peso;
-- prioridade;
-- condição;
-- públicos vinculados;
-- praças vinculadas;
-- etapas da jornada vinculadas;
-- grau de confiança.
+O antigo enunciado “gerar afinidade” deve ser interpretado como **selecionar alternativas com maior afinidade observada ou aderência estimada ao público**, e não como produzir afinidade como efeito automático da veiculação.
 
 ---
 
 ## 7. Jornada e pontos de contato
-
-A jornada pertence ao Briefing. Os pontos de contato são identificados e estruturados na Arquitetura.
-
-Relação canônica:
 
 ```text
 Público
@@ -242,48 +229,15 @@ Cada ponto de contato deverá registrar:
 
 ---
 
-## 8. Pretensões, objetivos e KPIs
+## 8. Qualificação das mídias
 
-As pretensões do Briefing são traduzidas em objetivos de mídia e parâmetros na etapa anterior. Na Arquitetura, esses parâmetros são relacionados a resultados observáveis e a KPIs adequados.
+Cada alternativa deve ser qualificada por capacidades técnicas parametrizadas e por sua relação contextual com o público.
 
-Relação canônica:
+### 8.1 Capacidades técnicas
 
-```text
-Pretensão declarada
-    ↓
-Objetivo de mídia derivado
-    ↓
-Função de mídia
-    ↓
-Resultado observável
-    ↓
-KPI aplicável
-```
-
-O KPI não deve ser escolhido apenas porque existe no catálogo. Sua aplicabilidade depende de:
-
-- objetivo;
-- função;
-- meio ou canal;
-- modelo de compra;
-- disponibilidade de dados;
-- capacidade real de mensuração;
-- modelo de atribuição.
-
-A definição da meta e o cálculo do resultado ocorrerão no Ambiente de Elaboração.
-
----
-
-## 9. Qualificação das mídias
-
-Cada alternativa deve ser qualificada por capacidades técnicas parametrizadas.
-
-Biblioteca inicial de atributos:
-
-- alcance;
-- frequência;
+- potencial de alcance;
+- potencial de frequência;
 - cobertura geográfica;
-- afinidade;
 - seletividade;
 - impacto;
 - continuidade;
@@ -302,11 +256,69 @@ Biblioteca inicial de atributos:
 - custo relativo;
 - disponibilidade;
 - risco de saturação;
-- compatibilidade com a jornada;
-- compatibilidade territorial;
 - compatibilidade temporal.
 
+### 8.2 Qualificação público–inventário
+
+A qualificação público–inventário acrescenta ao cálculo de adequação as seguintes dimensões:
+
+- aderência editorial ou temática;
+- aderência comportamental;
+- aderência à jornada;
+- compatibilidade demográfica;
+- compatibilidade territorial;
+- adequação contextual;
+- afinidade observada, quando disponível;
+- confiabilidade das evidências.
+
+Ela compara descrições estruturadas e compatíveis das Bibliotecas de Públicos e de Inventários.
+
+```text
+Interesses do público
+↔ temas e proposta editorial
+
+Comportamentos do público
+↔ contextos de contato atendidos
+
+Etapa da jornada
+↔ funções possíveis do inventário
+
+Território do público
+↔ cobertura territorial
+
+Características demográficas
+↔ segmentação disponível ou audiência observada
+```
+
 Os atributos devem possuir valores, fontes, datas, unidades, escopo e graus de confiança.
+
+---
+
+## 9. Afinidade observada e aderência estimada
+
+### 9.1 Afinidade observada
+
+Afinidade observada é uma evidência empírica da presença proporcional de determinado público na audiência de um veículo, programa ou inventário, em comparação com um universo de referência.
+
+Deve sempre registrar:
+
+- público ou segmento;
+- veículo, programa ou inventário;
+- praça;
+- período;
+- universo de comparação;
+- valor e unidade;
+- fonte;
+- metodologia;
+- grau de confiança.
+
+Ela não pertence isoladamente à Biblioteca de Públicos nem à Biblioteca de Inventários. É uma relação medida entre ambos.
+
+### 9.2 Aderência estimada
+
+Aderência estimada é a compatibilidade estratégica calculada pelo MediAd Planner a partir das características do público, das propriedades da alternativa de mídia e das condições da campanha.
+
+Não deve ser apresentada como audiência medida.
 
 ---
 
@@ -319,6 +331,8 @@ Perfil Estratégico
         ×
 Capacidades da mídia
         ×
+Qualificação público–inventário
+        ×
 Condições da campanha
 ```
 
@@ -327,7 +341,10 @@ O índice de aderência deverá considerar:
 - pesos estratégicos;
 - capacidades da alternativa;
 - públicos e praças;
+- interesses e comportamentos relevantes;
 - jornada e pontos de contato;
+- compatibilidades editorial, comportamental, demográfica, territorial e contextual;
+- afinidade observada, quando houver;
 - período;
 - verba e preços;
 - restrições;
@@ -352,8 +369,6 @@ O índice orienta a recomendação, mas não substitui a decisão do planejador.
 
 ## 11. Hierarquia de seleção
 
-A ontologia geral será:
-
 ```text
 Meio
     ↓
@@ -361,186 +376,56 @@ Canal
     ↓
 Veículo ou plataforma
     ↓
+Programa, faixa, ambiente ou posicionamento
+    ↓
 Formato
     ↓
 Inventário
 ```
 
-A estrutura deve acomodar diferenças entre mercados de mídia sem apagar os níveis conceituais.
+Nem todo mercado exige todos os níveis, mas cada entidade deve possuir tipo e posição inequívocos.
 
-Exemplos:
-
-```text
-TV aberta
-    ↓
-Emissora
-    ↓
-Programa ou faixa
-    ↓
-Inserção
-```
-
-```text
-Mídia social
-    ↓
-Plataforma
-    ↓
-Posicionamento
-    ↓
-Formato
-    ↓
-Impressões compradas
-```
-
-```text
-OOH
-    ↓
-Operador
-    ↓
-Circuito
-    ↓
-Tipo de ativo
-    ↓
-Face ou período
-```
-
-Nem todo meio exige todos os níveis, mas cada entidade deve possuir tipo e posição inequívocos na hierarquia.
+A proposta editorial pode pertencer ao veículo, programa, publicação, ambiente ou conteúdo. A cobertura territorial pode pertencer ao veículo, rede, emissora, circuito, plataforma ou disponibilização. O inventário deve herdar essas propriedades quando aplicáveis, preservando sua origem.
 
 ---
 
 ## 12. Papéis estratégicos
 
-Toda mídia selecionada deve poder receber um papel estratégico:
+Toda mídia selecionada deve poder receber um papel:
 
 - Principal;
 - Complementar;
 - Apoio.
 
-O papel é contextual. Não é uma propriedade permanente do meio.
+O papel é contextual e pode variar por:
 
-### 12.1 Principal
-
-Assume a maior responsabilidade pelo atendimento dos objetivos e parâmetros prioritários da arquitetura.
-
-Pode responder por:
-
-- função central;
-- maior contribuição esperada para alcance ou pressão;
-- principal relação com o público prioritário;
-- maior responsabilidade territorial ou temporal;
-- maior proteção na alocação de verba.
-
-Não deve ser definido apenas pelo maior investimento.
-
-### 12.2 Complementar
-
-Amplia, qualifica ou corrige limitações do principal.
-
-Pode:
-
-- estender alcance;
-- elevar frequência;
-- cobrir públicos ou praças adicionais;
-- atuar em outras etapas da jornada;
-- elevar afinidade;
-- acrescentar mensurabilidade;
-- reduzir lacunas temporais ou territoriais.
-
-### 12.3 Apoio
-
-Executa funções específicas, pontuais ou localizadas.
-
-Pode:
-
-- reforçar datas críticas;
-- ativar pontos de contato;
-- apoiar conversão;
-- integrar mídia e PDV;
-- atender públicos secundários;
-- gerar dados ou retargeting;
-- sustentar presença local.
-
----
-
-## 13. Papel geral e papel contextual
-
-O sistema deverá admitir:
-
-- papel geral;
-- papel por público;
-- papel por segmento;
-- papel por praça;
-- papel por etapa da jornada;
-- papel por objetivo;
-- papel por período.
-
-Exemplo:
-
-```text
-Canal A
-Papel geral: Principal
-Público 1: Principal
-Público 2: Complementar
-Praça central: Principal
-Praça secundária: Apoio
-```
-
-Os papéis poderão receber coeficientes configuráveis. Valores iniciais ilustrativos não devem ser tratados como universais.
-
-O papel poderá influenciar:
-
-- prioridade de verba;
-- participação mínima;
-- proteção contra cortes;
-- ordem de otimização;
-- tolerância a substituições;
-- avaliação da contribuição.
-
----
-
-## 14. Relações entre mídias
-
-A Arquitetura deve registrar como as mídias se articulam.
-
-Tipos iniciais de relação:
-
-- complementaridade;
-- reforço;
-- extensão de alcance;
-- extensão territorial;
-- extensão temporal;
-- extensão de jornada;
-- redundância intencional;
-- redundância indesejada;
-- dependência;
-- sequenciamento;
-- ativação;
-- retargeting;
-- transferência de atenção;
-- captura de demanda;
-- apoio à conversão.
-
-Cada relação deverá conter:
-
-- origem;
-- destino;
-- tipo;
-- função;
 - público;
+- segmento;
 - praça;
 - etapa da jornada;
-- período;
-- intensidade;
-- condição;
-- confiança.
+- objetivo;
+- período.
+
+A qualificação público–inventário contribui para a atribuição do papel, mas não a determina isoladamente.
+
+Também devem ser considerados:
+
+- objetivos;
+- KPIs;
+- orçamento;
+- complementaridade;
+- overlap;
+- saturação;
+- cobertura;
+- restrições;
+- disponibilidade;
+- capacidade de mensuração.
 
 ---
 
-## 15. Overlap
+## 13. Overlap
 
-O overlap pertence ao Ambiente de Elaboração porque depende das mídias combinadas.
-
-A Arquitetura registra a hipótese. A Simulação aplica o valor quantitativo.
+A Arquitetura registra hipóteses de overlap. A Simulação aplica valores quantitativos.
 
 Para cada par de canais ou inventários, o sistema deverá permitir:
 
@@ -554,7 +439,7 @@ Para cada par de canais ou inventários, o sistema deverá permitir:
 - confiança;
 - justificativa.
 
-Regra metodológica já consolidada:
+Regra metodológica:
 
 ```text
 Mesma praça:
@@ -568,14 +453,17 @@ Essa regra não elimina a modelagem da sobreposição real de audiências.
 
 ---
 
-## 16. Inventário elegível
+## 14. Inventário elegível
 
 A elegibilidade deverá considerar:
 
 - disponibilidade na praça;
-- cobertura do público;
+- sobreposição entre território do público e cobertura do veículo;
 - aderência às funções;
 - compatibilidade com a jornada;
+- aderência editorial e comportamental;
+- compatibilidade demográfica;
+- afinidade observada, quando houver;
 - preço;
 - modelo de compra;
 - período;
@@ -598,77 +486,7 @@ A rejeição ou substituição deverá preservar justificativa e autoria.
 
 ---
 
-## 17. Preços e modelos de compra
-
-A Arquitetura consulta preços para verificar viabilidade e elegibilidade. A Simulação utiliza preços e quantidades para calcular resultados.
-
-Modelos de compra iniciais:
-
-- inserção;
-- espaço;
-- face;
-- diária;
-- período;
-- pacote;
-- patrocínio;
-- audiência;
-- GRP;
-- impressão;
-- CPM;
-- clique;
-- CPC;
-- visualização;
-- CPV;
-- lead;
-- CPL;
-- aquisição ou conversão;
-- CPA.
-
-Cada preço deverá registrar:
-
-- unidade comercial;
-- preço bruto;
-- desconto;
-- preço líquido;
-- comissão da agência;
-- encargos aplicáveis;
-- quantidade mínima;
-- vigência;
-- praça;
-- disponibilidade;
-- fonte;
-- confiança.
-
----
-
-## 18. Arquiteturas candidatas
-
-O sistema poderá gerar várias arquiteturas a partir do mesmo Perfil Estratégico.
-
-Tipos iniciais de orientação:
-
-- alcance;
-- frequência;
-- equilíbrio;
-- continuidade;
-- impacto;
-- afinidade;
-- performance;
-- eficiência;
-- presença territorial;
-- personalizada.
-
-Cada arquitetura é uma hipótese distinta de articulação das mídias e deve poder originar uma ou mais simulações.
-
-O sistema deve distinguir:
-
-- sugestão do sistema;
-- seleção do planejador;
-- seleção efetiva.
-
----
-
-## 19. Relação com a Simulação
+## 15. Relação com a Simulação
 
 A Arquitetura define:
 
@@ -705,288 +523,36 @@ A Simulação calcula:
 - contribuição marginal;
 - distribuição geográfica e temporal.
 
-Uma mesma arquitetura poderá originar várias configurações de simulação.
-
-```text
-Arquitetura
-    +
-Configuração de simulação
-    =
-Resultado simulado
-```
+Audiência, alcance, cobertura e frequência não pertencem à definição permanente do público. São propriedades ou resultados associados a veículos, inventários, disponibilizações, períodos e planos.
 
 ---
 
-## 20. Catálogo de métricas do Ambiente de Elaboração
+## 16. Rastreabilidade
 
-As métricas não pertencem todas à Arquitetura, mas deverão estar disponíveis no Ambiente de Elaboração.
+Cada recomendação deve permitir reconstruir:
 
-### 20.1 Audiência e exposição
+```text
+Dado do Briefing
+    ↓
+Tradução Estratégica
+    ↓
+Peso ou restrição
+    ↓
+Capacidade da alternativa
+    ↓
+Qualificação público–inventário
+    ↓
+Índice de aderência
+    ↓
+Papel estratégico
+    ↓
+Arquitetura candidata
+```
 
-- audiência;
-- impactos;
-- alcance;
-- cobertura;
-- frequência;
-- GRP;
-- TRP;
-- afinidade;
-- ICP;
-- ISP;
-- Share of Voice;
-- impressões;
-- visualizações;
-- taxa de conclusão.
-
-### 20.2 Custo e eficiência
-
-- investimento bruto;
-- líquido de veículos;
-- comissão da agência;
-- CPM;
-- CPP;
-- custo por alcance;
-- custo por frequência incremental;
-- CPC;
-- CPV;
-- CPL;
-- CPA;
-- custo por conversão;
-- custo incremental.
-
-### 20.3 Resposta e performance
-
-- cliques;
-- CTR;
-- visitas;
-- sessões;
-- leads;
-- conversões;
-- taxa de conversão;
-- receita;
-- ROAS;
-- resposta direta;
-- engajamento, quando tecnicamente aplicável.
-
-### 20.4 Distribuição
-
-- verba por meio;
-- verba por canal;
-- verba por praça;
-- verba por público;
-- verba por período;
-- impactos por praça;
-- alcance por público;
-- pressão por período;
-- participação de cada mídia.
-
-### 20.5 Qualidade da arquitetura
-
-- aderência estratégica;
-- atendimento das funções;
-- cobertura da jornada;
-- cobertura dos pontos de contato;
-- complementaridade;
-- redundância;
-- diversidade;
-- mensurabilidade;
-- flexibilidade;
-- risco;
-- confiança.
+A interface deve apresentar justificativas legíveis, incluindo contribuições positivas, limitações, ausências de dados e graus de confiança.
 
 ---
 
-## 21. Fórmulas canônicas iniciais
+## 17. Formulação consolidada
 
-As fórmulas somente devem ser aplicadas quando houver entradas válidas e escopo explícito.
-
-### 21.1 GRP
-
-```text
-GRP = alcance percentual × frequência média
-```
-
-Também poderá ser obtido pela soma das audiências percentuais das inserções, conforme a fonte disponível.
-
-### 21.2 TRP
-
-```text
-TRP = alcance percentual no público-alvo × frequência média no público-alvo
-```
-
-### 21.3 CPM
-
-```text
-CPM = investimento ÷ impressões × 1.000
-```
-
-O tipo de investimento utilizado deverá ser informado.
-
-### 21.4 CPP
-
-```text
-CPP = investimento ÷ pontos de audiência
-```
-
-### 21.5 CTR
-
-```text
-CTR = cliques ÷ impressões × 100
-```
-
-### 21.6 CPC
-
-```text
-CPC = investimento ÷ cliques
-```
-
-### 21.7 CPA
-
-```text
-CPA = investimento ÷ conversões
-```
-
-### 21.8 ROAS
-
-Conforme decisão metodológica já consolidada no projeto:
-
-```text
-ROAS = (receita - investimento) ÷ investimento × 100
-```
-
-Cada cálculo deverá registrar:
-
-- universo de referência;
-- público;
-- praça;
-- período;
-- mídia ou conjunto de mídias;
-- investimento considerado;
-- fonte dos dados;
-- fórmula e versão;
-- confiança.
-
----
-
-## 22. Construção assistida e manual
-
-A Arquitetura deve permitir simultaneamente:
-
-### 22.1 Construção assistida
-
-O sistema sugere:
-
-- funções;
-- pontos de contato;
-- meios;
-- canais;
-- veículos;
-- plataformas;
-- formatos;
-- inventários;
-- papéis;
-- relações;
-- modelos de compra.
-
-### 22.2 Construção manual
-
-O planejador pode:
-
-- incluir alternativas não sugeridas;
-- excluir sugestões;
-- alterar papéis;
-- modificar relações;
-- substituir inventários;
-- restringir ou ampliar o conjunto elegível;
-- ajustar parâmetros;
-- justificar decisões.
-
-O valor sugerido nunca deve ser apagado pelo ajuste manual.
-
----
-
-## 23. Versionamento e estados
-
-Toda alteração relevante deverá produzir nova versão ou revisão auditável.
-
-Estados possíveis:
-
-- Gerada;
-- Em edição;
-- Apta para simulação;
-- Simulada;
-- Comparada;
-- Otimizada;
-- Selecionada;
-- Descartada;
-- Incorporada ao plano.
-
-Cada versão deverá manter:
-
-- arquitetura de origem;
-- Perfil Estratégico utilizado;
-- parâmetros vigentes;
-- alterações;
-- responsável;
-- data e hora;
-- justificativas;
-- resultados associados.
-
----
-
-## 24. Contrato de saída
-
-A saída mínima da Arquitetura deverá conter:
-
-```text
-Identificador e versão
-Perfil Estratégico de origem
-Funções de mídia
-Objetivos vinculados
-Públicos, segmentos e universos
-Praças
-Etapas da jornada
-Pontos de contato
-Meios e canais
-Veículos, plataformas e formatos candidatos
-Papéis estratégicos
-Relações entre mídias
-Inventários elegíveis
-Modelos de compra
-Hipóteses de overlap
-Hipóteses geográficas e temporais
-Critérios de avaliação
-Restrições
-Índices de aderência
-Graus de confiança
-Valores sugeridos, ajustados e efetivos
-Histórico de alterações
-Estado da arquitetura
-```
-
----
-
-## 25. Critérios de conclusão
-
-Uma arquitetura estará apta para simulação quando:
-
-- possuir ao menos uma função de mídia válida;
-- possuir público e praça vinculados;
-- relacionar funções a meios ou canais elegíveis;
-- possuir papéis estratégicos definidos;
-- possuir inventários ou classes de inventário simuláveis;
-- possuir preços ou parâmetros de custo suficientes;
-- registrar restrições aplicáveis;
-- indicar parâmetros ausentes ou incertos;
-- preservar rastreabilidade;
-- passar pelas validações estruturais.
-
-A ausência de dados não deve ser ocultada. O sistema deverá sinalizar limitações e reduzir o grau de confiança quando necessário.
-
----
-
-## 26. Formulação canônica
-
-A Arquitetura de Mídia é o processo estruturado que converte o Perfil Estratégico de Mídia em funções, pontos de contato, meios, canais, papéis, relações e inventários candidatos, produzindo alternativas tecnicamente justificadas e aptas à simulação.
-
-A classificação **Principal, Complementar e Apoio** pertence à Arquitetura. Os cálculos de **GRP, TRP, CPM, CPP, CTR, CPC, CPA, ROAS** e demais resultados pertencem ao Ambiente de Elaboração e são produzidos principalmente pelas Simulações, sendo depois mobilizados pela Comparação e pela Otimização.
+> A Arquitetura de Mídia já calcula dinamicamente a adequação das alternativas a partir das variáveis do Briefing e da Tradução Estratégica. A descrição comparável de públicos e inventários acrescenta uma nova camada de qualificação, tornando mais preciso o cálculo de adequação editorial, comportamental, territorial, demográfica, contextual e funcional, sem substituir os demais critérios do modelo.
