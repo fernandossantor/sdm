@@ -1,122 +1,96 @@
 # Mapa de Veiculação
 
-O **Mapa de Veiculação** é a visão técnica, operacional e detalhada do Plano Consolidado de Mídia. Ele registra o que será veiculado, em qual veículo ou plataforma, em que formato, data, horário, quantidade, unidade comercial, custo, audiência, função estratégica e estado operacional.
+**Documento:** `10_MAPA_DE_VEICULACAO.md`  
+**Plano Mestre:** MediAd Planner  
+**Status:** Consolidado  
+**Última revisão:** 29/07/2026  
+**Natureza:** Especificação funcional e operacional
 
-Sua pergunta orientadora é:
+---
 
-> O que exatamente será veiculado, quando, onde, em qual formato, para qual público, com qual finalidade, audiência, custo e condição operacional?
+## 1. Finalidade
 
-O Mapa deriva da mesma base do Cronograma, mas preserva a granularidade necessária à compra, programação, execução, comprovação e auditoria.
+O **Mapa de Veiculação** é a visão técnica, operacional e detalhada do Plano Consolidado de Mídia.
+
+Ele registra o que foi selecionado, em qual veículo ou plataforma, em qual propriedade e inventário, com qual formato, período, quantidade, unidade comercial, condição negociada, audiência, função estratégica e estado operacional.
+
+Pergunta orientadora:
+
+> O que exatamente será veiculado, quando, onde, em qual inventário e formato, para qual público, com qual finalidade, entrega prevista, custo e condição operacional?
+
+O Mapa deriva da mesma base do Plano e do Cronograma. Não é uma planilha paralela.
 
 ```text
 Plano Consolidado
-        ↓
-Inventários aprovados
-        ↓
-Linhas de Programação
-        ↓
-Ocorrências de Veiculação
-        ↓
+    ↓
+Inventários e produtos aprovados
+    ↓
+Condições negociadas
+    ↓
+Linhas de programação
+    ↓
+Ocorrências de veiculação
+    ↓
 Mapa de Veiculação
+    ↓
+Autorização ou PI
+    ↓
+Checking e pós-compra
 ```
 
-## 1. Natureza do artefato
+---
 
-O Mapa deve funcionar simultaneamente como:
+## 2. Natureza do artefato
+
+O Mapa funciona como:
 
 - grade de programação;
 - memória de cálculo;
 - controle orçamentário;
 - registro técnico;
 - base de execução;
-- referência de comprovação;
+- referência para autorização ou pedido de inserção;
+- base de checking;
 - fonte do Cronograma;
-- base para indicadores.
+- base para indicadores e conciliação.
 
-Ele não deve ser uma planilha paralela preenchida manualmente e desconectada do Plano.
+O Mapa não substitui contrato, autorização ou PI, mas deve conter dados suficientes para alimentá-los.
 
-## 2. Estrutura geral
+---
 
-O Mapa deve combinar:
-
-```text
-Identificação técnica do inventário
-            +
-Distribuição temporal das ocorrências
-            +
-Custos
-            +
-Audiências e indicadores
-            +
-Relações estratégicas
-            +
-Controle operacional
-```
-
-Estrutura conceitual:
-
-```text
-Mapa de Veiculação
-├── Identificação do Plano
-├── Campanha e período
-├── Meio e praça
-├── Linhas de programação
-├── Ocorrências por data
-├── Unidades comerciais
-├── Custos unitários e totais
-├── Audiências nativas
-├── Audiências equivalentes
-├── Indicadores
-├── Jornada e pontos de contato
-├── Funções e papéis
-├── Materiais
-├── Estados operacionais
-├── Totais
-├── Saldos
-├── Observações
-└── Versionamento
-```
-
-## 3. Três níveis de domínio
-
-O Mapa exige a separação entre inventário, linha e ocorrência.
+## 3. Níveis de domínio
 
 ### 3.1 Inventário
 
-É a oferta comercial disponível.
+Capacidade concreta e disponibilizável de veiculação ou exposição em determinado ambiente, propriedade, posição, período e condição técnica.
 
-Exemplos:
+### 3.2 Produto comercial
 
-- programa de TV;
-- faixa de rádio;
-- página de jornal;
-- edição de revista;
-- roteiro de OOH;
-- sessão de cinema;
-- conjunto de anúncios;
-- pacote de impressões;
-- espaço em PDV.
+Configuração de inventário, formato, quantidade, período e condições de entrega. Pode ser simples ou composto.
 
-### 3.2 Linha de Programação
+### 3.3 Condição negociada
 
-Agrupa ocorrências homogêneas.
+Resultado específico da negociação aplicada à oferta: preço, desconto, bonificação, entregas, pagamento, cancelamento, posição, exclusividade ou substituição.
+
+### 3.4 Linha de programação
+
+Agrupamento de ocorrências homogêneas.
 
 Exemplo:
 
 ```text
 Rádio X
 Programa Y
-07h–09h
-Spot 30 segundos
+Faixa 07h–09h
+Spot de 30 segundos
 Peça A
 Praça São Borja
+Condição negociada Z
 ```
 
-### 3.3 Ocorrência de Veiculação
+### 3.5 Ocorrência
 
-É a concretização temporal da linha.
-
-Exemplo:
+Concretização temporal da linha.
 
 ```text
 10/08/2026
@@ -125,136 +99,453 @@ Exemplo:
 programada
 ```
 
-Uma linha pode possuir várias ocorrências.
+Uma linha pode possuir várias ocorrências. Uma ocorrência pode representar o início de uma exposição por período, como outdoor, diária digital, encarte ou patrocínio.
+
+---
 
 ## 4. Estrutura normalizada
 
 A base interna deve ser vertical e normalizada.
 
-Exemplo:
+| linha_programacao_id | data_inicio | data_fim | hora_faixa | quantidade | unidade | estado |
+|---|---|---|---|---:|---|---|
+| TV-JORNAL-A-30 | 05/08/2026 | 05/08/2026 | 19h30 | 1 | inserção | programada |
+| OOH-CIRCUITO-B | 05/08/2026 | 18/08/2026 | contínuo | 1 | período | programada |
 
-| linha_programacao_id | data | hora/faixa | quantidade | estado |
-|---|---|---|---:|---|
-| TV-JORNAL-A-30 | 05/08/2026 | 19h30 | 1 | programada |
-| TV-JORNAL-A-30 | 07/08/2026 | 19h30 | 1 | programada |
-| TV-JORNAL-A-30 | 12/08/2026 | 19h30 | 2 | programada |
-
-A grade mensal com dias em colunas deve ser uma forma de apresentação, não a estrutura primária do banco.
+Grades mensais ou semanais são formas de apresentação, não a estrutura primária.
 
 ```text
 Base normalizada
-       ↓
+    ↓
 Mapa mensal
 Mapa semanal
 Mapa por fase
 Mapa por veículo
 Mapa por praça
 Mapa por fornecedor
+Mapa por meio
 ```
 
-## 5. Cabeçalho do Mapa
+---
+
+## 5. Cabeçalho
 
 Cada Mapa deve registrar:
 
-- Plano de origem;
-- versão do Plano;
+- plano e versão de origem;
 - campanha;
-- cliente;
-- produto ou unidade;
-- meio;
-- praça;
-- período;
+- anunciante;
+- produto, serviço ou unidade de negócio;
+- período geral;
 - moeda;
 - responsável;
 - data de geração;
 - estado;
-- filtros aplicados.
+- filtros aplicados;
+- versão do Mapa.
 
-## 6. Campos gerais da linha de programação
+---
 
-Cada linha pode conter:
+## 6. Identificação da linha de programação
 
-- identificador;
-- meio;
-- canal;
-- veículo ou empresa;
-- plataforma;
-- fornecedor;
-- programa, seção, roteiro, ambiente ou posicionamento;
-- horário ou faixa;
-- formato;
-- peça;
-- duração;
-- dimensão;
-- praça;
-- público;
-- fase;
-- período;
+Campos estruturais:
+
+```text
+linha_programacao_id
+meio
+tipologia
+proprietario_ou_grupo
+veiculo_ou_plataforma
+propriedade
+ambiente
+inventario_id
+inventario_pai_ou_circuito
+produto_comercial_id
+fornecedor
+praca
+territorio
+```
+
+Esses campos preservam a separação entre grupo, veículo, propriedade, ambiente, inventário e produto comercial.
+
+---
+
+## 7. Formato e material
+
+Cada linha pode registrar:
+
+```text
+formato_publicitario
+experiencia_publicitaria
+especificacao_tecnica
+comportamento_do_formato
+peca
+material_id
+duracao
+dimensao
+proporcao
+cor
+audio
+posicao
+posicao_determinada
+```
+
+Formato não deve ser confundido com inventário. A linha deve validar a compatibilidade entre ambos.
+
+---
+
+## 8. Campos estratégicos
+
+Cada linha deve poder vincular:
+
 - objetivo;
+- resultado esperado;
+- público ou segmento;
+- fase da campanha;
 - etapa da jornada;
+- necessidade;
+- função comunicacional;
 - ponto de contato;
-- função de mídia;
-- papel estratégico;
-- unidade comercial;
-- quantidade planejada;
-- observações.
+- papel estratégico do meio;
+- praça;
+- prioridade.
 
-## 7. Campos da ocorrência
+Esses campos podem ficar ocultos em uma impressão operacional, mas devem permanecer na base.
+
+---
+
+## 9. Compra, entrega e mensuração
+
+A linha deve separar:
+
+```text
+unidade_de_compra
+unidade_de_entrega
+unidade_de_mensuracao
+```
+
+Exemplo:
+
+```text
+Compra: patrocínio mensal
+Entrega: vinhetas + inserções + presença editorial
+Mensuração: audiência, impactos, reproduções e retenção
+```
+
+Campos mínimos:
+
+```text
+modalidade_de_compra
+unidade_comercial
+quantidade_planejada
+quantidade_garantida
+entrega_prevista
+natureza_da_entrega
+criterio_de_comprovacao
+```
+
+---
+
+## 10. Produtos compostos
+
+Pacotes, circuitos, cotas, patrocínios e projetos especiais devem ser decompostos em entregas.
+
+```text
+produto_composto
+    ↓
+entrega_1: mídia
+entrega_2: conteúdo
+entrega_3: produção
+entrega_4: direito de associação
+entrega_5: ativação
+```
+
+Cada entrega deve informar:
+
+```text
+tipo_de_entrega
+inventario_associado
+quantidade
+unidade
+periodo
+valor_alocado
+metrica_elegivel
+```
+
+Somente entregas elegíveis de mídia entram automaticamente nos cálculos de pressão.
+
+---
+
+## 11. Campos da ocorrência
 
 Cada ocorrência deve registrar:
 
 - linha de origem;
-- data;
+- data inicial;
+- data final;
 - dia da semana;
 - hora ou faixa;
-- data de início;
-- data de término;
 - duração da exposição;
 - quantidade;
 - unidade consumida;
-- peça;
-- material;
+- peça e material;
 - responsável;
 - estado;
 - comprovante;
 - observação.
 
-Isso permite representar meios em que a data marcada é apenas o início de uma exposição mais longa.
-
-## 8. Campos financeiros
-
-Cada linha ou ocorrência deve poder registrar:
-
-- preço de tabela;
-- coeficiente de formato;
-- preço ajustado;
-- desconto;
-- bonificação;
-- preço negociado;
-- custo unitário;
-- quantidade;
-- custo bruto;
-- custo líquido do veículo;
-- comissão;
-- taxas;
-- impostos;
-- custo associado;
-- custo total elegível;
-- base financeira utilizada.
-
-Forma básica:
+Estados possíveis:
 
 ```text
-Custo da linha = quantidade de unidades comerciais × custo unitário negociado
+RASCUNHO
+RESERVADA
+NEGOCIADA
+APROVADA
+AUTORIZADA
+PROGRAMADA
+VEICULADA
+COMPROVADA
+COMPENSADA
+CANCELADA
+DIVERGENTE
 ```
 
-O sistema deve admitir custos fixos, variáveis e pacotes.
+---
 
-## 9. Totais financeiros
+## 12. Campos financeiros
+
+Cada linha ou entrega deve admitir:
+
+```text
+preco_de_tabela
+coeficiente_de_formato
+coeficiente_de_duracao
+acrescimo_de_posicao
+outros_acrescimos
+preco_ajustado
+desconto
+bonificacao
+entregas_adicionais
+preco_negociado
+custo_unitario
+quantidade
+custo_bruto
+custo_liquido_do_veiculo
+comissao_ou_fee
+taxas
+impostos
+producao
+tecnologia
+dados
+outros_custos
+custo_total
+base_financeira
+```
+
+A negociação não deve ser representada apenas por desconto.
+
+O sistema deve admitir:
+
+- custos fixos;
+- custos variáveis;
+- custos por entrega;
+- custos por período;
+- pacotes;
+- valor único com alocação entre entregas.
+
+---
+
+## 13. Modelos de remuneração
+
+O Mapa deve registrar, quando aplicável:
+
+```text
+DESCONTO_PADRAO
+COMISSAO
+FEE_DE_MIDIA
+FEE_GLOBAL
+FTE
+HORA_HOMEM
+SUCCESS_FEE
+SEM_INTERMEDIACAO
+OUTRO
+```
+
+Valor de mídia, remuneração de agência, produção, tecnologia e dados devem permanecer distinguíveis, ainda que faturados conjuntamente.
+
+---
+
+## 14. Audiências e exposições nativas
+
+O Mapa deve preservar a métrica original de cada meio.
+
+Campos obrigatórios por medição:
+
+```text
+metrica_original
+valor_original
+unidade_original
+universo
+unidade_de_identidade
+territorio
+periodo_de_referencia
+janela_de_acumulacao
+fonte
+metodologia
+natureza_do_valor
+auditabilidade
+confianca
+```
+
+Natureza do valor:
+
+```text
+GARANTIDO
+ESTIMADO
+PROJETADO
+HISTORICO
+POTENCIAL
+NAO_GARANTIDO
+```
+
+Audiência institucional ou público histórico não deve ser apresentado como entrega garantida.
+
+---
+
+## 15. Tipologia de impactos
+
+Valores chamados de `impactos` devem ser qualificados:
+
+```text
+IMPACTO_CALCULADO_POR_AUDIENCIA
+CONTATO_AJUSTADO
+OPORTUNIDADE_DE_CONTATO
+IMPACTO_DECLARADO_PELO_FORNECEDOR
+IMPRESSAO_SERVIDA
+IMPRESSAO_VALIDA
+IMPRESSAO_VISIVEL
+EXPOSICAO_ESTIMADA
+```
+
+A terminologia comercial deve ser preservada, mas a equivalência técnica deve ser validada.
+
+---
+
+## 16. OOH e DOOH
+
+O Mapa deve manter separados:
+
+```text
+fluxo_bruto
+OTS
+PTS_ou_probabilidade_de_contato
+contato_ajustado
+alcance_estimado
+frequencia_estimada
+```
+
+Campos típicos:
+
+- exibidora;
+- circuito;
+- face ou tela;
+- endereço, rota ou área;
+- posição, sentido e altura;
+- estático ou digital;
+- duração da peça;
+- loop;
+- inserções por dia;
+- número de cotas;
+- período;
+- auditoria de inventário;
+- comprovação de campanha.
+
+Fluxo não deve ser usado como sinônimo de audiência ou impactos.
+
+---
+
+## 17. Audiências equivalentes e pontos de pressão
+
+Ao lado da métrica nativa, o Mapa pode registrar:
+
+```text
+camada_de_comparacao
+metodo_de_conversao
+valor_convertido
+qualificador_da_exposicao
+estado_de_equivalencia
+estado_de_deduplicacao
+confianca
+ressalvas
+```
+
+Estados de equivalência:
+
+```text
+EQUIVALENCIA_DIRETA
+EQUIVALENCIA_APOS_CONVERSAO
+EQUIVALENCIA_CONDICIONADA
+NAO_EQUIVALENTE
+DADOS_INSUFICIENTES
+```
+
+Pontos de pressão não substituem a métrica nativa e não devem ser apresentados como alcance deduplicado, pessoas únicas, atenção ou efeito.
+
+---
+
+## 18. Deduplicação
+
+Estados possíveis:
+
+```text
+DEDUPLICADO_POR_IDENTIDADE
+DEDUPLICADO_POR_PAINEL
+DEDUPLICADO_POR_MODELO
+ESTIMADO_POR_PROXY
+NAO_DEDUPLICADO
+INDETERMINADO
+```
+
+Uma programação multiplataforma pode somar custos e entregas compatíveis, mas não pode somar pessoas únicas sem método de deduplicação válido.
+
+---
+
+## 19. Cobertura
+
+O Mapa deve distinguir:
+
+```text
+cobertura_territorial_do_inventario
+abrangencia_da_programacao
+alcance_de_audiencia
+```
+
+Exemplo: uma rede pode ter cobertura nacional, enquanto a programação utiliza apenas determinadas praças e produz alcance inferior ao universo dessas praças.
+
+---
+
+## 20. Afinidade e perfil
+
+Devem permanecer distintos:
+
+```text
+composicao_da_audiencia
+penetracao_no_target
+afinidade
+alcance_no_target
+```
+
+Afinidade somente deve ser calculada quando houver universo de referência compatível.
+
+---
+
+## 21. Totais e consolidações
 
 O Mapa deve calcular:
 
 - total da linha;
+- total da entrega;
+- total do produto composto;
 - total do veículo;
 - total do fornecedor;
 - total do meio;
@@ -264,681 +555,87 @@ O Mapa deve calcular:
 - verba aprovada;
 - verba alocada;
 - diferença;
-- comissão;
+- comissão ou fee;
 - saldo.
 
-Nenhum total deve depender de fórmula externa não registrada.
+Métricas somente podem ser agregadas quando unidade, universo, período e metodologia forem compatíveis.
 
-## 10. Audiências nativas
+---
 
-O Mapa deve preservar as métricas próprias de cada meio.
+## 22. Relação com autorização e PI
 
-Exemplos:
-
-### TV e rádio
-
-- audiência percentual;
-- impactos;
-- GRP;
-- CPP.
-
-### Jornal e revista
-
-- circulação;
-- leitores;
-- audiência;
-- CPM;
-- GRP.
-
-### OOH
-
-- fluxo;
-- impactos;
-- alcance;
-- CPM;
-- GRP.
-
-### Digital
-
-- impressões;
-- alcance;
-- cliques;
-- CTR;
-- conversões;
-- CPC;
-- CPA;
-- frequência.
-
-### Cinema, PDV e No Media
-
-- sessões;
-- público;
-- fluxo;
-- contatos;
-- ativações;
-- participação;
-- unidade específica do inventário.
-
-## 11. Audiências equivalentes
-
-Ao lado da métrica nativa, o Mapa deve registrar:
+A saída operacional deve possuir dados suficientes para:
 
 ```text
-métrica nativa
-valor nativo
-unidade nativa
-fonte
-método de equivalência
-coeficientes
-audiência equivalente
-impactos equivalentes
-confiança
-```
-
-A métrica equivalente não substitui a métrica nativa.
-
-## 12. Relação com jornada e pontos de contato
-
-Cada linha deve estar vinculada a:
-
-- objetivo;
-- etapa da jornada;
-- ponto de contato;
-- função de mídia;
-- papel do meio;
-- público;
-- praça;
-- fase.
-
-Exemplo:
-
-```text
-TV — Jornal local — filme 30 segundos
-Jornada: conhecimento
-Ponto de contato: consumo de notícia no início da noite
-Função: gerar alcance
-Papel: principal
-```
-
-Esses campos podem ficar ocultos em uma impressão operacional simplificada, mas devem existir na base.
-
-## 13. Relação com flight e pressão
-
-O Mapa é a materialização detalhada do flight.
-
-```text
-Flight planejado
-        ↓
-Linhas de programação
-        ↓
-Ocorrências distribuídas
-        ↓
-Pressão por data e período
-        ↓
-Cronograma
-```
-
-Cada alteração de data, quantidade, veículo ou duração pode modificar a pressão e deve provocar recálculo.
-
-## 14. Especificidades por meio
-
-O sistema não deve impor exatamente as mesmas colunas a todos os meios.
-
-### 14.1 TV
-
-Campos típicos:
-
-- emissora;
-- programa;
-- horário;
-- formato;
-- duração;
-- peça;
-- data;
-- inserções;
-- custo unitário;
-- custo total;
-- audiência;
-- CPP;
-- GRP.
-
-Uma linha tende a representar:
-
-```text
-veículo + programa + horário + duração + peça + praça
-```
-
-### 14.2 Rádio
-
-Campos típicos:
-
-- emissora;
-- programa;
-- horário ou faixa;
-- formato;
-- duração;
-- peça;
-- data;
-- inserções;
-- custo unitário;
-- custo total;
-- audiência;
-- CPP;
-- GRP.
-
-### 14.3 Jornal
-
-Campos típicos:
-
-- veículo;
-- edição;
-- seção;
-- formato;
-- dimensão;
-- cor;
-- data;
-- quantidade;
-- custo;
-- circulação;
-- leitores;
-- CPM;
-- audiência;
-- GRP.
-
-### 14.4 Revista
-
-Campos típicos:
-
-- título;
-- edição;
-- seção;
-- posição;
-- formato;
-- dimensão;
-- data de circulação;
-- quantidade;
-- custo;
-- leitores;
-- CPM;
-- audiência;
-- GRP.
-
-### 14.5 OOH
-
-Campos típicos:
-
-- empresa;
-- formato;
-- roteiro;
-- circuito;
-- endereço ou área;
-- data inicial;
-- data final;
-- duração;
-- faces;
-- custo;
-- fluxo;
-- impactos;
-- CPM;
-- alcance;
-- GRP.
-
-A ocorrência pode ser marcada no dia inicial e representar uma unidade comercial de vários dias.
-
-### 14.6 Cinema
-
-Campos típicos:
-
-- rede;
-- complexo;
-- sala;
-- sessão ou faixa;
-- filme;
-- formato;
-- duração;
-- período;
-- sessões;
-- público estimado;
-- custo.
-
-### 14.7 Digital
-
-Uma linha pode representar:
-
-```text
-plataforma
-campanha
-conjunto de anúncios
-objetivo
-segmentação
+anunciante
+agencia
+veiculo_ou_fornecedor
+produto_comercial
+inventario
 formato
-peça
-período
-orçamento diário ou total
-modelo de compra
+quantidade
+periodo
+datas
+valor
+condicoes
+faturamento
+observacoes
+termos_aplicaveis
 ```
 
-Campos típicos:
+O Mapa é a fonte estruturada. A autorização ou PI é um documento transacional derivado.
 
-- plataforma;
-- conta;
-- campanha;
-- conjunto;
-- anúncio;
-- objetivo;
-- público;
-- posicionamento;
-- formato;
-- início;
-- fim;
-- orçamento;
-- bid;
-- impressões;
-- alcance;
-- cliques;
-- conversões;
-- custos.
+---
 
-O sistema não deve forçar o digital a uma falsa unidade de inserção pontual.
+## 23. Checking e conciliação
 
-### 14.8 PDV e No Media
-
-Campos possíveis:
-
-- local;
-- ação;
-- formato;
-- equipe;
-- material;
-- período;
-- quantidade;
-- público estimado;
-- contatos;
-- custo;
-- comprovação.
-
-## 15. Campos obrigatórios por tipo
-
-A obrigatoriedade deve depender do meio.
-
-| Campo | TV | Rádio | Jornal | Revista | OOH | Digital |
-|---|---:|---:|---:|---:|---:|---:|
-| Veículo/empresa | Sim | Sim | Sim | Sim | Sim | Sim |
-| Programa | Sim | Sim | Não | Não | Não | Não |
-| Horário/faixa | Sim | Sim | Eventual | Eventual | Eventual | Eventual |
-| Formato | Sim | Sim | Sim | Sim | Sim | Sim |
-| Roteiro/local | Não | Não | Eventual | Eventual | Sim | Segmentação |
-| Duração/período | Sim | Sim | Edição | Edição | Sim | Sim |
-| Data/ocorrência | Sim | Sim | Sim | Sim | Início/fim | Período |
-
-As regras devem ser configuráveis.
-
-## 16. Estados operacionais
+O Mapa deve permitir comparar:
 
 ```text
 planejado
-cotado
-reservado
-contratado
-confirmado
-material solicitado
-material recebido
-material aprovado
+negociado
+autorizado
 programado
-ativo
 veiculado
 comprovado
-validado
-compensado
-cancelado
+faturado
 ```
 
-O estado da linha e o estado de cada ocorrência podem ser diferentes.
+Divergências possíveis:
 
-## 17. Materiais e peças
-
-Cada linha deve poder vincular:
-
-- peça;
-- versão;
+- data;
+- horário;
+- quantidade;
+- posição;
 - formato;
 - duração;
-- dimensão;
-- idioma;
-- público;
-- validade;
-- aprovação;
-- arquivo;
-- especificação técnica;
-- prazo de entrega.
-
-Uma peça incompatível com o inventário deve gerar alerta.
-
-## 18. Comprovação
-
-Cada ocorrência pode possuir:
-
-- comprovante;
-- tipo de comprovante;
-- data de recebimento;
-- fonte;
-- responsável;
-- validação;
-- divergência;
-- compensação;
-- observação.
-
-Exemplos:
-
-- checking;
-- relatório de plataforma;
-- print;
-- fotografia;
-- áudio;
-- vídeo;
-- declaração do veículo;
-- log de exibição;
-- auditoria externa.
-
-## 19. Programado, contratado e realizado
-
-O Mapa deve manter camadas separadas:
-
-```text
-planejado
-reservado
-contratado
-programado
-realizado
-```
-
-Deve ser possível comparar:
-
-- quantidade;
-- datas;
-- horários;
-- custos;
-- audiência;
+- praça;
 - entrega;
-- estado.
+- audiência;
+- custo;
+- faturamento;
+- compensação.
 
-O realizado não pode substituir o planejado.
+---
 
-## 20. Desvios
+## 24. Versionamento e rastreabilidade
 
-Cada linha e ocorrência pode registrar desvios:
+Cada linha deve preservar:
 
-- de data;
-- de horário;
-- de formato;
-- de quantidade;
-- de duração;
-- de custo;
-- de audiência;
-- de entrega;
-- de material;
-- de comprovação.
-
-Cada desvio relevante deve conter causa, impacto, responsável, tratamento, compensação e aceite.
-
-## 21. Bonificações e compensações
-
-O Mapa deve distinguir:
-
-- unidade comprada;
-- unidade bonificada;
-- unidade compensatória;
-- unidade adicional não faturada;
-- unidade cancelada.
-
-A bonificação não deve ser confundida com desconto financeiro.
-
-## 22. Dependências
-
-Uma linha ou ocorrência pode depender de:
-
-- contratação;
-- disponibilidade;
-- criação;
-- produção;
-- aprovação jurídica;
-- envio de material;
-- configuração de plataforma;
-- confirmação do veículo;
-- pagamento;
-- integração técnica.
-
-Dependências atrasadas devem produzir alertas.
-
-## 23. Regras de substituição
-
-O Mapa pode registrar inventários substitutos previamente homologados.
-
-Cada substituição deve conter:
-
-- item original;
-- substituto;
-- equivalência funcional;
-- diferença de custo;
-- diferença de audiência;
-- impacto na pressão;
-- condição de acionamento;
-- aprovação necessária.
-
-## 24. Totais e fechamentos
-
-Cada Mapa deve apresentar, quando aplicável:
-
-- total de inserções ou unidades;
-- total de audiência nativa;
-- total de impactos equivalentes;
-- total de GRP ou métrica equivalente;
-- custo total;
-- comissão;
-- saldo;
-- diferença para a verba;
-- confiança média;
-- alertas.
-
-Os totais agregados devem respeitar overlap e regras de equivalência quando não forem simples somas.
-
-## 25. Relação com o Cronograma
-
-O Cronograma é gerado pela agregação do Mapa.
-
-```text
-Ocorrências detalhadas
-        ↓
-Agregação por período e dimensão
-        ↓
-Cálculo da pressão
-        ↓
-Cronograma de Mídia
-```
-
-Uma célula do Cronograma deve permitir acesso às linhas e ocorrências que a compõem.
-
-## 26. Relação com custos e indicadores
-
-Os indicadores devem nascer de bases declaradas.
-
-Exemplos:
-
-- CPM pela base de investimento selecionada;
-- CPP pelo custo e audiência apropriados;
-- GRP pelas audiências da linha;
-- CPA pelo investimento elegível e conversões;
-- ROAS pela política financeira do Plano.
-
-O Mapa não deve inventar ou alterar fórmulas para fechar resultados.
-
-## 27. Alertas
-
-O sistema deve alertar para:
-
-- linha sem veículo;
-- ocorrência fora do período;
-- horário incompatível;
-- peça incompatível;
-- preço sem validade;
-- quantidade abaixo do pacote mínimo;
-- custo divergente;
-- audiência sem fonte;
-- equivalência sem método;
-- baixa confiança;
-- duplicidade;
-- sobreposição indevida;
-- falta de material;
-- falta de aprovação;
-- ausência de responsável;
-- saldo negativo;
-- divergência com o Cronograma.
-
-## 28. Validação
-
-Antes da emissão, o sistema deve verificar:
-
-- campos obrigatórios por meio;
-- datas válidas;
-- ocorrências dentro da campanha;
-- unidade comercial definida;
-- custos fechados;
-- métricas com fonte;
-- relações estratégicas preenchidas;
-- materiais previstos;
-- responsáveis atribuídos;
-- totais coerentes;
-- correspondência com o Plano;
-- correspondência com o Cronograma;
-- versão identificada.
-
-Resultados possíveis:
-
-```text
-Mapa válido
-Mapa válido com ressalvas
-Mapa inconsistente
-Mapa incompleto
-Mapa inviável
-```
-
-## 29. Exportações
-
-O Mapa deve poder ser exportado como:
-
-- planilha por meio;
-- planilha consolidada;
-- PDF;
-- ordem de inserção;
-- pedido de compra;
-- relatório técnico;
-- arquivo para fornecedor;
-- base de execução;
-- base de auditoria.
-
-A exportação pode adotar grade mensal, semanal, por fase ou formato vertical.
-
-## 30. Versionamento
-
-Cada Mapa deve registrar:
-
-- Plano de origem;
+- versão do inventário;
+- versão do produto comercial;
+- versão da oferta;
+- condição negociada;
+- fonte e data das audiências;
+- método de equivalência;
 - versão do Plano;
-- período;
-- meio;
-- filtros;
-- data de geração;
-- responsável;
-- estado.
+- autoria;
+- histórico de alterações.
 
-Mudanças em linhas, ocorrências, custos, métricas ou materiais devem invalidar versões derivadas desatualizadas.
+Alterações futuras da Biblioteca não devem modificar Mapas anteriores.
 
-## 31. Contrato de entrada
+---
 
-O Mapa recebe:
+## 25. Princípio consolidado
 
-- Plano Consolidado;
-- inventários aprovados;
-- linhas de programação;
-- ocorrências;
-- unidades comerciais;
-- preços;
-- negociações;
-- públicos;
-- praças;
-- fases;
-- jornada;
-- pontos de contato;
-- funções;
-- papéis;
-- métricas nativas;
-- equivalências;
-- materiais;
-- responsáveis;
-- estados;
-- regras de comprovação.
-
-## 32. Contrato de saída
-
-O Mapa entrega:
-
-- programação detalhada;
-- ocorrências por data;
-- quantidades;
-- unidades comerciais;
-- custos;
-- audiências nativas;
-- audiências equivalentes;
-- indicadores;
-- vínculos estratégicos;
-- materiais;
-- responsáveis;
-- estados;
-- totais;
-- saldos;
-- alertas;
-- base para o Cronograma;
-- base para execução e comprovação.
-
-## 33. Limites
-
-O Mapa deve:
-
-- detalhar tecnicamente a veiculação;
-- respeitar especificidades dos meios;
-- relacionar inserções com jornada e pontos de contato;
-- preservar métricas nativas e equivalentes;
-- registrar custos e bases financeiras;
-- servir à execução e auditoria;
-- alimentar o Cronograma;
-- manter rastreabilidade.
-
-Ele não deve:
-
-- ser uma base separada do Plano;
-- forçar todos os meios à mesma granularidade;
-- confundir linha com ocorrência;
-- confundir data inicial com duração total;
-- tratar planejado como contratado;
-- substituir o Cronograma;
-- sobrescrever valores realizados sobre planejados;
-- ocultar fórmulas ou fontes.
-
-## 34. Formulação canônica
-
-O **Mapa de Veiculação** é a representação técnica, operacional e detalhada do Plano Consolidado, organizada por linhas de programação e ocorrências, capaz de indicar com precisão o que será veiculado, onde, quando, em qual formato, quantidade, unidade comercial, custo, audiência, função estratégica, etapa da jornada, ponto de contato e estado de execução.
-
-Ele responde:
-
-```text
-qual inventário será usado
-qual peça será veiculada
-em qual veículo ou plataforma
-em qual data e horário
-por quanto tempo
-quantas unidades serão consumidas
-quanto custará
-qual audiência produzirá
-que função cumprirá
-como será comprovado
-```
+> O Mapa de Veiculação é a materialização operacional do Plano. Ele deve preservar a diferença entre inventário, formato, produto, compra, entrega e mensuração; registrar a condição negociada; manter métricas nativas e equivalências qualificadas; e fornecer a base única para programação, autorização, checking e conciliação.
