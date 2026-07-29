@@ -1,16 +1,24 @@
 # Biblioteca de Públicos e Segmentos do MediAd Planner
 
+**Documento:** `14_BIBLIOTECA_DE_PUBLICOS_E_SEGMENTOS.md`  
+**Plano Mestre:** MediAd Planner  
+**Status:** Consolidado  
+**Última revisão:** 29/07/2026  
+**Natureza:** Documento normativo
+
+---
+
 ## 1. Finalidade
 
-A Biblioteca de Públicos e Segmentos organiza definições reutilizáveis de públicos, universos, segmentos e territórios relevantes para os planejamentos do MediAd Planner.
+A Biblioteca de Públicos e Segmentos organiza definições reutilizáveis de universos, públicos, segmentos e características relevantes para os planejamentos do MediAd Planner.
 
 Seu objetivo é responder:
 
-> Quem se pretende alcançar, por quais características esse conjunto é definido e em que território ele se encontra?
+> Quem se pretende alcançar, por quais critérios esse conjunto é definido e em que território ele se encontra?
 
-A Biblioteca deve ser deliberadamente restrita. Ela não precisa nascer com grande quantidade de públicos previamente cadastrados. Deve oferecer estruturas, campos e vocabulários controlados para que cada projeto registre apenas as informações necessárias ao seu caso.
+A Biblioteca descreve o público. Ela não descreve, por si só, a estratégia aplicada a esse público, a jornada selecionada, a necessidade comunicacional derivada, a função da mídia ou o ponto de contato recomendado.
 
-O preenchimento ocorrerá predominantemente no contexto de cada campanha, com possibilidade de promoção posterior para o espaço de trabalho ou para a biblioteca global.
+O preenchimento ocorrerá predominantemente no contexto de cada projeto, com possibilidade de promoção posterior para o espaço de trabalho ou para a biblioteca global.
 
 ---
 
@@ -21,42 +29,114 @@ A Biblioteca deve conter:
 - universos de referência;
 - públicos;
 - segmentos;
-- critérios demográficos;
+- critérios demográficos e institucionais;
 - interesses;
 - comportamentos;
-- necessidades e motivações;
-- etapas da jornada;
-- pontos de contato relevantes;
+- necessidades humanas, funcionais ou de consumo;
+- motivações;
+- barreiras e tensões;
+- ocasiões e situações de uso;
+- critérios de decisão;
+- contextos de vida, consumo e contato;
 - territórios e praças;
-- exclusões;
+- inclusões e exclusões;
 - fontes, validade e confiança.
 
 A Biblioteca não deve armazenar como atributos permanentes do público:
 
+- jornada aplicada;
+- etapa de jornada;
+- necessidade comunicacional;
+- função comunicacional da mídia;
+- ponto de contato recomendado;
+- arquitetura de mídia;
 - audiência;
 - alcance;
 - cobertura;
 - frequência;
 - impactos;
-- afinidade observada.
+- afinidade observada;
+- aderência calculada a inventários.
 
-Essas variáveis dependem da relação entre o público e uma alternativa de mídia em determinado território, período e metodologia.
+Esses elementos surgem de relações contextuais estabelecidas no planejamento ou em outras bibliotecas.
 
 ---
 
-## 3. Distinções fundamentais
+## 3. Limite entre as Bibliotecas 14 e 16
 
-### 3.1 Universo
+A Biblioteca 14 descreve **quem é o público e em que contexto vive, decide, consome ou age**.
+
+A Biblioteca 16 organiza **como esse público é interpretado em uma progressão comunicacional e quais respostas de mídia podem ser pertinentes**.
+
+```text
+Biblioteca 14
+Público + características + contexto
+                ↓
+Aplicação no planejamento
+                ↓
+Biblioteca 16
+Jornada + etapa + necessidade comunicacional
++ função + ponto de contato
+```
+
+### 3.1 Pertence à Biblioteca 14
+
+- necessidade humana ou funcional;
+- motivação pessoal ou de consumo;
+- barreira percebida;
+- tensão;
+- problema vivido;
+- ocasião de uso;
+- situação de compra;
+- critério de decisão;
+- hábito de mídia ou comportamento de contato;
+- nível de conhecimento observado, quando descrito como dado do público;
+- território.
+
+### 3.2 Pertence à Biblioteca 16
+
+- modelo de jornada;
+- etapa da jornada;
+- necessidade comunicacional derivada;
+- função comunicacional da mídia;
+- ponto de contato possível;
+- regras de transição entre etapas;
+- adequação de uma função a uma combinação etapa–necessidade.
+
+### 3.3 Relação contextual
+
+A Biblioteca 14 fornece dados de contexto para a aplicação da Biblioteca 16, mas não deve duplicar seus objetos.
+
+Exemplo:
+
+```text
+Biblioteca 14
+Barreira do público: receio de risco financeiro
+
+Biblioteca 16, no planejamento
+Etapa: consideração
+Necessidade comunicacional: reduzir incerteza
+Função: explicar e comprovar
+Pontos de contato possíveis: mídia digital, atendimento, evento
+```
+
+A barreira pertence ao público. A necessidade comunicacional, a função e os pontos de contato são derivados no planejamento.
+
+---
+
+## 4. Conceitos fundamentais
+
+### 4.1 Universo
 
 Universo é a população de referência dentro da qual um público é definido.
 
 Exemplos:
 
-- população residente em São Borja;
+- população residente em determinado município;
 - pessoas com 15 anos ou mais;
 - domicílios urbanos;
 - estudantes de determinada instituição;
-- clientes cadastrados de uma empresa.
+- clientes cadastrados de uma organização.
 
 Um universo pode possuir valor populacional, desde que registre:
 
@@ -70,9 +150,9 @@ Um universo pode possuir valor populacional, desde que registre:
 
 Esse valor é populacional, não de audiência.
 
-### 3.2 Público
+### 4.2 Público
 
-Público é um conjunto de pessoas definido por critérios relevantes para uma campanha, marca, produto, serviço ou problema de comunicação.
+Público é um conjunto de pessoas ou organizações definido por critérios relevantes para uma campanha, marca, produto, serviço ou problema de comunicação.
 
 Pode ser:
 
@@ -83,7 +163,7 @@ Pode ser:
 - exclusivo de um projeto;
 - pessoal ou rascunho.
 
-### 3.3 Segmento
+### 4.3 Segmento
 
 Segmento é um recorte interno de um público, definido por critérios adicionais.
 
@@ -95,94 +175,115 @@ Público
 Segmento
 ```
 
-Um mesmo público pode possuir vários segmentos. Um segmento pode receber prioridade ou peso estratégico diferente conforme a campanha.
+Um mesmo público pode possuir vários segmentos. Prioridade e peso estratégico são atributos da aplicação do segmento no projeto, não necessariamente da sua definição mestre.
 
-### 3.4 Persona
+### 4.4 Persona
 
 Persona é uma representação qualitativa ou narrativa criada para sintetizar características de um público.
 
-Ela não deve substituir o público mensurável nem ser usada diretamente como unidade de cálculo sem critérios explícitos.
+Ela não substitui o público mensurável nem deve ser utilizada diretamente como unidade de cálculo sem critérios explícitos.
 
-### 3.5 Target operacional
+### 4.5 Target operacional
 
 Target operacional é o recorte efetivamente utilizado em uma estratégia, compra ou simulação.
 
-Pode derivar de um público ou segmento, mas deve preservar os critérios utilizados e as limitações da plataforma ou veículo.
+Ele deriva de um público ou segmento, mas pertence à instância do planejamento e deve preservar:
 
-### 3.6 Audiência
+- critérios utilizados;
+- plataforma ou fonte de segmentação;
+- aproximações;
+- limitações;
+- versão do público de origem.
+
+### 4.6 Audiência
 
 Audiência é a população observada ou estimada de um veículo, programa, ambiente ou inventário em determinado período e praça.
 
-Não pertence a esta Biblioteca.
+Não pertence à Biblioteca 14.
 
 ---
 
-## 4. Princípio de preenchimento contextual
+## 5. Princípio de preenchimento contextual
 
 A Biblioteca não deve exigir falsa precisão.
 
-Para cada campo, o sistema deve admitir estados semanticamente distintos:
+Para cada dimensão, o sistema deve admitir estados semanticamente distintos:
 
 ```text
-Não informado
-Sem restrição
-Não aplicável
-Valor definido
-Faixa definida
-Hipótese
-Dado observado
+NÃO_INFORMADO
+SEM_RESTRIÇÃO
+NÃO_APLICÁVEL
+VALOR_DEFINIDO
+FAIXA_DEFINIDA
+HIPÓTESE
+DADO_OBSERVADO
+DADO_INFERIDO
 ```
 
 O sistema deve permitir criar um público durante o Briefing e salvá-lo inicialmente no escopo do projeto.
 
 ```text
-Campanha
+Projeto
     ↓
 Seleciona público existente
-ou
-Cria público específico
+ou cria público específico
     ↓
-Salva no projeto
+Preserva snapshot no projeto
     ↓
-Opcionalmente promove para o espaço de trabalho
+Opcionalmente promove ao espaço de trabalho
     ↓
 Opcionalmente propõe publicação global
 ```
 
 ---
 
-## 5. Estrutura do público
+## 6. Estrutura mínima do público
 
-Campos mínimos recomendados:
+Campos recomendados:
 
+- identificador;
 - nome;
 - descrição;
-- finalidade;
+- finalidade de definição;
 - universo de referência;
-- praça ou território;
-- critérios demográficos;
+- critérios de inclusão;
+- critérios de exclusão;
+- territórios;
+- critérios demográficos ou institucionais;
 - interesses;
 - comportamentos;
-- necessidades e motivações;
-- etapas da jornada;
-- pontos de contato relevantes;
-- exclusões;
+- necessidades humanas, funcionais ou de consumo;
+- motivações;
+- barreiras e tensões;
+- ocasiões e situações de uso;
+- critérios de decisão;
+- contextos de vida, consumo e contato;
+- tamanho estimado, quando disponível;
+- unidade populacional;
 - fonte;
+- metodologia;
 - data de referência;
 - período de validade;
 - natureza dos dados;
 - nível de confiança;
 - escopo;
 - estado editorial;
-- autoria.
+- autoria;
+- versão.
 
-O sistema não deve obrigar o preenchimento de todas as dimensões. A obrigatoriedade deve variar conforme o uso pretendido.
+Não são campos do cadastro mestre do público:
+
+- jornada;
+- etapa;
+- necessidade comunicacional;
+- função comunicacional;
+- ponto de contato recomendado;
+- prioridade estratégica no plano;
+- peso no plano.
 
 ---
 
-## 6. Variáveis demográficas
-
-As variáveis demográficas permanecem na Biblioteca como critérios de definição de públicos e segmentos.
+## 7. Critérios demográficos e institucionais
 
 Podem incluir:
 
@@ -200,7 +301,10 @@ Podem incluir:
 - condição urbana ou rural;
 - nacionalidade;
 - idioma;
-- condição institucional ou profissional.
+- vínculo institucional;
+- setor de atividade;
+- porte da organização;
+- função profissional.
 
 Cada critério deve permitir:
 
@@ -214,28 +318,19 @@ Cada critério deve permitir:
 
 ---
 
-## 7. Interesses
+## 8. Interesses e comportamentos
 
 Interesses caracterizam temas, atividades, assuntos ou áreas de atenção relevantes para o público.
 
-Exemplos:
+Comportamentos descrevem ações, hábitos, rotinas ou padrões relevantes, incluindo comportamentos de compra, consumo, deslocamento, informação e uso de mídia.
 
-- esportes;
-- tecnologia;
-- gastronomia;
-- política;
-- música;
-- saúde;
-- viagens;
-- automóveis;
-- educação;
-- sustentabilidade.
+Cada vínculo deve preservar:
 
-Cada vínculo entre público e interesse deve registrar:
-
-- interesse;
+- item do vocabulário controlado;
 - relevância;
-- intensidade;
+- frequência ou intensidade;
+- contexto;
+- natureza;
 - origem;
 - fonte;
 - validade;
@@ -251,94 +346,45 @@ Naturezas possíveis:
 - derivado de pesquisa;
 - modelado.
 
-Interesse não deve ser confundido com afinidade de mídia.
+Interesse não deve ser confundido com afinidade de mídia. Comportamento de uso de mídia não determina automaticamente um ponto de contato estratégico.
 
 ---
 
-## 8. Comportamentos
+## 9. Necessidades, motivações, barreiras e contextos
 
-Comportamentos descrevem ações, hábitos, rotinas ou padrões relevantes.
+Nesta Biblioteca, necessidade significa uma condição do público, e não uma necessidade comunicacional.
 
 Exemplos:
 
-- compra online;
-- compra presencial;
-- frequência de compra;
-- consumo de streaming;
-- deslocamento diário;
-- uso de transporte coletivo;
-- visita a shopping;
-- consumo de rádio;
-- pesquisa de preço;
-- uso de aplicativos;
-- consumo fora do lar;
-- resposta a promoções;
-- compartilhamento de conteúdo;
-- uso simultâneo de telas;
-- comparação antes da compra.
+- necessidade funcional;
+- necessidade de informação observada;
+- necessidade de segurança;
+- necessidade de conveniência;
+- necessidade de reconhecimento;
+- problema a resolver;
+- motivação de compra;
+- barreira percebida;
+- tensão;
+- situação de uso;
+- ocasião de consumo;
+- critério de decisão.
 
-Cada vínculo deve registrar:
-
-- comportamento;
-- frequência ou intensidade;
-- contexto;
-- origem;
-- fonte;
-- validade;
-- confiança.
-
-A ausência de fonte deve reduzir a confiança, mas não impedir o registro de uma hipótese explicitamente marcada.
-
----
-
-## 9. Necessidades, motivações e barreiras
-
-O público pode ser descrito por:
-
-- necessidades;
-- motivações;
-- barreiras;
-- tensões;
-- ocasiões;
-- situações de uso;
-- critérios de decisão;
-- necessidades informacionais.
-
-Essas informações são especialmente úteis para relacionar o público à jornada, aos pontos de contato e às funções de mídia.
-
-Devem ser tratadas como dados qualitativos estruturados, com fonte e confiança.
-
----
-
-## 10. Jornada e pontos de contato
-
-A Biblioteca pode associar públicos e segmentos a:
-
-- etapas da jornada;
-- necessidades comunicacionais;
-- momentos de decisão;
-- ocasiões de contato;
-- pontos de contato preferenciais ou relevantes.
-
-Esses vínculos não determinam automaticamente os meios. Eles fornecem informações para a Tradução Estratégica e para a Arquitetura de Mídia.
+Para evitar ambiguidade, recomenda-se utilizar no modelo de dados nomes explícitos, como:
 
 ```text
-Público
-    ↓
-Etapa da jornada
-    ↓
-Necessidade
-    ↓
-Ponto de contato possível
+necessidades_do_publico
+motivacoes_do_publico
+barreiras_do_publico
+contextos_do_publico
 ```
 
-O detalhamento metodológico das jornadas, pontos de contato e funções pertence ao documento 16.
+A expressão `necessidade_comunicacional` fica reservada exclusivamente à Biblioteca 16.
 
 ---
 
-## 11. Territórios e praças
+## 10. Territórios e praças
 
-A geolocalização deve ser uma camada compartilhada entre públicos e inventários.
+A geolocalização deve ser uma dimensão compartilhada entre públicos, inventários e projetos.
 
 O público pode ser relacionado a:
 
@@ -356,123 +402,98 @@ O público pode ser relacionado a:
 - polígono;
 - área personalizada.
 
-Campos recomendados:
-
-- nome da praça;
-- tipo territorial;
-- código oficial;
-- país;
-- unidade federativa;
-- município;
-- bairro;
-- CEP;
-- latitude;
-- longitude;
-- raio;
-- geometria;
-- fonte cartográfica;
-- data de atualização;
-- grau de confiança.
-
-A praça não deve ser apenas texto livre.
+Cada relação deve preservar fonte cartográfica, data, precisão, validade e confiança.
 
 O mesmo catálogo territorial deve ser utilizado pela Biblioteca de Inventários para registrar cobertura e disponibilidade.
 
-A Arquitetura de Mídia poderá comparar:
-
 ```text
 Território do público
-∩
-Cobertura do veículo ou inventário
+        ∩
+Cobertura do inventário
+        ↓
+Compatibilidade territorial calculada
 ```
-
-A implementação pode evoluir por níveis:
-
-1. correspondência administrativa;
-2. abrangência parcial por bairros ou distritos;
-3. coordenadas e raio;
-4. polígonos e interseção geoespacial.
 
 ---
 
-## 12. Dimensões compartilhadas com a Biblioteca de Inventários
+## 11. Relação com a Biblioteca 16
 
-Públicos e inventários devem usar vocabulários compatíveis para permitir comparação.
+A Biblioteca 14 fornece à Biblioteca 16:
 
-Catálogos compartilhados:
-
+- público ou segmento selecionado;
+- características relevantes;
 - interesses;
 - comportamentos;
-- contextos de consumo e contato;
-- etapas da jornada;
-- pontos de contato;
-- funções;
-- variáveis demográficas;
-- territórios;
-- temas editoriais.
+- necessidades do público;
+- motivações;
+- barreiras;
+- contextos;
+- território;
+- evidências e confiança.
 
-Exemplo lógico:
+A Biblioteca 16 aplica essas informações a um modelo de jornada em determinado planejamento.
 
 ```text
-interesses
-    ↕
-publicos_interesses
-
-comportamentos
-    ↕
-publicos_comportamentos
-
-etapas_jornada
-    ↕
-publicos_etapas_jornada
-
-territorios
-    ↕
-publicos_territorios
+Público selecionado
+        +
+Objetivo e resultado pretendido
+        +
+Contexto do projeto
+        ↓
+Jornada aplicada
+        ↓
+Etapa contextual
+        ↓
+Necessidade comunicacional
+        ↓
+Função comunicacional
+        ↓
+Ponto de contato possível
 ```
 
-As relações devem preservar relevância, origem, fonte, validade e confiança.
+A relação público–jornada deve existir na instância do planejamento ou em um modelo reutilizável da Biblioteca 21, nunca como atributo ontológico permanente do público.
 
 ---
 
-## 13. Qualificação público–inventário
+## 12. Relação com a Biblioteca de Inventários
 
-A Biblioteca fornece uma das entradas do componente de qualificação da Arquitetura de Mídia.
+Públicos e inventários devem utilizar vocabulários compatíveis para permitir qualificações posteriores.
+
+Dimensões compartilháveis:
+
+- interesses e temas editoriais;
+- comportamentos e contextos atendidos;
+- variáveis demográficas e segmentações disponíveis;
+- territórios e cobertura;
+- idiomas;
+- restrições de elegibilidade.
+
+A relação público–inventário é calculada ou observada fora do cadastro do público.
 
 ```text
-Interesses do público
-↔ proposta editorial e temas
-
-Comportamentos do público
-↔ contextos de contato atendidos
-
-Etapa da jornada
-↔ funções possíveis do inventário
-
-Território do público
-↔ cobertura territorial
-
-Características demográficas
-↔ segmentações disponíveis ou audiência observada
+Características do público
+        ↕
+Propriedades do inventário
+        ↓
+Qualificação contextual
 ```
 
-A qualificação pode gerar dimensões como:
+A qualificação pode produzir:
 
 - aderência editorial ou temática;
 - aderência comportamental;
-- aderência à jornada;
 - compatibilidade demográfica;
 - compatibilidade territorial;
 - adequação contextual;
 - confiança das evidências.
 
-Essa qualificação não substitui objetivos, KPIs, custos, restrições, overlap, saturação, complementaridade ou demais variáveis da Arquitetura de Mídia.
+Aderência à jornada depende também da Biblioteca 16 e não deve ser calculada apenas pela Biblioteca 14.
 
 ---
 
-## 14. Afinidade observada e aderência estimada
+## 13. Afinidade observada e aderência estimada
 
-### 14.1 Afinidade observada
+### 13.1 Afinidade observada
 
 Afinidade observada é uma relação empírica entre um público e a audiência de um veículo, programa ou inventário.
 
@@ -488,82 +509,66 @@ Deve registrar:
 - metodologia;
 - confiança.
 
-Ela não é um campo permanente do público.
+Ela não é campo permanente do público.
 
-### 14.2 Aderência estimada
+### 13.2 Aderência estimada
 
-Aderência estimada é a compatibilidade calculada pela Arquitetura de Mídia a partir das características do público, das propriedades da alternativa e das condições da campanha.
+Aderência estimada é uma compatibilidade calculada a partir das características do público, das propriedades da alternativa e das condições do planejamento.
 
-Não deve ser apresentada como audiência medida.
+Não deve ser apresentada como audiência medida nem armazenada como essência do público ou do inventário.
 
 ---
 
-## 15. Segmentos
+## 14. Segmentos
 
 Campos recomendados:
 
+- identificador;
 - nome;
 - público de origem;
 - descrição;
 - critérios adicionais;
 - exclusões;
-- prioridade;
-- peso estratégico;
 - tamanho estimado, quando disponível;
 - unidade;
 - fonte;
+- metodologia;
 - data;
 - confiança;
 - escopo;
-- estado.
+- estado;
+- versão.
 
-O tamanho estimado de um segmento é opcional e deve indicar fonte e metodologia. Não deve ser confundido com audiência.
+Prioridade, papel e peso estratégico pertencem à aplicação do segmento no projeto.
 
 ---
 
-## 16. Escopos
+## 15. Escopos
 
 ### Global
 
 Deve conter apenas estruturas e públicos amplamente reutilizáveis e metodologicamente estáveis.
 
-Exemplos:
-
-- população geral;
-- adultos 18+;
-- domicílios;
-- empresas;
-- estudantes;
-- consumidores.
-
 ### Espaço de trabalho
 
-Públicos recorrentes de uma organização.
-
-Exemplos:
-
-- consumidores atuais;
-- clientes de determinada marca;
-- comunidade acadêmica;
-- moradores de uma região;
-- compradores de uma categoria.
+Contém públicos recorrentes de uma organização ou equipe.
 
 ### Projeto
 
-Públicos criados especificamente para uma campanha. Deve ser o escopo predominante.
+Contém públicos criados ou adaptados para um planejamento específico. Deve ser o escopo predominante.
 
 ### Pessoal ou rascunho
 
-Públicos ainda em elaboração.
+Contém definições ainda em elaboração.
 
 ---
 
-## 17. Versionamento e snapshot
+## 16. Versionamento e snapshot
 
 Quando um público for utilizado em um projeto, o sistema deve preservar:
 
 - versão da definição;
-- critérios usados;
+- critérios utilizados;
 - universo de referência;
 - território;
 - fontes;
@@ -574,11 +579,11 @@ Quando um público for utilizado em um projeto, o sistema deve preservar:
 - autoria;
 - data de seleção.
 
-Alterações futuras na biblioteca não devem modificar retroativamente campanhas anteriores.
+Alterações futuras no cadastro mestre não devem modificar retroativamente planejamentos anteriores.
 
 ---
 
-## 18. Modelo lógico mínimo
+## 17. Modelo lógico mínimo
 
 Entidades principais:
 
@@ -586,33 +591,69 @@ Entidades principais:
 universos
 publicos
 segmentos
-criterios_demograficos
+criterios_publico
 interesses
 comportamentos
-necessidades
-motivacoes
-barreiras
+necessidades_do_publico
+motivacoes_do_publico
+barreiras_do_publico
+contextos_do_publico
 territorios
-publicos_demografia
+publicos_criterios
 publicos_interesses
 publicos_comportamentos
-publicos_jornadas
-publicos_pontos_contato
+publicos_necessidades
+publicos_motivacoes
+publicos_barreiras
+publicos_contextos
 publicos_territorios
 publicos_exclusoes
 ```
 
-Relações externas:
+Relações pertencentes à instância do planejamento:
+
+```text
+planejamento_publicos
+planejamento_segmentos
+planejamento_publicos_jornadas
+planejamento_targets_operacionais
+planejamento_prioridades_publico
+```
+
+Relações analíticas externas:
 
 ```text
 afinidades_observadas
 qualificacoes_publico_inventario
 ```
 
-Essas relações externas não devem ser confundidas com atributos permanentes do público.
+Não devem existir na Biblioteca 14 tabelas mestre como:
+
+```text
+publicos_jornadas
+publicos_etapas_jornada
+publicos_funcoes
+publicos_pontos_contato
+```
+
+---
+
+## 18. Separações ontológicas obrigatórias
+
+```text
+Necessidade do público ≠ necessidade comunicacional
+Comportamento de mídia ≠ ponto de contato recomendado
+Contexto do público ≠ etapa de jornada
+Nível de conhecimento observado ≠ etapa atribuída
+Público ≠ target operacional
+Público ≠ audiência
+Interesse ≠ afinidade de mídia
+Território do público ≠ cobertura de inventário
+Jornada aplicada ≠ atributo permanente do público
+```
 
 ---
 
 ## 19. Princípio consolidado
 
-> A Biblioteca de Públicos e Segmentos define quem se pretende alcançar, por quais critérios esse conjunto é caracterizado e em que território ele se encontra. Audiência, alcance, cobertura, frequência e afinidade observada surgem da relação entre públicos e alternativas de mídia, e não pertencem isoladamente ao cadastro do público.
+> A Biblioteca de Públicos e Segmentos define quem se pretende alcançar, por quais critérios esse conjunto é caracterizado e em que território e contexto ele se encontra. Necessidades, motivações, barreiras e comportamentos descrevem o público; jornadas, etapas, necessidades comunicacionais, funções e pontos de contato são aplicados contextualmente pela Biblioteca 16. Audiência, afinidade e aderência surgem de relações analíticas e não pertencem isoladamente ao cadastro do público.
