@@ -1,10 +1,18 @@
 # Sistema de Bibliotecas do MediAd Planner
 
+**Documento:** `12_SISTEMA_DE_BIBLIOTECAS.md`  
+**Plano Mestre:** MediAd Planner  
+**Status:** Consolidado  
+**Última revisão:** 28/07/2026  
+**Natureza:** Documento normativo
+
+---
+
 ## 1. Finalidade
 
 O Sistema de Bibliotecas organiza os conhecimentos reutilizáveis que sustentam o planejamento de mídia no MediAd Planner.
 
-Seu objetivo é evitar que cada projeto reconstrua do zero conceitos, parâmetros, referências, classificações, inventários, públicos, objetivos, métricas, custos e modelos de planejamento.
+Seu objetivo é evitar que cada projeto reconstrua do zero conceitos, parâmetros, referências, classificações, inventários, públicos, objetivos, resultados, indicadores, métricas, custos e modelos de planejamento.
 
 As bibliotecas não substituem o julgamento do planejador. Elas fornecem objetos estruturados, versionados e rastreáveis para apoiar:
 
@@ -62,7 +70,8 @@ Exemplos:
 - modalidade de compra;
 - unidade comercial;
 - tipo de objetivo;
-- categoria de KPI;
+- tipo de resultado;
+- família de indicador;
 - etapa de jornada;
 - interesse;
 - comportamento;
@@ -80,7 +89,8 @@ Exemplos:
 - universos;
 - modelos de jornada;
 - objetivos;
-- KPIs;
+- resultados pretendidos;
+- indicadores;
 - parâmetros;
 - fórmulas;
 - regras;
@@ -95,12 +105,13 @@ Relação de conhecimento conecta dois ou mais objetos.
 
 Exemplos:
 
-- inventário aderente a objetivo;
+- objetivo associado a resultado pretendido;
+- resultado associado a indicador;
+- indicador compatível com inventário;
 - interesse do público compatível com proposta editorial;
 - comportamento do público compatível com contexto de contato;
 - território do público sobreposto à cobertura do veículo;
 - afinidade observada entre público e veículo ou programa;
-- KPI compatível com objetivo;
 - ponto de contato atendido por meio;
 - formato compatível com ambiente;
 - unidade compatível com modalidade de compra.
@@ -180,11 +191,123 @@ Cada núcleo possuirá entidades próprias. Não será criada uma tabela genéri
 
 ---
 
-## 5. Princípio das dimensões compartilhadas
+## 5. Dependência entre objetivos, indicadores e inventários
 
-Públicos e inventários precisam ser descritos por dimensões comparáveis para que a Arquitetura de Mídia possa calcular sua relação.
+A relação metodológica central passa a ser:
 
-Essas dimensões não devem ser duplicadas como vocabulários independentes em cada biblioteca.
+```text
+Biblioteca de Objetivos, Resultados e KPIs
+        ↓
+Define objetivos, resultados e indicadores possíveis
+        ↓
+Biblioteca de Inventários
+        ↓
+Declara capacidades analíticas e compatibilidades
+        ↓
+Arquitetura de Mídia
+        ↓
+Relaciona prioridades e capacidades
+        ↓
+Simulações
+        ↓
+Plano Consolidado
+```
+
+A seleção de mídia não deve depender apenas de associações diretas entre objetivo e inventário.
+
+Cadeia canônica:
+
+```text
+Objetivo
+    ↓
+Resultado pretendido
+    ↓
+Indicadores prioritários
+    ↓
+Inventários compatíveis
+    ↓
+Arquiteturas candidatas
+```
+
+Um inventário não possui KPI permanente. Ele possui capacidades de suportar, projetar ou permitir mensurar determinados indicadores.
+
+Um indicador torna-se KPI apenas quando recebe prioridade decisória em um planejamento específico.
+
+---
+
+## 6. Responsabilidades de cada biblioteca
+
+### 6.1 Biblioteca de Objetivos, Resultados e KPIs
+
+Define:
+
+- objetivos;
+- resultados pretendidos;
+- indicadores;
+- quatro famílias de indicadores;
+- relações objetivo–resultado;
+- relações resultado–indicador;
+- possibilidade de definição de metas;
+- requisitos gerais;
+- possibilidades de projeção e mensuração posterior.
+
+### 6.2 Biblioteca de Inventários
+
+Declara:
+
+- estrutura operacional;
+- propriedades editoriais e contextuais;
+- cobertura territorial;
+- segmentações disponíveis;
+- indicadores compatíveis;
+- indicadores projetáveis;
+- indicadores posteriormente mensuráveis;
+- requisitos e fontes de dados;
+- limitações e confiança.
+
+### 6.3 Biblioteca de Parâmetros, Métricas e Fórmulas
+
+Define:
+
+- métricas básicas e derivadas;
+- unidades;
+- fórmulas;
+- conversões;
+- dependências;
+- parâmetros de cálculo;
+- benchmarks numéricos.
+
+### 6.4 Planejamento
+
+Armazena:
+
+- indicadores selecionados;
+- KPIs efetivos;
+- metas;
+- valores projetados;
+- ajustes do planejador;
+- snapshots das versões utilizadas.
+
+Resultados realizados de campanhas não pertencem ao escopo do MediAd Planner.
+
+---
+
+## 7. Quatro famílias compartilhadas de indicadores
+
+O catálogo canônico deve reconhecer:
+
+1. Planejamento e pressão de mídia;
+2. Entrega;
+3. Eficiência;
+4. Resposta.
+
+Essas famílias são definidas pela Biblioteca 15 e reutilizadas pelas demais bibliotecas e motores.
+
+---
+
+## 8. Princípio das dimensões compartilhadas
+
+Públicos, inventários e indicadores precisam ser descritos por dimensões comparáveis para que a Arquitetura de Mídia calcule suas relações.
 
 Devem existir catálogos compartilhados, associados por relações N:N:
 
@@ -196,23 +319,19 @@ Devem existir catálogos compartilhados, associados por relações N:N:
 - funções de mídia;
 - variáveis demográficas;
 - territórios e praças;
-- temas e gêneros editoriais.
+- temas e gêneros editoriais;
+- objetivos;
+- resultados pretendidos;
+- indicadores;
+- famílias de indicadores.
 
-Exemplo:
-
-```text
-Catálogo de interesses
-        ↙            ↘
-Públicos–interesses   Inventários–interesses
-```
-
-Cada vínculo deve registrar seus próprios atributos, como intensidade, relevância, origem, fonte, validade e confiança.
+Cada vínculo deve registrar atributos próprios, como intensidade, relevância, origem, fonte, validade e confiança.
 
 ---
 
-## 6. Separação entre públicos e audiência
+## 9. Separação entre públicos e audiência
 
-A Biblioteca de Públicos e Segmentos define **quem se pretende alcançar e onde esse público se encontra**.
+A Biblioteca de Públicos e Segmentos define quem se pretende alcançar e onde esse público se encontra.
 
 Ela não armazena como atributos permanentes do público:
 
@@ -236,74 +355,77 @@ Período
 +
 Fonte e metodologia
 =
-Evidência ou resultado de mídia
+Evidência, estimativa ou resultado de mídia
 ```
 
-Audiência e cobertura são associadas a veículos, programas, redes, plataformas, disponibilizações ou inventários. Alcance e frequência são resultados calculados de veiculações, cenários ou planos.
+Audiência e cobertura podem ser fornecidas por veículos, programas, redes, plataformas, disponibilizações ou inventários em contextos definidos. Alcance e frequência são metas ou resultados projetados de veiculações, cenários ou planos.
 
-Afinidade observada é uma relação medida entre público e mídia, não um atributo isolado de qualquer uma das bibliotecas.
+Afinidade observada é uma relação medida entre público e mídia, não atributo isolado de qualquer biblioteca.
 
 ---
 
-## 7. Qualificação público–inventário
+## 10. Qualificação público–inventário e indicador–inventário
 
-A descrição comparável das duas bibliotecas alimenta a Arquitetura de Mídia.
+A Arquitetura de Mídia deve integrar duas qualificações complementares.
+
+### 10.1 Qualificação público–inventário
 
 ```text
-Biblioteca de Públicos e Segmentos
-├── demografia
-├── interesses
-├── comportamentos
-├── jornada
-├── pontos de contato
-└── territórios
-
+Biblioteca de Públicos
+↔
 Biblioteca de Inventários
-├── estrutura operacional
-├── proposta editorial
-├── temas
-├── contextos de contato
-├── funções de jornada
-├── segmentações disponíveis
-└── cobertura territorial
-
-                ↓
-
-Componente de Qualificação Público–Inventário
-                ↓
-
-Arquitetura de Mídia
 ```
 
-Essa qualificação acrescenta variáveis ao cálculo dinâmico de adequação já existente. Não cria um processo separado nem substitui objetivos, KPIs, orçamento, restrições, complementaridade, overlap, saturação ou demais parâmetros.
+Compara:
+
+- demografia;
+- interesses;
+- comportamentos;
+- jornada;
+- pontos de contato;
+- territórios;
+- proposta editorial;
+- contextos de contato;
+- segmentações;
+- cobertura territorial.
+
+### 10.2 Qualificação indicador–inventário
+
+```text
+Biblioteca de Objetivos, Resultados e KPIs
+↔
+Biblioteca de Inventários
+```
+
+Compara:
+
+- indicadores prioritários;
+- compatibilidade do inventário;
+- capacidade de projeção;
+- possibilidade de mensuração posterior;
+- requisitos de dados;
+- fontes disponíveis;
+- limitações;
+- confiança.
+
+As duas qualificações compõem o cálculo dinâmico de adequação e não constituem motores concorrentes.
 
 ---
 
-## 8. Escopos
+## 11. Escopos
 
 Todo objeto reutilizável deve possuir escopo explícito:
 
-### Global
-
-Disponível para todos os espaços autorizados e governado pela administração.
-
-### Espaço de trabalho
-
-Disponível apenas aos membros do espaço e governado pelo proprietário.
-
-### Projeto
-
-Disponível apenas em um projeto específico. Deve ser o escopo predominante para públicos criados em campanhas particulares.
-
-### Pessoal ou rascunho
-
-Área de preparação ainda não compartilhada.
+- global;
+- espaço de trabalho;
+- projeto;
+- pessoal ou rascunho.
 
 Itens pessoais não participam dos motores compartilhados até serem promovidos.
 
 ---
 
-## 9. Estados editoriais
+## 12. Estados editoriais
 
 Estados recomendados:
 
@@ -323,7 +445,7 @@ O estado editorial deve permanecer separado do estado operacional.
 
 ---
 
-## 10. Inclusão de informações
+## 13. Inclusão de informações
 
 Toda inclusão deve declarar, no mínimo:
 
@@ -342,11 +464,9 @@ Toda inclusão deve declarar, no mínimo:
 - restrições de uso;
 - observações metodológicas.
 
-O sistema deve impedir a publicação de itens que não atendam aos campos obrigatórios de seu domínio.
-
 ---
 
-## 11. Natureza dos dados
+## 14. Natureza dos dados
 
 Categorias recomendadas:
 
@@ -360,13 +480,14 @@ Categorias recomendadas:
 - modelado;
 - inferido;
 - recomendado;
-- padrão do sistema.
+- padrão do sistema;
+- não disponível.
 
 A natureza do dado deve acompanhar o valor até seu uso em uma simulação ou plano.
 
 ---
 
-## 12. Proveniência e confiança
+## 15. Proveniência, confiança e snapshot
 
 Cada objeto, relação ou versão deve poder registrar:
 
@@ -382,30 +503,12 @@ Cada objeto, relação ou versão deve poder registrar:
 - limitações;
 - nível de confiança.
 
-O sistema deve distinguir ausência de informação de valor nulo, não aplicável ou sem restrição.
-
----
-
-## 13. Versionamento e snapshot
-
 Ao selecionar um item reutilizável, o projeto deve guardar uma fotografia versionada das informações utilizadas.
 
-```text
-Cadastro mestre
-      ↓
-Seleção no projeto
-      ↓
-Snapshot
-      ↓
-Ajustes locais
-      ↓
-Uso nos motores
-```
-
-Alterações futuras no cadastro mestre não devem modificar retroativamente campanhas anteriores.
+Alterações futuras no cadastro mestre não devem modificar retroativamente planejamentos anteriores.
 
 ---
 
-## 14. Princípio consolidado
+## 16. Princípio consolidado
 
-> As bibliotecas descrevem objetos e relações reutilizáveis. A Arquitetura de Mídia combina essas informações com o Briefing e a Tradução Estratégica. Audiência, alcance, cobertura, frequência e afinidade observada não são atributos permanentes do público, mas evidências ou resultados produzidos na relação entre públicos, alternativas de mídia, território, período e metodologia.
+> As bibliotecas descrevem objetos, relações e capacidades reutilizáveis. A Biblioteca de Objetivos, Resultados e KPIs define o que pode ser pretendido e observado; a Biblioteca de Inventários declara quais indicadores cada oportunidade de mídia suporta; a Biblioteca de Parâmetros, Métricas e Fórmulas define como os cálculos são realizados; e a Arquitetura de Mídia conecta essas informações ao Briefing e à Tradução Estratégica. O MediAd Planner planeja e projeta, mas não acompanha resultados realizados de campanhas.
