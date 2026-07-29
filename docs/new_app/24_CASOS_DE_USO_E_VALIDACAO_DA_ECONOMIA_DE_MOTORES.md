@@ -3,7 +3,7 @@
 **Documento:** `24_CASOS_DE_USO_E_VALIDACAO_DA_ECONOMIA_DE_MOTORES.md`  
 **Plano Mestre:** MediAd Planner  
 **Status:** Consolidado  
-**Natureza:** Validação arquitetural por casos de uso  
+**Natureza:** Validação arquitetural por casos de uso e matriz de consumo  
 **Última revisão:** 29/07/2026
 
 ---
@@ -619,7 +619,158 @@ Não devem ser criados novos motores sem caso de uso que demonstre simultaneamen
 
 ---
 
-## 20. Próxima etapa
+## 20. Matriz de consumo e responsabilidade
+
+### 20.1 Finalidade da matriz
+
+Os motores não possuem cópias próprias dos campos, parâmetros ou objetos definidos nos documentos anteriores. Eles consomem snapshots e referências versionadas conforme a responsabilidade e o modo de execução.
+
+A matriz utiliza as seguintes qualificações:
+
+```text
+P = consumo principal
+C = consumo condicionado ao caso ou ao modo de execução
+R = recebe ou reutiliza como resultado de outro motor ou serviço
+— = não consome diretamente como responsabilidade de domínio
+```
+
+O consumo não significa que todo campo do documento seja carregado. Cada execução deve selecionar apenas os campos necessários ao problema identificado.
+
+### 20.2 Documentos funcionais 01 a 11
+
+| Documento | Conteúdo utilizado pelos motores | Tradução Estratégica | Decisão de Arquitetura e Cenários | Simulação Técnica e Econômica | Responsabilidade predominante |
+|---|---|---:|---:|---:|---|
+| 01 — Campanha | anunciante, marca, produto, identificação, vigência, estado e contexto da campanha | C | C | C | fornece identidade, escopo e snapshot; não contém raciocínio próprio do motor |
+| 02 — Briefing | objetivos declarados, públicos, praças, período, verba, restrições, prioridades, concorrência e informações disponíveis | P | C | C | principal entrada da tradução; fornece limites aos demais motores |
+| 03 — Tradução Estratégica | pesos, prioridades, relações, mínimos, penalizações, estados de completude e confiança | P | R | R | configurado e executado pelo Motor de Tradução; os demais recebem o contrato resultante |
+| 04 — Arquitetura de Mídia | meios, pontos de contato, papéis, mix, praça, cronologia, elegibilidade, componentes fixos e ajustáveis | C | P | P | objeto decisório principal do Motor de Decisão e estrutura de entrada da simulação |
+| 05 — Simulações | cenários, componentes, quantidades, parâmetros, modos, snapshots e resultados projetados | — | R | P | ambiente principal do Motor de Simulação; resultados retornam ao Motor de Decisão |
+| 06 — Comparação de Cenários | critérios, pesos, tolerâncias, dominância, empate técnico, incomparabilidade e trade-offs | C | P | R | modo do Motor de Decisão; utiliza resultados produzidos pela simulação |
+| 07 — Otimização de Cenários | limites de busca, componentes bloqueados, faixas ajustáveis, ganho marginal, iterações e objetivo do ajuste | C | P | R | modo avançado do Motor de Decisão, com chamadas controladas ao Motor de Simulação |
+| 08 — Plano Consolidado de Mídia | cenário aprovado, justificativas, decisões finais, parâmetros preservados e referências às versões utilizadas | R | R | R | destino dos resultados aprovados; geração pertence a serviço documental, não a motor |
+| 09 — Validação, aprovação e operacionalização previstas no fluxo | estados de decisão, bloqueios, aprovações, ressalvas e condições para avanço | C | C | C | condiciona execução e publicação; aprovação humana não é produzida pelos motores |
+| 10 — Mapa de Veiculação | linhas aprovadas, produtos, ofertas, ocorrências, datas, quantidades e condições comerciais | — | R | R | recebe o cenário consolidado; composição operacional não constitui motor |
+| 11 — Perfis de Acesso e Permissões | escopo de leitura, edição, execução, aprovação e alteração de parâmetros | C | C | C | controla autorização para executar ou alterar; não interfere no mérito técnico da recomendação |
+
+### 20.3 Sistema de Bibliotecas 12 a 18B
+
+| Documento ou biblioteca | Conteúdo utilizado pelos motores | Tradução Estratégica | Decisão de Arquitetura e Cenários | Simulação Técnica e Econômica | Responsabilidade predominante |
+|---|---|---:|---:|---:|---|
+| 12 — Sistema de Bibliotecas | contratos de uso, versionamento, relações, proveniência, estados e snapshots | P | P | P | contrato transversal de acesso e rastreabilidade |
+| 12A — Consolidação das Bibliotecas Operacionais | localização de custos, regras e modelos reutilizáveis nas estruturas existentes | C | P | P | impede consultas a bibliotecas paralelas inexistentes |
+| 13 — Inventários de Mídia | tipologias, veículos, plataformas, ambientes, formatos, disponibilidades, produtos, ofertas, unidades e condições comerciais | C | P | P | fornece alternativas ao Motor de Decisão e entradas operacionais ao Motor de Simulação |
+| 14 — Públicos e Segmentos | universos, segmentos, características, interesses, comportamentos, territórios e contextos | P | P | P | orienta prioridades, elegibilidade e bases de mensuração |
+| 15 — Objetivos, Resultados e KPIs | objetivos classificados, resultados pretendidos, indicadores, metas, prioridades e compatibilidades | P | P | P | define o que orientar, comparar, projetar e calcular |
+| 16 — Jornadas, Necessidades, Funções e Pontos de Contato | etapas, necessidades, funções e relações com categorias de mídia | P | P | C | estrutura a passagem da intenção estratégica para alternativas de mídia |
+| 17 — Conhecimento Técnico | conceitos, fórmulas, regras, técnicas, comparabilidade, interpretação, restrições e variantes | P | P | P | base de conhecimento compartilhada, consultada seletivamente |
+| 17A — Inventário Preliminar | mapa de conhecimentos existentes, pendentes e prioritários | C | C | C | apoio à disponibilidade e cobertura do conhecimento; não é entrada de usuário |
+| 17B — Protocolo de Formalização | estrutura, campos obrigatórios, versionamento e critérios de qualidade dos conhecimentos | C | C | P | contrato de leitura e execução dos objetos técnicos |
+| 17C — Universo e Audiência | universo, audiência, impactos, unidades, bases e regras de validade | C | C | P | procedimentos acionados quando o cenário exige audiência ou impactos |
+| 17D — Alcance e Frequência | alcance, frequência, deduplicação, acumulação e condições de cálculo | C | C | P | procedimentos acionados sob demanda na simulação |
+| 17E — GRP e Equivalências Multimídia | GRP, TRP, pressão, conversões, equivalências e ressalvas multimídia | C | C | P | procedimentos condicionais; não universaliza métricas entre meios |
+| 17F — Contrato Mínimo de Mensuração | unidade de observação, universo, natureza do valor, deduplicação, equivalência e confiança | P | P | P | metadados obrigatórios herdados ou calculados em todas as saídas mensuráveis |
+| 18 — Problemas Técnicos | problemas, gatilhos, entradas, procedimentos possíveis, restrições, confiança e conclusão | P | P | P | permite que cada motor identifique o problema que lhe compete resolver |
+| 18A — Primeiro Núcleo de Problemas Técnicos | validação de base, audiência, impactos, alcance, frequência, pressão, comparabilidade e interpretação | C | C | P | primeiro núcleo executável do Motor de Simulação e apoio às decisões dependentes |
+| 18B — Casos de Validação | casos por meio, combinação, disponibilidade de dados e condição de mensuração | C | C | P | testes de seleção de procedimento, comportamento e saída dos motores |
+
+### 20.4 Responsabilidade por grupos de campos configuráveis
+
+| Grupo configurável | Motor responsável por interpretar ou decidir | Motor responsável por calcular ou projetar | Observação |
+|---|---|---|---|
+| objetivos, resultados e KPIs prioritários | Tradução Estratégica | Simulação, quando houver cálculo | a prioridade vem do contrato estratégico; a fórmula vem da Biblioteca 17 |
+| públicos, segmentos e praças prioritárias | Tradução Estratégica | Simulação | o Motor de Decisão usa a prioridade para filtrar alternativas |
+| jornadas, etapas, necessidades e funções | Tradução Estratégica | — | o Motor de Decisão converte essas relações em pontos de contato e inventários |
+| pesos, mínimos, penalizações e tolerâncias estratégicas | Tradução Estratégica | — | são preservados no contrato e usados pelo Motor de Decisão |
+| meios, pontos de contato, inventários e papéis | Decisão de Arquitetura e Cenários | Simulação | principal, complementar e apoio são decisões contextuais, não atributos permanentes do meio |
+| componentes fixos, obrigatórios, proibidos ou ajustáveis | Decisão de Arquitetura e Cenários | Simulação | componentes bloqueados não participam de ajustes automáticos |
+| verba total, tetos, pisos e distribuição | Decisão de Arquitetura e Cenários | Simulação | a decisão propõe distribuição; a simulação calcula custos e consequências |
+| preços, descontos, comissões, fees e condições comerciais | — | Simulação | são obtidos de produtos e ofertas da Biblioteca 13 ou do snapshot do projeto |
+| quantidades, inserções, faces, impressões e unidades comerciais | Decisão, quando selecionadas ou ajustadas | Simulação | a unidade de compra não deve ser confundida com unidade de entrega ou mensuração |
+| cronograma, flight, continuidade, ondas e pulsação | Decisão de Arquitetura e Cenários | Simulação | o motor decisório escolhe a configuração; o motor técnico projeta efeitos e custos |
+| overlap, deduplicação e alcance combinado | Decisão, para escolher hipótese ou parâmetro permitido | Simulação | ausência de deduplicação válida deve reduzir a confiança, não fabricar alcance líquido |
+| frequência desejada, saturação e rendimento marginal | Decisão, para limites e preferências | Simulação | curvas e parâmetros são aplicados apenas quando compatíveis com o caso |
+| critérios de comparação, dominância e empate técnico | Decisão de Arquitetura e Cenários | Simulação fornece valores comparáveis | cenários não comparáveis não entram em ordenação numérica comum |
+| limites de candidatos, iterações e ganho marginal | Decisão de Arquitetura e Cenários | Simulação atende chamadas delimitadas | controle obrigatório para evitar busca combinatória excessiva |
+| precisão, arredondamento, ausência e zero | — | Simulação | definidos pelos objetos de conhecimento e pelo contrato de mensuração |
+| confiança, alertas, justificativas e rastreabilidade | todos | todos | cada motor responde apenas pela explicação de sua própria decisão ou cálculo |
+| perfis, permissões e aprovação | serviços de aplicação e governança | — | autorizam ações, mas não alteram silenciosamente a lógica técnica |
+
+### 20.5 Entradas por necessidade, não por disponibilidade
+
+Um motor não deve consumir um campo apenas porque ele existe no snapshot. A seleção de entradas seguirá a sequência:
+
+```text
+comando do usuário
+→ problema técnico identificado
+→ saída necessária
+→ procedimentos possíveis
+→ campos obrigatórios e condicionais
+→ carregamento seletivo
+```
+
+Consequências:
+
+- o Motor de Tradução não consulta ofertas comerciais para classificar objetivos;
+- o Motor de Decisão não recalcula internamente CPM, alcance ou GRP;
+- o Motor de Simulação não redefine objetivos, públicos prioritários ou papéis estratégicos;
+- nenhum motor carrega todas as bibliotecas em toda execução;
+- campos configuráveis sem efeito no problema atual permanecem preservados, mas não processados.
+
+### 20.6 Campos obrigatórios, condicionais e opcionais
+
+Cada contrato de motor deverá classificar suas entradas como:
+
+```text
+OBRIGATORIA
+necessária para produzir a saída solicitada
+
+CONDICIONAL
+necessária apenas quando determinado procedimento, meio ou indicador for acionado
+
+OPCIONAL
+melhora a precisão ou explicação, mas não bloqueia a execução
+
+HERDADA
+obtida do contrato, snapshot ou resultado anterior
+
+PADRAO_CONFIGURAVEL
+utiliza valor versionado quando não houver ajuste autorizado no projeto
+
+NAO_PERTINENTE
+não deve ser carregada por aquele motor ou modo
+```
+
+A ausência de uma entrada opcional não deve gerar bloqueio. A ausência de uma entrada obrigatória deve produzir estado próprio, pergunta priorizada ou resultado insuficiente, nunca zero artificial.
+
+### 20.7 Regras contra duplicação e campos órfãos
+
+1. Nenhum campo configurável será recadastrado dentro de um motor.
+2. Todo campo que altera uma decisão deve possuir ao menos um consumidor declarado.
+3. Campos destinados apenas a interface, auditoria ou composição documental não precisam ser consumidos por motores.
+4. Um mesmo campo pode ser lido por vários motores, mas apenas um deles deve possuir responsabilidade primária pela sua interpretação decisória.
+5. Resultados produzidos por um motor são recebidos pelos demais por contrato versionado, não por leitura direta de estruturas internas.
+6. Fórmulas, regras e variantes permanecem na Biblioteca 17; os motores apenas selecionam e executam procedimentos.
+7. Problemas e gatilhos permanecem na Biblioteca 18; os motores não mantêm catálogos paralelos de problemas.
+8. Permissões controlam quem pode executar ou ajustar, mas não criam versões distintas da lógica técnica por perfil.
+
+### 20.8 Reexecução por origem da alteração
+
+| Alteração | Tradução Estratégica | Decisão de Arquitetura e Cenários | Simulação Técnica e Econômica |
+|---|---:|---:|---:|
+| objetivo, resultado ou KPI prioritário | refazer | invalidar dependentes | invalidar resultados dependentes |
+| público, praça ou etapa prioritária | refazer | invalidar dependentes | recalcular bases afetadas |
+| peso, mínimo ou restrição estratégica | refazer parcialmente | reavaliar | recalcular apenas se mudar a configuração |
+| meio, inventário ou papel | preservar | refazer parcialmente | recalcular componentes afetados |
+| quantidade, inserção ou distribuição temporal | preservar | reavaliar se necessário | recalcular |
+| preço, desconto, comissão ou disponibilidade | preservar | reavaliar alternativas afetadas | recalcular custos e entregas afetadas |
+| parâmetro de overlap, deduplicação ou saturação | preservar | reavaliar após nova projeção | recalcular procedimentos dependentes |
+| critério de comparação ou tolerância | preservar | refazer avaliação | preservar simulações válidas |
+| texto, nota ou formatação do plano | preservar | preservar | preservar |
+| permissão ou aprovação | preservar resultados | preservar resultados | preservar resultados |
+
+---
+
+## 21. Próxima etapa
 
 Especificar primeiro os contratos comuns dos três motores e, somente depois, cada responsabilidade individual.
 
@@ -632,12 +783,14 @@ A especificação deve começar por:
 5. saída principal;
 6. alertas, confiança e rastreabilidade;
 7. níveis de execução;
-8. dependências que exigem reexecução.
+8. dependências que exigem reexecução;
+9. entradas obrigatórias, condicionais, opcionais, herdadas e não pertinentes;
+10. documentos e bibliotecas efetivamente consultados por modo de execução.
 
 Não devem ser criadas classes, tabelas ou telas definitivas antes dessa definição.
 
 ---
 
-## 21. Princípio consolidado
+## 22. Princípio consolidado
 
-> Poucos motores não significam motores monolíticos. O MediAd Planner terá três fronteiras decisórias estáveis, internamente compostas por procedimentos pequenos e carregados sob demanda. A arquitetura deve economizar componentes sem concentrar processamento desnecessário, e preservar rigor técnico sem expor complexidade ao usuário.
+> Poucos motores não significam motores monolíticos. O MediAd Planner terá três fronteiras decisórias estáveis, internamente compostas por procedimentos pequenos e carregados sob demanda. Os motores utilizam os campos configuráveis e objetos definidos nos documentos 01 a 18B por contratos seletivos e versionados, sem recadastro, duplicação ou carregamento indiscriminado. A arquitetura deve economizar componentes sem concentrar processamento desnecessário, e preservar rigor técnico sem expor complexidade ao usuário.
