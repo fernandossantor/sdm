@@ -52,18 +52,46 @@ A Biblioteca 16 aplica jornadas, etapas, necessidades comunicacionais, funções
 
 Jornada, etapa, função e ponto de contato não são atributos permanentes do público.
 
-### Granularidade da Biblioteca 17
+### Granularidade mínima sustentável
 
-Um domínio técnico não corresponde necessariamente a um único objeto.
+A arquitetura deve evitar proliferação de bibliotecas, microdocumentos, microentidades e relações cuja manutenção seja mais onerosa do que o benefício metodológico ou computacional produzido.
 
-Domínios como GRP, alcance, frequência ou CPM devem ser decompostos em objetos atômicos e relacionáveis, como:
+As bibliotecas principais devem permanecer poucas, estáveis e delimitadas por responsabilidade. A granularidade necessária ao sistema deve ocorrer preferencialmente dentro delas, por meio de objetos, campos, variantes, regras e relações internas.
 
-- conceito;
-- cálculo;
-- conversão;
-- validação;
-- restrição;
-- interpretação.
+Um conhecimento somente deve ser separado em objetos distintos quando a diferença alterar de forma relevante pelo menos um destes elementos:
+
+- fórmula ou direção do cálculo;
+- significado das entradas ou da saída;
+- universo ou denominador;
+- condição de validade;
+- interpretação do resultado;
+- variante metodológica;
+- versionamento independente;
+- possibilidade real de substituição ou execução isolada.
+
+Não justificam separação autônoma:
+
+- sinônimos;
+- diferenças apenas terminológicas;
+- exemplos;
+- mensagens explicativas;
+- pequenas variações de arredondamento;
+- classificações que possam ser campos ou estados;
+- regras que só existam como parte inseparável de um cálculo.
+
+O padrão preferencial será:
+
+```text
+uma biblioteca estável
+    ↓
+um domínio técnico coeso
+    ↓
+um objeto principal
+    ↓
+componentes internos, variantes e regras
+```
+
+A decomposição em vários objetos será exceção justificada, não regra automática.
 
 ### Fronteiras da Biblioteca 17
 
@@ -73,90 +101,50 @@ Domínios como GRP, alcance, frequência ou CPM devem ser decompostos em objetos
 - valores e condições comerciais pertencem à Biblioteca 19;
 - regras externas, institucionais e normativas pertencem à Biblioteca 20.
 
-## Trabalho concluído no primeiro lote
+## Trabalho concluído
 
-Foi criado o documento:
+### Núcleo 1 — Universo e audiência
 
-```text
-17C_NUCLEO_1_UNIVERSO_E_AUDIENCIA.md
-```
+Foram formalizados, em um único documento de domínio:
 
-O núcleo formaliza, em estado `EM_VALIDACAO`:
+- conceito de universo;
+- validação de identidade de universo;
+- conceito e cálculo de audiência percentual;
+- conceito e cálculo de participação de audiência;
+- conceito de impactos;
+- cálculo de impactos por audiência e inserções.
 
-- `KT_CONCEITO_UNIVERSO`;
-- `KT_VALIDACAO_IDENTIDADE_DE_UNIVERSO`;
-- `KT_CONCEITO_AUDIENCIA_PERCENTUAL`;
-- `KT_CALCULO_AUDIENCIA_PERCENTUAL`;
-- `KT_CONCEITO_PARTICIPACAO_AUDIENCIA`;
-- `KT_CALCULO_PARTICIPACAO_AUDIENCIA`;
-- `KT_CONCEITO_IMPACTOS`;
-- `KT_CALCULO_IMPACTOS_POR_AUDIENCIA_E_INSERCOES`.
-
-O núcleo também consolidou as seguintes distinções:
-
-```text
-audiência percentual ≠ participação de audiência
-impactos ≠ alcance líquido
-universo de pessoas ≠ universo de domicílios
-universo total ≠ universo ligado ou ativo
-igualdade numérica ≠ identidade metodológica
-```
+A separação lógica desses componentes não implica a criação de novas bibliotecas nem exige que cada componente se torne uma tabela, classe ou arquivo próprio na implementação.
 
 ## Próxima etapa ativa
 
 ### Núcleo 2 — Alcance e frequência
 
-Formalizar:
+O núcleo será tratado como conjunto técnico coeso em um único documento, contendo:
 
-- `KT_CONCEITO_ALCANCE`;
-- `KT_CALCULO_ALCANCE_PERCENTUAL`;
-- `KT_CONCEITO_FREQUENCIA_MEDIA`;
-- `KT_CALCULO_FREQUENCIA_POR_IMPACTOS_E_ALCANCE`;
-- `KT_VALIDACAO_FREQUENCIA_MESMO_UNIVERSO`;
-- `KT_INTERPRETACAO_FREQUENCIA_MEDIA`.
+- definição de alcance;
+- alcance absoluto e percentual como representações relacionadas;
+- distinção entre alcance líquido, acumulado e incremental;
+- definição de frequência média;
+- cálculo por impactos e alcance;
+- validação das bases utilizadas;
+- interpretação e limitações.
 
-Esse núcleo deve preservar a distinção entre:
-
-```text
-alcance absoluto
-alcance percentual
-alcance líquido
-alcance acumulado
-alcance incremental
-```
-
-Também deve impedir que frequência média seja interpretada como distribuição de frequência ou frequência eficiente.
-
-## Etapas posteriores do primeiro lote
-
-### Núcleo 3 — GRP
-
-- conceito de GRP;
-- cálculo por audiência e inserções;
-- cálculo por alcance e frequência;
-- conversão de GRP em impactos;
-- restrição de comparabilidade multimídia;
-- interpretação de GRP.
-
-### Validação transversal
-
-Após os três núcleos:
-
-1. produzir representação estruturada em YAML ou JSON;
-2. definir casos válidos e inválidos;
-3. relacionar objetos aos indicadores da Biblioteca 15;
-4. relacionar objetos aos problemas da Biblioteca 18;
-5. validar códigos de unidades, estados e severidades;
-6. testar a conversão dos objetos em funções e regras executáveis.
+Frequência eficiente, distribuição de frequência e saturação serão referenciadas, mas só serão aprofundadas quando necessárias aos problemas técnicos correspondentes. Não serão criados objetos autônomos antecipadamente sem necessidade operacional demonstrada.
 
 ## Sequência posterior
 
-1. ampliar o inventário formalizado;
-2. projetar as Bibliotecas 19, 20 e 21;
-3. especificar os motores especialistas;
-4. modelar o banco de dados definitivo;
-5. definir a arquitetura de inferência e explicabilidade.
+1. formalizar o Núcleo 2 em documento único;
+2. formalizar o Núcleo 3 — GRP, preservando o mesmo princípio de coesão;
+3. testar os objetos em casos válidos e inválidos;
+4. relacionar os conhecimentos aos indicadores da Biblioteca 15;
+5. relacionar os conhecimentos aos problemas da Biblioteca 18;
+6. avaliar quais entidades realmente exigem representação estruturada em YAML, JSON ou banco de dados;
+7. projetar as Bibliotecas 19, 20 e 21 apenas após confirmar que não podem ser tratadas como módulos internos de bibliotecas existentes;
+8. especificar os motores especialistas;
+9. modelar o banco de dados definitivo;
+10. definir a arquitetura de inferência e explicabilidade.
 
 ## Observação
 
-A fase de reorganização conceitual está encerrada. O projeto entrou na fase de formalização do conhecimento e preparação da base executável dos motores especialistas. O Núcleo 1 representa a primeira aplicação integral do protocolo de formalização.
+A fase de reorganização conceitual está encerrada. O projeto entrou na fase de formalização do conhecimento, sob o princípio de que a arquitetura deve ser suficientemente rigorosa para ser explicável e suficientemente simples para ser implementável e mantida.
