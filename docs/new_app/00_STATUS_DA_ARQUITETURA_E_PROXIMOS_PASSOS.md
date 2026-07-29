@@ -34,13 +34,16 @@ O projeto é definido como uma plataforma de inteligência de mídia baseada em 
 - 17A — Inventário Preliminar de Conhecimentos Técnicos;
 - 17B — Protocolo de Formalização dos Objetos de Conhecimento Técnico;
 - 17C — Núcleo 1: Universo e Audiência;
+- 17D — Núcleo 2: Alcance e Frequência;
 - 18 — Problemas Técnicos de Planejamento de Mídia.
 
-### Pendentes
+### Pendentes de confirmação arquitetural
 
 - 19 — Custos e Condições Comerciais;
 - 20 — Regras, Restrições e Referências Metodológicas;
 - 21 — Modelos e Componentes Reutilizáveis.
+
+Essas três estruturas somente deverão permanecer como bibliotecas autônomas se a implementação demonstrar que não podem funcionar de maneira sustentável como módulos internos ou entidades relacionadas às bibliotecas existentes.
 
 ## Decisões recentes
 
@@ -86,7 +89,7 @@ uma biblioteca estável
     ↓
 um domínio técnico coeso
     ↓
-um objeto principal
+um pequeno conjunto de objetos principais
     ↓
 componentes internos, variantes e regras
 ```
@@ -98,14 +101,20 @@ A decomposição em vários objetos será exceção justificada, não regra auto
 - indicadores e KPIs permanecem na Biblioteca 15;
 - conhecimento técnico pertence à Biblioteca 17;
 - problemas a resolver pertencem à Biblioteca 18;
-- valores e condições comerciais pertencem à Biblioteca 19;
-- regras externas, institucionais e normativas pertencem à Biblioteca 20.
+- valores e condições comerciais poderão pertencer à Biblioteca 19 ou a módulos internos, conforme validação futura;
+- regras externas, institucionais e normativas poderão pertencer à Biblioteca 20 ou a um módulo de referências e restrições, conforme validação futura.
 
 ## Trabalho concluído
 
 ### Núcleo 1 — Universo e audiência
 
-Foram formalizados, em um único documento de domínio:
+Formalizado no documento:
+
+```text
+17C_NUCLEO_1_UNIVERSO_E_AUDIENCIA.md
+```
+
+Foram estruturados:
 
 - conceito de universo;
 - validação de identidade de universo;
@@ -116,31 +125,72 @@ Foram formalizados, em um único documento de domínio:
 
 A separação lógica desses componentes não implica a criação de novas bibliotecas nem exige que cada componente se torne uma tabela, classe ou arquivo próprio na implementação.
 
-## Próxima etapa ativa
-
 ### Núcleo 2 — Alcance e frequência
 
-O núcleo será tratado como conjunto técnico coeso em um único documento, contendo:
+Formalizado no documento:
 
-- definição de alcance;
-- alcance absoluto e percentual como representações relacionadas;
-- distinção entre alcance líquido, acumulado e incremental;
-- definição de frequência média;
-- cálculo por impactos e alcance;
-- validação das bases utilizadas;
-- interpretação e limitações.
+```text
+17D_NUCLEO_2_ALCANCE_E_FREQUENCIA.md
+```
 
-Frequência eficiente, distribuição de frequência e saturação serão referenciadas, mas só serão aprofundadas quando necessárias aos problemas técnicos correspondentes. Não serão criados objetos autônomos antecipadamente sem necessidade operacional demonstrada.
+Foram adotados apenas quatro objetos principais:
+
+```text
+KT_CONCEITO_ALCANCE
+KT_CALCULO_ALCANCE_PERCENTUAL
+KT_CONCEITO_FREQUENCIA_MEDIA
+KT_CALCULO_FREQUENCIA_MEDIA
+```
+
+As validações de universo, deduplicação, tratamento de zero, interpretação e mensagens permanecem integradas aos objetos ou reutilizam conhecimentos já formalizados no Núcleo 1.
+
+As seguintes noções permanecem como qualificadores ou tópicos relacionados, sem objetos autônomos antecipados:
+
+- alcance líquido;
+- alcance acumulado;
+- alcance incremental;
+- alcance projetado e realizado;
+- distribuição de frequência;
+- frequência eficiente;
+- frequência excessiva;
+- saturação.
+
+Elas somente serão separadas se os problemas técnicos ou a implementação exigirem cálculo, validade ou versionamento próprios.
+
+## Próxima etapa ativa
+
+### Núcleo 3 — GRP
+
+O núcleo deverá ser formalizado em um único documento coeso.
+
+A proposta inicial deve ser reduzida a um pequeno conjunto de objetos principais:
+
+```text
+KT_CONCEITO_GRP
+KT_CALCULO_GRP
+KT_CONVERSAO_GRP_IMPACTOS
+KT_RESTRICAO_COMPARABILIDADE_GRP
+```
+
+O objeto `KT_CALCULO_GRP` poderá conter, como variantes internas:
+
+```text
+GRP por audiência percentual e inserções
+GRP por alcance percentual e frequência média
+soma de GRPs de uma programação
+```
+
+A interpretação de pressão, os alertas e as validações de universo permanecerão integrados, salvo necessidade concreta de execução independente.
 
 ## Sequência posterior
 
-1. formalizar o Núcleo 2 em documento único;
-2. formalizar o Núcleo 3 — GRP, preservando o mesmo princípio de coesão;
+1. formalizar o Núcleo 3 — GRP com granularidade mínima sustentável;
+2. revisar os três núcleos em conjunto para detectar duplicidades ou decomposição excessiva;
 3. testar os objetos em casos válidos e inválidos;
 4. relacionar os conhecimentos aos indicadores da Biblioteca 15;
 5. relacionar os conhecimentos aos problemas da Biblioteca 18;
-6. avaliar quais entidades realmente exigem representação estruturada em YAML, JSON ou banco de dados;
-7. projetar as Bibliotecas 19, 20 e 21 apenas após confirmar que não podem ser tratadas como módulos internos de bibliotecas existentes;
+6. avaliar quais elementos realmente exigem representação estruturada em YAML, JSON ou banco de dados;
+7. revisar a necessidade de existência autônoma das Bibliotecas 19, 20 e 21;
 8. especificar os motores especialistas;
 9. modelar o banco de dados definitivo;
 10. definir a arquitetura de inferência e explicabilidade.
