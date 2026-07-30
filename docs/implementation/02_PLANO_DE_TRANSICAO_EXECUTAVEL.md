@@ -16,24 +16,27 @@
 - dependências declaradas sincronizadas e ferramentas do ambiente verificadas;
 - fachada falsa de Tradução Estratégica criada sobre o contrato comum, com saída
   explicitamente parcial, rastreável e sem regras estratégicas antecipadas;
-- legado e `app.py` mantidos sem alteração.
+- `app.py` substituído por uma entrada mínima da nova aplicação;
+- navegação inicial criada para Visão Geral, Abertura da Campanha e Briefing;
+- páginas e serviços da versão anterior mantidos apenas como memória recuperável,
+  sem rota ou integração com a nova interface.
 
 ## Próxima etapa segura
 
-1. começar navegação nova paralela, mantendo as páginas legadas acessíveis;
-2. integrar a abertura de Campanha/Briefing à nova navegação por adaptadores;
+1. conectar a abertura da Campanha aos casos de uso canônicos somente após definir
+   autorização e persistência da nova arquitetura;
+2. implementar o Briefing progressivamente, uma seção normativa por fatia;
 3. implementar a primeira regra estratégica somente após contrato e fonte
    normativa serem explicitamente selecionados;
 4. persistir comandos e execuções apenas após modelagem e migração revisadas.
 
-## Legado reutilizável
+## Versão anterior preservada como memória
 
-- autenticação, espaços, compartilhamento, auditoria e RLS;
-- clientes tardios e repositórios como adaptadores;
-- bibliotecas de inventário, público, métricas e custos;
-- componentes visuais neutros;
-- scripts e testes de segurança/backup após classificação;
-- procedimentos matemáticos que forem validados e versionados.
+- a tag `legacy-pre-mediad-planner-v1` mantém uma referência recuperável;
+- arquivos históricos permanecem no repositório, mas fora da navegação nova;
+- o estado entre telas da nova aplicação não é legado e deverá ser preservado;
+- nenhuma integração ou compatibilidade com serviços antigos é requisito;
+- eventual remoção física deverá ocorrer em commit próprio e verificável.
 
 ## Candidatos à remoção futura
 
@@ -58,7 +61,7 @@ Nenhum desses itens está autorizado para remoção nesta etapa.
 ## Ações destrutivas que exigem confirmação
 
 - apagar ou renomear arquivos e páginas existentes;
-- substituir irreversivelmente `app.py`;
+- excluir fisicamente páginas ou serviços da versão anterior;
 - remover dependências;
 - executar migração de dados;
 - alterar RLS, autenticação, funções ou triggers;
@@ -70,5 +73,5 @@ Nenhum desses itens está autorizado para remoção nesta etapa.
 ## Critério de avanço
 
 Cada fatia deve manter domínio independente de Streamlit/Supabase, possuir contrato
-versionado, teste automatizado, migração reversível quando aplicável e comparação
-contra o comportamento legado relevante.
+versionado, teste automatizado, migração reversível quando aplicável e aderência
+à documentação normativa relevante.
