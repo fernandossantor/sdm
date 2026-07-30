@@ -77,7 +77,11 @@ class AuthService:
         refresh_token = session_state.get("auth_refresh_token")
         expira_em = session_state.get("auth_expires_at")
         if not token or not refresh_token:
-            self.limpar_sessao(session_state)
+            # No formulário de login ainda não existe sessão autenticada. Não
+            # limpe o session_state aqui: o Streamlit guarda nele os valores
+            # submetidos pelos widgets antes de executar este método.
+            if token or refresh_token:
+                self.limpar_sessao(session_state)
             return False
 
         if expira_em and float(expira_em) > time.time() + margem_segundos:

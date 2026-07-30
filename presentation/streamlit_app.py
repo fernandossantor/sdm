@@ -25,28 +25,10 @@ def _aplicar_estilo() -> None:
         """
         <style>
         :root {
-            --mp-bg: #f7f8fa; --mp-text: #17202a; --mp-muted: #52606d;
-            --mp-sidebar: #101d2f; --mp-sidebar-text: #f5f7fa;
+            color-scheme: light dark;
         }
-        [data-theme="dark"] {
-            --mp-bg: #111827; --mp-text: #edf2f7; --mp-muted: #cbd5e0;
-            --mp-sidebar: #0b1220; --mp-sidebar-text: #f7fafc;
-        }
-        [data-theme="light"] {
-            --mp-bg: #f7f8fa; --mp-text: #17202a; --mp-muted: #52606d;
-            --mp-sidebar: #101d2f; --mp-sidebar-text: #f5f7fa;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --mp-bg: #111827; --mp-text: #edf2f7; --mp-muted: #cbd5e0;
-                --mp-sidebar: #0b1220; --mp-sidebar-text: #f7fafc;
-            }
-        }
-        .stApp { background: var(--mp-bg); color: var(--mp-text); }
-        [data-testid="stSidebar"] { background: var(--mp-sidebar); }
-        [data-testid="stSidebar"] * { color: var(--mp-sidebar-text); }
         .mp-eyebrow {
-            color: #b25f32; font-size: .78rem; font-weight: 700;
+            color: #ffc29f; font-size: .78rem; font-weight: 700;
             letter-spacing: .09em; text-transform: uppercase;
         }
         .mp-hero {

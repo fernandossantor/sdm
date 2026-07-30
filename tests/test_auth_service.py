@@ -64,6 +64,29 @@ class TestAuthService(unittest.TestCase):
         self.assertTrue(AuthService(fabrica).renovar_se_necessario(estado))
         fabrica.assert_not_called()
 
+    def test_tela_de_login_preserva_campos_dos_widgets(self):
+        fabrica = Mock()
+        estado = {
+            "login_email": "user@example.com",
+            "login_senha": "segredo-forte",
+        }
+
+        self.assertFalse(AuthService(fabrica).renovar_se_necessario(estado))
+
+        self.assertEqual(estado["login_email"], "user@example.com")
+        self.assertEqual(estado["login_senha"], "segredo-forte")
+        fabrica.assert_not_called()
+
+    def test_sessao_incompleta_e_limpa(self):
+        estado = {
+            "auth_access_token": "access-sem-refresh",
+            "projeto_id": "projeto-anterior",
+        }
+
+        self.assertFalse(AuthService(Mock()).renovar_se_necessario(estado))
+
+        self.assertEqual(estado, {})
+
     def test_sessao_expirada_e_renovada(self):
         cliente = Mock()
         cliente.auth.set_session.return_value = SimpleNamespace(session=sessao())
