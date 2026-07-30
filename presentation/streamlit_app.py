@@ -11,6 +11,8 @@ from presentation.composition import (
     AuthService,
     autenticacao_habilitada,
     bind_authenticated_client,
+    campanhas_do_espaco,
+    briefing_da_campanha,
     casos_de_uso_campanha,
 )
 from presentation.navigation import ETAPAS_FUTURAS, NAVEGACAO_INICIAL
@@ -99,6 +101,37 @@ def pagina_campanha() -> None:
     if not _contexto_operacional_pronto():
         st.info("Entre e selecione um espaço de trabalho para criar campanhas.")
         return
+    try:
+        campanhas = campanhas_do_espaco(st.session_state)
+    except Exception as exc:
+        st.error(f"Não foi possível carregar as campanhas: {exc}")
+        return
+    if campanhas:
+        ids = [str(item["id"]) for item in campanhas]
+        atual = st.session_state.get("campanha_id")
+        indice = ids.index(atual) if atual in ids else 0
+        selecionada = st.selectbox(
+            "Campanha para continuar",
+            campanhas,
+            index=indice,
+            format_func=lambda item: "{} · {}".format(item["codigo"], item["nome"]),
+        )
+        if str(selecionada["id"]) != st.session_state.get("campanha_id"):
+            for chave, campo in (
+                ("campanha_id", "id"),
+                ("campanha_codigo", "codigo"),
+                ("campanha_nome", "nome"),
+                ("campanha_anunciante", "snapshot_nome_anunciante"),
+                ("campanha_marca", "snapshot_nome_marca"),
+                ("campanha_produto", "snapshot_nome_produto_servico"),
+                ("campanha_planejador", "snapshot_identificacao_planejador"),
+                ("campanha_etapa", "etapa_atual"),
+            ):
+                st.session_state[chave] = selecionada.get(campo)
+            st.session_state["briefing_id"] = briefing_da_campanha(
+                st.session_state, selecionada["id"]
+            )
+            st.rerun()
     if st.session_state.get("campanha_id"):
         st.success(
             f"Campanha {st.session_state['campanha_codigo']} criada e preservada."
@@ -198,6 +231,38 @@ def pagina_briefing() -> None:
         "Estruture progressivamente as demandas da campanha, preservando "
         "ausências, restrições e contradições.",
     )
+    try:
+        campanhas = campanhas_do_espaco(st.session_state)
+    except Exception as exc:
+        st.error(f"Não foi possível carregar as campanhas: {exc}")
+        return
+    if campanhas:
+        ids = [str(item["id"]) for item in campanhas]
+        atual = st.session_state.get("campanha_id")
+        indice = ids.index(atual) if atual in ids else 0
+        selecionada = st.selectbox(
+            "Briefing da campanha",
+            campanhas,
+            index=indice,
+            format_func=lambda item: "{} · {}".format(item["codigo"], item["nome"]),
+            key="briefing_campanha_selecionada",
+        )
+        if str(selecionada["id"]) != st.session_state.get("campanha_id"):
+            for chave, campo in (
+                ("campanha_id", "id"),
+                ("campanha_codigo", "codigo"),
+                ("campanha_nome", "nome"),
+                ("campanha_anunciante", "snapshot_nome_anunciante"),
+                ("campanha_marca", "snapshot_nome_marca"),
+                ("campanha_produto", "snapshot_nome_produto_servico"),
+                ("campanha_planejador", "snapshot_identificacao_planejador"),
+                ("campanha_etapa", "etapa_atual"),
+            ):
+                st.session_state[chave] = selecionada.get(campo)
+            st.session_state["briefing_id"] = briefing_da_campanha(
+                st.session_state, selecionada["id"]
+            )
+            st.rerun()
     if not st.session_state.get("campanha_id"):
         st.warning("Crie uma campanha antes de abrir o Briefing.")
         return
