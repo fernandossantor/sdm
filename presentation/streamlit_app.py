@@ -104,6 +104,20 @@ def pagina_campanha() -> None:
             f"Campanha {st.session_state['campanha_codigo']} criada e preservada."
         )
         st.write(st.session_state["campanha_nome"])
+        if st.button("Nova campanha"):
+            for chave in (
+                "campanha_id",
+                "campanha_codigo",
+                "campanha_nome",
+                "campanha_anunciante",
+                "campanha_marca",
+                "campanha_produto",
+                "campanha_planejador",
+                "campanha_etapa",
+                "briefing_id",
+            ):
+                st.session_state.pop(chave, None)
+            st.rerun()
         if st.button("Iniciar briefing", type="primary"):
             try:
                 _, iniciar = casos_de_uso_campanha(st.session_state)
