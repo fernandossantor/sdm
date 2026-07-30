@@ -11,16 +11,20 @@
 - fundação de contratos, base dos motores, portas e configuração criada;
 - primeira fatia de Campanha/Briefing criada com DTOs, casos de uso, snapshots,
   autorização e persistência abstrata;
+- inventário remoto somente leitura executado e 24 migrações locais/remotas
+  conciliadas;
+- dependências declaradas sincronizadas e ferramentas do ambiente verificadas;
+- fachada falsa de Tradução Estratégica criada sobre o contrato comum, com saída
+  explicitamente parcial, rastreável e sem regras estratégicas antecipadas;
 - legado e `app.py` mantidos sem alteração.
 
 ## Próxima etapa segura
 
-1. disponibilizar as variáveis Supabase no mecanismo normal do Codespace;
-2. executar inventário remoto somente leitura e comparar com migrações;
-3. instalar/sincronizar dependências declaradas do ambiente;
-4. implementar uma fachada falsa de Tradução Estratégica sobre os contratos;
-5. começar navegação nova paralela, mantendo as páginas legadas acessíveis;
-6. persistir comandos e execuções apenas após modelagem e migração revisadas.
+1. começar navegação nova paralela, mantendo as páginas legadas acessíveis;
+2. integrar a abertura de Campanha/Briefing à nova navegação por adaptadores;
+3. implementar a primeira regra estratégica somente após contrato e fonte
+   normativa serem explicitamente selecionados;
+4. persistir comandos e execuções apenas após modelagem e migração revisadas.
 
 ## Legado reutilizável
 
