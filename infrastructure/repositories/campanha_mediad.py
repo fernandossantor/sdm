@@ -117,6 +117,28 @@ class UnidadeTrabalhoCampanhaSupabase:
         )
         return self._desserializar_campanha(resposta.data[0], equipe_ids)
 
+    def listar_campanhas(self) -> list[dict[str, Any]]:
+        """Lista campanhas do espaço para permitir retomada explícita."""
+        resposta = (
+            self.cliente.table("campanhas_mediad")
+            .select("id,codigo,nome,anunciante_id,marca_id,produto_servico_id,planejador_responsavel_id,observacao_inicial,campanha_derivada_de_id,snapshot_nome_anunciante,snapshot_nome_marca,snapshot_nome_produto_servico,snapshot_identificacao_planejador,criado_por,criado_em,atualizado_em,situacao,etapa_atual")
+            .eq("espaco_id", str(self.espaco_id))
+            .order("atualizado_em", desc=True)
+            .execute()
+        )
+        return list(resposta.data or [])
+
+    def obter_briefing_id(self, campanha_id: UUID) -> str | None:
+        resposta = (
+            self.cliente.table("briefings_mediad")
+            .select("id")
+            .eq("campanha_id", str(campanha_id))
+            .order("versao", desc=True)
+            .limit(1)
+            .execute()
+        )
+        return resposta.data[0]["id"] if resposta.data else None
+
     def iniciar_briefing(self, campanha: Campanha, briefing: BriefingInicial) -> None:
         if campanha.id != briefing.campanha_id:
             raise ValueError("briefing pertence a outra campanha")

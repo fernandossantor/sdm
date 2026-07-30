@@ -26,19 +26,32 @@ __all__ = (
     "autenticacao_habilitada",
     "bind_authenticated_client",
     "casos_de_uso_campanha",
+    "campanhas_do_espaco",
+    "briefing_da_campanha",
 )
 
 
-def casos_de_uso_campanha(estado):
-    usuario_id = UUID(estado["auth_user_id"])
-    unidade = UnidadeTrabalhoCampanhaSupabase(
+def _unidade_campanha(estado):
+    return UnidadeTrabalhoCampanhaSupabase(
         cliente=create_authenticated_client(estado["auth_access_token"]),
         espaco_id=UUID(estado["espaco_id"]),
     )
+
+
+def campanhas_do_espaco(estado):
+    return _unidade_campanha(estado).listar_campanhas()
+
+
+def briefing_da_campanha(estado, campanha_id):
+    return _unidade_campanha(estado).obter_briefing_id(UUID(campanha_id))
+
+
+def casos_de_uso_campanha(estado):
+    unidade = _unidade_campanha(estado)
+    usuario_id = UUID(estado["auth_user_id"])
     relogio = RelogioSistema()
     autorizador = AutorizadorCampanhaPorEspaco(
-        usuario_id=usuario_id,
-        papel_espaco=estado["espaco_papel"],
+        usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
     )
     return (
         AbrirCampanha(
