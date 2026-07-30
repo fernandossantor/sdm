@@ -3,6 +3,10 @@ from infrastructure.repositories.workspace_repository import WorkspaceRepository
 
 
 CHAVES_CONTEXTO_PROJETO = (
+    "campanha_id",
+    "campanha_codigo",
+    "campanha_nome",
+    "campanha_etapa",
     "projeto_id",
     "projeto_nome",
     "projeto_codigo",
