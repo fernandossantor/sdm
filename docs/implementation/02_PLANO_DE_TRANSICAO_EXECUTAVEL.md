@@ -9,6 +9,8 @@
 - legado e migrações inventariados;
 - falha preexistente da suíte registrada;
 - fundação de contratos, base dos motores, portas e configuração criada;
+- primeira fatia de Campanha/Briefing criada com DTOs, casos de uso, snapshots,
+  autorização e persistência abstrata;
 - legado e `app.py` mantidos sem alteração.
 
 ## Próxima etapa segura
@@ -16,10 +18,9 @@
 1. disponibilizar as variáveis Supabase no mecanismo normal do Codespace;
 2. executar inventário remoto somente leitura e comparar com migrações;
 3. instalar/sincronizar dependências declaradas do ambiente;
-4. introduzir casos de uso e DTOs da primeira fatia de Campanha/Briefing;
-5. implementar uma fachada falsa de Tradução Estratégica sobre os contratos;
-6. começar navegação nova paralela, mantendo as páginas legadas acessíveis;
-7. persistir comandos e execuções apenas após modelagem e migração revisadas.
+4. implementar uma fachada falsa de Tradução Estratégica sobre os contratos;
+5. começar navegação nova paralela, mantendo as páginas legadas acessíveis;
+6. persistir comandos e execuções apenas após modelagem e migração revisadas.
 
 ## Legado reutilizável
 
