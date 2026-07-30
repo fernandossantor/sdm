@@ -29,6 +29,17 @@ Não houve migração, escrita, alteração de política ou consulta a conteúdo
 - 24 migrações locais e remotas sincronizadas;
 - última migração: `20260727090000`.
 
+## Estado local posterior ao diagnóstico
+
+Em 30/07/2026 foi preparada a migração local `20260730010000`, ainda não
+aplicada. Uma nova consulta somente leitura confirmou:
+
+- 25 migrações locais;
+- 24 migrações remotas;
+- `20260730010000` presente apenas localmente.
+
+O estado remoto descrito neste inventário não foi alterado.
+
 ## Objetos confirmados e inferidos das migrações
 
 | Grupo | Objetos principais | Classificação |

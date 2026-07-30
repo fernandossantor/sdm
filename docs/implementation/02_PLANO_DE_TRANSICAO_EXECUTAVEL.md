@@ -19,16 +19,22 @@
 - `app.py` substituído por uma entrada mínima da nova aplicação;
 - navegação inicial criada para Visão Geral, Abertura da Campanha e Briefing;
 - páginas e serviços da versão anterior mantidos apenas como memória recuperável,
-  sem rota ou integração com a nova interface.
+  sem rota ou integração com a nova interface;
+- migração local reversível preparada para Campanhas, equipes e Briefings, com
+  isolamento por espaço, RLS e transições atômicas; ainda não aplicada;
+- adaptador Supabase novo criado por injeção de cliente autenticado e espaço,
+  sem dependência de serviços ou repositórios da versão anterior.
 
 ## Próxima etapa segura
 
-1. conectar a abertura da Campanha aos casos de uso canônicos somente após definir
-   autorização e persistência da nova arquitetura;
-2. implementar o Briefing progressivamente, uma seção normativa por fatia;
-3. implementar a primeira regra estratégica somente após contrato e fonte
+1. revisar e validar a migração `20260730010000` em ambiente isolado;
+2. aplicar a migração no Supabase somente após confirmação explícita;
+3. conectar autenticação, espaço ativo e abertura da Campanha aos casos de uso
+   canônicos;
+4. implementar o Briefing progressivamente, uma seção normativa por fatia;
+5. implementar a primeira regra estratégica somente após contrato e fonte
    normativa serem explicitamente selecionados;
-4. persistir comandos e execuções apenas após modelagem e migração revisadas.
+6. persistir comandos e execuções apenas após modelagem e migração revisadas.
 
 ## Versão anterior preservada como memória
 
@@ -51,7 +57,7 @@ Nenhum desses itens está autorizado para remoção nesta etapa.
 
 ## Migrações necessárias, ainda não implementadas
 
-- snapshots de campanha;
+- aplicação remota da migração local de Campanha/Briefing, após validação;
 - comandos, execuções e resultados dos motores;
 - validações, alertas, explicações e rastreabilidade;
 - dependências, invalidação, reexecução e intervenções humanas;
