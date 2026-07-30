@@ -24,9 +24,19 @@ def _aplicar_estilo() -> None:
     st.markdown(
         """
         <style>
-        .stApp { background: #f7f8fa; }
-        [data-testid="stSidebar"] { background: #101d2f; }
-        [data-testid="stSidebar"] * { color: #f5f7fa; }
+        :root {
+            --mp-bg: #f7f8fa; --mp-text: #17202a; --mp-muted: #52606d;
+            --mp-sidebar: #101d2f; --mp-sidebar-text: #f5f7fa;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --mp-bg: #111827; --mp-text: #edf2f7; --mp-muted: #cbd5e0;
+                --mp-sidebar: #0b1220; --mp-sidebar-text: #f7fafc;
+            }
+        }
+        .stApp { background: var(--mp-bg); color: var(--mp-text); }
+        [data-testid="stSidebar"] { background: var(--mp-sidebar); }
+        [data-testid="stSidebar"] * { color: var(--mp-sidebar-text); }
         .mp-eyebrow {
             color: #b25f32; font-size: .78rem; font-weight: 700;
             letter-spacing: .09em; text-transform: uppercase;
@@ -75,7 +85,7 @@ def pagina_inicio() -> None:
         st.write("Identidade, responsáveis, vínculos e contexto inicial.")
         st.page_link(
             PAGINAS[1],
-            label="Revisar abertura",
+            label="Cadastrar uma campanha",
             icon=":material/arrow_forward:",
         )
     with coluna_briefing:
@@ -83,7 +93,7 @@ def pagina_inicio() -> None:
         st.write("Demandas, limites, prioridades e informações disponíveis.")
         st.page_link(
             PAGINAS[2],
-            label="Conhecer o briefing",
+            label="Iniciar um briefing",
             icon=":material/arrow_forward:",
         )
     st.divider()
@@ -151,7 +161,15 @@ def pagina_campanha() -> None:
             ):
                 st.session_state.pop(chave, None)
             st.rerun()
-        if st.button("Iniciar briefing", type="primary"):
+        if st.session_state.get("briefing_id"):
+            st.page_link(
+                PAGINAS[2],
+                label="Continuar para o briefing",
+                icon=":material/arrow_forward:",
+            )
+        if not st.session_state.get("briefing_id") and st.button(
+            "Iniciar briefing", type="primary"
+        ):
             try:
                 _, iniciar = casos_de_uso_campanha(st.session_state)
                 saida = iniciar.executar(
@@ -291,6 +309,11 @@ def pagina_briefing() -> None:
         f"Briefing {st.session_state['briefing_id']} vinculado à campanha "
         f"{st.session_state['campanha_codigo']}."
     )
+    st.page_link(
+        PAGINAS[3],
+        label="Continuar para Tradução estratégica",
+        icon=":material/arrow_forward:",
+    )
     secoes = (
         ("1", "Contexto e situação"),
         ("2", "Objetivos e resultados"),
@@ -303,6 +326,25 @@ def pagina_briefing() -> None:
             st.caption("Seção prevista no fluxo progressivo do briefing.")
 
 
+def pagina_traducao():
+    _cabecalho(
+        "Etapa 03",
+        "Tradução estratégica",
+        "Transforme o briefing em problemas, objetivos e critérios de decisão.",
+    )
+    if not st.session_state.get("campanha_id") or not st.session_state.get(
+        "briefing_id"
+    ):
+        st.warning("Selecione uma campanha com briefing iniciado antes de continuar.")
+        return
+    st.success(
+        "Campanha {} pronta para a tradução estratégica.".format(
+            st.session_state.get("campanha_codigo", "—")
+        )
+    )
+    st.info("Esta etapa será construída progressivamente a partir do briefing salvo.")
+
+
 PAGINAS = (
     st.Page(
         pagina_inicio,
@@ -312,6 +354,7 @@ PAGINAS = (
     ),
     st.Page(pagina_campanha, title=NAVEGACAO_INICIAL[1].titulo, icon="📁"),
     st.Page(pagina_briefing, title=NAVEGACAO_INICIAL[2].titulo, icon="📋"),
+    st.Page(pagina_traducao, title="Tradução estratégica", icon="🧭"),
 )
 
 
@@ -331,6 +374,7 @@ def executar() -> None:
         initial_sidebar_state="expanded",
     )
     _aplicar_estilo()
+    navegacao = st.navigation(list(PAGINAS), position="hidden")
     if autenticacao_habilitada():
         if not auth_gate.render():
             return
@@ -353,4 +397,4 @@ def executar() -> None:
                 st.rerun()
             st.divider()
         st.caption("Nova arquitetura · Fundação em construção")
-    st.navigation(list(PAGINAS), position="hidden").run()
+    navegacao.run()

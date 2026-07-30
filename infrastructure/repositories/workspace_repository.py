@@ -8,7 +8,7 @@ class WorkspaceRepository:
     def listar(self):
         return (
             self.db.table("espacos_trabalho")
-            .select("id,nome,slug,ativo,legado")
+            .select("id,nome,slug,ativo,legado,proprietario_id")
             .eq("ativo", True)
             .order("nome")
             .execute()
