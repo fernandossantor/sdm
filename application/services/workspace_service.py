@@ -1,7 +1,6 @@
 from infrastructure.database.workspace_context import bind_workspace
 from infrastructure.repositories.workspace_repository import WorkspaceRepository
 
-
 CHAVES_CONTEXTO_PROJETO = (
     "campanha_id",
     "campanha_codigo",
@@ -39,7 +38,11 @@ class WorkspaceService:
         return [
             {
                 **item,
-                "papel": papeis.get(item["id"], "COMPARTILHADO"),
+                "papel": (
+                    "PROPRIETARIO"
+                    if str(item.get("proprietario_id")) == str(usuario_id)
+                    else papeis.get(item["id"], "COMPARTILHADO")
+                ),
             }
             for item in espacos
         ]

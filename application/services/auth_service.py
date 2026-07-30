@@ -3,7 +3,8 @@
 import os
 import time
 
-from infrastructure.database.data_client import create_auth_client
+from infrastructure.database.data_client import clear_request_client, create_auth_client
+from infrastructure.database.workspace_context import clear_workspace
 
 
 def autenticacao_habilitada():
@@ -34,6 +35,9 @@ class AuthService:
     @staticmethod
     def limpar_sessao(session_state):
         session_state.clear()
+        # ContextVars sobrevivem ao rerun no mesmo worker do Streamlit.
+        clear_request_client()
+        clear_workspace()
 
     @staticmethod
     def _carregar_perfil(cliente, session_state):
@@ -54,6 +58,8 @@ class AuthService:
         if not str(email or "").strip() or not senha:
             raise ValueError("E-mail e senha são obrigatórios.")
 
+        clear_request_client()
+        clear_workspace()
         cliente = self.client_factory()
         resposta = cliente.auth.sign_in_with_password(
             {"email": email.strip(), "password": senha}
