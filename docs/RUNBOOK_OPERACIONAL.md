@@ -1,16 +1,18 @@
 # Runbook operacional do MediAd Planner
 
-Revisão: 27 de julho de 2026 (UTC).
+Revisão: 31 de julho de 2026 (UTC).
 
 ## Responsabilidades
 
 Antes do piloto, preencher:
 
-- responsável primário: pendente;
-- substituto: pendente;
-- canal de suporte: pendente;
-- janela do piloto: pendente;
-- retenção dos dados e backups: pendente.
+- responsável primário: Fernando Santos;
+- substituto: ainda não designado;
+- canal de suporte: GitHub Issues do repositório `fernandossantor/sdm`;
+- janela do piloto: 1 a 7 de agosto de 2026 (UTC);
+- retenção dos dados e backups: 90 dias após o encerramento do piloto.
+
+A ausência de substituto mantém a ativação do piloto bloqueada.
 
 ## Verificação de rotina
 
