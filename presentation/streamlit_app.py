@@ -186,7 +186,10 @@ def pagina_campanha() -> None:
             produto = st.text_input("Produto ou serviço (opcional)")
             st.text_input(
                 "Planejador responsável",
-                value=st.session_state.get("auth_email", ""),
+                value=(
+                    st.session_state.get("espaco_planejador_padrao_nome")
+                    or st.session_state.get("auth_email", "")
+                ),
                 disabled=True,
             )
             observacao = st.text_area("Observação inicial (opcional)")
@@ -194,6 +197,10 @@ def pagina_campanha() -> None:
     if criar:
         try:
             usuario_id = UUID(st.session_state["auth_user_id"])
+            planejador_id = UUID(
+                st.session_state.get("espaco_planejador_padrao_id")
+                or st.session_state["auth_user_id"]
+            )
             abrir, _ = casos_de_uso_campanha(st.session_state)
             saida = abrir.executar(
                 AbrirCampanhaEntrada(
@@ -204,9 +211,11 @@ def pagina_campanha() -> None:
                     nome_marca=marca.strip() or None,
                     produto_servico_id=uuid4() if produto.strip() else None,
                     nome_produto_servico=produto.strip() or None,
-                    planejador_responsavel_id=usuario_id,
+                    planejador_responsavel_id=planejador_id,
                     identificacao_planejador=(
-                        st.session_state.get("auth_email") or str(usuario_id)
+                        st.session_state.get("espaco_planejador_padrao_nome")
+                        or st.session_state.get("auth_email")
+                        or str(planejador_id)
                     ),
                     criado_por=usuario_id,
                     observacao_inicial=observacao.strip() or None,

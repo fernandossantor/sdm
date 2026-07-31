@@ -82,3 +82,45 @@ class TestWorkspaceContext(unittest.TestCase):
         resultado = WorkspaceService(repository).listar("usuario-1")
 
         self.assertEqual(resultado[0]["papel"], "COMPARTILHADO")
+
+    def test_admin_preserva_membresia_quando_participa_do_espaco(self):
+        repository = Mock()
+        repository.listar.return_value = [
+            {
+                "id": "espaco-a",
+                "nome": "A",
+                "proprietario_id": "usuario-2",
+            }
+        ]
+        repository.papeis_do_usuario.return_value = [
+            {"espaco_id": "espaco-a", "papel": "EDITOR"}
+        ]
+
+        resultado = WorkspaceService(repository).listar("usuario-1", administrador=True)
+
+        self.assertEqual(resultado[0]["papel"], "EDITOR")
+
+    def test_admin_em_espaco_alheio_usa_proprietario_como_planejador(self):
+        repository = Mock()
+        repository.listar.return_value = [
+            {
+                "id": "espaco-pessoal",
+                "nome": "Pessoal",
+                "proprietario_id": "usuario-proprietario",
+            }
+        ]
+        repository.papeis_do_usuario.return_value = []
+        service = WorkspaceService(repository)
+        espacos = service.listar("usuario-admin", administrador=True)
+        estado = {
+            "auth_user_id": "usuario-admin",
+            "auth_email": "admin@example.com",
+        }
+
+        service.selecionar("espaco-pessoal", espacos, estado)
+
+        self.assertEqual(espacos[0]["papel"], "ADMINISTRADOR")
+        self.assertEqual(estado["espaco_planejador_padrao_id"], "usuario-proprietario")
+        self.assertEqual(
+            estado["espaco_planejador_padrao_nome"], "Proprietário do espaço"
+        )
