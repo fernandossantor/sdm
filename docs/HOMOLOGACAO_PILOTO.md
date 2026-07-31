@@ -1,18 +1,18 @@
 # Homologação e piloto controlado
 
-Revisão: 27 de julho de 2026 (UTC).
+Revisão: 31 de julho de 2026 (UTC).
 
 ## Estado atual
 
-O gate automatizado conectado foi aprovado em 27 de julho de 2026:
+O gate automatizado conectado foi repetido e aprovado em 31 de julho de 2026, antes e depois da desativação das chaves legadas:
 
-- 157 testes offline;
+- 195 testes pytest aprovados e 3 integrações opcionais ignoradas;
 - regressão funcional;
-- health check inicial de 10 tabelas, ampliado depois para 20 estruturas
-  operacionais e multiusuário;
+- health check de 20 estruturas operacionais e multiusuário;
 - auditoria de bloqueio público;
-- 3 testes de integração;
-- 23 migrations locais e remotas sincronizadas.
+- 3 testes de integração autenticados;
+- 27 migrations locais e remotas sincronizadas;
+- chaves legadas `anon` e `service_role` desativadas.
 
 Executar novamente depois da rotação de segredos:
 
@@ -24,19 +24,27 @@ O arquivo de evidência fica fora do repositório e não deve conter segredos.
 
 ## Gates anteriores ao piloto
 
-- [ ] chave administrativa rotacionada;
+Parâmetros confirmados em 31 de julho de 2026:
+
+- participante inicial e responsável primário: Fernando Santos;
+- canal de suporte: GitHub Issues do repositório `fernandossantor/sdm`;
+- período: 1 a 7 de agosto de 2026 (UTC);
+- retenção: 90 dias após o encerramento;
+- substituto: ainda não designado; este item mantém o piloto bloqueado.
+
+- [x] chave administrativa rotacionada;
 - [ ] `.env` local atualizado sem versionamento;
-- [ ] segredos da hospedagem atualizados;
+- [x] segredos da hospedagem atualizados;
 - [ ] `PLANOS_ENV=production`;
 - [ ] `PLANOS_AUTH_ENABLED=true`;
-- [ ] gate conectado aprovado após a rotação;
-- [ ] backup completo posterior à rotação validado;
-- [ ] restauração desse backup ensaiada;
-- [ ] CI do commit candidato aprovado;
-- [ ] participantes e período do piloto registrados;
+- [x] gate conectado aprovado após a rotação e a desativação das chaves legadas;
+- [x] backup completo posterior à rotação validado;
+- [x] restauração desse backup ensaiada;
+- [x] CI do commit candidato aprovado;
+- [x] participantes e período do piloto registrados;
 - [ ] aviso de privacidade e limitações apresentado aos participantes;
 - [ ] responsável operacional e substituto definidos;
-- [ ] canal de suporte e registro de incidentes definido.
+- [x] canal de suporte e registro de incidentes definido.
 
 Qualquer item aberto impede o início do piloto.
 
