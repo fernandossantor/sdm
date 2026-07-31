@@ -42,7 +42,7 @@ Parâmetros confirmados em 31 de julho de 2026:
 - [x] restauração desse backup ensaiada;
 - [x] CI do commit candidato aprovado;
 - [x] participantes e período do piloto registrados;
-- [ ] aviso de privacidade e limitações apresentado aos participantes;
+- [ ] aviso de privacidade e limitações apresentado aos participantes ([modelo](AVISO_PILOTO.md));
 - [ ] responsável operacional e substituto definidos;
 - [x] canal de suporte e registro de incidentes definido.
 
