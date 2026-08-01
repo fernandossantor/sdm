@@ -15,6 +15,7 @@ from presentation.composition import (
     briefing_da_campanha,
     casos_de_uso_campanha,
 )
+from presentation.campaign_state import iniciar_nova_campanha
 from presentation.navigation import ETAPAS_FUTURAS, NAVEGACAO_INICIAL
 
 MARCA = Path(__file__).parents[1] / "assets" / "Marca.png"
@@ -106,7 +107,7 @@ def pagina_campanha() -> None:
     except Exception as exc:
         st.error(f"Não foi possível carregar as campanhas: {exc}")
         return
-    if campanhas:
+    if campanhas and not st.session_state.get("campanha_em_criacao"):
         ids = [str(item["id"]) for item in campanhas]
         atual = st.session_state.get("campanha_id")
         indice = ids.index(atual) if atual in ids else 0
@@ -138,18 +139,7 @@ def pagina_campanha() -> None:
         )
         st.write(st.session_state["campanha_nome"])
         if st.button("Nova campanha"):
-            for chave in (
-                "campanha_id",
-                "campanha_codigo",
-                "campanha_nome",
-                "campanha_anunciante",
-                "campanha_marca",
-                "campanha_produto",
-                "campanha_planejador",
-                "campanha_etapa",
-                "briefing_id",
-            ):
-                st.session_state.pop(chave, None)
+            iniciar_nova_campanha(st.session_state)
             st.rerun()
         if st.session_state.get("briefing_id"):
             st.page_link(
@@ -175,6 +165,11 @@ def pagina_campanha() -> None:
                 st.session_state["campanha_etapa"] = saida.campanha.etapa_atual.value
                 st.success("Briefing iniciado.")
         return
+    if st.session_state.get("campanha_em_criacao"):
+        st.info("Criando uma nova campanha. As campanhas existentes foram preservadas.")
+        if st.button("Cancelar nova campanha"):
+            st.session_state.pop("campanha_em_criacao", None)
+            st.rerun()
     st.subheader("Informações da abertura")
     with st.form("abertura_campanha"):
         esquerda, direita = st.columns(2)
@@ -238,6 +233,7 @@ def pagina_campanha() -> None:
                 saida.campanha.snapshot.identificacao_planejador
             )
             st.session_state["campanha_etapa"] = saida.campanha.etapa_atual.value
+            st.session_state.pop("campanha_em_criacao", None)
             st.rerun()
 
 
