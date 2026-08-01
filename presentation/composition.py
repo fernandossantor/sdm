@@ -12,7 +12,10 @@ from application.services.campanha_runtime import (
     RelogioSistema,
     ValidadorVinculosIniciais,
 )
-from application.use_cases import AbrirCampanha, CorrigirCampanha, IniciarBriefing
+from application.use_cases import (
+    AbrirCampanha, CorrigirCampanha, CriarNovaVersaoBriefing,
+    EditarBriefing, IniciarBriefing,
+)
 from infrastructure.database.data_client import (
     bind_authenticated_client,  # noqa: F401
     create_authenticated_client,
@@ -29,6 +32,9 @@ __all__ = (
     "caso_de_uso_correcao_campanha",
     "campanhas_do_espaco",
     "briefing_da_campanha",
+    "briefing_atual",
+    "versoes_briefing",
+    "casos_de_uso_briefing",
 )
 
 
@@ -45,6 +51,31 @@ def campanhas_do_espaco(estado):
 
 def briefing_da_campanha(estado, campanha_id):
     return _unidade_campanha(estado).obter_briefing_id(UUID(campanha_id))
+
+
+def briefing_atual(estado, briefing_id):
+    return _unidade_campanha(estado).obter_briefing(UUID(briefing_id))
+
+
+def versoes_briefing(estado, campanha_id):
+    return _unidade_campanha(estado).listar_versoes_briefing(UUID(campanha_id))
+
+
+def casos_de_uso_briefing(estado):
+    unidade = _unidade_campanha(estado)
+    usuario_id = UUID(estado["auth_user_id"])
+    autorizador = AutorizadorCampanhaPorEspaco(
+        usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
+    )
+    relogio = RelogioSistema()
+    return (
+        EditarBriefing(
+            relogio=relogio, autorizador=autorizador, repositorio=unidade
+        ),
+        CriarNovaVersaoBriefing(
+            relogio=relogio, autorizador=autorizador, repositorio=unidade
+        ),
+    )
 
 
 def casos_de_uso_campanha(estado):

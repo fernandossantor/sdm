@@ -6,7 +6,7 @@ from uuid import UUID
 
 from application.dto import CorrigirCampanhaEntrada
 
-from domain.briefing import BriefingInicial
+from domain.briefing import BriefingInicial, ConteudoBriefing
 from domain.campanha import (
     Campanha,
     EtapaCampanha,
@@ -176,6 +176,63 @@ class UnidadeTrabalhoCampanhaSupabase:
             .execute()
         )
         return resposta.data[0]["id"] if resposta.data else None
+
+    def obter_briefing(self, briefing_id: UUID) -> BriefingInicial | None:
+        resposta = (
+            self.cliente.table("briefings_mediad")
+            .select("*")
+            .eq("id", str(briefing_id))
+            .eq("espaco_id", str(self.espaco_id))
+            .limit(1)
+            .execute()
+        )
+        if not resposta.data:
+            return None
+        registro = resposta.data[0]
+        return BriefingInicial(
+            id=registro["id"],
+            campanha_id=registro["campanha_id"],
+            versao=registro["versao"],
+            estado=registro["estado"],
+            criado_por=registro["criado_por"],
+            criado_em=registro["criado_em"],
+            conteudo=ConteudoBriefing.model_validate(registro.get("conteudo") or {}),
+            atualizado_por=registro.get("atualizado_por"),
+            atualizado_em=registro.get("atualizado_em"),
+            motivo_ultima_alteracao=registro.get("motivo_ultima_alteracao"),
+        )
+
+    def listar_versoes_briefing(self, campanha_id: UUID) -> list[dict[str, Any]]:
+        resposta = (
+            self.cliente.table("briefings_mediad")
+            .select("id,versao,estado,criado_por,criado_em,atualizado_por,atualizado_em,motivo_ultima_alteracao")
+            .eq("campanha_id", str(campanha_id))
+            .eq("espaco_id", str(self.espaco_id))
+            .order("versao", desc=True)
+            .execute()
+        )
+        return list(resposta.data or [])
+
+    def salvar_edicao(self, anterior, atualizado, motivo) -> None:
+        self.cliente.rpc("editar_briefing_mediad", {
+            "p_briefing_id": str(anterior.id),
+            "p_espaco_id": str(self.espaco_id),
+            "p_conteudo": atualizado.conteudo.model_dump(mode="json"),
+            "p_motivo": motivo,
+            "p_usuario_id": str(atualizado.atualizado_por),
+            "p_instante": atualizado.atualizado_em.isoformat(),
+        }).execute()
+
+    def salvar_nova_versao(self, anterior, nova, motivo) -> None:
+        self.cliente.rpc("versionar_briefing_mediad", {
+            "p_briefing_origem_id": str(anterior.id),
+            "p_novo_briefing_id": str(nova.id),
+            "p_espaco_id": str(self.espaco_id),
+            "p_conteudo": nova.conteudo.model_dump(mode="json"),
+            "p_motivo": motivo,
+            "p_usuario_id": str(nova.criado_por),
+            "p_instante": nova.criado_em.isoformat(),
+        }).execute()
 
     def iniciar_briefing(self, campanha: Campanha, briefing: BriefingInicial) -> None:
         if campanha.id != briefing.campanha_id:

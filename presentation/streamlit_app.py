@@ -8,8 +8,11 @@ import streamlit as st
 from application.dto import (
     AbrirCampanhaEntrada,
     CorrigirCampanhaEntrada,
+    CriarVersaoBriefingEntrada,
+    EditarBriefingEntrada,
     IniciarBriefingEntrada,
 )
+from domain.briefing import ConteudoBriefing, EstadoBriefing
 from components import auth_gate, workspace_gate
 from presentation.composition import (
     AuthService,
@@ -18,7 +21,10 @@ from presentation.composition import (
     campanhas_do_espaco,
     caso_de_uso_correcao_campanha,
     briefing_da_campanha,
+    briefing_atual,
+    casos_de_uso_briefing,
     casos_de_uso_campanha,
+    versoes_briefing,
 )
 from presentation.campaign_state import iniciar_nova_campanha
 from presentation.navigation import ETAPAS_FUTURAS, NAVEGACAO_INICIAL
@@ -446,21 +452,156 @@ def pagina_briefing() -> None:
         f"Briefing {st.session_state['briefing_id']} vinculado à campanha "
         f"{st.session_state['campanha_codigo']}."
     )
-    st.page_link(
-        PAGINAS[3],
-        label="Continuar para Tradução estratégica",
-        icon=":material/arrow_forward:",
+    try:
+        briefing = briefing_atual(st.session_state, st.session_state["briefing_id"])
+        historico = versoes_briefing(
+            st.session_state, st.session_state["campanha_id"]
+        )
+    except Exception as exc:
+        st.error(f"Não foi possível carregar o conteúdo do briefing: {exc}")
+        return
+    if briefing is None:
+        st.error("O briefing selecionado não foi encontrado.")
+        return
+    st.caption(
+        f"Versão {briefing.versao} · {briefing.estado.value.replace('_', ' ').title()}"
     )
-    secoes = (
-        ("1", "Contexto e situação"),
-        ("2", "Objetivos e resultados"),
-        ("3", "Públicos e praças"),
-        ("4", "Período, verba e restrições"),
-        ("5", "Prioridades e informações disponíveis"),
-    )
-    for numero, titulo in secoes:
-        with st.expander(f"{numero}. {titulo}"):
-            st.caption("Seção prevista no fluxo progressivo do briefing.")
+    pode_editar = briefing.estado in {
+        EstadoBriefing.RASCUNHO, EstadoBriefing.EM_PREENCHIMENTO
+    }
+    acao_editar, acao_criar = st.columns(2)
+    with acao_editar:
+        if st.button("Editar briefing", disabled=not pode_editar):
+            st.session_state["briefing_em_edicao"] = True
+    with acao_criar:
+        if st.button("Criar nova versão"):
+            st.session_state["briefing_em_edicao"] = True
+            st.session_state["briefing_nova_versao"] = True
+    if not pode_editar:
+        st.info(
+            "Esta versão não admite sobrescrita. Use Criar nova versão para "
+            "preservar o histórico."
+        )
+    if historico:
+        with st.expander("Histórico de versões"):
+            st.dataframe(historico, hide_index=True, use_container_width=True)
+    conteudo = briefing.conteudo
+    with st.expander("Resumo do conteúdo salvo", expanded=False):
+        st.json(conteudo.model_dump(mode="json"), expanded=False)
+    if st.session_state.get("briefing_em_edicao"):
+        with st.form("conteudo_briefing"):
+            abas = st.tabs([
+                "Situação", "Objetivos", "Praça e públicos",
+                "Jornada", "Período e verba", "Restrições e pretensões",
+            ])
+            with abas[0]:
+                situacao = st.text_area(
+                    "Situação mercadológica e competitiva",
+                    value=conteudo.situacao_mercadologica.get("descricao", ""),
+                )
+            with abas[1]:
+                marketing = st.multiselect(
+                    "Objetivos de marketing declarados",
+                    ["Branding", "Posicionamento", "Segmentação", "Diferenciação",
+                     "Crescimento", "Participação de mercado", "Fidelização",
+                     "Penetração", "Desenvolvimento de produto", "Diversificação"],
+                    default=[i.get("categoria") for i in conteudo.objetivos_marketing],
+                )
+                comunicacao = st.multiselect(
+                    "Objetivos de comunicação declarados",
+                    ["notoriedade", "conhecimento", "lembrança", "compreensão",
+                     "imagem", "diferenciação percebida", "persuasão", "preferência",
+                     "consideração", "engajamento", "experimentação", "ação",
+                     "relacionamento", "fidelização", "recomendação"],
+                    default=[i.get("categoria") for i in conteudo.objetivos_comunicacao],
+                )
+            with abas[2]:
+                pracas = st.text_input(
+                    "Praças (separadas por ponto e vírgula)",
+                    value="; ".join(i.get("nome", "") for i in conteudo.pracas),
+                )
+                universos = st.text_input(
+                    "Universos de referência (separados por ponto e vírgula)",
+                    value="; ".join(i.get("nome", "") for i in conteudo.universos),
+                )
+                publicos = st.text_input(
+                    "Públicos declarados (separados por ponto e vírgula)",
+                    value="; ".join(i.get("nome", "") for i in conteudo.publicos),
+                )
+            with abas[3]:
+                jornada = st.text_area(
+                    "Jornadas e etapas declaradas",
+                    value="\n".join(i.get("descricao", "") for i in conteudo.jornadas),
+                )
+            with abas[4]:
+                inicio = st.text_input(
+                    "Data inicial pretendida", value=conteudo.periodo.get("inicio", "")
+                )
+                fim = st.text_input(
+                    "Data final pretendida", value=conteudo.periodo.get("fim", "")
+                )
+                valor = st.number_input(
+                    "Verba total", min_value=0.0,
+                    value=float(conteudo.verba.get("valor_total") or 0),
+                )
+                natureza = st.selectbox(
+                    "Natureza do limite", ["rígido", "flexível", "estimado",
+                    "ainda não definido"],
+                    index=["rígido", "flexível", "estimado", "ainda não definido"].index(
+                        conteudo.verba.get("natureza", "ainda não definido")
+                    ),
+                )
+            with abas[5]:
+                restricoes = st.text_area(
+                    "Restrições declaradas (uma por linha)",
+                    value="\n".join(i.get("descricao", "") for i in conteudo.restricoes),
+                )
+                pretensoes = st.text_area(
+                    "Pretensões declaradas (uma por linha)",
+                    value="\n".join(i.get("categoria", "") for i in conteudo.pretensoes),
+                )
+            motivo = st.text_input("Motivo da alteração")
+            salvar = st.form_submit_button(
+                "Criar versão" if st.session_state.get("briefing_nova_versao")
+                else "Salvar edição", type="primary"
+            )
+        if salvar:
+            def itens(texto):
+                return tuple(item.strip() for item in texto.split(";") if item.strip())
+            novo = ConteudoBriefing(
+                situacao_mercadologica={"descricao": situacao.strip()},
+                objetivos_marketing=tuple({"categoria": i} for i in marketing),
+                objetivos_comunicacao=tuple({"categoria": i} for i in comunicacao),
+                pracas=tuple({"nome": i} for i in itens(pracas)),
+                universos=tuple({"nome": i} for i in itens(universos)),
+                publicos=tuple({"nome": i} for i in itens(publicos)),
+                jornadas=tuple({"descricao": i.strip()} for i in jornada.splitlines() if i.strip()),
+                periodo={"inicio": inicio.strip(), "fim": fim.strip()},
+                verba={"valor_total": valor, "moeda": "BRL", "natureza": natureza},
+                restricoes=tuple({"descricao": i.strip()} for i in restricoes.splitlines() if i.strip()),
+                pretensoes=tuple({"categoria": i.strip()} for i in pretensoes.splitlines() if i.strip()),
+            )
+            try:
+                editar, versionar = casos_de_uso_briefing(st.session_state)
+                usuario_id = UUID(st.session_state["auth_user_id"])
+                if st.session_state.get("briefing_nova_versao"):
+                    salvo = versionar.executar(CriarVersaoBriefingEntrada(
+                        briefing_id_origem=briefing.id, usuario_id=usuario_id,
+                        conteudo=novo, motivo=motivo,
+                    ))
+                    st.session_state["briefing_id"] = str(salvo.id)
+                else:
+                    editar.executar(EditarBriefingEntrada(
+                        briefing_id=briefing.id, usuario_id=usuario_id,
+                        conteudo=novo, motivo=motivo,
+                    ))
+            except Exception as exc:
+                st.error(f"Não foi possível salvar o briefing: {exc}")
+            else:
+                st.session_state.pop("briefing_em_edicao", None)
+                st.session_state.pop("briefing_nova_versao", None)
+                st.success("Briefing salvo com rastreabilidade.")
+                st.rerun()
 
 
 def pagina_traducao():

@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 
 from application.dto import CorrigirCampanhaEntrada
-from domain.briefing import BriefingInicial
+from domain.briefing import BriefingInicial, ConteudoBriefing, EstadoBriefing
 from domain.campanha import (
     Campanha,
     EtapaCampanha,
@@ -162,6 +162,43 @@ def test_inicio_do_briefing_e_uma_unica_operacao_transacional():
     assert parametros["p_briefing_id"] == str(briefing.id)
 
 
+def test_edicao_e_versionamento_do_briefing_usam_rpcs_rastreaveis():
+    cliente = ClienteFake()
+    repositorio = UnidadeTrabalhoCampanhaSupabase(
+        cliente=cliente, espaco_id=uuid4()
+    )
+    anterior = BriefingInicial(
+        id=uuid4(), campanha_id=uuid4(), criado_por=uuid4(),
+        criado_em=datetime(2026, 8, 1, 20, tzinfo=timezone.utc),
+    )
+    conteudo = ConteudoBriefing(
+        objetivos_marketing=({"categoria": "Crescimento"},)
+    )
+    atualizado = anterior.model_copy(update={
+        "conteudo": conteudo,
+        "estado": EstadoBriefing.EM_PREENCHIMENTO,
+        "atualizado_por": anterior.criado_por,
+        "atualizado_em": anterior.criado_em,
+    })
+    repositorio.salvar_edicao(anterior, atualizado, "Complemento")
+    nome, parametros = cliente.chamadas_rpc[-1]
+    assert nome == "editar_briefing_mediad"
+    assert parametros["p_motivo"] == "Complemento"
+    assert parametros["p_conteudo"]["objetivos_marketing"][0]["categoria"] == (
+        "Crescimento"
+    )
+
+    nova = anterior.model_copy(update={
+        "id": uuid4(), "versao": 2, "conteudo": conteudo,
+        "criado_por": anterior.criado_por, "criado_em": anterior.criado_em,
+    })
+    repositorio.salvar_nova_versao(anterior, nova, "Mudança relevante")
+    nome, parametros = cliente.chamadas_rpc[-1]
+    assert nome == "versionar_briefing_mediad"
+    assert parametros["p_briefing_origem_id"] == str(anterior.id)
+    assert parametros["p_novo_briefing_id"] == str(nova.id)
+
+
 def test_rejeita_transicao_incoerente_antes_de_chamar_banco():
     cliente = ClienteFake()
     repositorio = UnidadeTrabalhoCampanhaSupabase(cliente=cliente, espaco_id=uuid4())
@@ -239,3 +276,20 @@ def test_migracao_de_correcao_preserva_snapshot_e_registra_revisao():
         "create function public.atualizar_campanha_mediad", 1
     )[1].split("end;", 1)[0]
     assert "drop table if exists public.campanhas_mediad_revisoes" in rollback
+
+
+def test_migracao_do_briefing_preserva_versoes_e_auditoria():
+    migracao = Path(
+        "supabase/migrations/20260801210000_briefing_estruturado_versionado.sql"
+    ).read_text()
+    rollback = Path(
+        "supabase/rollbacks/"
+        "20260801210000_briefing_estruturado_versionado.down.sql"
+    ).read_text()
+
+    assert "conteudo jsonb not null" in migracao
+    assert "briefings_mediad_revisoes" in migracao
+    assert "to_jsonb(v_antes)" in migracao
+    assert "estado='SUBSTITUIDO'" in migracao
+    assert "versionar_briefing_mediad" in migracao
+    assert "drop table if exists public.briefings_mediad_revisoes" in rollback
