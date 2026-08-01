@@ -23,6 +23,8 @@ O aplicativo legado está arquivado: não o restaure à navegação, não o use 
 
 Implemente o próximo incremento verificável do fluxo novo, com domínio independente de Streamlit e Supabase, testes proporcionais ao risco e documentação do estado real. Não marque funcionalidades futuras como concluídas e não invente regras ausentes dos documentos normativos.
 
+Em todas as telas que gerenciem entidades ou registros, mantenha ações visíveis de Criar e Editar. Respeite permissões, estados, snapshots e versionamento; quando a edição não for permitida, explique o motivo e ofereça nova versão quando for a operação normativa correta.
+
 Nunca exponha secrets, tokens, chaves ou senhas. Não faça force push nem reescreva o histórico. Preserve os itens do usuário que estejam fora do escopo.
 ```
 
