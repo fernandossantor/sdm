@@ -12,7 +12,7 @@ from application.dto import (
     EditarBriefingEntrada,
     IniciarBriefingEntrada,
 )
-from domain.briefing import ConteudoBriefing, EstadoBriefing
+from domain.briefing import ConteudoBriefing, EstadoBriefing, avaliar_briefing
 from components import auth_gate, workspace_gate
 from components.page_config import PAGE_ICON
 from presentation.composition import (
@@ -503,6 +503,21 @@ def pagina_briefing() -> None:
         with st.expander("Histórico de versões"):
             st.dataframe(historico, hide_index=True, use_container_width=True)
     conteudo = briefing.conteudo
+    avaliacao = avaliar_briefing(conteudo)
+    st.subheader("Avaliação do Briefing")
+    st.progress(avaliacao.percentual_completude / 100)
+    st.caption(f"{avaliacao.percentual_completude}% dos critérios mínimos atendidos")
+    if avaliacao.pendencias:
+        with st.expander(
+            f"Pendências para revisão ({len(avaliacao.pendencias)})",
+            expanded=True,
+        ):
+            for pendencia in avaliacao.pendencias:
+                st.warning(pendencia)
+    else:
+        st.success("Briefing apto para ser enviado à revisão.")
+    for alerta in avaliacao.alertas:
+        st.info(alerta)
     with st.expander("Resumo do conteúdo salvo", expanded=False):
         st.json(conteudo.model_dump(mode="json"), expanded=False)
     if st.session_state.get("briefing_em_edicao"):
@@ -532,6 +547,13 @@ def pagina_briefing() -> None:
                      "relacionamento", "fidelização", "recomendação"],
                     default=[i.get("categoria") for i in conteudo.objetivos_comunicacao],
                 )
+                relacao_objetivos = st.text_area(
+                    "Relação entre objetivos de marketing e comunicação",
+                    value="\n".join(
+                        i.get("descricao", "")
+                        for i in conteudo.relacoes_objetivos
+                    ),
+                )
             with abas[2]:
                 pracas = st.text_input(
                     "Praças (separadas por ponto e vírgula)",
@@ -541,11 +563,28 @@ def pagina_briefing() -> None:
                     "Universos de referência (separados por ponto e vírgula)",
                     value="; ".join(i.get("nome", "") for i in conteudo.universos),
                 )
+                criterios_segmentacao = st.multiselect(
+                    "Critérios de segmentação",
+                    ["geográfica", "demográfica", "socioeconômica",
+                     "psicográfica", "comportamental", "consumo",
+                     "relacionamento com a categoria",
+                     "relacionamento com a marca", "jornada", "intenção",
+                     "contexto"],
+                    default=list(conteudo.criterios_segmentacao),
+                )
+                segmentos = st.text_input(
+                    "Segmentos (separados por ponto e vírgula)",
+                    value="; ".join(i.get("nome", "") for i in conteudo.segmentos),
+                )
                 publicos = st.text_input(
                     "Públicos declarados (separados por ponto e vírgula)",
                     value="; ".join(i.get("nome", "") for i in conteudo.publicos),
                 )
             with abas[3]:
+                jornada_aplicavel = st.checkbox(
+                    "A jornada é aplicável a esta campanha",
+                    value=conteudo.jornada_aplicavel is not False,
+                )
                 jornada = st.text_area(
                     "Jornadas e etapas declaradas",
                     value="\n".join(i.get("descricao", "") for i in conteudo.jornadas),
@@ -569,6 +608,12 @@ def pagina_briefing() -> None:
                     ),
                 )
             with abas[5]:
+                prioridades = st.text_area(
+                    "Prioridades declaradas (uma por linha)",
+                    value="\n".join(
+                        i.get("descricao", "") for i in conteudo.prioridades
+                    ),
+                )
                 restricoes = st.text_area(
                     "Restrições declaradas (uma por linha)",
                     value="\n".join(i.get("descricao", "") for i in conteudo.restricoes),
@@ -576,6 +621,17 @@ def pagina_briefing() -> None:
                 pretensoes = st.text_area(
                     "Pretensões declaradas (uma por linha)",
                     value="\n".join(i.get("categoria", "") for i in conteudo.pretensoes),
+                )
+                sem_restricoes = st.checkbox(
+                    "Declaro que não há restrições conhecidas",
+                    value=conteudo.sem_restricoes_declaradas,
+                    disabled=bool(restricoes.strip()),
+                )
+                fontes = st.text_area(
+                    "Fontes e períodos de referência (uma por linha)",
+                    value="\n".join(
+                        i.get("descricao", "") for i in conteudo.fontes
+                    ),
                 )
             motivo = st.text_input("Motivo da alteração")
             salvar = st.form_submit_button(
@@ -589,14 +645,30 @@ def pagina_briefing() -> None:
                 situacao_mercadologica={"descricao": situacao.strip()},
                 objetivos_marketing=tuple({"categoria": i} for i in marketing),
                 objetivos_comunicacao=tuple({"categoria": i} for i in comunicacao),
+                relacoes_objetivos=tuple(
+                    {"descricao": i.strip()}
+                    for i in relacao_objetivos.splitlines() if i.strip()
+                ),
                 pracas=tuple({"nome": i} for i in itens(pracas)),
                 universos=tuple({"nome": i} for i in itens(universos)),
+                criterios_segmentacao=tuple(criterios_segmentacao),
+                segmentos=tuple({"nome": i} for i in itens(segmentos)),
                 publicos=tuple({"nome": i} for i in itens(publicos)),
                 jornadas=tuple({"descricao": i.strip()} for i in jornada.splitlines() if i.strip()),
+                jornada_aplicavel=jornada_aplicavel,
                 periodo={"inicio": inicio.strip(), "fim": fim.strip()},
                 verba={"valor_total": valor, "moeda": "BRL", "natureza": natureza},
+                prioridades=tuple(
+                    {"descricao": i.strip()}
+                    for i in prioridades.splitlines() if i.strip()
+                ),
                 restricoes=tuple({"descricao": i.strip()} for i in restricoes.splitlines() if i.strip()),
+                sem_restricoes_declaradas=sem_restricoes,
                 pretensoes=tuple({"categoria": i.strip()} for i in pretensoes.splitlines() if i.strip()),
+                fontes=tuple(
+                    {"descricao": i.strip()}
+                    for i in fontes.splitlines() if i.strip()
+                ),
             )
             try:
                 editar, versionar = casos_de_uso_briefing(st.session_state)

@@ -1,3 +1,9 @@
-from .models import BriefingInicial, ConteudoBriefing, EstadoBriefing
+from .models import (
+    AvaliacaoBriefing, BriefingInicial, ConteudoBriefing, EstadoBriefing,
+    avaliar_briefing,
+)
 
-__all__ = ["BriefingInicial", "ConteudoBriefing", "EstadoBriefing"]
+__all__ = [
+    "AvaliacaoBriefing", "BriefingInicial", "ConteudoBriefing",
+    "EstadoBriefing", "avaliar_briefing",
+]

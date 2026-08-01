@@ -5,7 +5,9 @@ import pytest
 
 from application.dto import CriarVersaoBriefingEntrada, EditarBriefingEntrada
 from application.use_cases import CriarNovaVersaoBriefing, EditarBriefing
-from domain.briefing import BriefingInicial, ConteudoBriefing, EstadoBriefing
+from domain.briefing import (
+    BriefingInicial, ConteudoBriefing, EstadoBriefing, avaliar_briefing,
+)
 
 
 class Dependencias:
@@ -110,7 +112,9 @@ def test_edicao_exige_permissao_motivo_e_estado_editavel():
             briefing_id=item.id, usuario_id=item.criado_por,
             conteudo=conteudo(), motivo="Alteração",
         ))
-    deps.registros[item.id] = item.model_copy(update={"estado": EstadoBriefing.RASCUNHO})
+    deps.registros[item.id] = item.model_copy(
+        update={"estado": EstadoBriefing.RASCUNHO}
+    )
     with pytest.raises(ValueError, match="motivo"):
         caso.executar(EditarBriefingEntrada(
             briefing_id=item.id, usuario_id=item.criado_por,
@@ -122,3 +126,36 @@ def test_edicao_exige_permissao_motivo_e_estado_editavel():
             briefing_id=item.id, usuario_id=item.criado_por,
             conteudo=conteudo(), motivo="Alteração",
         ))
+
+
+def test_avaliacao_expoe_pendencias_sem_alterar_conteudo():
+    vazio = ConteudoBriefing()
+    avaliacao = avaliar_briefing(vazio)
+    assert avaliacao.apto_para_revisao is False
+    assert avaliacao.percentual_completude == 0
+    assert "Selecione ao menos um objetivo de marketing." in avaliacao.pendencias
+    assert vazio == ConteudoBriefing()
+
+
+def test_avaliacao_aprova_conteudo_minimo_e_preserva_alerta_de_verba():
+    completo = ConteudoBriefing(
+        situacao_mercadologica={"descricao": "Mercado em crescimento"},
+        objetivos_marketing=({"categoria": "Crescimento"},),
+        objetivos_comunicacao=({"categoria": "conhecimento"},),
+        relacoes_objetivos=({"descricao": "Conhecimento apoia crescimento"},),
+        pracas=({"nome": "Brasil"},),
+        universos=({"nome": "Adultos"},),
+        criterios_segmentacao=("demográfica",),
+        segmentos=({"nome": "Adultos compradores"},),
+        publicos=({"nome": "Compradores prioritários"},),
+        jornada_aplicavel=False,
+        periodo={"inicio": "2026-09-01", "fim": "2026-10-31"},
+        verba={"natureza": "ainda não definido", "valor_total": 0},
+        prioridades=({"descricao": "Público prioritário"},),
+        sem_restricoes_declaradas=True,
+        pretensoes=({"categoria": "ampliar presença"},),
+    )
+    avaliacao = avaliar_briefing(completo)
+    assert avaliacao.apto_para_revisao is True
+    assert avaliacao.percentual_completude == 100
+    assert avaliacao.alertas == ("A verba ainda não está definida.",)
