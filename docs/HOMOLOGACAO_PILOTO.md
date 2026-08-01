@@ -30,7 +30,8 @@ Parâmetros confirmados em 31 de julho de 2026:
 - canal de suporte: GitHub Issues do repositório `fernandossantor/sdm`;
 - período: 1 a 7 de agosto de 2026 (UTC);
 - retenção: 90 dias após o encerramento;
-- substituto: ainda não designado; este item mantém o piloto bloqueado.
+- continuidade individual: conta alternativa privada do próprio responsável;
+- substituto independente: não aplicável; a indisponibilidade do responsável suspende o piloto.
 
 - [x] chave administrativa rotacionada;
 - [ ] `.env` local atualizado sem versionamento;
@@ -43,7 +44,7 @@ Parâmetros confirmados em 31 de julho de 2026:
 - [x] CI do commit candidato aprovado;
 - [x] participantes e período do piloto registrados;
 - [x] aviso de privacidade e limitações apresentado e aceito pelo participante ([modelo](AVISO_PILOTO.md));
-- [ ] responsável operacional e substituto definidos;
+- [x] continuidade operacional individual formalizada; indisponibilidade do responsável suspende o piloto;
 - [x] canal de suporte e registro de incidentes definido.
 
 Qualquer item aberto impede o início do piloto.

@@ -7,12 +7,13 @@ Revisão: 31 de julho de 2026 (UTC).
 Antes do piloto, preencher:
 
 - responsável primário: Fernando Santor;
-- substituto: ainda não designado;
+- continuidade individual: conta alternativa privada do próprio responsável;
+- substituto independente: não aplicável ao piloto individual;
 - canal de suporte: GitHub Issues do repositório `fernandossantor/sdm`;
 - janela do piloto: 1 a 7 de agosto de 2026 (UTC);
 - retenção dos dados e backups: 90 dias após o encerramento do piloto.
 
-A ausência de substituto mantém a ativação do piloto bloqueada.
+Na indisponibilidade do responsável, o piloto deve ser suspenso; a conta alternativa serve somente à recuperação de acesso e não transfere responsabilidade.
 
 ## Verificação de rotina
 
