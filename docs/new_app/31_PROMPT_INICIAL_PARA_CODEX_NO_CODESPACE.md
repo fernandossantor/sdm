@@ -2,13 +2,34 @@
 
 **Documento:** `31_PROMPT_INICIAL_PARA_CODEX_NO_CODESPACE.md`  
 **Plano Mestre:** MediAd Planner  
-**Status:** Pronto para uso  
+**Status:** Execução inicial concluída; preservado como registro histórico
 **Natureza:** Instrução operacional de implementação  
-**Última revisão:** 29/07/2026
+**Última revisão:** 01/08/2026
 
 ---
 
-Copie e cole no Codex executado no terminal do Codespace:
+## Uso atual
+
+A execução inicial descrita abaixo foi concluída. Não repita inventário, preservação ou fundação. O legado está arquivado conforme `docs/implementation/05_DECISAO_ARQUIVAMENTO_LEGADO.md`; o novo aplicativo deve evoluir exclusivamente a partir de `docs/new_app`.
+
+Para retomar, use:
+
+```text
+Você está trabalhando no repositório `fernandossantor/sdm`, na branch `main`, dentro do Codespace configurado.
+
+Desenvolva exclusivamente o novo MediAd Planner. Leia `docs/new_app/30_AUDITORIA_FINAL_DE_CONSISTENCIA_DOCUMENTAL.md` e aplique sua precedência sobre todo o corpo de `docs/new_app`. Consulte `docs/implementation/05_DECISAO_ARQUIVAMENTO_LEGADO.md` para a decisão sobre o legado.
+
+O aplicativo legado está arquivado: não o restaure à navegação, não o use como contrato funcional e não exija paridade com ele. Preserve a tag `legacy-pre-mediad-planner-v1` e o histórico Git. Qualquer remoção física de código, tabela ou dado exige etapa controlada, backup e autorização específica.
+
+Implemente o próximo incremento verificável do fluxo novo, com domínio independente de Streamlit e Supabase, testes proporcionais ao risco e documentação do estado real. Não marque funcionalidades futuras como concluídas e não invente regras ausentes dos documentos normativos.
+
+Nunca exponha secrets, tokens, chaves ou senhas. Não faça force push nem reescreva o histórico. Preserve os itens do usuário que estejam fora do escopo.
+```
+
+## Prompt original preservado
+
+O texto abaixo permanece para auditoria da primeira execução e não deve ser reutilizado:
+
 
 ```text
 Você está trabalhando no repositório GitHub `fernandossantor/sdm`, na branch `main`, dentro de um GitHub Codespace já configurado.

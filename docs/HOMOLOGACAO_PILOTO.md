@@ -49,25 +49,38 @@ Parâmetros confirmados em 31 de julho de 2026:
 
 Qualquer item aberto impede o início do piloto.
 
-## Roteiro funcional
+## Escopo do piloto do novo app
 
-Cada piloto executará em espaço próprio ou compartilhado explicitamente:
+O aplicativo legado está arquivado e não integra o escopo funcional. A fonte normativa é `docs/new_app`, conforme a decisão registrada em `docs/implementation/05_DECISAO_ARQUIVAMENTO_LEGADO.md`.
 
-1. entrar e trocar a senha temporária;
-2. criar ou selecionar projeto;
-3. preencher briefing ampliado;
-4. selecionar papéis dos meios;
-5. gerar e salvar plano;
-6. revisar estratégia, premissas, custos, alcance e frequência;
-7. conferir cronogramas e reconciliação;
-8. gerar forecast e diagnóstico;
-9. registrar realizado apenas com fonte e período;
-10. comparar versões;
-11. testar atribuição com dados não identificáveis;
-12. documentar qualidade e localização quando aplicável;
-13. exportar o relatório completo;
-14. confirmar que outro usuário não acessa o projeto sem compartilhamento;
-15. compartilhar como leitor e editor e testar revogação.
+A homologação é incremental e acompanha capacidades efetivamente implementadas. A ausência de uma funcionalidade prevista para etapa futura não deve ser mascarada como aprovação nem tratada como regressão do legado.
+
+## Roteiro funcional da etapa atual
+
+1. entrar com autenticação habilitada;
+2. selecionar um espaço autorizado;
+3. criar uma Campanha com o planejador responsável válido para o espaço;
+4. confirmar que Nova campanha não retoma silenciosamente um registro anterior;
+5. confirmar persistência, código e snapshot administrativo da Campanha;
+6. iniciar o Briefing v1 de forma atômica;
+7. confirmar herança do contexto da Campanha no Briefing;
+8. confirmar que etapas futuras aparecem somente com o grau de disponibilidade real;
+9. validar que usuário sem vínculo não acessa dados do espaço;
+10. registrar falhas, ressalvas e evidências no issue do piloto.
+
+## Gates funcionais posteriores
+
+Serão abertos progressivamente, conforme `docs/new_app`:
+
+1. Briefing estruturado completo;
+2. Motor de Tradução Estratégica;
+3. Motor de Decisão de Arquitetura e Cenários;
+4. Motor de Simulação Técnica e Econômica;
+5. comparação, otimização e escolha de cenário;
+6. plano consolidado, cronograma, mapa e exportações;
+7. acompanhamento, compartilhamento e demais controles previstos.
+
+Cada gate posterior exigirá implementação, testes e homologação próprios.
 
 ## Aceite
 
