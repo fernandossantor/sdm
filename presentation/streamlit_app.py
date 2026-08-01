@@ -14,6 +14,7 @@ from application.dto import (
 )
 from domain.briefing import ConteudoBriefing, EstadoBriefing
 from components import auth_gate, workspace_gate
+from components.page_config import PAGE_ICON
 from presentation.composition import (
     AuthService,
     autenticacao_habilitada,
@@ -29,7 +30,7 @@ from presentation.composition import (
 from presentation.campaign_state import iniciar_nova_campanha
 from presentation.navigation import ETAPAS_FUTURAS, NAVEGACAO_INICIAL
 
-MARCA = Path(__file__).parents[1] / "assets" / "Marca.png"
+MARCA = Path(__file__).parents[1] / "assets" / "Marca_nova.png"
 
 
 def _aplicar_estilo() -> None:
@@ -70,6 +71,8 @@ def _cabecalho(sobretitulo: str, titulo: str, descricao: str) -> None:
 
 
 def pagina_inicio() -> None:
+    if MARCA.exists():
+        st.image(MARCA, width=220)
     _cabecalho(
         "MediAd Planner",
         "Planejamento de mídia com decisões explicáveis",
@@ -293,7 +296,8 @@ def pagina_campanha() -> None:
             else:
                 st.session_state["briefing_id"] = str(saida.briefing.id)
                 st.session_state["campanha_etapa"] = saida.campanha.etapa_atual.value
-                st.success("Briefing iniciado.")
+                st.session_state["briefing_recém_criado"] = True
+                st.rerun()
         return
     if st.session_state.get("campanha_em_criacao"):
         st.info("Criando uma nova campanha. As campanhas existentes foram preservadas.")
@@ -466,17 +470,30 @@ def pagina_briefing() -> None:
     st.caption(
         f"Versão {briefing.versao} · {briefing.estado.value.replace('_', ' ').title()}"
     )
+    if st.session_state.pop("briefing_recém_criado", False):
+        st.success("Briefing criado. Inicie agora o primeiro preenchimento.")
     pode_editar = briefing.estado in {
         EstadoBriefing.RASCUNHO, EstadoBriefing.EM_PREENCHIMENTO
     }
+    briefing_vazio = briefing.conteudo == ConteudoBriefing()
     acao_editar, acao_criar = st.columns(2)
     with acao_editar:
-        if st.button("Editar briefing", disabled=not pode_editar):
+        rotulo_edicao = (
+            "Preencher briefing"
+            if briefing.estado is EstadoBriefing.RASCUNHO and briefing_vazio
+            else "Editar briefing"
+        )
+        if st.button(rotulo_edicao, disabled=not pode_editar, type="primary"):
             st.session_state["briefing_em_edicao"] = True
     with acao_criar:
-        if st.button("Criar nova versão"):
+        if st.button("Criar nova versão", disabled=briefing_vazio):
             st.session_state["briefing_em_edicao"] = True
             st.session_state["briefing_nova_versao"] = True
+    if briefing_vazio:
+        st.info(
+            "Este Briefing ainda não foi preenchido. Use Preencher briefing "
+            "para registrar sua primeira versão de conteúdo."
+        )
     if not pode_editar:
         st.info(
             "Esta versão não admite sobrescrita. Use Criar nova versão para "
@@ -647,7 +664,7 @@ def _contexto_operacional_pronto() -> bool:
 def executar() -> None:
     st.set_page_config(
         page_title="MediAd Planner",
-        page_icon="📐",
+        page_icon=PAGE_ICON,
         layout="wide",
         initial_sidebar_state="expanded",
     )

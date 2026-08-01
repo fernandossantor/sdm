@@ -1,8 +1,12 @@
 """Portão de autenticação opcional para a implantação Streamlit."""
 
 import streamlit as st
+from pathlib import Path
 
 from application.services.auth_service import AuthService
+
+
+MARCA = Path(__file__).parents[1] / "assets" / "Marca_nova.png"
 
 
 def render():
@@ -31,19 +35,23 @@ def render():
                     st.rerun()
         return False
 
-    st.title("Entrar no MediAd Planner")
-    st.caption("O cadastro é controlado pela administração.")
-    with st.form("login_planos", clear_on_submit=False):
-        st.text_input("E-mail", key="login_email", autocomplete="email")
-        st.text_input(
-            "Senha",
-            type="password",
-            key="login_senha",
-            autocomplete="current-password",
-        )
-        enviar = st.form_submit_button(
-            "Entrar", type="primary", use_container_width=True
-        )
+    margem_esquerda, conteudo, margem_direita = st.columns([1, 1.25, 1])
+    with conteudo:
+        if MARCA.exists():
+            st.image(MARCA, use_container_width=True)
+        st.title("Entrar no MediAd Planner")
+        st.caption("O cadastro é controlado pela administração.")
+        with st.form("login_planos", clear_on_submit=False):
+            st.text_input("E-mail", key="login_email", autocomplete="email")
+            st.text_input(
+                "Senha",
+                type="password",
+                key="login_senha",
+                autocomplete="current-password",
+            )
+            enviar = st.form_submit_button(
+                "Entrar", type="primary", use_container_width=True
+            )
 
     if enviar:
         st.info("Validando acesso…")

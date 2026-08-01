@@ -2,7 +2,7 @@ import streamlit as st
 from pathlib import Path
 
 
-LOGO_MEDIAD_PLANNER = Path(__file__).parents[2] / "assets" / "Marca.png"
+LOGO_MEDIAD_PLANNER = Path(__file__).parents[2] / "assets" / "Marca_nova.png"
 
 
 def render():

@@ -35,6 +35,24 @@ def test_streamlit_inicializa_sem_erro():
     )
 
 
+def test_identidade_visual_usa_novos_ativos():
+    interface = Path("presentation/streamlit_app.py").read_text()
+    login = Path("components/auth_gate.py").read_text()
+    assert Path("assets/favicon.png").is_file()
+    assert Path("assets/Marca_nova.png").is_file()
+    assert "page_icon=PAGE_ICON" in interface
+    assert 'assets" / "Marca_nova.png"' in interface
+    assert 'assets" / "Marca_nova.png"' in login
+
+
+def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
+    interface = Path("presentation/streamlit_app.py").read_text()
+    assert '"Preencher briefing"' in interface
+    assert '"Editar briefing"' in interface
+    assert "briefing_vazio" in interface
+    assert 'label="Continuar para o briefing"' in interface
+
+
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():
     estado = {
         "campanha_id": "campanha-existente",
