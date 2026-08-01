@@ -9,7 +9,7 @@ planejamento de mídia, cálculos, relatórios, compartilhamento e recuperação
 operacional do MediAd Planner.
 
 - período: 1 a 7 de agosto de 2026 (UTC);
-- responsável primário: Fernando Santos;
+- responsável primário: Fernando Santor;
 - canal de suporte e incidentes: GitHub Issues do repositório
   `fernandossantor/sdm`;
 - disponibilidade: ambiente de homologação sem SLA empresarial.

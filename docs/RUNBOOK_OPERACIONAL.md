@@ -6,7 +6,7 @@ Revisão: 31 de julho de 2026 (UTC).
 
 Antes do piloto, preencher:
 
-- responsável primário: Fernando Santos;
+- responsável primário: Fernando Santor;
 - substituto: ainda não designado;
 - canal de suporte: GitHub Issues do repositório `fernandossantor/sdm`;
 - janela do piloto: 1 a 7 de agosto de 2026 (UTC);

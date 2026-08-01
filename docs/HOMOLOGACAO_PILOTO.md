@@ -26,7 +26,7 @@ O arquivo de evidência fica fora do repositório e não deve conter segredos.
 
 Parâmetros confirmados em 31 de julho de 2026:
 
-- participante inicial e responsável primário: Fernando Santos;
+- participante inicial e responsável primário: Fernando Santor;
 - canal de suporte: GitHub Issues do repositório `fernandossantor/sdm`;
 - período: 1 a 7 de agosto de 2026 (UTC);
 - retenção: 90 dias após o encerramento;
@@ -35,14 +35,14 @@ Parâmetros confirmados em 31 de julho de 2026:
 - [x] chave administrativa rotacionada;
 - [ ] `.env` local atualizado sem versionamento;
 - [x] segredos da hospedagem atualizados;
-- [ ] `PLANOS_ENV=production`;
-- [ ] `PLANOS_AUTH_ENABLED=true`;
+- [x] `PLANOS_ENV=production`;
+- [x] `PLANOS_AUTH_ENABLED=true`;
 - [x] gate conectado aprovado após a rotação e a desativação das chaves legadas;
 - [x] backup completo posterior à rotação validado;
 - [x] restauração desse backup ensaiada;
 - [x] CI do commit candidato aprovado;
 - [x] participantes e período do piloto registrados;
-- [ ] aviso de privacidade e limitações apresentado aos participantes ([modelo](AVISO_PILOTO.md));
+- [x] aviso de privacidade e limitações apresentado e aceito pelo participante ([modelo](AVISO_PILOTO.md));
 - [ ] responsável operacional e substituto definidos;
 - [x] canal de suporte e registro de incidentes definido.
 
