@@ -58,8 +58,12 @@ class AvaliacaoBriefing(BaseModel):
 def avaliar_briefing(conteudo: ConteudoBriefing) -> AvaliacaoBriefing:
     """Avalia suficiência mínima sem alterar declarações do usuário."""
 
+    situacao_informada = any(
+        valor not in (None, "", "não informado")
+        for valor in conteudo.situacao_mercadologica.values()
+    )
     criterios = (
-        (bool(conteudo.situacao_mercadologica.get("descricao", "").strip()),
+        (situacao_informada,
          "Registre a situação mercadológica e competitiva."),
         (bool(conteudo.objetivos_marketing),
          "Selecione ao menos um objetivo de marketing."),

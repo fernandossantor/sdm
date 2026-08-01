@@ -23,16 +23,25 @@ class EditarBriefing:
             raise PermissionError("usuário não autorizado a editar briefing")
         if anterior.estado not in {EstadoBriefing.RASCUNHO, EstadoBriefing.EM_PREENCHIMENTO}:
             raise ValueError("este estado exige a criação de uma nova versão")
-        if not entrada.motivo.strip():
+        preenchimento_inicial = (
+            anterior.estado is EstadoBriefing.RASCUNHO
+            and anterior.conteudo == type(anterior.conteudo)()
+        )
+        if not preenchimento_inicial and not entrada.motivo.strip():
             raise ValueError("motivo da alteração é obrigatório")
+        motivo = (
+            "Preenchimento inicial"
+            if preenchimento_inicial
+            else entrada.motivo.strip()
+        )
         atualizado = anterior.model_copy(update={
             "conteudo": entrada.conteudo,
             "estado": EstadoBriefing.EM_PREENCHIMENTO,
             "atualizado_por": entrada.usuario_id,
             "atualizado_em": self.relogio.agora(),
-            "motivo_ultima_alteracao": entrada.motivo.strip(),
+            "motivo_ultima_alteracao": motivo,
         })
-        self.repositorio.salvar_edicao(anterior, atualizado, entrada.motivo.strip())
+        self.repositorio.salvar_edicao(anterior, atualizado, motivo)
         return atualizado
 
 
@@ -107,8 +116,10 @@ class ConcluirBriefing:
             raise LookupError("briefing não encontrado")
         if not self.autorizador.pode_editar(entrada.usuario_id, briefing.campanha_id):
             raise PermissionError("usuário não autorizado a concluir briefing")
-        if briefing.estado is not EstadoBriefing.EM_REVISAO:
-            raise ValueError("somente briefing em revisão pode ser concluído")
+        if briefing.estado not in {
+            EstadoBriefing.EM_PREENCHIMENTO, EstadoBriefing.EM_REVISAO
+        }:
+            raise ValueError("briefing não está apto à conclusão")
         if not entrada.motivo.strip():
             raise ValueError("motivo da conclusão é obrigatório")
         avaliacao = avaliar_briefing(briefing.conteudo)

@@ -505,42 +505,23 @@ def pagina_briefing() -> None:
             st.dataframe(historico, hide_index=True, use_container_width=True)
     conteudo = briefing.conteudo
     avaliacao = avaliar_briefing(conteudo)
-    st.subheader("Avaliação do Briefing")
+    st.subheader("Completude do preenchimento")
     st.progress(avaliacao.percentual_completude / 100)
     st.caption(f"{avaliacao.percentual_completude}% dos critérios mínimos atendidos")
     if avaliacao.pendencias:
         with st.expander(
-            f"Pendências para revisão ({len(avaliacao.pendencias)})",
+            f"Informações ainda necessárias ({len(avaliacao.pendencias)})",
             expanded=True,
         ):
             for pendencia in avaliacao.pendencias:
                 st.warning(pendencia)
     else:
-        st.success("Briefing apto para ser enviado à revisão.")
+        st.success("Briefing apto para conclusão.")
     for alerta in avaliacao.alertas:
         st.info(alerta)
-    if briefing.estado is EstadoBriefing.EM_PREENCHIMENTO:
-        with st.form("enviar_briefing_revisao"):
-            motivo_revisao = st.text_input("Motivo do envio à revisão")
-            enviar_revisao = st.form_submit_button(
-                "Enviar para revisão",
-                type="primary",
-                disabled=not avaliacao.apto_para_revisao,
-            )
-        if enviar_revisao:
-            try:
-                _, _, revisar, _ = casos_de_uso_briefing(st.session_state)
-                revisar.executar(TransicionarBriefingEntrada(
-                    briefing_id=briefing.id,
-                    usuario_id=UUID(st.session_state["auth_user_id"]),
-                    motivo=motivo_revisao,
-                ))
-            except Exception as exc:
-                st.error(f"Não foi possível enviar à revisão: {exc}")
-            else:
-                st.success("Briefing enviado para revisão.")
-                st.rerun()
-    elif briefing.estado is EstadoBriefing.EM_REVISAO:
+    if briefing.estado in {
+        EstadoBriefing.EM_PREENCHIMENTO, EstadoBriefing.EM_REVISAO
+    }:
         with st.form("concluir_briefing"):
             reconhecidos = ()
             if avaliacao.alertas:
@@ -549,11 +530,18 @@ def pagina_briefing() -> None:
                 )
                 if reconhecer:
                     reconhecidos = avaliacao.alertas
-            motivo_conclusao = st.text_input("Motivo da conclusão")
+            st.caption(
+                "A conclusão preserva esta versão e libera a Tradução "
+                "Estratégica. Correções posteriores criarão nova versão."
+            )
+            motivo_conclusao = "Conclusão do preenchimento"
             concluir = st.form_submit_button(
                 "Concluir briefing",
                 type="primary",
-                disabled=bool(avaliacao.alertas) and not reconhecidos,
+                disabled=(
+                    not avaliacao.apto_para_revisao
+                    or (bool(avaliacao.alertas) and not reconhecidos)
+                ),
             )
         if concluir:
             try:
@@ -588,9 +576,39 @@ def pagina_briefing() -> None:
                 "Jornada", "Período e verba", "Restrições e pretensões",
             ])
             with abas[0]:
-                situacao = st.text_area(
-                    "Situação mercadológica e competitiva",
-                    value=conteudo.situacao_mercadologica.get("descricao", ""),
+                tendencia_mercado = st.selectbox(
+                    "Tendência do mercado",
+                    ["não informado", "crescimento", "estabilidade", "retração"],
+                    index=["não informado", "crescimento", "estabilidade", "retração"].index(
+                        conteudo.situacao_mercadologica.get(
+                            "tendencia_mercado", "não informado"
+                        )
+                    ),
+                )
+                ciclo_vida = st.selectbox(
+                    "Ciclo de vida da oferta",
+                    ["não informado", "introdução", "crescimento",
+                     "maturidade", "declínio"],
+                    index=["não informado", "introdução", "crescimento",
+                           "maturidade", "declínio"].index(
+                        conteudo.situacao_mercadologica.get(
+                            "ciclo_vida", "não informado"
+                        )
+                    ),
+                )
+                intensidade_competitiva = st.selectbox(
+                    "Intensidade competitiva",
+                    ["não informado", "baixa", "média", "alta", "muito alta"],
+                    index=["não informado", "baixa", "média", "alta",
+                           "muito alta"].index(
+                        conteudo.situacao_mercadologica.get(
+                            "intensidade_competitiva", "não informado"
+                        )
+                    ),
+                )
+                observacao_situacao = st.text_area(
+                    "Observação complementar (opcional)",
+                    value=conteudo.situacao_mercadologica.get("observacao", ""),
                 )
             with abas[1]:
                 marketing = st.multiselect(
@@ -608,11 +626,20 @@ def pagina_briefing() -> None:
                      "relacionamento", "fidelização", "recomendação"],
                     default=[i.get("categoria") for i in conteudo.objetivos_comunicacao],
                 )
-                relacao_objetivos = st.text_area(
+                opcoes_relacao = [
+                    "compatíveis", "complementares", "insuficientes",
+                    "possivelmente contraditórios", "relação ainda não definida",
+                ]
+                relacao_atual = (
+                    conteudo.relacoes_objetivos[0].get("classificacao")
+                    if conteudo.relacoes_objetivos else "relação ainda não definida"
+                )
+                relacao_objetivos = st.selectbox(
                     "Relação entre objetivos de marketing e comunicação",
-                    value="\n".join(
-                        i.get("descricao", "")
-                        for i in conteudo.relacoes_objetivos
+                    opcoes_relacao,
+                    index=opcoes_relacao.index(
+                        relacao_atual if relacao_atual in opcoes_relacao
+                        else "relação ainda não definida"
                     ),
                 )
             with abas[2]:
@@ -646,9 +673,18 @@ def pagina_briefing() -> None:
                     "A jornada é aplicável a esta campanha",
                     value=conteudo.jornada_aplicavel is not False,
                 )
-                jornada = st.text_area(
-                    "Jornadas e etapas declaradas",
-                    value="\n".join(i.get("descricao", "") for i in conteudo.jornadas),
+                opcoes_jornada = [
+                    "descoberta", "conhecimento", "consideração", "avaliação",
+                    "decisão", "compra", "experiência", "recompra",
+                    "fidelização", "recomendação",
+                ]
+                jornada = st.multiselect(
+                    "Etapas da jornada declaradas",
+                    opcoes_jornada,
+                    default=[
+                        i.get("etapa") for i in conteudo.jornadas
+                        if i.get("etapa") in opcoes_jornada
+                    ],
                 )
             with abas[4]:
                 inicio = st.text_input(
@@ -669,24 +705,63 @@ def pagina_briefing() -> None:
                     ),
                 )
             with abas[5]:
-                prioridades = st.text_area(
-                    "Prioridades declaradas (uma por linha)",
-                    value="\n".join(
-                        i.get("descricao", "") for i in conteudo.prioridades
+                prioridades = st.multiselect(
+                    "Entidades prioritárias",
+                    ["objetivos de marketing", "objetivos de comunicação",
+                     "praças", "segmentos", "públicos", "jornada",
+                     "período", "pretensões", "restrições"],
+                    default=[
+                        i.get("entidade") for i in conteudo.prioridades
+                        if i.get("entidade")
+                    ],
+                )
+                nivel_prioridade = st.select_slider(
+                    "Nível de prioridade",
+                    ["muito baixa", "baixa", "média", "alta", "muito alta"],
+                    value=(
+                        conteudo.prioridades[0].get("nivel", "média")
+                        if conteudo.prioridades else "média"
                     ),
                 )
-                restricoes = st.text_area(
-                    "Restrições declaradas (uma por linha)",
-                    value="\n".join(i.get("descricao", "") for i in conteudo.restricoes),
-                )
-                pretensoes = st.text_area(
-                    "Pretensões declaradas (uma por linha)",
-                    value="\n".join(i.get("categoria", "") for i in conteudo.pretensoes),
+                categorias_restricao = [
+                    "geográfica", "populacional", "público", "segmento",
+                    "período", "orçamentária", "legal", "ética",
+                    "institucional", "mercadológica", "competitiva",
+                    "operacional", "disponibilidade", "mensuração",
+                ]
+                restricoes = st.multiselect(
+                    "Categorias de restrição",
+                    categorias_restricao,
+                    default=[
+                        i.get("categoria") for i in conteudo.restricoes
+                        if i.get("categoria") in categorias_restricao
+                    ],
                 )
                 sem_restricoes = st.checkbox(
                     "Declaro que não há restrições conhecidas",
                     value=conteudo.sem_restricoes_declaradas,
-                    disabled=bool(restricoes.strip()),
+                    disabled=bool(restricoes),
+                )
+                opcoes_pretensao = [
+                    "ampliar presença", "alcançar novos públicos",
+                    "reforçar presença entre públicos atuais",
+                    "aumentar conhecimento", "melhorar lembrança",
+                    "apoiar lançamento", "apoiar vendas",
+                    "estimular experimentação", "gerar tráfego",
+                    "ampliar presença territorial",
+                    "concentrar esforços em públicos prioritários",
+                    "acompanhar etapas específicas da jornada",
+                    "responder à pressão competitiva", "recuperar presença",
+                    "manter liderança", "sustentar presença",
+                    "gerar rápida visibilidade",
+                ]
+                pretensoes = st.multiselect(
+                    "Pretensões declaradas",
+                    opcoes_pretensao,
+                    default=[
+                        i.get("categoria") for i in conteudo.pretensoes
+                        if i.get("categoria") in opcoes_pretensao
+                    ],
                 )
                 fontes = st.text_area(
                     "Fontes e períodos de referência (uma por linha)",
@@ -694,7 +769,14 @@ def pagina_briefing() -> None:
                         i.get("descricao", "") for i in conteudo.fontes
                     ),
                 )
-            motivo = st.text_input("Motivo da alteração")
+            preenchimento_inicial = (
+                briefing.estado is EstadoBriefing.RASCUNHO
+                and briefing_vazio
+                and not st.session_state.get("briefing_nova_versao")
+            )
+            motivo = ""
+            if not preenchimento_inicial:
+                motivo = st.text_input("Motivo da alteração")
             salvar = st.form_submit_button(
                 "Criar versão" if st.session_state.get("briefing_nova_versao")
                 else "Salvar edição", type="primary"
@@ -703,29 +785,33 @@ def pagina_briefing() -> None:
             def itens(texto):
                 return tuple(item.strip() for item in texto.split(";") if item.strip())
             novo = ConteudoBriefing(
-                situacao_mercadologica={"descricao": situacao.strip()},
+                situacao_mercadologica={
+                    "tendencia_mercado": tendencia_mercado,
+                    "ciclo_vida": ciclo_vida,
+                    "intensidade_competitiva": intensidade_competitiva,
+                    "observacao": observacao_situacao.strip(),
+                },
                 objetivos_marketing=tuple({"categoria": i} for i in marketing),
                 objetivos_comunicacao=tuple({"categoria": i} for i in comunicacao),
-                relacoes_objetivos=tuple(
-                    {"descricao": i.strip()}
-                    for i in relacao_objetivos.splitlines() if i.strip()
-                ),
+                relacoes_objetivos=(
+                    {"classificacao": relacao_objetivos},
+                ) if relacao_objetivos != "relação ainda não definida" else (),
                 pracas=tuple({"nome": i} for i in itens(pracas)),
                 universos=tuple({"nome": i} for i in itens(universos)),
                 criterios_segmentacao=tuple(criterios_segmentacao),
                 segmentos=tuple({"nome": i} for i in itens(segmentos)),
                 publicos=tuple({"nome": i} for i in itens(publicos)),
-                jornadas=tuple({"descricao": i.strip()} for i in jornada.splitlines() if i.strip()),
+                jornadas=tuple({"etapa": i} for i in jornada),
                 jornada_aplicavel=jornada_aplicavel,
                 periodo={"inicio": inicio.strip(), "fim": fim.strip()},
                 verba={"valor_total": valor, "moeda": "BRL", "natureza": natureza},
                 prioridades=tuple(
-                    {"descricao": i.strip()}
-                    for i in prioridades.splitlines() if i.strip()
+                    {"entidade": i, "nivel": nivel_prioridade}
+                    for i in prioridades
                 ),
-                restricoes=tuple({"descricao": i.strip()} for i in restricoes.splitlines() if i.strip()),
+                restricoes=tuple({"categoria": i} for i in restricoes),
                 sem_restricoes_declaradas=sem_restricoes,
-                pretensoes=tuple({"categoria": i.strip()} for i in pretensoes.splitlines() if i.strip()),
+                pretensoes=tuple({"categoria": i} for i in pretensoes),
                 fontes=tuple(
                     {"descricao": i.strip()}
                     for i in fontes.splitlines() if i.strip()

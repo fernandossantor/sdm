@@ -318,3 +318,14 @@ def test_migracao_de_conclusao_avanca_campanha_atomicamente():
     assert "etapa_atual='TRADUCAO_ESTRATEGICA'" in migracao
     assert "to_jsonb(v_antes)" in migracao
     assert "drop function if exists public.transicionar_briefing_mediad" in rollback
+
+
+def test_migracao_simplifica_para_conclusao_direta():
+    migracao = Path(
+        "supabase/migrations/20260802001000_conclusao_direta_briefing.sql"
+    ).read_text()
+    assert (
+        "v_antes.estado='EM_PREENCHIMENTO' "
+        "and p_estado_destino='CONCLUIDO'"
+    ) in migracao
+    assert "etapa_atual='TRADUCAO_ESTRATEGICA'" in migracao

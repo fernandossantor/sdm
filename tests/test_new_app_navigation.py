@@ -51,6 +51,9 @@ def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
     assert '"Editar briefing"' in interface
     assert "briefing_vazio" in interface
     assert 'label="Continuar para o briefing"' in interface
+    assert '"Completude do preenchimento"' in interface
+    assert '"Enviar para revisão"' not in interface
+    assert '"Concluir briefing"' in interface
 
 
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():

@@ -73,7 +73,7 @@ def conteudo():
     )
 
 
-def test_edita_rascunho_com_autoria_motivo_e_valores_anteriores():
+def test_primeiro_preenchimento_registra_motivo_automatico():
     deps = Dependencias()
     anterior = briefing()
     deps.registros[anterior.id] = anterior
@@ -81,14 +81,14 @@ def test_edita_rascunho_com_autoria_motivo_e_valores_anteriores():
         relogio=deps, autorizador=deps, repositorio=deps
     ).executar(EditarBriefingEntrada(
         briefing_id=anterior.id, usuario_id=anterior.criado_por,
-        conteudo=conteudo(), motivo="Complemento das informações recebidas",
+        conteudo=conteudo(), motivo="",
     ))
     assert atualizado.id == anterior.id
     assert atualizado.versao == 1
     assert atualizado.estado is EstadoBriefing.EM_PREENCHIMENTO
     assert atualizado.atualizado_por == anterior.criado_por
     assert deps.edicao[0].conteudo != deps.edicao[1].conteudo
-    assert deps.edicao[2] == "Complemento das informações recebidas"
+    assert deps.edicao[2] == "Preenchimento inicial"
 
 
 def test_nova_versao_preserva_anterior_e_incrementa_numero():
@@ -126,7 +126,10 @@ def test_edicao_exige_permissao_motivo_e_estado_editavel():
             conteudo=conteudo(), motivo="Alteração",
         ))
     deps.registros[item.id] = item.model_copy(
-        update={"estado": EstadoBriefing.RASCUNHO}
+        update={
+            "estado": EstadoBriefing.EM_PREENCHIMENTO,
+            "conteudo": conteudo(),
+        }
     )
     with pytest.raises(ValueError, match="motivo"):
         caso.executar(EditarBriefingEntrada(
@@ -174,11 +177,11 @@ def test_avaliacao_aprova_conteudo_minimo_e_preserva_alerta_de_verba():
     assert avaliacao.alertas == ("A verba ainda não está definida.",)
 
 
-def test_revisao_e_conclusao_exigem_suficiencia_e_reconhecimento():
+def test_conclusao_direta_exige_suficiencia_e_reconhecimento():
     deps = Dependencias()
     incompleto = briefing(EstadoBriefing.EM_PREENCHIMENTO)
     deps.registros[incompleto.id] = incompleto
-    revisar = EnviarBriefingRevisao(
+    concluir = ConcluirBriefing(
         relogio=deps, autorizador=deps, repositorio=deps
     )
     entrada = TransicionarBriefingEntrada(
@@ -186,7 +189,7 @@ def test_revisao_e_conclusao_exigem_suficiencia_e_reconhecimento():
         motivo="Conteúdo conferido",
     )
     with pytest.raises(ValueError, match="pendências"):
-        revisar.executar(entrada)
+        concluir.executar(entrada)
 
     conteudo_completo = ConteudoBriefing(
         situacao_mercadologica={"descricao": "Mercado em crescimento"},
@@ -205,18 +208,13 @@ def test_revisao_e_conclusao_exigem_suficiencia_e_reconhecimento():
     deps.registros[incompleto.id] = incompleto.model_copy(
         update={"conteudo": conteudo_completo}
     )
-    em_revisao = revisar.executar(entrada)
-    assert em_revisao.estado is EstadoBriefing.EM_REVISAO
-    concluir = ConcluirBriefing(
-        relogio=deps, autorizador=deps, repositorio=deps
-    )
     with pytest.raises(ValueError, match="alertas"):
         concluir.executar(TransicionarBriefingEntrada(
-            briefing_id=em_revisao.id, usuario_id=em_revisao.criado_por,
+            briefing_id=incompleto.id, usuario_id=incompleto.criado_por,
             motivo="Aprovação final",
         ))
     concluido = concluir.executar(TransicionarBriefingEntrada(
-        briefing_id=em_revisao.id, usuario_id=em_revisao.criado_por,
+        briefing_id=incompleto.id, usuario_id=incompleto.criado_por,
         motivo="Aprovação final",
         alertas_reconhecidos=("A verba ainda não está definida.",),
     ))
