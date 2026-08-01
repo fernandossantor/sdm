@@ -13,8 +13,9 @@ from application.services.campanha_runtime import (
     ValidadorVinculosIniciais,
 )
 from application.use_cases import (
-    AbrirCampanha, CorrigirCampanha, CriarNovaVersaoBriefing,
-    EditarBriefing, IniciarBriefing,
+    AbrirCampanha, ConcluirBriefing, CorrigirCampanha,
+    CriarNovaVersaoBriefing, EditarBriefing, EnviarBriefingRevisao,
+    IniciarBriefing,
 )
 from infrastructure.database.data_client import (
     bind_authenticated_client,  # noqa: F401
@@ -73,6 +74,12 @@ def casos_de_uso_briefing(estado):
             relogio=relogio, autorizador=autorizador, repositorio=unidade
         ),
         CriarNovaVersaoBriefing(
+            relogio=relogio, autorizador=autorizador, repositorio=unidade
+        ),
+        EnviarBriefingRevisao(
+            relogio=relogio, autorizador=autorizador, repositorio=unidade
+        ),
+        ConcluirBriefing(
             relogio=relogio, autorizador=autorizador, repositorio=unidade
         ),
     )

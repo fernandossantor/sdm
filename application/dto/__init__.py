@@ -5,7 +5,10 @@ from .campanha import (
     InicioBriefingSaida,
     IniciarBriefingEntrada,
 )
-from .briefing import CriarVersaoBriefingEntrada, EditarBriefingEntrada
+from .briefing import (
+    CriarVersaoBriefingEntrada, EditarBriefingEntrada,
+    TransicionarBriefingEntrada,
+)
 
 __all__ = [
     "AberturaCampanhaSaida",
@@ -15,4 +18,5 @@ __all__ = [
     "IniciarBriefingEntrada",
     "EditarBriefingEntrada",
     "CriarVersaoBriefingEntrada",
+    "TransicionarBriefingEntrada",
 ]

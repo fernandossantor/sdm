@@ -20,3 +20,11 @@ class CriarVersaoBriefingEntrada:
     usuario_id: UUID
     conteudo: ConteudoBriefing
     motivo: str
+
+
+@dataclass(frozen=True)
+class TransicionarBriefingEntrada:
+    briefing_id: UUID
+    usuario_id: UUID
+    motivo: str
+    alertas_reconhecidos: tuple[str, ...] = ()

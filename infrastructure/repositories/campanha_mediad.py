@@ -234,6 +234,19 @@ class UnidadeTrabalhoCampanhaSupabase:
             "p_instante": nova.criado_em.isoformat(),
         }).execute()
 
+    def transicionar_estado(
+        self, anterior, atualizado, motivo, alertas_reconhecidos
+    ) -> None:
+        self.cliente.rpc("transicionar_briefing_mediad", {
+            "p_briefing_id": str(anterior.id),
+            "p_espaco_id": str(self.espaco_id),
+            "p_estado_destino": atualizado.estado.value,
+            "p_motivo": motivo,
+            "p_alertas_reconhecidos": list(alertas_reconhecidos),
+            "p_usuario_id": str(atualizado.atualizado_por),
+            "p_instante": atualizado.atualizado_em.isoformat(),
+        }).execute()
+
     def iniciar_briefing(self, campanha: Campanha, briefing: BriefingInicial) -> None:
         if campanha.id != briefing.campanha_id:
             raise ValueError("briefing pertence a outra campanha")

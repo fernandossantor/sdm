@@ -11,6 +11,7 @@ from application.dto import (
     CriarVersaoBriefingEntrada,
     EditarBriefingEntrada,
     IniciarBriefingEntrada,
+    TransicionarBriefingEntrada,
 )
 from domain.briefing import ConteudoBriefing, EstadoBriefing, avaliar_briefing
 from components import auth_gate, workspace_gate
@@ -518,6 +519,66 @@ def pagina_briefing() -> None:
         st.success("Briefing apto para ser enviado à revisão.")
     for alerta in avaliacao.alertas:
         st.info(alerta)
+    if briefing.estado is EstadoBriefing.EM_PREENCHIMENTO:
+        with st.form("enviar_briefing_revisao"):
+            motivo_revisao = st.text_input("Motivo do envio à revisão")
+            enviar_revisao = st.form_submit_button(
+                "Enviar para revisão",
+                type="primary",
+                disabled=not avaliacao.apto_para_revisao,
+            )
+        if enviar_revisao:
+            try:
+                _, _, revisar, _ = casos_de_uso_briefing(st.session_state)
+                revisar.executar(TransicionarBriefingEntrada(
+                    briefing_id=briefing.id,
+                    usuario_id=UUID(st.session_state["auth_user_id"]),
+                    motivo=motivo_revisao,
+                ))
+            except Exception as exc:
+                st.error(f"Não foi possível enviar à revisão: {exc}")
+            else:
+                st.success("Briefing enviado para revisão.")
+                st.rerun()
+    elif briefing.estado is EstadoBriefing.EM_REVISAO:
+        with st.form("concluir_briefing"):
+            reconhecidos = ()
+            if avaliacao.alertas:
+                reconhecer = st.checkbox(
+                    "Li e reconheço todos os alertas apresentados"
+                )
+                if reconhecer:
+                    reconhecidos = avaliacao.alertas
+            motivo_conclusao = st.text_input("Motivo da conclusão")
+            concluir = st.form_submit_button(
+                "Concluir briefing",
+                type="primary",
+                disabled=bool(avaliacao.alertas) and not reconhecidos,
+            )
+        if concluir:
+            try:
+                _, _, _, concluir_caso = casos_de_uso_briefing(
+                    st.session_state
+                )
+                concluir_caso.executar(TransicionarBriefingEntrada(
+                    briefing_id=briefing.id,
+                    usuario_id=UUID(st.session_state["auth_user_id"]),
+                    motivo=motivo_conclusao,
+                    alertas_reconhecidos=reconhecidos,
+                ))
+            except Exception as exc:
+                st.error(f"Não foi possível concluir o briefing: {exc}")
+            else:
+                st.session_state["campanha_etapa"] = "TRADUCAO_ESTRATEGICA"
+                st.success("Briefing concluído. Tradução Estratégica liberada.")
+                st.rerun()
+    elif briefing.estado is EstadoBriefing.CONCLUIDO:
+        st.success("Briefing concluído e preservado.")
+        st.page_link(
+            PAGINAS[3],
+            label="Continuar para Tradução estratégica",
+            icon=":material/arrow_forward:",
+        )
     with st.expander("Resumo do conteúdo salvo", expanded=False):
         st.json(conteudo.model_dump(mode="json"), expanded=False)
     if st.session_state.get("briefing_em_edicao"):
@@ -671,7 +732,9 @@ def pagina_briefing() -> None:
                 ),
             )
             try:
-                editar, versionar = casos_de_uso_briefing(st.session_state)
+                editar, versionar, _, _ = casos_de_uso_briefing(
+                    st.session_state
+                )
                 usuario_id = UUID(st.session_state["auth_user_id"])
                 if st.session_state.get("briefing_nova_versao"):
                     salvo = versionar.executar(CriarVersaoBriefingEntrada(

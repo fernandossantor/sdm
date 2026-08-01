@@ -198,6 +198,17 @@ def test_edicao_e_versionamento_do_briefing_usam_rpcs_rastreaveis():
     assert parametros["p_briefing_origem_id"] == str(anterior.id)
     assert parametros["p_novo_briefing_id"] == str(nova.id)
 
+    em_revisao = atualizado.model_copy(
+        update={"estado": EstadoBriefing.EM_REVISAO}
+    )
+    repositorio.transicionar_estado(
+        atualizado, em_revisao, "Conteúdo conferido", ()
+    )
+    nome, parametros = cliente.chamadas_rpc[-1]
+    assert nome == "transicionar_briefing_mediad"
+    assert parametros["p_estado_destino"] == "EM_REVISAO"
+    assert parametros["p_motivo"] == "Conteúdo conferido"
+
 
 def test_rejeita_transicao_incoerente_antes_de_chamar_banco():
     cliente = ClienteFake()
@@ -293,3 +304,17 @@ def test_migracao_do_briefing_preserva_versoes_e_auditoria():
     assert "estado='SUBSTITUIDO'" in migracao
     assert "versionar_briefing_mediad" in migracao
     assert "drop table if exists public.briefings_mediad_revisoes" in rollback
+
+
+def test_migracao_de_conclusao_avanca_campanha_atomicamente():
+    migracao = Path(
+        "supabase/migrations/20260801233000_fluxo_revisao_briefing.sql"
+    ).read_text()
+    rollback = Path(
+        "supabase/rollbacks/20260801233000_fluxo_revisao_briefing.down.sql"
+    ).read_text()
+    assert "transicionar_briefing_mediad" in migracao
+    assert "alertas_reconhecidos" in migracao
+    assert "etapa_atual='TRADUCAO_ESTRATEGICA'" in migracao
+    assert "to_jsonb(v_antes)" in migracao
+    assert "drop function if exists public.transicionar_briefing_mediad" in rollback
