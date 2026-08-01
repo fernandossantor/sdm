@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 
+from application.dto import CorrigirCampanhaEntrada
 from domain.briefing import BriefingInicial
 from domain.campanha import (
     Campanha,
@@ -196,3 +197,45 @@ def test_migracao_e_nova_reversivel_e_protegida_por_rls():
     assert "public.projetos" not in migracao
     assert "public.briefings_v3" not in migracao
     assert "drop table if exists public.campanhas_mediad" in rollback
+
+def test_correcao_usa_rpc_com_motivo_autor_e_valores_atuais():
+    cliente = ClienteFake()
+    espaco_id = uuid4()
+    campanha = campanha_aberta()
+    entrada = CorrigirCampanhaEntrada(
+        campanha_id=campanha.id,
+        nome="Nome corrigido",
+        anunciante_id=campanha.anunciante_id,
+        nome_anunciante="Anunciante atual",
+        planejador_responsavel_id=campanha.planejador_responsavel_id,
+        identificacao_planejador="Fernando Santor",
+        alterado_por=campanha.criado_por,
+        motivo="Correção solicitada",
+    )
+    repositorio = UnidadeTrabalhoCampanhaSupabase(
+        cliente=cliente, espaco_id=espaco_id
+    )
+
+    repositorio.corrigir_campanha(entrada, campanha.atualizado_em)
+
+    nome, parametros = cliente.chamadas_rpc[0]
+    assert nome == "atualizar_campanha_mediad"
+    assert parametros["p_motivo"] == "Correção solicitada"
+    assert parametros["p_alteracoes"]["nome_anunciante_atual"] == "Anunciante atual"
+    assert parametros["p_alteracoes"]["identificacao_planejador_atual"] == "Fernando Santor"
+
+
+def test_migracao_de_correcao_preserva_snapshot_e_registra_revisao():
+    migracao = Path(
+        "supabase/migrations/20260801190000_edicao_rastreavel_campanha.sql"
+    ).read_text()
+    rollback = Path(
+        "supabase/rollbacks/20260801190000_edicao_rastreavel_campanha.down.sql"
+    ).read_text()
+
+    assert "campanhas_mediad_revisoes" in migracao
+    assert "to_jsonb(v_antes)" in migracao
+    assert "snapshot_nome_anunciante" not in migracao.split(
+        "create function public.atualizar_campanha_mediad", 1
+    )[1].split("end;", 1)[0]
+    assert "drop table if exists public.campanhas_mediad_revisoes" in rollback

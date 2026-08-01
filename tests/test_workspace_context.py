@@ -100,7 +100,7 @@ class TestWorkspaceContext(unittest.TestCase):
 
         self.assertEqual(resultado[0]["papel"], "EDITOR")
 
-    def test_admin_em_espaco_alheio_usa_proprietario_como_planejador(self):
+    def test_admin_em_espaco_alheio_usa_identidade_propria_como_planejador(self):
         repository = Mock()
         repository.listar.return_value = [
             {
@@ -115,12 +115,13 @@ class TestWorkspaceContext(unittest.TestCase):
         estado = {
             "auth_user_id": "usuario-admin",
             "auth_email": "admin@example.com",
+            "auth_nome": "Pessoa Administradora",
         }
 
         service.selecionar("espaco-pessoal", espacos, estado)
 
         self.assertEqual(espacos[0]["papel"], "ADMINISTRADOR")
-        self.assertEqual(estado["espaco_planejador_padrao_id"], "usuario-proprietario")
+        self.assertEqual(estado["espaco_planejador_padrao_id"], "usuario-admin")
         self.assertEqual(
-            estado["espaco_planejador_padrao_nome"], "Proprietário do espaço"
+            estado["espaco_planejador_padrao_nome"], "Pessoa Administradora"
         )

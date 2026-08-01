@@ -1,7 +1,10 @@
 """Adaptador Supabase novo para a unidade de trabalho Campanha/Briefing."""
 
+from datetime import datetime
 from typing import Any
 from uuid import UUID
+
+from application.dto import CorrigirCampanhaEntrada
 
 from domain.briefing import BriefingInicial
 from domain.campanha import (
@@ -94,6 +97,41 @@ class UnidadeTrabalhoCampanhaSupabase:
             },
         ).execute()
 
+    def corrigir_campanha(
+        self, entrada: CorrigirCampanhaEntrada, atualizado_em: datetime
+    ) -> None:
+        alteracoes = {
+            "nome": entrada.nome.strip(),
+            "anunciante_id": str(entrada.anunciante_id),
+            "marca_id": str(entrada.marca_id) if entrada.marca_id else None,
+            "produto_servico_id": (
+                str(entrada.produto_servico_id)
+                if entrada.produto_servico_id
+                else None
+            ),
+            "planejador_responsavel_id": str(
+                entrada.planejador_responsavel_id
+            ),
+            "observacao_inicial": entrada.observacao_inicial,
+            "nome_anunciante_atual": entrada.nome_anunciante.strip(),
+            "nome_marca_atual": entrada.nome_marca,
+            "nome_produto_servico_atual": entrada.nome_produto_servico,
+            "identificacao_planejador_atual": (
+                entrada.identificacao_planejador.strip()
+            ),
+        }
+        self.cliente.rpc(
+            "atualizar_campanha_mediad",
+            {
+                "p_campanha_id": str(entrada.campanha_id),
+                "p_espaco_id": str(self.espaco_id),
+                "p_alteracoes": alteracoes,
+                "p_motivo": entrada.motivo.strip(),
+                "p_usuario_id": str(entrada.alterado_por),
+                "p_instante": atualizado_em.isoformat(),
+            },
+        ).execute()
+
     def obter_campanha(self, campanha_id: UUID) -> Campanha | None:
         resposta = (
             self.cliente.table("campanhas_mediad")
@@ -121,7 +159,7 @@ class UnidadeTrabalhoCampanhaSupabase:
         """Lista campanhas do espaço para permitir retomada explícita."""
         resposta = (
             self.cliente.table("campanhas_mediad")
-            .select("id,codigo,nome,anunciante_id,marca_id,produto_servico_id,planejador_responsavel_id,observacao_inicial,campanha_derivada_de_id,snapshot_nome_anunciante,snapshot_nome_marca,snapshot_nome_produto_servico,snapshot_identificacao_planejador,criado_por,criado_em,atualizado_em,situacao,etapa_atual")
+            .select("id,codigo,nome,anunciante_id,marca_id,produto_servico_id,planejador_responsavel_id,observacao_inicial,campanha_derivada_de_id,snapshot_nome_anunciante,snapshot_nome_marca,snapshot_nome_produto_servico,snapshot_identificacao_planejador,nome_anunciante_atual,nome_marca_atual,nome_produto_servico_atual,identificacao_planejador_atual,criado_por,criado_em,atualizado_em,situacao,etapa_atual")
             .eq("espaco_id", str(self.espaco_id))
             .order("atualizado_em", desc=True)
             .execute()

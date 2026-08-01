@@ -10,6 +10,11 @@ CHAVES_CAMPANHA_ATUAL = (
     "campanha_planejador",
     "campanha_etapa",
     "briefing_id",
+    "campanha_anunciante_id",
+    "campanha_marca_id",
+    "campanha_produto_id",
+    "campanha_observacao",
+    "campanha_em_edicao",
 )
 
 

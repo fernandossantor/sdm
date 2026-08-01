@@ -5,8 +5,12 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from application.dto import AbrirCampanhaEntrada, IniciarBriefingEntrada
-from application.use_cases import AbrirCampanha, IniciarBriefing
+from application.dto import (
+    AbrirCampanhaEntrada,
+    CorrigirCampanhaEntrada,
+    IniciarBriefingEntrada,
+)
+from application.use_cases import AbrirCampanha, CorrigirCampanha, IniciarBriefing
 from domain.briefing import EstadoBriefing
 from domain.campanha import EtapaCampanha, SituacaoCampanha
 
@@ -18,6 +22,7 @@ class DependenciasFalsas:
         self.briefings = {}
         self.autorizado = True
         self.vinculos_validados = None
+        self.correcao = None
 
     def agora(self):
         return self.instante
@@ -43,6 +48,9 @@ class DependenciasFalsas:
 
     def obter_campanha(self, campanha_id):
         return self.campanhas.get(campanha_id)
+
+    def corrigir_campanha(self, entrada, atualizado_em):
+        self.correcao = (entrada, atualizado_em)
 
     def iniciar_briefing(self, campanha, briefing):
         self.campanhas[campanha.id] = campanha
@@ -147,3 +155,49 @@ def test_nao_inicia_briefing_duas_vezes():
     caso.executar(entrada)
     with pytest.raises(ValueError):
         caso.executar(entrada)
+
+def test_corrige_campanha_em_elaboracao_com_motivo_e_autoria():
+    deps = DependenciasFalsas()
+    campanha = abrir(deps).campanha
+    entrada = CorrigirCampanhaEntrada(
+        campanha_id=campanha.id,
+        nome="Lançamento corrigido",
+        anunciante_id=campanha.anunciante_id,
+        nome_anunciante="Anunciante corrigido",
+        planejador_responsavel_id=campanha.planejador_responsavel_id,
+        identificacao_planejador="Pessoa Planejadora",
+        alterado_por=campanha.criado_por,
+        motivo="Correção de digitação",
+    )
+
+    CorrigirCampanha(
+        relogio=deps,
+        autorizador=deps,
+        validador_vinculos=deps,
+        unidade_trabalho=deps,
+    ).executar(entrada)
+
+    assert deps.correcao == (entrada, deps.instante)
+    assert deps.campanhas[campanha.id].snapshot.nome_anunciante == "Anunciante"
+
+
+def test_correcao_exige_motivo():
+    deps = DependenciasFalsas()
+    campanha = abrir(deps).campanha
+    entrada = CorrigirCampanhaEntrada(
+        campanha_id=campanha.id,
+        nome=campanha.nome,
+        anunciante_id=campanha.anunciante_id,
+        nome_anunciante=campanha.snapshot.nome_anunciante,
+        planejador_responsavel_id=campanha.planejador_responsavel_id,
+        identificacao_planejador="Pessoa Planejadora",
+        alterado_por=campanha.criado_por,
+        motivo=" ",
+    )
+    with pytest.raises(ValueError, match="motivo"):
+        CorrigirCampanha(
+            relogio=deps,
+            autorizador=deps,
+            validador_vinculos=deps,
+            unidade_trabalho=deps,
+        ).executar(entrada)

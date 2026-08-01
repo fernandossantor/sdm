@@ -69,16 +69,13 @@ class WorkspaceService:
         session_state["espaco_nome"] = espaco["nome"]
         session_state["espaco_papel"] = espaco["papel"]
         session_state["espaco_proprietario_id"] = espaco.get("proprietario_id")
-        if espaco["papel"] == "ADMINISTRADOR":
-            session_state["espaco_planejador_padrao_id"] = espaco.get("proprietario_id")
-            session_state["espaco_planejador_padrao_nome"] = "Proprietário do espaço"
-        else:
-            session_state["espaco_planejador_padrao_id"] = session_state.get(
-                "auth_user_id"
-            )
-            session_state["espaco_planejador_padrao_nome"] = session_state.get(
-                "auth_email"
-            )
+        session_state["espaco_planejador_padrao_id"] = session_state.get(
+            "auth_user_id"
+        )
+        session_state["espaco_planejador_padrao_nome"] = (
+            session_state.get("auth_nome")
+            or session_state.get("auth_email")
+        )
         bind_workspace(espaco["id"])
 
         if anterior and anterior != espaco["id"]:

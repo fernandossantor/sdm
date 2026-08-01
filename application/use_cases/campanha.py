@@ -7,11 +7,16 @@ from uuid import UUID, uuid4
 from application.dto.campanha import (
     AberturaCampanhaSaida,
     AbrirCampanhaEntrada,
+    CorrigirCampanhaEntrada,
     InicioBriefingSaida,
     IniciarBriefingEntrada,
 )
 from domain.briefing import BriefingInicial
-from domain.campanha import Campanha, SnapshotVinculosCampanha
+from domain.campanha import (
+    Campanha,
+    SituacaoCampanha,
+    SnapshotVinculosCampanha,
+)
 
 
 class Relogio(Protocol):
@@ -41,6 +46,10 @@ class UnidadeTrabalhoCampanha(Protocol):
     def salvar_abertura(self, campanha: Campanha) -> None: ...
 
     def obter_campanha(self, campanha_id: UUID) -> Campanha | None: ...
+
+    def corrigir_campanha(
+        self, entrada: CorrigirCampanhaEntrada, atualizado_em: datetime
+    ) -> None: ...
 
     def iniciar_briefing(
         self, campanha: Campanha, briefing: BriefingInicial
@@ -127,4 +136,48 @@ class IniciarBriefing:
         return InicioBriefingSaida(
             campanha=campanha_atualizada,
             briefing=briefing,
+        )
+
+
+class CorrigirCampanha:
+    def __init__(
+        self,
+        *,
+        relogio: Relogio,
+        autorizador: AutorizadorCampanha,
+        validador_vinculos: ValidadorVinculosCampanha,
+        unidade_trabalho: UnidadeTrabalhoCampanha,
+    ):
+        self.relogio = relogio
+        self.autorizador = autorizador
+        self.validador_vinculos = validador_vinculos
+        self.unidade_trabalho = unidade_trabalho
+
+    def executar(self, entrada: CorrigirCampanhaEntrada) -> None:
+        if not self.autorizador.pode_editar(
+            entrada.alterado_por, entrada.campanha_id
+        ):
+            raise PermissionError("usuário não autorizado a editar campanha")
+        campanha = self.unidade_trabalho.obter_campanha(entrada.campanha_id)
+        if campanha is None:
+            raise LookupError("campanha não encontrada")
+        if campanha.situacao in {
+            SituacaoCampanha.CONCLUIDA,
+            SituacaoCampanha.CANCELADA,
+            SituacaoCampanha.ARQUIVADA,
+        }:
+            raise ValueError("campanha não pode ser corrigida neste estado")
+        if not entrada.nome.strip() or not entrada.nome_anunciante.strip():
+            raise ValueError("nome da campanha e anunciante são obrigatórios")
+        if not entrada.identificacao_planejador.strip():
+            raise ValueError("planejador responsável é obrigatório")
+        if not entrada.motivo.strip():
+            raise ValueError("motivo da correção é obrigatório")
+        self.validador_vinculos.validar(
+            entrada.anunciante_id,
+            entrada.marca_id,
+            entrada.produto_servico_id,
+        )
+        self.unidade_trabalho.corrigir_campanha(
+            entrada, self.relogio.agora()
         )

@@ -40,3 +40,19 @@ class IniciarBriefingEntrada:
 class InicioBriefingSaida:
     campanha: Campanha
     briefing: BriefingInicial
+
+@dataclass(frozen=True)
+class CorrigirCampanhaEntrada:
+    campanha_id: UUID
+    nome: str
+    anunciante_id: UUID
+    nome_anunciante: str
+    planejador_responsavel_id: UUID
+    identificacao_planejador: str
+    alterado_por: UUID
+    motivo: str
+    marca_id: UUID | None = None
+    nome_marca: str | None = None
+    produto_servico_id: UUID | None = None
+    nome_produto_servico: str | None = None
+    observacao_inicial: str | None = None

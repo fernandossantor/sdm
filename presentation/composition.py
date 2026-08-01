@@ -12,7 +12,7 @@ from application.services.campanha_runtime import (
     RelogioSistema,
     ValidadorVinculosIniciais,
 )
-from application.use_cases import AbrirCampanha, IniciarBriefing
+from application.use_cases import AbrirCampanha, CorrigirCampanha, IniciarBriefing
 from infrastructure.database.data_client import (
     bind_authenticated_client,  # noqa: F401
     create_authenticated_client,
@@ -26,6 +26,7 @@ __all__ = (
     "autenticacao_habilitada",
     "bind_authenticated_client",
     "casos_de_uso_campanha",
+    "caso_de_uso_correcao_campanha",
     "campanhas_do_espaco",
     "briefing_da_campanha",
 )
@@ -66,4 +67,16 @@ def casos_de_uso_campanha(estado):
             autorizador=autorizador,
             unidade_trabalho=unidade,
         ),
+    )
+
+def caso_de_uso_correcao_campanha(estado):
+    unidade = _unidade_campanha(estado)
+    usuario_id = UUID(estado["auth_user_id"])
+    return CorrigirCampanha(
+        relogio=RelogioSistema(),
+        autorizador=AutorizadorCampanhaPorEspaco(
+            usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
+        ),
+        validador_vinculos=ValidadorVinculosIniciais(),
+        unidade_trabalho=unidade,
     )

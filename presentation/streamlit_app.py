@@ -5,13 +5,18 @@ from uuid import UUID, uuid4
 
 import streamlit as st
 
-from application.dto import AbrirCampanhaEntrada, IniciarBriefingEntrada
+from application.dto import (
+    AbrirCampanhaEntrada,
+    CorrigirCampanhaEntrada,
+    IniciarBriefingEntrada,
+)
 from components import auth_gate, workspace_gate
 from presentation.composition import (
     AuthService,
     autenticacao_habilitada,
     bind_authenticated_client,
     campanhas_do_espaco,
+    caso_de_uso_correcao_campanha,
     briefing_da_campanha,
     casos_de_uso_campanha,
 )
@@ -122,11 +127,15 @@ def pagina_campanha() -> None:
                 ("campanha_id", "id"),
                 ("campanha_codigo", "codigo"),
                 ("campanha_nome", "nome"),
-                ("campanha_anunciante", "snapshot_nome_anunciante"),
-                ("campanha_marca", "snapshot_nome_marca"),
-                ("campanha_produto", "snapshot_nome_produto_servico"),
-                ("campanha_planejador", "snapshot_identificacao_planejador"),
+                ("campanha_anunciante", "nome_anunciante_atual"),
+                ("campanha_marca", "nome_marca_atual"),
+                ("campanha_produto", "nome_produto_servico_atual"),
+                ("campanha_planejador", "identificacao_planejador_atual"),
                 ("campanha_etapa", "etapa_atual"),
+                ("campanha_anunciante_id", "anunciante_id"),
+                ("campanha_marca_id", "marca_id"),
+                ("campanha_produto_id", "produto_servico_id"),
+                ("campanha_observacao", "observacao_inicial"),
             ):
                 st.session_state[chave] = selecionada.get(campo)
             st.session_state["briefing_id"] = briefing_da_campanha(
@@ -138,6 +147,121 @@ def pagina_campanha() -> None:
             f"Campanha {st.session_state['campanha_codigo']} criada e preservada."
         )
         st.write(st.session_state["campanha_nome"])
+        if st.button("Editar campanha"):
+            st.session_state["campanha_em_edicao"] = True
+        if st.session_state.get("campanha_em_edicao"):
+            with st.form("edicao_campanha"):
+                esquerda, direita = st.columns(2)
+                with esquerda:
+                    nome_editado = st.text_input(
+                        "Nome da campanha",
+                        value=st.session_state.get("campanha_nome", ""),
+                        key="edicao_campanha_nome",
+                    )
+                    anunciante_editado = st.text_input(
+                        "Anunciante",
+                        value=st.session_state.get("campanha_anunciante", ""),
+                        key="edicao_campanha_anunciante",
+                    )
+                    marca_editada = st.text_input(
+                        "Marca (opcional)",
+                        value=st.session_state.get("campanha_marca") or "",
+                        key="edicao_campanha_marca",
+                    )
+                with direita:
+                    produto_editado = st.text_input(
+                        "Produto ou serviço (opcional)",
+                        value=st.session_state.get("campanha_produto") or "",
+                        key="edicao_campanha_produto",
+                    )
+                    planejador_nome = (
+                        st.session_state.get("auth_nome")
+                        or st.session_state.get("auth_email", "")
+                    )
+                    st.text_input(
+                        "Planejador responsável",
+                        value=planejador_nome,
+                        disabled=True,
+                        key="edicao_campanha_planejador",
+                    )
+                    observacao_editada = st.text_area(
+                        "Observação inicial (opcional)",
+                        value=st.session_state.get("campanha_observacao") or "",
+                        key="edicao_campanha_observacao",
+                    )
+                motivo = st.text_input(
+                    "Motivo da correção",
+                    key="edicao_campanha_motivo",
+                )
+                salvar_edicao = st.form_submit_button(
+                    "Salvar correções", type="primary"
+                )
+            if salvar_edicao:
+                try:
+                    anunciante_anterior = st.session_state.get(
+                        "campanha_anunciante"
+                    )
+                    marca_anterior = st.session_state.get("campanha_marca")
+                    produto_anterior = st.session_state.get("campanha_produto")
+                    entrada = CorrigirCampanhaEntrada(
+                        campanha_id=UUID(st.session_state["campanha_id"]),
+                        nome=nome_editado,
+                        anunciante_id=(
+                            UUID(st.session_state["campanha_anunciante_id"])
+                            if anunciante_editado == anunciante_anterior
+                            else uuid4()
+                        ),
+                        nome_anunciante=anunciante_editado,
+                        marca_id=(
+                            UUID(st.session_state["campanha_marca_id"])
+                            if marca_editada
+                            and marca_editada == (marca_anterior or "")
+                            and st.session_state.get("campanha_marca_id")
+                            else (uuid4() if marca_editada.strip() else None)
+                        ),
+                        nome_marca=marca_editada.strip() or None,
+                        produto_servico_id=(
+                            UUID(st.session_state["campanha_produto_id"])
+                            if produto_editado
+                            and produto_editado == (produto_anterior or "")
+                            and st.session_state.get("campanha_produto_id")
+                            else (uuid4() if produto_editado.strip() else None)
+                        ),
+                        nome_produto_servico=produto_editado.strip() or None,
+                        planejador_responsavel_id=UUID(
+                            st.session_state["auth_user_id"]
+                        ),
+                        identificacao_planejador=planejador_nome,
+                        alterado_por=UUID(st.session_state["auth_user_id"]),
+                        motivo=motivo,
+                        observacao_inicial=observacao_editada.strip() or None,
+                    )
+                    caso_de_uso_correcao_campanha(
+                        st.session_state
+                    ).executar(entrada)
+                except Exception as exc:
+                    st.error(f"Não foi possível corrigir a campanha: {exc}")
+                else:
+                    st.session_state["campanha_nome"] = nome_editado.strip()
+                    st.session_state["campanha_anunciante"] = (
+                        anunciante_editado.strip()
+                    )
+                    st.session_state["campanha_marca"] = (
+                        marca_editada.strip() or None
+                    )
+                    st.session_state["campanha_produto"] = (
+                        produto_editado.strip() or None
+                    )
+                    st.session_state["campanha_planejador"] = planejador_nome
+                    st.session_state["campanha_observacao"] = (
+                        observacao_editada.strip() or None
+                    )
+                    st.session_state.pop("campanha_em_edicao", None)
+                    st.success("Correções salvas com rastreabilidade.")
+                    st.rerun()
+            if st.button("Cancelar edição"):
+                st.session_state.pop("campanha_em_edicao", None)
+                st.rerun()
         if st.button("Nova campanha"):
             iniciar_nova_campanha(st.session_state)
             st.rerun()
@@ -225,12 +349,26 @@ def pagina_campanha() -> None:
             st.session_state["campanha_anunciante"] = (
                 saida.campanha.snapshot.nome_anunciante
             )
+            st.session_state["campanha_anunciante_id"] = str(
+                saida.campanha.anunciante_id
+            )
             st.session_state["campanha_marca"] = saida.campanha.snapshot.nome_marca
+            st.session_state["campanha_marca_id"] = (
+                str(saida.campanha.marca_id) if saida.campanha.marca_id else None
+            )
             st.session_state["campanha_produto"] = (
                 saida.campanha.snapshot.nome_produto_servico
             )
+            st.session_state["campanha_produto_id"] = (
+                str(saida.campanha.produto_servico_id)
+                if saida.campanha.produto_servico_id
+                else None
+            )
             st.session_state["campanha_planejador"] = (
                 saida.campanha.snapshot.identificacao_planejador
+            )
+            st.session_state["campanha_observacao"] = (
+                saida.campanha.observacao_inicial
             )
             st.session_state["campanha_etapa"] = saida.campanha.etapa_atual.value
             st.session_state.pop("campanha_em_criacao", None)
@@ -265,11 +403,15 @@ def pagina_briefing() -> None:
                 ("campanha_id", "id"),
                 ("campanha_codigo", "codigo"),
                 ("campanha_nome", "nome"),
-                ("campanha_anunciante", "snapshot_nome_anunciante"),
-                ("campanha_marca", "snapshot_nome_marca"),
-                ("campanha_produto", "snapshot_nome_produto_servico"),
-                ("campanha_planejador", "snapshot_identificacao_planejador"),
+                ("campanha_anunciante", "nome_anunciante_atual"),
+                ("campanha_marca", "nome_marca_atual"),
+                ("campanha_produto", "nome_produto_servico_atual"),
+                ("campanha_planejador", "identificacao_planejador_atual"),
                 ("campanha_etapa", "etapa_atual"),
+                ("campanha_anunciante_id", "anunciante_id"),
+                ("campanha_marca_id", "marca_id"),
+                ("campanha_produto_id", "produto_servico_id"),
+                ("campanha_observacao", "observacao_inicial"),
             ):
                 st.session_state[chave] = selecionada.get(campo)
             st.session_state["briefing_id"] = briefing_da_campanha(

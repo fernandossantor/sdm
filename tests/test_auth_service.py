@@ -32,6 +32,7 @@ class TestAuthService(unittest.TestCase):
         consulta.eq.return_value.single.return_value.execute.return_value = (
             SimpleNamespace(
                 data={
+                    "nome": "Pessoa Usuária",
                     "ativo": True,
                     "papel_global": "USUARIO",
                     "trocar_senha": True,
@@ -46,6 +47,7 @@ class TestAuthService(unittest.TestCase):
 
         self.assertEqual(estado["auth_access_token"], "access")
         self.assertEqual(estado["auth_user_id"], "user-1")
+        self.assertEqual(estado["auth_nome"], "Pessoa Usuária")
         self.assertTrue(estado["auth_trocar_senha"])
         self.assertEqual(estado["auth_papel_global"], "USUARIO")
         self.assertNotIn("senha", estado)

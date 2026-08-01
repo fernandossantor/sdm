@@ -43,7 +43,7 @@ class AuthService:
     def _carregar_perfil(cliente, session_state):
         resposta = (
             cliente.table("perfis_usuarios")
-            .select("ativo,papel_global,trocar_senha")
+            .select("nome,ativo,papel_global,trocar_senha")
             .eq("id", session_state["auth_user_id"])
             .single()
             .execute()
@@ -51,6 +51,9 @@ class AuthService:
         perfil = resposta.data or {}
         if not perfil.get("ativo"):
             raise PermissionError("A conta está inativa.")
+        session_state["auth_nome"] = (
+            perfil.get("nome") or session_state.get("auth_email")
+        )
         session_state["auth_trocar_senha"] = bool(perfil.get("trocar_senha"))
         session_state["auth_papel_global"] = perfil.get("papel_global")
 

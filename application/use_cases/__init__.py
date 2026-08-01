@@ -1,3 +1,3 @@
-from .campanha import AbrirCampanha, IniciarBriefing
+from .campanha import AbrirCampanha, CorrigirCampanha, IniciarBriefing
 
-__all__ = ["AbrirCampanha", "IniciarBriefing"]
+__all__ = ["AbrirCampanha", "CorrigirCampanha", "IniciarBriefing"]

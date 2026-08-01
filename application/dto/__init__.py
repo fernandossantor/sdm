@@ -1,6 +1,7 @@
 from .campanha import (
     AberturaCampanhaSaida,
     AbrirCampanhaEntrada,
+    CorrigirCampanhaEntrada,
     InicioBriefingSaida,
     IniciarBriefingEntrada,
 )
@@ -8,6 +9,7 @@ from .campanha import (
 __all__ = [
     "AberturaCampanhaSaida",
     "AbrirCampanhaEntrada",
+    "CorrigirCampanhaEntrada",
     "InicioBriefingSaida",
     "IniciarBriefingEntrada",
 ]
