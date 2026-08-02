@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 ASSETS_DIR = Path(__file__).parents[1] / "assets"
-PAGE_ICON = ASSETS_DIR / "favicon.png"
+PAGE_ICON = ASSETS_DIR / "favicon2.png"
 PAGE_TITLE = "MediAd Planner — Plataforma Inteligente de Planejamento Híbrido de Mídia"
 
 

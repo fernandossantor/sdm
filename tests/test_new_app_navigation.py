@@ -38,11 +38,16 @@ def test_streamlit_inicializa_sem_erro():
 def test_identidade_visual_usa_novos_ativos():
     interface = Path("presentation/streamlit_app.py").read_text()
     login = Path("components/auth_gate.py").read_text()
-    assert Path("assets/favicon.png").is_file()
+    assert Path("assets/favicon2.png").is_file()
     assert Path("assets/Marca_nova.png").is_file()
     assert "page_icon=PAGE_ICON" in interface
     assert 'assets" / "Marca_nova.png"' in interface
     assert 'assets" / "Marca_nova.png"' in login
+    assert 'ASSETS_DIR / "favicon2.png"' in Path(
+        "components/page_config.py"
+    ).read_text()
+    assert 'data-testid="stSidebar"' in login
+    assert "st.columns([1.25, 1, 1.25])" in login
 
 
 def test_fluxo_distingue_primeiro_preenchimento_de_edicao():

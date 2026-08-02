@@ -1,12 +1,27 @@
 """Portão de autenticação opcional para a implantação Streamlit."""
 
-import streamlit as st
 from pathlib import Path
+
+import streamlit as st
 
 from application.services.auth_service import AuthService
 
 
 MARCA = Path(__file__).parents[1] / "assets" / "Marca_nova.png"
+
+
+def _ocultar_navegacao_no_login():
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarCollapsedControl"] {
+            display: none !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render():
@@ -35,7 +50,8 @@ def render():
                     st.rerun()
         return False
 
-    margem_esquerda, conteudo, margem_direita = st.columns([1, 1.25, 1])
+    _ocultar_navegacao_no_login()
+    margem_esquerda, conteudo, margem_direita = st.columns([1.25, 1, 1.25])
     with conteudo:
         if MARCA.exists():
             st.image(MARCA, use_container_width=True)
