@@ -1,0 +1,60 @@
+{
+  "registros": [
+    {
+      "codigo": "rel_com_intencao_mid_resposta",
+      "nome": "Intenção para favorecer resposta",
+      "descricao": "Favorecer resposta é a relação principal para intenção no caso canônico.",
+      "versao": "1.0",
+      "ativo": true,
+      "origem": "com_intencao",
+      "destino": "mid_favorecer_resposta",
+      "tipo_relacao": "CONTRIBUI_PARA",
+      "direcao": "POSITIVA",
+      "condicao": "PRIORITARIA",
+      "faixa_forca_padrao": {"minimo": 80, "maximo": 100, "classe": "MUITO_FORTE"},
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#11-taxonomia-inicial-de-relacoes-comunicacaomidia"
+    },
+    {
+      "codigo": "rel_com_intencao_mid_trafego",
+      "nome": "Intenção para gerar tráfego",
+      "descricao": "Tráfego pode conduzir o público a um destino de resposta mensurável.",
+      "versao": "1.0",
+      "ativo": true,
+      "origem": "com_intencao",
+      "destino": "mid_gerar_trafego",
+      "tipo_relacao": "HABILITA",
+      "direcao": "POSITIVA",
+      "condicao": "PRIORITARIA",
+      "faixa_forca_padrao": {"minimo": 60, "maximo": 79, "classe": "FORTE"},
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#11-taxonomia-inicial-de-relacoes-comunicacaomidia"
+    },
+    {
+      "codigo": "rel_com_intencao_mid_publico_prioritario",
+      "nome": "Intenção para alcançar público prioritário",
+      "descricao": "A intenção deve ser trabalhada no público declarado como prioritário.",
+      "versao": "1.0",
+      "ativo": true,
+      "origem": "com_intencao",
+      "destino": "mid_alcancar_publico_prioritario",
+      "tipo_relacao": "SUSTENTA",
+      "direcao": "POSITIVA",
+      "condicao": "COMPLEMENTAR",
+      "faixa_forca_padrao": {"minimo": 40, "maximo": 59, "classe": "MODERADA"},
+      "fonte_documental_interna": "docs/implementation/04_CASO_CANONICO_DA_TRADUCAO_ESTRATEGICA.md#4-objetivos-de-midia-esperados"
+    },
+    {
+      "codigo": "rel_com_notoriedade_mid_alcance",
+      "nome": "Notoriedade para construir alcance",
+      "descricao": "Construir alcance é condição normalmente relacionada à notoriedade.",
+      "versao": "1.0",
+      "ativo": true,
+      "origem": "com_notoriedade",
+      "destino": "mid_construir_alcance",
+      "tipo_relacao": "CONTRIBUI_PARA",
+      "direcao": "POSITIVA",
+      "condicao": "PRIORITARIA",
+      "faixa_forca_padrao": {"minimo": 80, "maximo": 100, "classe": "MUITO_FORTE"},
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#11-taxonomia-inicial-de-relacoes-comunicacaomidia"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "registros": [
+    {
+      "codigo": "mkt_aumento_vendas",
+      "nome": "Aumento de vendas",
+      "descricao": "Elevar vendas sem atribuir causalidade exclusiva à mídia.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "MARKETING",
+      "indicadores": ["ind_vendas"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#41-objetivo-de-marketing"
+    },
+    {
+      "codigo": "mkt_crescimento",
+      "nome": "Crescimento",
+      "descricao": "Ampliar o resultado do negócio com contribuição esperada da mídia.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "MARKETING",
+      "indicadores": ["ind_vendas"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#41-objetivo-de-marketing"
+    },
+    {
+      "codigo": "com_intencao",
+      "nome": "Intenção",
+      "descricao": "Elevar a intenção declarada de solicitar proposta.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "COMUNICACAO",
+      "indicadores": ["ind_intencao_solicitar_proposta"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#42-objetivo-de-comunicacao"
+    },
+    {
+      "codigo": "com_reducao_incerteza",
+      "nome": "Redução de incerteza",
+      "descricao": "Reduzir dúvidas sobre economia real e prazo de retorno.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "COMUNICACAO",
+      "indicadores": ["ind_compreensao_economia_retorno"],
+      "fonte_documental_interna": "docs/new_app/16_BIBLIOTECA_DE_JORNADAS_NECESSIDADES_FUNCOES_E_PONTOS_DE_CONTATO.md#33-necessidade-comunicacional"
+    },
+    {
+      "codigo": "com_notoriedade",
+      "nome": "Notoriedade",
+      "descricao": "Elevar o conhecimento da existência da marca.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "COMUNICACAO",
+      "indicadores": ["ind_notoriedade_auxiliada"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#42-objetivo-de-comunicacao"
+    },
+    {
+      "codigo": "mid_favorecer_resposta",
+      "nome": "Favorecer resposta",
+      "descricao": "Criar condição de mídia favorável a resposta mensurável.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "MIDIA",
+      "indicadores": ["ind_conclusao_pedido_proposta"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#43-objetivo-de-midia"
+    },
+    {
+      "codigo": "mid_gerar_trafego",
+      "nome": "Gerar tráfego",
+      "descricao": "Gerar visitas qualificadas ao destino de resposta.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "MIDIA",
+      "indicadores": ["ind_visitas_qualificadas"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#43-objetivo-de-midia"
+    },
+    {
+      "codigo": "mid_alcancar_publico_prioritario",
+      "nome": "Alcançar públicos prioritários",
+      "descricao": "Produzir alcance especificamente no público prioritário.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "MIDIA",
+      "indicadores": ["ind_alcance_publico_prioritario"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#43-objetivo-de-midia"
+    },
+    {
+      "codigo": "mid_construir_alcance",
+      "nome": "Construir alcance",
+      "descricao": "Ampliar a proporção alcançada na praça.",
+      "versao": "1.0",
+      "ativo": true,
+      "nivel": "MIDIA",
+      "indicadores": ["ind_alcance_campanha"],
+      "fonte_documental_interna": "docs/new_app/15_BIBLIOTECA_DE_OBJETIVOS_RESULTADOS_E_KPIS.md#43-objetivo-de-midia"
+    }
+  ]
+}
