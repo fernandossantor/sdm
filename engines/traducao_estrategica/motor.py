@@ -81,6 +81,7 @@ class MotorTraducaoEstrategica:
                 "memoria_tecnica": {
                     "bibliotecas": (15, 17, 18),
                     "versao_nucleo": self.catalogo.versao,
+                    "versao_composicao": contrato.versao_composicao,
                     "problemas": tuple(
                         item.codigo for item in contrato.problemas_identificados
                     ),

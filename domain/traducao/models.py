@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from domain.briefing import BriefingInicial, EstadoBriefing
 from domain.contracts import Confianca, SaidaMotor
@@ -24,6 +24,26 @@ class ObjetivoOperacionalizado(BaseModel):
     categoria: str
     estado: str = "QUALITATIVO_ESTRUTURADO"
     origem: str
+    pontuacao_contextual: float | None = Field(default=None, ge=0, le=100)
+    ordem_contextual: int | None = Field(default=None, ge=1)
+    prioridade_calculada: str | None = None
+    explicacao_decisoria: str | None = None
+
+
+class ContribuicaoRelacao(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    dimensao: str
+    valor: float = Field(ge=0, le=100)
+    peso: float = Field(gt=0, le=1)
+    contribuicao: float = Field(ge=0, le=100)
+    explicacao: str
+
+
+class PenalizacaoRelacao(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    dimensao: str
+    valor: float = Field(gt=0, le=100)
+    explicacao: str
 
 
 class FatorDiagnostico(BaseModel):
@@ -44,6 +64,15 @@ class RelacaoEstrategica(BaseModel):
     estado: str = "QUALITATIVA_SEM_FORMULA"
     justificativa: str
     regra: str
+    forca_padrao: float | None = Field(default=None, ge=0, le=100)
+    pontuacao_contextual: float | None = Field(default=None, ge=0, le=100)
+    ordem_contextual: int | None = Field(default=None, ge=1)
+    condicao: str | None = None
+    contribuicoes: tuple[ContribuicaoRelacao, ...] = ()
+    penalizacoes: tuple[PenalizacaoRelacao, ...] = ()
+    confianca: Confianca | None = None
+    explicacao_decisoria: str | None = None
+    efeito_etapa_seguinte: str | None = None
 
 
 class ContextoPriorizado(BaseModel):
@@ -99,6 +128,15 @@ class ObjetivoMidiaDerivado(BaseModel):
     conhecimento_aplicado: str | None = None
     problema_atendido: str | None = None
     natureza: str = "CALCULADO"
+    pontuacao_contextual: float | None = Field(default=None, ge=0, le=100)
+    prioridade_calculada: str | None = None
+    peso_calculado: float | None = Field(default=None, ge=0, le=1)
+    peso_ajustado: float | None = Field(default=None, ge=0, le=1)
+    peso_efetivo: float | None = Field(default=None, ge=0, le=1)
+    intensidade_requerida: str | None = None
+    efeito_na_arquitetura: str | None = None
+    confianca: Confianca | None = None
+    explicacao_peso: str | None = None
 
 
 class ReferenciaBibliotecaAplicada(BaseModel):
@@ -161,6 +199,7 @@ class ContratoEstrategico(BaseModel):
     criterios_arquitetura: tuple[CriterioArquitetura, ...] = ()
     tensoes: tuple[TensaoEstrategica, ...] = ()
     confianca_detalhada: ConfiancaDetalhada | None = None
+    versao_composicao: str | None = None
 
 
 def objetivos_midia_efetivos(
@@ -253,7 +292,7 @@ def revisar_traducao(
     })
 
 
-def traduzir_briefing(
+def _traduzir_briefing_qualitativo(
     briefing: BriefingInicial, *, contrato_id: UUID,
     criado_por: UUID, criado_em: datetime, catalogo,
 ) -> ContratoEstrategico:
@@ -461,3 +500,16 @@ def traduzir_briefing(
             fatores_redutores=fatores_redutores,
         ),
     )
+
+
+def traduzir_briefing(
+    briefing: BriefingInicial, *, contrato_id: UUID,
+    criado_por: UUID, criado_em: datetime, catalogo,
+) -> ContratoEstrategico:
+    from .pontuacao import aplicar_pontuacao
+
+    qualitativo = _traduzir_briefing_qualitativo(
+        briefing, contrato_id=contrato_id, criado_por=criado_por,
+        criado_em=criado_em, catalogo=catalogo,
+    )
+    return aplicar_pontuacao(qualitativo, briefing, catalogo)

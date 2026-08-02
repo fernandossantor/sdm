@@ -178,7 +178,7 @@ def test_motor_articula_as_seis_areas_sem_inventar_pontuacao():
     assert contrato.resultados_indicadores
     assert contrato.criterios_arquitetura
     assert contrato.tensoes
-    assert all(item.estado == "QUALITATIVA_SEM_FORMULA"
+    assert all(item.estado == "PONTUADA"
                for item in contrato.relacoes_estrategicas)
 
 

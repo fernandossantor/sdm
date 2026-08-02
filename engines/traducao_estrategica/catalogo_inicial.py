@@ -4,8 +4,9 @@ from domain.bibliotecas import (
     ConhecimentoTecnico, IndicadorPlanejamento, ObjetoBiblioteca,
     ObjetivoMidiaBiblioteca, ProblemaTecnico, RegraComunicacaoMidia,
 )
+from .configuracao_pontuacao import CONFIGURACAO_PONTUACAO
 
-VERSAO_NUCLEO = "2026.08.02.3"
+VERSAO_NUCLEO = "2026.08.02.4"
 
 RELACOES_MARKETING_COMUNICACAO = {
     "crescimento": {"notoriedade", "preferência", "consideração", "relacionamento"},
@@ -79,6 +80,12 @@ CONHECIMENTOS = (
         tipo="REGRA_CONDICIONAL",
         pre_condicoes=("objetivo de comunicação declarado",),
         limitacoes=("não seleciona meio", "não define meta ausente")),
+    ConhecimentoTecnico(codigo="B17-COMPOSICAO-CONTEXTUAL-TRADUCAO",
+        biblioteca=17, versao=CONFIGURACAO_PONTUACAO["versao"],
+        nome="Composição contextual inicial da tradução",
+        tipo="PROCEDIMENTO_DE_DECISAO",
+        pre_condicoes=("relação estratégica candidata",),
+        limitacoes=("não representa fórmula científica", "não define intensidade quantitativa sem dados")),
 )
 
 PROBLEMAS = (
@@ -130,6 +137,7 @@ REGRAS = tuple(
 
 class CatalogoTraducaoInicial:
     versao = VERSAO_NUCLEO
+    configuracao_pontuacao = CONFIGURACAO_PONTUACAO
 
     def regra_para(self, objetivo_comunicacao: str):
         return next((item for item in REGRAS
