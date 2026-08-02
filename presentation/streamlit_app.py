@@ -38,6 +38,7 @@ from presentation.composition import (
 )
 from presentation.campaign_state import iniciar_nova_campanha
 from presentation.navigation import ETAPAS_FUTURAS, NAVEGACAO_INICIAL
+from presentation.traducao_vertical import renderizar_traducao_vertical
 
 MARCA = Path(__file__).parents[1] / "assets" / "Marca_nova.png"
 
@@ -1129,7 +1130,7 @@ PAGINAS = (
     ),
     st.Page(pagina_campanha, title=NAVEGACAO_INICIAL[1].titulo, icon="📁"),
     st.Page(pagina_briefing, title=NAVEGACAO_INICIAL[2].titulo, icon="📋"),
-    st.Page(pagina_traducao, title="Tradução estratégica", icon="🧭"),
+    st.Page(renderizar_traducao_vertical, title="Tradução estratégica", icon="🧭"),
 )
 
 
