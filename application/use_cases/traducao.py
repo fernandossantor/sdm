@@ -13,7 +13,7 @@ def _executar_motor(*, relogio, motor, briefing, usuario_id, origem):
     comando = ComandoMotor(
         motor_destino=MOTOR_TRADUCAO_ESTRATEGICA,
         modo_execucao=ModoTraducaoEstrategica.TRADUZIR_BRIEFING,
-        nivel_execucao=NivelExecucao.PREVIA,
+        nivel_execucao=NivelExecucao.PADRAO,
         id_campanha=briefing.campanha_id,
         id_snapshot_campanha=briefing.campanha_id,
         id_usuario=usuario_id, perfil_de_acesso="PLANEJADOR",

@@ -26,6 +26,68 @@ class ObjetivoOperacionalizado(BaseModel):
     origem: str
 
 
+class FatorDiagnostico(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    dimensao: str
+    valor: str
+    origem: str
+    influencia_em: tuple[str, ...] = ()
+
+
+class RelacaoEstrategica(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    origem_nivel: str
+    origem: str
+    destino_nivel: str
+    destino: str
+    tipo: str
+    estado: str = "QUALITATIVA_SEM_FORMULA"
+    justificativa: str
+    regra: str
+
+
+class ContextoPriorizado(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    dimensao: str
+    valor: str
+    prioridade: str
+    origem: str
+    influencia_em: tuple[str, ...]
+
+
+class ResultadoIndicadorEstrategico(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    objetivo_midia: str
+    resultado_pretendido: str
+    indicador_codigo: str | None = None
+    indicador_nome: str | None = None
+    estado_mensuracao: str = "META_E_LINHA_DE_BASE_PENDENTES"
+
+
+class CriterioArquitetura(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    criterio: str
+    condicao: str
+    prioridade: str
+    origens: tuple[str, ...]
+    limita_decisoes: bool = False
+
+
+class TensaoEstrategica(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    tensao: str
+    gravidade: str
+    evidencias: tuple[str, ...]
+    decisao_requerida: str
+
+
+class ConfiancaDetalhada(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    nivel: Confianca
+    fatores_positivos: tuple[str, ...] = ()
+    fatores_redutores: tuple[str, ...] = ()
+
+
 class ObjetivoMidiaDerivado(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
     categoria: str
@@ -92,6 +154,13 @@ class ContratoEstrategico(BaseModel):
     problemas_identificados: tuple[ProblemaEstrategicoIdentificado, ...] = ()
     dependencias_estrategicas: tuple[DependenciaEstrategica, ...] = ()
     execucao_motor: SaidaMotor | None = None
+    diagnostico: tuple[FatorDiagnostico, ...] = ()
+    relacoes_estrategicas: tuple[RelacaoEstrategica, ...] = ()
+    contexto_priorizado: tuple[ContextoPriorizado, ...] = ()
+    resultados_indicadores: tuple[ResultadoIndicadorEstrategico, ...] = ()
+    criterios_arquitetura: tuple[CriterioArquitetura, ...] = ()
+    tensoes: tuple[TensaoEstrategica, ...] = ()
+    confianca_detalhada: ConfiancaDetalhada | None = None
 
 
 def objetivos_midia_efetivos(
@@ -190,10 +259,11 @@ def traduzir_briefing(
 ) -> ContratoEstrategico:
     if briefing.estado is not EstadoBriefing.CONCLUIDO:
         raise ValueError("a tradução exige briefing concluído")
+    origem_briefing = f"briefing:{briefing.id}:v{briefing.versao}"
     declarados = tuple(
         ObjetivoOperacionalizado(
             nivel=nivel, categoria=item["categoria"],
-            origem=f"briefing:{briefing.id}:v{briefing.versao}",
+            origem=origem_briefing,
         )
         for nivel, itens in (
             ("MARKETING", briefing.conteudo.objetivos_marketing),
@@ -257,6 +327,98 @@ def traduzir_briefing(
         )
     if not briefing.conteudo.fontes:
         lacunas.append("Fontes não informadas reduzem a confiança da tradução.")
+    relacoes_mc = []
+    for marketing in briefing.conteudo.objetivos_marketing:
+        origem = marketing["categoria"]
+        destinos = catalogo.comunicacao_para_marketing(origem)
+        for comunicacao in briefing.conteudo.objetivos_comunicacao:
+            destino = comunicacao["categoria"]
+            if destino.casefold() in destinos:
+                relacoes_mc.append(RelacaoEstrategica(
+                    origem_nivel="MARKETING", origem=origem,
+                    destino_nivel="COMUNICACAO", destino=destino,
+                    tipo="CONTRIBUICAO", justificativa=(
+                        f"{destino} é resposta aplicável a {origem}."
+                    ), regra=f"B15-MC-{origem.upper().replace(' ', '-')}",
+                ))
+    relacoes_cm = tuple(RelacaoEstrategica(
+        origem_nivel="COMUNICACAO", origem=item.origem_comunicacao,
+        destino_nivel="MIDIA", destino=item.categoria,
+        tipo="DERIVACAO", justificativa=(
+            f"{item.categoria} cria condição para {item.origem_comunicacao}."
+        ), regra=item.regra,
+    ) for item in derivados)
+    if briefing.conteudo.relacoes_objetivos and not relacoes_mc:
+        lacunas.append(
+            "Não há relação Marketing–Comunicação validada para os objetivos declarados."
+        )
+    situacao = briefing.conteudo.situacao_mercadologica
+    diagnostico = tuple(FatorDiagnostico(
+        dimensao=dimensao, valor=str(situacao.get(campo, "não informado")),
+        origem=origem_briefing, influencia_em=influencias,
+    ) for dimensao, campo, influencias in (
+        ("Tendência do mercado", "tendencia_mercado", ("prioridade", "continuidade")),
+        ("Ciclo de vida", "ciclo_vida", ("objetivos", "resultados")),
+        ("Pressão competitiva", "intensidade_competitiva", ("frequência", "impacto", "continuidade")),
+    ))
+    niveis = {item.get("entidade"): item.get("nivel", "não ordenada")
+              for item in briefing.conteudo.prioridades}
+    contexto = []
+    for dimensao, itens, campo, entidade, influencia in (
+        ("Praça", briefing.conteudo.pracas, "nome", "praças", ("cobertura", "presença territorial")),
+        ("Segmento", briefing.conteudo.segmentos, "nome", "segmentos", ("afinidade", "alcance")),
+        ("Público", briefing.conteudo.publicos, "nome", "públicos", ("alcance", "afinidade")),
+        ("Jornada", briefing.conteudo.jornadas, "etapa", "jornada", ("continuidade", "resposta")),
+    ):
+        contexto.extend(ContextoPriorizado(
+            dimensao=dimensao, valor=str(item.get(campo, "—")),
+            prioridade=niveis.get(entidade, "não ordenada"),
+            origem=origem_briefing, influencia_em=influencia,
+        ) for item in itens)
+    pretensoes = tuple(item.get("categoria", "resultado não especificado")
+                       for item in briefing.conteudo.pretensoes) or ("resultado a formalizar",)
+    resultados = tuple(ResultadoIndicadorEstrategico(
+        objetivo_midia=item.categoria,
+        resultado_pretendido=pretensoes[min(indice, len(pretensoes) - 1)],
+        indicador_codigo=item.indicador_codigo,
+        indicador_nome=item.indicador_nome,
+    ) for indice, item in enumerate(derivados))
+    criterios = [CriterioArquitetura(
+        criterio=f"Favorecer {item.categoria}",
+        condicao=f"Responder a {item.origem_comunicacao}",
+        prioridade=f"ordem qualitativa {item.ordem}",
+        origens=(f"objetivo_comunicacao:{item.origem_comunicacao}", item.regra),
+    ) for item in derivados]
+    criterios.extend(CriterioArquitetura(
+        criterio=f"Respeitar restrição {item.get('categoria', 'declarada')}",
+        condicao="Limite obrigatório para a arquitetura posterior",
+        prioridade="obrigatória", origens=(origem_briefing,),
+        limita_decisoes=True,
+    ) for item in briefing.conteudo.restricoes)
+    pressao = str(situacao.get("intensidade_competitiva", "não informado"))
+    tensoes = []
+    if pressao in {"alta", "muito alta"}:
+        tensoes.append(TensaoEstrategica(
+            tensao="Pressão competitiva exige resposta de mídia",
+            gravidade="alta" if pressao == "muito alta" else "média",
+            evidencias=(f"pressão competitiva:{pressao}",),
+            decisao_requerida="Conciliar impacto, frequência e continuidade com a verba.",
+        ))
+        criterios.append(CriterioArquitetura(
+            criterio="Responder à pressão competitiva",
+            condicao="Elevar impacto, frequência ou continuidade sem definir canal",
+            prioridade="alta", origens=("diagnostico:pressao_competitiva",),
+        ))
+    fatores_positivos = tuple(filter(None, (
+        "objetivos declarados" if declarados else None,
+        "fontes declaradas" if briefing.conteudo.fontes else None,
+        "contexto identificável" if contexto else None,
+    )))
+    fatores_redutores = tuple(filter(None, (
+        "fontes ausentes" if not briefing.conteudo.fontes else None,
+        "metas e linhas de base não formalizadas" if resultados else None,
+        "relação Marketing–Comunicação não validada" if not relacoes_mc else None,
+    )))
     estado = (
         EstadoContratoEstrategico.PROVISORIO
         if derivados else EstadoContratoEstrategico.PARCIAL
@@ -287,4 +449,15 @@ def traduzir_briefing(
             ),) if briefing.conteudo.objetivos_comunicacao else ()
         ),
         dependencias_estrategicas=tuple(dependencias),
+        diagnostico=diagnostico,
+        relacoes_estrategicas=tuple(relacoes_mc) + relacoes_cm,
+        contexto_priorizado=tuple(contexto),
+        resultados_indicadores=resultados,
+        criterios_arquitetura=tuple(criterios),
+        tensoes=tuple(tensoes),
+        confianca_detalhada=ConfiancaDetalhada(
+            nivel=Confianca.MEDIA if briefing.conteudo.fontes else Confianca.BAIXA,
+            fatores_positivos=fatores_positivos,
+            fatores_redutores=fatores_redutores,
+        ),
     )

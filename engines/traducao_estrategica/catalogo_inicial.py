@@ -5,7 +5,20 @@ from domain.bibliotecas import (
     ObjetivoMidiaBiblioteca, ProblemaTecnico, RegraComunicacaoMidia,
 )
 
-VERSAO_NUCLEO = "2026.08.02.2"
+VERSAO_NUCLEO = "2026.08.02.3"
+
+RELACOES_MARKETING_COMUNICACAO = {
+    "crescimento": {"notoriedade", "preferência", "consideração", "relacionamento"},
+    "participação de mercado": {"diferenciação percebida", "preferência", "consideração", "lembrança"},
+    "penetração": {"conhecimento", "experimentação", "consideração"},
+    "fidelização": {"relacionamento", "fidelização", "recomendação"},
+    "diferenciação": {"diferenciação percebida", "preferência", "imagem"},
+    "posicionamento": {"imagem", "compreensão", "diferenciação percebida"},
+    "branding": {"notoriedade", "conhecimento", "lembrança", "imagem"},
+    "segmentação": {"consideração", "engajamento", "ação"},
+    "desenvolvimento de produto": {"conhecimento", "compreensão", "experimentação"},
+    "diversificação": {"notoriedade", "conhecimento", "consideração"},
+}
 
 INDICADORES = (
     IndicadorPlanejamento(codigo="B15-ALCANCE", biblioteca=15,
@@ -121,6 +134,11 @@ class CatalogoTraducaoInicial:
     def regra_para(self, objetivo_comunicacao: str):
         return next((item for item in REGRAS
                      if item.objetivo_comunicacao == objetivo_comunicacao), None)
+
+    def comunicacao_para_marketing(self, objetivo_marketing: str):
+        return RELACOES_MARKETING_COMUNICACAO.get(
+            objetivo_marketing.casefold(), set()
+        )
 
     def indicador(self, codigo: str):
         return next((item for item in INDICADORES if item.codigo == codigo), None)

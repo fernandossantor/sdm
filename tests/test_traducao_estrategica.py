@@ -149,3 +149,56 @@ def test_planejador_pode_incluir_objetivo_da_biblioteca_com_justificativa():
     assert objetivos_midia_efetivos(nova)[0].categoria == "produzir impacto"
     assert objetivos_midia_efetivos(nova)[0].natureza == "AJUSTADO_PELO_USUARIO"
     assert nova.intervencoes_humanas[-1].valor_calculado == "NAO_DERIVADO"
+
+
+def test_motor_articula_as_seis_areas_sem_inventar_pontuacao():
+    briefing = briefing_concluido(conteudo=ConteudoBriefing(
+        situacao_mercadologica={"intensidade_competitiva": "alta"},
+        objetivos_marketing=({"categoria": "Crescimento"},),
+        objetivos_comunicacao=({"categoria": "consideração"},),
+        pracas=({"nome": "Brasil"},),
+        segmentos=({"nome": "Clientes potenciais"},),
+        publicos=({"nome": "Compradores"},),
+        jornadas=({"etapa": "avaliação"},), jornada_aplicavel=True,
+        prioridades=({"entidade": "públicos", "nivel": "alta"},),
+        restricoes=({"categoria": "orçamentária"},),
+        pretensoes=({"categoria": "alcançar novos públicos"},),
+        fontes=({"descricao": "Pesquisa 2026"},),
+    ))
+    contrato = traduzir_briefing(
+        briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
+        criado_em=briefing.criado_em, catalogo=CATALOGO,
+    )
+
+    assert contrato.diagnostico
+    assert {item.tipo for item in contrato.relacoes_estrategicas} == {
+        "CONTRIBUICAO", "DERIVACAO"
+    }
+    assert any(item.prioridade == "alta" for item in contrato.contexto_priorizado)
+    assert contrato.resultados_indicadores
+    assert contrato.criterios_arquitetura
+    assert contrato.tensoes
+    assert all(item.estado == "QUALITATIVA_SEM_FORMULA"
+               for item in contrato.relacoes_estrategicas)
+
+
+def test_mudanca_contextual_altera_saida_a_jusante():
+    base = briefing_concluido(conteudo=ConteudoBriefing(
+        situacao_mercadologica={"intensidade_competitiva": "baixa"},
+        objetivos_marketing=({"categoria": "Crescimento"},),
+        objetivos_comunicacao=({"categoria": "consideração"},),
+        publicos=({"nome": "Compradores"},), jornada_aplicavel=False,
+    ))
+    alta = base.model_copy(update={"conteudo": base.conteudo.model_copy(update={
+        "situacao_mercadologica": {"intensidade_competitiva": "muito alta"}
+    })})
+    contratos = [traduzir_briefing(
+        item, contrato_id=uuid4(), criado_por=item.criado_por,
+        criado_em=item.criado_em, catalogo=CATALOGO,
+    ) for item in (base, alta)]
+
+    assert not contratos[0].tensoes
+    assert contratos[1].tensoes
+    assert len(contratos[1].criterios_arquitetura) > len(
+        contratos[0].criterios_arquitetura
+    )
