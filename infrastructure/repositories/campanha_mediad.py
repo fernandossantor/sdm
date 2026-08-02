@@ -13,6 +13,7 @@ from domain.campanha import (
     SituacaoCampanha,
     SnapshotVinculosCampanha,
 )
+from domain.traducao import ContratoEstrategico
 
 
 class UnidadeTrabalhoCampanhaSupabase:
@@ -245,6 +246,26 @@ class UnidadeTrabalhoCampanhaSupabase:
             "p_alertas_reconhecidos": list(alertas_reconhecidos),
             "p_usuario_id": str(atualizado.atualizado_por),
             "p_instante": atualizado.atualizado_em.isoformat(),
+        }).execute()
+
+    def obter_traducao_por_briefing(self, briefing_id: UUID):
+        resposta = (
+            self.cliente.table("traducoes_estrategicas_mediad")
+            .select("*").eq("briefing_id", str(briefing_id))
+            .eq("espaco_id", str(self.espaco_id)).limit(1).execute()
+        )
+        if not resposta.data:
+            return None
+        return ContratoEstrategico.model_validate(resposta.data[0]["resultado"])
+
+    def salvar_traducao(self, contrato: ContratoEstrategico) -> None:
+        self.cliente.rpc("criar_traducao_estrategica_mediad", {
+            "p_id": str(contrato.id),
+            "p_briefing_id": str(contrato.briefing_id),
+            "p_espaco_id": str(self.espaco_id),
+            "p_resultado": contrato.model_dump(mode="json"),
+            "p_usuario_id": str(contrato.criado_por),
+            "p_instante": contrato.criado_em.isoformat(),
         }).execute()
 
     def iniciar_briefing(self, campanha: Campanha, briefing: BriefingInicial) -> None:

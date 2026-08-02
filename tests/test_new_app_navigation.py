@@ -61,6 +61,15 @@ def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
     assert '"Concluir briefing"' in interface
 
 
+def test_traducao_expoe_criacao_resultado_e_edicao_versionada_futura():
+    interface = Path("presentation/streamlit_app.py").read_text()
+    assert '"Criar tradução estratégica"' in interface
+    assert '"Objetivos declarados"' in interface
+    assert '"Objetivos de mídia derivados"' in interface
+    assert '"Editar tradução"' in interface
+    assert "disabled=True" in interface
+
+
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():
     estado = {
         "campanha_id": "campanha-existente",

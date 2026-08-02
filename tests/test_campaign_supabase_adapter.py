@@ -13,6 +13,8 @@ from domain.campanha import (
     SituacaoCampanha,
     SnapshotVinculosCampanha,
 )
+from domain.traducao import ContratoEstrategico, EstadoContratoEstrategico
+from domain.contracts import Confianca
 from infrastructure.repositories.campanha_mediad import (
     UnidadeTrabalhoCampanhaSupabase,
 )
@@ -227,6 +229,49 @@ def test_rejeita_transicao_incoerente_antes_de_chamar_banco():
     with pytest.raises(ValueError, match="outra campanha"):
         repositorio.iniciar_briefing(campanha, briefing)
     assert cliente.chamadas_rpc == []
+
+
+def test_traducao_e_lida_por_briefing_e_salva_por_rpc():
+    cliente = ClienteFake()
+    espaco_id = uuid4()
+    briefing_id = uuid4()
+    contrato = ContratoEstrategico(
+        id=uuid4(), campanha_id=uuid4(), briefing_id=briefing_id,
+        briefing_versao=1, estado=EstadoContratoEstrategico.PROVISORIO,
+        objetivos_declarados=(), objetivos_midia_derivados=(), lacunas=(),
+        confianca=Confianca.BAIXA, versao_regras="regra-v1",
+        criado_por=uuid4(),
+        criado_em=datetime(2026, 8, 2, 1, 30, tzinfo=timezone.utc),
+    )
+    cliente.respostas["traducoes_estrategicas_mediad"] = [
+        {"resultado": contrato.model_dump(mode="json")}
+    ]
+    repositorio = UnidadeTrabalhoCampanhaSupabase(
+        cliente=cliente, espaco_id=espaco_id
+    )
+
+    assert repositorio.obter_traducao_por_briefing(briefing_id) == contrato
+    repositorio.salvar_traducao(contrato)
+
+    nome, parametros = cliente.chamadas_rpc[-1]
+    assert nome == "criar_traducao_estrategica_mediad"
+    assert parametros["p_briefing_id"] == str(briefing_id)
+    assert parametros["p_espaco_id"] == str(espaco_id)
+    assert parametros["p_resultado"]["estado"] == "PROVISORIO"
+
+
+def test_migracao_da_traducao_exige_briefing_concluido_e_rls():
+    migracao = Path(
+        "supabase/migrations/20260802013000_traducao_estrategica_inicial.sql"
+    ).read_text()
+    rollback = Path(
+        "supabase/rollbacks/20260802013000_traducao_estrategica_inicial.down.sql"
+    ).read_text()
+
+    assert "enable row level security" in migracao
+    assert "estado='CONCLUIDO'" in migracao
+    assert "pode_editar_espaco" in migracao
+    assert "drop table" in rollback
 
 
 def test_migracao_e_nova_reversivel_e_protegida_por_rls():

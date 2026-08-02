@@ -22,10 +22,12 @@ from presentation.composition import (
     bind_authenticated_client,
     campanhas_do_espaco,
     caso_de_uso_correcao_campanha,
+    caso_de_uso_traducao,
     briefing_da_campanha,
     briefing_atual,
     casos_de_uso_briefing,
     casos_de_uso_campanha,
+    traducao_do_briefing,
     versoes_briefing,
 )
 from presentation.campaign_state import iniciar_nova_campanha
@@ -853,12 +855,80 @@ def pagina_traducao():
     ):
         st.warning("Selecione uma campanha com briefing iniciado antes de continuar.")
         return
-    st.success(
-        "Campanha {} pronta para a tradução estratégica.".format(
-            st.session_state.get("campanha_codigo", "—")
-        )
+    briefing = briefing_atual(
+        st.session_state, st.session_state["briefing_id"]
     )
-    st.info("Esta etapa será construída progressivamente a partir do briefing salvo.")
+    if briefing is None:
+        st.error("O briefing selecionado não foi encontrado.")
+        return
+    if briefing.estado is not EstadoBriefing.CONCLUIDO:
+        st.warning("Conclua o briefing antes de criar a tradução estratégica.")
+        return
+
+    traducao = traducao_do_briefing(
+        st.session_state, st.session_state["briefing_id"]
+    )
+    if traducao is None:
+        st.write(
+            "A tradução organiza os objetivos declarados e deriva objetivos "
+            "de mídia rastreáveis, sem escolher canais ou distribuir verba."
+        )
+        if st.button("Criar tradução estratégica", type="primary"):
+            try:
+                traducao = caso_de_uso_traducao(st.session_state).executar(
+                    briefing_id=briefing.id,
+                    usuario_id=UUID(st.session_state["auth_user_id"]),
+                )
+            except Exception as exc:
+                st.error(f"Não foi possível criar a tradução: {exc}")
+            else:
+                st.success("Tradução estratégica criada com rastreabilidade.")
+                st.rerun()
+        return
+
+    coluna_estado, coluna_versao, coluna_confianca = st.columns(3)
+    coluna_estado.metric("Estado", traducao.estado.value.title())
+    coluna_versao.metric("Versão", traducao.versao)
+    coluna_confianca.metric("Confiança", traducao.confianca.value.title())
+
+    st.subheader("Objetivos declarados")
+    st.dataframe(
+        [
+            {"Nível": item.nivel.title(), "Objetivo": item.categoria}
+            for item in traducao.objetivos_declarados
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+    st.subheader("Objetivos de mídia derivados")
+    if traducao.objetivos_midia_derivados:
+        st.dataframe(
+            [
+                {
+                    "Ordem": item.ordem,
+                    "Objetivo de mídia": item.categoria,
+                    "Origem": item.origem_comunicacao,
+                }
+                for item in traducao.objetivos_midia_derivados
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+    else:
+        st.info("Nenhum objetivo de mídia pôde ser derivado pelas regras atuais.")
+    if traducao.lacunas:
+        st.subheader("Lacunas e ressalvas")
+        for lacuna in traducao.lacunas:
+            st.warning(lacuna)
+    st.caption(
+        f"Briefing v{traducao.briefing_versao} · Regras: "
+        f"{traducao.versao_regras}"
+    )
+    st.button(
+        "Editar tradução",
+        disabled=True,
+        help="A edição versionada será habilitada no próximo incremento.",
+    )
 
 
 PAGINAS = (
