@@ -1,0 +1,45 @@
+{
+  "codigo": "cfg_matriz_comunicacao_midia_piloto",
+  "versao": "1.0",
+  "ativo": true,
+  "pesos": {
+    "forca_padrao": 0.40,
+    "forca_comunicacao": 0.20,
+    "prioridade_comunicacao": 0.15,
+    "publico": 0.05,
+    "praca": 0.05,
+    "jornada": 0.05,
+    "periodo": 0.05,
+    "confianca": 0.05
+  },
+  "prioridades_entrada": {
+    "muito baixa": 20,
+    "baixa": 40,
+    "média": 60,
+    "alta": 80,
+    "muito alta": 100
+  },
+  "faixas_intensidade": [
+    {"minimo": 80, "nome": "muito alta"},
+    {"minimo": 60, "nome": "alta"},
+    {"minimo": 40, "nome": "média"},
+    {"minimo": 20, "nome": "baixa"},
+    {"minimo": 0, "nome": "muito baixa"}
+  ],
+  "prioridade_por_ordem": {
+    "1": "muito alta",
+    "2": "alta",
+    "3": "média",
+    "demais": "baixa"
+  },
+  "restricao_orcamentaria": {
+    "limiar": 80,
+    "penalizacao": 10,
+    "condicao_resultante": "COMPENSAVEL"
+  },
+  "valor_contextual_neutro": 50,
+  "fonte_documental_interna": [
+    "docs/new_app/03_TRADUCAO_ESTRATEGICA.md#10-matriz-comunicacaomidia",
+    "docs/new_app/26_MOTOR_DE_TRADUCAO_ESTRATEGICA.md#14-derivacao-dos-objetivos-de-midia"
+  ]
+}
