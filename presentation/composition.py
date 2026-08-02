@@ -16,6 +16,7 @@ from application.use_cases import (
     AbrirCampanha, ConcluirBriefing, CorrigirCampanha,
     CriarNovaVersaoBriefing, EditarBriefing, EnviarBriefingRevisao,
     IniciarBriefing, CriarNovaVersaoTraducao, CriarTraducaoEstrategica,
+    ReprocessarTraducaoEstrategica,
 )
 from infrastructure.database.data_client import (
     bind_authenticated_client,  # noqa: F401
@@ -42,6 +43,8 @@ __all__ = (
     "traducao_do_briefing",
     "caso_de_uso_traducao",
     "caso_de_uso_revisao_traducao",
+    "objetivos_midia_disponiveis",
+    "caso_de_uso_reprocessamento_traducao",
 )
 
 
@@ -97,6 +100,27 @@ def caso_de_uso_revisao_traducao(estado):
             usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
         ),
         repositorio=_unidade_campanha(estado),
+        catalogo=CatalogoTraducaoInicial(),
+    )
+
+
+def objetivos_midia_disponiveis():
+    return tuple(
+        item.nome for item in CatalogoTraducaoInicial().objetivos_midia()
+    )
+
+
+def caso_de_uso_reprocessamento_traducao(estado):
+    usuario_id = UUID(estado["auth_user_id"])
+    relogio = RelogioSistema()
+    return ReprocessarTraducaoEstrategica(
+        relogio=relogio,
+        autorizador=AutorizadorCampanhaPorEspaco(
+            usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
+        ), repositorio=_unidade_campanha(estado),
+        motor=MotorTraducaoEstrategica(
+            relogio=relogio, catalogo=CatalogoTraducaoInicial()
+        ),
     )
 
 

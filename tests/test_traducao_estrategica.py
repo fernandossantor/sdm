@@ -25,6 +25,7 @@ def briefing_concluido(**ajustes):
             objetivos_comunicacao=({"categoria": "conhecimento"},),
             publicos=({"nome": "Compradores"},), pracas=({"nome": "Brasil"},),
             periodo={"inicio": "2026-09-01", "fim": "2026-10-31"},
+            jornada_aplicavel=False,
             sem_restricoes_declaradas=True,
         ),
     }
@@ -42,12 +43,12 @@ def test_traducao_provisoria_preserva_origens_e_nao_escolhe_canais():
     assert contrato.briefing_id == briefing.id
     assert contrato.briefing_versao == 1
     assert [item.categoria for item in contrato.objetivos_midia_derivados] == [
-        "construir alcance", "ampliar cobertura"
+        "construir alcance", "gerar frequência", "sustentar continuidade"
     ]
     assert contrato.objetivos_midia_derivados[0].regra == "B15-CM-CONHECIMENTO"
     assert contrato.objetivos_midia_derivados[0].indicador_codigo == "B15-ALCANCE"
     assert {item.biblioteca for item in contrato.referencias_bibliotecas} == {
-        15, 17, 18
+        14, 15, 16, 17, 18
     }
     assert contrato.dependencias_estrategicas
     assert contrato.confianca is Confianca.BAIXA
@@ -59,7 +60,7 @@ def test_traducao_provisoria_preserva_origens_e_nao_escolhe_canais():
 def test_sem_regra_produz_parcial_e_lacuna_sem_inventar_objetivo():
     briefing = briefing_concluido(conteudo=ConteudoBriefing(
         objetivos_marketing=({"categoria": "Diversificação"},),
-        objetivos_comunicacao=({"categoria": "fidelização"},),
+        objetivos_comunicacao=({"categoria": "imagem"},),
     ))
     contrato = traduzir_briefing(
         briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
@@ -90,6 +91,7 @@ def test_revisao_cria_versao_e_preserva_derivacao_calculada():
         categorias_aceitas=("construir alcance",),
         justificativa="Cobertura não é prioritária neste ciclo.",
         criado_por=briefing.criado_por, criado_em=briefing.criado_em,
+        catalogo=CATALOGO,
     )
 
     assert nova.versao == 2
@@ -114,11 +116,36 @@ def test_revisao_exige_mudanca_e_justificativa():
         revisar_traducao(
             original, contrato_id=uuid4(), categorias_aceitas=(),
             justificativa="", criado_por=briefing.criado_por,
-            criado_em=briefing.criado_em,
+            criado_em=briefing.criado_em, catalogo=CATALOGO,
         )
     with pytest.raises(ValueError, match="não altera"):
         revisar_traducao(
             original, contrato_id=uuid4(), categorias_aceitas=categorias,
             justificativa="Revisão", criado_por=briefing.criado_por,
-            criado_em=briefing.criado_em,
+            criado_em=briefing.criado_em, catalogo=CATALOGO,
         )
+
+
+def test_planejador_pode_incluir_objetivo_da_biblioteca_com_justificativa():
+    briefing = briefing_concluido(conteudo=ConteudoBriefing(
+        objetivos_marketing=({"categoria": "Crescimento"},),
+        objetivos_comunicacao=({"categoria": "imagem"},),
+        publicos=({"nome": "Compradores"},), jornada_aplicavel=False,
+    ))
+    original = traduzir_briefing(
+        briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
+        criado_em=briefing.criado_em, catalogo=CATALOGO,
+    )
+    assert original.objetivos_midia_derivados == ()
+
+    nova = revisar_traducao(
+        original, contrato_id=uuid4(),
+        categorias_aceitas=("produzir impacto",),
+        justificativa="Imagem será observada por proxy de atenção.",
+        criado_por=briefing.criado_por, criado_em=briefing.criado_em,
+        catalogo=CATALOGO,
+    )
+
+    assert objetivos_midia_efetivos(nova)[0].categoria == "produzir impacto"
+    assert objetivos_midia_efetivos(nova)[0].natureza == "AJUSTADO_PELO_USUARIO"
+    assert nova.intervencoes_humanas[-1].valor_calculado == "NAO_DERIVADO"

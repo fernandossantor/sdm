@@ -36,6 +36,7 @@ class ObjetivoMidiaDerivado(BaseModel):
     indicador_nome: str | None = None
     conhecimento_aplicado: str | None = None
     problema_atendido: str | None = None
+    natureza: str = "CALCULADO"
 
 
 class ReferenciaBibliotecaAplicada(BaseModel):
@@ -109,24 +110,56 @@ def objetivos_midia_efetivos(
 def revisar_traducao(
     anterior: ContratoEstrategico, *, contrato_id: UUID,
     categorias_aceitas: tuple[str, ...], justificativa: str,
-    criado_por: UUID, criado_em: datetime,
+    criado_por: UUID, criado_em: datetime, catalogo,
 ) -> ContratoEstrategico:
     justificativa = justificativa.strip()
     if not justificativa:
         raise ValueError("a justificativa da revisão é obrigatória")
     calculadas = {item.categoria for item in anterior.objetivos_midia_derivados}
     aceitas = set(categorias_aceitas)
-    if not aceitas.issubset(calculadas):
-        raise ValueError("a revisão contém objetivo não derivado")
+    disponiveis = {item.nome for item in catalogo.objetivos_midia()}
+    if not aceitas.issubset(disponiveis):
+        raise ValueError("a revisão contém objetivo fora da Biblioteca 15")
     anteriores = {item.categoria for item in objetivos_midia_efetivos(anterior)}
+    adicionadas = aceitas - calculadas
+    novos_objetivos = []
+    novas_referencias = list(anterior.referencias_bibliotecas)
+    novas_dependencias = list(anterior.dependencias_estrategicas)
+    for categoria in sorted(adicionadas):
+        objetivo = catalogo.objetivo_midia(categoria)
+        indicador = catalogo.indicador(objetivo.indicador_codigo)
+        novos_objetivos.append(ObjetivoMidiaDerivado(
+            categoria=categoria, origem_comunicacao="INTERVENCAO_HUMANA",
+            regra="AJUSTE_HUMANO_JUSTIFICADO",
+            ordem=len(anterior.objetivos_midia_derivados) + len(novos_objetivos) + 1,
+            indicador_codigo=objetivo.indicador_codigo,
+            indicador_nome=indicador.nome if indicador else None,
+            natureza="AJUSTADO_PELO_USUARIO",
+        ))
+        for item in (objetivo, indicador):
+            if item and not any(
+                ref.codigo == item.codigo for ref in novas_referencias
+            ):
+                novas_referencias.append(ReferenciaBibliotecaAplicada(
+                    biblioteca=item.biblioteca, codigo=item.codigo,
+                    versao=item.versao,
+                ))
+        novas_dependencias.append(DependenciaEstrategica(
+            origem="intervencao_humana",
+            alvo=f"objetivo_midia:{categoria}",
+            recalcular_quando=("justificativa", "contexto estratégico"),
+        ))
     novas_intervencoes = tuple(
         IntervencaoHumana(
             objetivo_midia=categoria,
+            valor_calculado=(
+                "NAO_DERIVADO" if categoria in adicionadas else "DERIVADO"
+            ),
             valor_ajustado="ACEITO" if categoria in aceitas else "REJEITADO",
             valor_efetivo="ACEITO" if categoria in aceitas else "REJEITADO",
             autor=criado_por, momento=criado_em, justificativa=justificativa,
         )
-        for categoria in sorted(calculadas)
+        for categoria in sorted(calculadas | adicionadas)
         if (categoria in anteriores) != (categoria in aceitas)
     )
     if not novas_intervencoes:
@@ -141,6 +174,11 @@ def revisar_traducao(
         "intervencoes_humanas": (
             anterior.intervencoes_humanas + novas_intervencoes
         ),
+        "objetivos_midia_derivados": (
+            anterior.objetivos_midia_derivados + tuple(novos_objetivos)
+        ),
+        "referencias_bibliotecas": tuple(novas_referencias),
+        "dependencias_estrategicas": tuple(novas_dependencias),
         "criado_por": criado_por,
         "criado_em": criado_em,
     })
@@ -168,6 +206,8 @@ def traduzir_briefing(
     referencias = {}
     dependencias = []
     objetivos_sem_regra = []
+    for objeto in catalogo.referencias_contexto(briefing):
+        referencias[(objeto.biblioteca, objeto.codigo)] = objeto
     for objetivo in briefing.conteudo.objetivos_comunicacao:
         origem = objetivo["categoria"]
         regra = catalogo.regra_para(origem)
@@ -186,8 +226,13 @@ def traduzir_briefing(
                 continue
             vistos.add(categoria)
             indicador = catalogo.indicador(indicador_codigo)
+            objetivo_midia = catalogo.objetivo_midia(categoria)
             if indicador:
                 referencias[(indicador.biblioteca, indicador.codigo)] = indicador
+            if objetivo_midia:
+                referencias[(
+                    objetivo_midia.biblioteca, objetivo_midia.codigo
+                )] = objetivo_midia
             derivados.append(ObjetivoMidiaDerivado(
                 categoria=categoria, origem_comunicacao=origem,
                 regra=regra.codigo,

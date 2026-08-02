@@ -8,6 +8,31 @@ from engines.traducao_estrategica import (
 )
 
 
+def _executar_motor(*, relogio, motor, briefing, usuario_id, origem):
+    instante = relogio.agora()
+    comando = ComandoMotor(
+        motor_destino=MOTOR_TRADUCAO_ESTRATEGICA,
+        modo_execucao=ModoTraducaoEstrategica.TRADUZIR_BRIEFING,
+        nivel_execucao=NivelExecucao.PREVIA,
+        id_campanha=briefing.campanha_id,
+        id_snapshot_campanha=briefing.campanha_id,
+        id_usuario=usuario_id, perfil_de_acesso="PLANEJADOR",
+        solicitado_em=instante, origem_do_comando=origem,
+        objetivo_da_execucao=(
+            "Traduzir briefing em critérios estratégicos rastreáveis."
+        ),
+        referencias_de_entrada=(ReferenciaVersionada(
+            id=str(briefing.id), tipo="BRIEFING",
+            versao=str(briefing.versao), origem="campanha",
+        ),),
+        parametros_locais={"briefing": briefing, "contrato_id": uuid4()},
+    )
+    saida = motor.executar(comando)
+    return saida.resultado_principal.model_copy(update={
+        "execucao_motor": saida.model_copy(update={"resultado_principal": None})
+    })
+
+
 class CriarTraducaoEstrategica:
     def __init__(self, *, relogio, autorizador, repositorio, motor):
         self.relogio = relogio
@@ -26,41 +51,46 @@ class CriarTraducaoEstrategica:
         existente = self.repositorio.obter_traducao_por_briefing(briefing.id)
         if existente:
             raise ValueError("este briefing já possui tradução")
-        instante = self.relogio.agora()
-        comando = ComandoMotor(
-            motor_destino=MOTOR_TRADUCAO_ESTRATEGICA,
-            modo_execucao=ModoTraducaoEstrategica.TRADUZIR_BRIEFING,
-            nivel_execucao=NivelExecucao.PREVIA,
-            id_campanha=briefing.campanha_id,
-            id_snapshot_campanha=briefing.campanha_id,
-            id_usuario=usuario_id,
-            perfil_de_acesso="PLANEJADOR",
-            solicitado_em=instante,
-            origem_do_comando="CriarTraducaoEstrategica",
-            objetivo_da_execucao=(
-                "Traduzir briefing em critérios estratégicos rastreáveis."
-            ),
-            referencias_de_entrada=(ReferenciaVersionada(
-                id=str(briefing.id), tipo="BRIEFING",
-                versao=str(briefing.versao), origem="campanha",
-            ),),
-            parametros_locais={"briefing": briefing, "contrato_id": uuid4()},
+        contrato = _executar_motor(
+            relogio=self.relogio, motor=self.motor, briefing=briefing,
+            usuario_id=usuario_id, origem="CriarTraducaoEstrategica",
         )
-        saida = self.motor.executar(comando)
-        contrato = saida.resultado_principal.model_copy(update={
-            "execucao_motor": saida.model_copy(
-                update={"resultado_principal": None}
-            )
-        })
         self.repositorio.salvar_traducao(contrato)
         return contrato
 
 
-class CriarNovaVersaoTraducao:
-    def __init__(self, *, relogio, autorizador, repositorio):
+class ReprocessarTraducaoEstrategica:
+    def __init__(self, *, relogio, autorizador, repositorio, motor):
         self.relogio = relogio
         self.autorizador = autorizador
         self.repositorio = repositorio
+        self.motor = motor
+
+    def executar(self, *, briefing_id, usuario_id):
+        briefing = self.repositorio.obter_briefing(briefing_id)
+        anterior = self.repositorio.obter_traducao_por_briefing(briefing_id)
+        if briefing is None or anterior is None:
+            raise LookupError("briefing ou tradução não encontrado")
+        if not self.autorizador.pode_editar(usuario_id, briefing.campanha_id):
+            raise PermissionError("usuário não autorizado")
+        if anterior.intervencoes_humanas:
+            raise ValueError(
+                "tradução com intervenções exige revisão assistida"
+            )
+        nova = _executar_motor(
+            relogio=self.relogio, motor=self.motor, briefing=briefing,
+            usuario_id=usuario_id, origem="ReprocessarTraducaoEstrategica",
+        ).model_copy(update={"versao": anterior.versao + 1})
+        self.repositorio.salvar_nova_versao_traducao(anterior, nova)
+        return nova
+
+
+class CriarNovaVersaoTraducao:
+    def __init__(self, *, relogio, autorizador, repositorio, catalogo):
+        self.relogio = relogio
+        self.autorizador = autorizador
+        self.repositorio = repositorio
+        self.catalogo = catalogo
 
     def executar(
         self, *, briefing_id, usuario_id, categorias_aceitas, justificativa
@@ -74,7 +104,7 @@ class CriarNovaVersaoTraducao:
             anterior, contrato_id=uuid4(),
             categorias_aceitas=tuple(categorias_aceitas),
             justificativa=justificativa, criado_por=usuario_id,
-            criado_em=self.relogio.agora(),
+            criado_em=self.relogio.agora(), catalogo=self.catalogo,
         )
         self.repositorio.salvar_nova_versao_traducao(anterior, nova)
         return nova

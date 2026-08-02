@@ -89,6 +89,8 @@ def test_traducao_expoe_criacao_resultado_e_edicao_versionada():
     assert '"Bibliotecas consultadas"' in interface
     assert '"Dependências declaradas"' in interface
     assert "indicadores = {" not in interface
+    assert "objetivos_midia_disponiveis()" in interface
+    assert '"Objetivos de mídia efetivos"' in interface
 
 
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():

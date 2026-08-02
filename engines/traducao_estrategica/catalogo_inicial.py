@@ -1,11 +1,11 @@
 """Núcleo verificável das Bibliotecas 15, 17 e 18 para tradução inicial."""
 
 from domain.bibliotecas import (
-    ConhecimentoTecnico, IndicadorPlanejamento, ProblemaTecnico,
-    RegraComunicacaoMidia,
+    ConhecimentoTecnico, IndicadorPlanejamento, ObjetoBiblioteca,
+    ObjetivoMidiaBiblioteca, ProblemaTecnico, RegraComunicacaoMidia,
 )
 
-VERSAO_NUCLEO = "2026.08.02.1"
+VERSAO_NUCLEO = "2026.08.02.2"
 
 INDICADORES = (
     IndicadorPlanejamento(codigo="B15-ALCANCE", biblioteca=15,
@@ -29,6 +29,35 @@ INDICADORES = (
     IndicadorPlanejamento(codigo="B15-IMPACTO", biblioteca=15,
         versao=VERSAO_NUCLEO, nome="proxy de visibilidade ou atenção",
         familia="ENTREGA", unidade="índice ou contagem"),
+)
+
+OBJETIVOS_MIDIA = tuple(
+    ObjetivoMidiaBiblioteca(
+        codigo=codigo, biblioteca=15, versao=VERSAO_NUCLEO,
+        nome=nome, indicador_codigo=indicador,
+    )
+    for codigo, nome, indicador in (
+        ("B15-OM-CONSTRUIR-ALCANCE", "construir alcance", "B15-ALCANCE"),
+        ("B15-OM-AMPLIAR-COBERTURA", "ampliar cobertura", "B15-COBERTURA"),
+        ("B15-OM-ACELERAR-ALCANCE", "acelerar construção de alcance", "B15-ALCANCE"),
+        ("B15-OM-GERAR-FREQUENCIA", "gerar frequência", "B15-FREQUENCIA"),
+        ("B15-OM-SUSTENTAR-CONTINUIDADE", "sustentar continuidade", "B15-CONTINUIDADE"),
+        ("B15-OM-PRODUZIR-IMPACTO", "produzir impacto", "B15-IMPACTO"),
+        ("B15-OM-ALCANCAR-PRIORITARIOS", "alcançar públicos prioritários", "B15-ALCANCE"),
+        ("B15-OM-AUMENTAR-AFINIDADE", "aumentar afinidade", "B15-ALCANCE"),
+        ("B15-OM-GERAR-TRAFEGO", "gerar tráfego", "B15-RESPOSTA"),
+        ("B15-OM-FAVORECER-RESPOSTA", "favorecer resposta", "B15-RESPOSTA"),
+        ("B15-OM-FAVORECER-CONVERSAO", "favorecer conversão", "B15-CONVERSAO"),
+        ("B15-OM-AMPLIAR-PRESENCA-TERRITORIAL", "ampliar presença territorial", "B15-COBERTURA"),
+        ("B15-OM-ACOMPANHAR-JORNADA", "acompanhar etapas da jornada", "B15-CONTINUIDADE"),
+    )
+)
+
+CONTEXTO = (
+    ObjetoBiblioteca(codigo="B14-RESOLVER-PUBLICO-SEGMENTO", biblioteca=14,
+        versao=VERSAO_NUCLEO),
+    ObjetoBiblioteca(codigo="B16-RESOLVER-JORNADA-ETAPA", biblioteca=16,
+        versao=VERSAO_NUCLEO),
 )
 
 CONHECIMENTOS = (
@@ -60,19 +89,28 @@ REGRAS = tuple(
         problema_atendido="B18-DERIVAR-OBJETIVO-MIDIA",
     )
     for origem, objetivos, indicadores in (
-        ("notoriedade", ("construir alcance", "produzir impacto"),
-         ("B15-ALCANCE", "B15-IMPACTO")),
-        ("conhecimento", ("construir alcance", "ampliar cobertura"),
-         ("B15-ALCANCE", "B15-COBERTURA")),
+        ("notoriedade", ("construir alcance", "ampliar cobertura", "acelerar construção de alcance", "produzir impacto"),
+         ("B15-ALCANCE", "B15-COBERTURA", "B15-ALCANCE", "B15-IMPACTO")),
+        ("conhecimento", ("construir alcance", "gerar frequência", "sustentar continuidade"),
+         ("B15-ALCANCE", "B15-FREQUENCIA", "B15-CONTINUIDADE")),
         ("lembrança", ("gerar frequência", "sustentar continuidade"),
          ("B15-FREQUENCIA", "B15-CONTINUIDADE")),
-        ("consideração", ("gerar frequência", "ampliar cobertura"),
-         ("B15-FREQUENCIA", "B15-COBERTURA")),
-        ("engajamento", ("gerar tráfego ou resposta",), ("B15-RESPOSTA",)),
-        ("experimentação", ("apoiar conversão mensurável",),
-         ("B15-CONVERSAO",)),
-        ("ação", ("gerar tráfego ou resposta", "apoiar conversão mensurável"),
-         ("B15-RESPOSTA", "B15-CONVERSAO")),
+        ("compreensão", ("gerar frequência",), ("B15-FREQUENCIA",)),
+        ("diferenciação percebida", ("produzir impacto", "aumentar afinidade"),
+         ("B15-IMPACTO", "B15-ALCANCE")),
+        ("consideração", ("alcançar públicos prioritários", "acompanhar etapas da jornada", "aumentar afinidade"),
+         ("B15-ALCANCE", "B15-CONTINUIDADE", "B15-ALCANCE")),
+        ("engajamento", ("favorecer resposta", "aumentar afinidade", "sustentar continuidade"),
+         ("B15-RESPOSTA", "B15-ALCANCE", "B15-CONTINUIDADE")),
+        ("experimentação", ("favorecer resposta", "ampliar presença territorial"),
+         ("B15-RESPOSTA", "B15-COBERTURA")),
+        ("relacionamento", ("sustentar continuidade", "gerar frequência"),
+         ("B15-CONTINUIDADE", "B15-FREQUENCIA")),
+        ("recomendação", ("favorecer resposta",), ("B15-RESPOSTA",)),
+        ("ação", ("favorecer resposta", "gerar tráfego", "favorecer conversão"),
+         ("B15-RESPOSTA", "B15-RESPOSTA", "B15-CONVERSAO")),
+        ("fidelização", ("gerar frequência", "sustentar continuidade", "aumentar afinidade"),
+         ("B15-FREQUENCIA", "B15-CONTINUIDADE", "B15-ALCANCE")),
     )
 )
 
@@ -92,4 +130,22 @@ class CatalogoTraducaoInicial:
                      if item.codigo == codigo), None)
 
     def referencias(self):
-        return (*INDICADORES, *CONHECIMENTOS, *PROBLEMAS, *REGRAS)
+        return (
+            *CONTEXTO, *INDICADORES, *OBJETIVOS_MIDIA,
+            *CONHECIMENTOS, *PROBLEMAS, *REGRAS,
+        )
+
+    def referencias_contexto(self, briefing):
+        referencias = []
+        if briefing.conteudo.publicos or briefing.conteudo.segmentos:
+            referencias.append(CONTEXTO[0])
+        if (briefing.conteudo.jornadas
+                or briefing.conteudo.jornada_aplicavel is False):
+            referencias.append(CONTEXTO[1])
+        return tuple(referencias)
+
+    def objetivos_midia(self):
+        return OBJETIVOS_MIDIA
+
+    def objetivo_midia(self, nome: str):
+        return next((item for item in OBJETIVOS_MIDIA if item.nome == nome), None)

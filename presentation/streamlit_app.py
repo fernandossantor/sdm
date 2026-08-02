@@ -31,6 +31,8 @@ from presentation.composition import (
     casos_de_uso_briefing,
     casos_de_uso_campanha,
     traducao_do_briefing,
+    objetivos_midia_disponiveis,
+    caso_de_uso_reprocessamento_traducao,
     versoes_briefing,
 )
 from presentation.campaign_state import iniciar_nova_campanha
@@ -915,6 +917,30 @@ def pagina_traducao():
     coluna_versao.metric("Versão", traducao.versao)
     coluna_confianca.metric("Confiança", traducao.confianca.value.title())
 
+    bibliotecas_consultadas = {
+        item.biblioteca for item in traducao.referencias_bibliotecas
+    }
+    if not {14, 15, 16, 17, 18}.issubset(bibliotecas_consultadas):
+        st.warning(
+            "Esta versão foi produzida pelo núcleo anterior e não resolveu "
+            "todo o contexto das Bibliotecas 14–18."
+        )
+        if not traducao.intervencoes_humanas and st.button(
+            "Reprocessar com as bibliotecas atuais", type="primary"
+        ):
+            try:
+                caso_de_uso_reprocessamento_traducao(
+                    st.session_state
+                ).executar(
+                    briefing_id=briefing.id,
+                    usuario_id=UUID(st.session_state["auth_user_id"]),
+                )
+            except Exception as exc:
+                st.error(f"Não foi possível reprocessar a tradução: {exc}")
+            else:
+                st.success("Nova versão produzida com as bibliotecas atuais.")
+                st.rerun()
+
     efetivos = objetivos_midia_efetivos(traducao)
     categorias_efetivas = {item.categoria for item in efetivos}
     conteudo = briefing.conteudo
@@ -963,6 +989,7 @@ def pagina_traducao():
                         else "Rejeitado pelo planejador"
                     ),
                     "Regra": item.regra,
+                    "Natureza": item.natureza.replace("_", " ").title(),
                 }
                 for item in traducao.objetivos_midia_derivados
             ], use_container_width=True, hide_index=True)
@@ -1077,14 +1104,19 @@ def pagina_traducao():
             "A derivação automática será preservada. Alterações ficam "
             "registradas como intervenção humana em uma nova versão."
         )
-        opcoes = [
-            item.categoria for item in traducao.objetivos_midia_derivados
-        ]
+        opcoes = list(objetivos_midia_disponiveis())
         with st.form("revisao_traducao"):
             aceitas = st.multiselect(
-                "Objetivos aceitos",
+                "Objetivos de mídia efetivos",
                 options=opcoes,
-                default=[item.categoria for item in efetivos],
+                default=[
+                    item.categoria for item in efetivos
+                    if item.categoria in opcoes
+                ],
+                help=(
+                    "As sugestões calculadas já aparecem selecionadas. "
+                    "Inclusões ou exclusões são registradas como intervenção."
+                ),
             )
             justificativa = st.text_input("Justificativa da alteração")
             salvar_revisao = st.form_submit_button(

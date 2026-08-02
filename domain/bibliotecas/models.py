@@ -18,6 +18,12 @@ class IndicadorPlanejamento(ObjetoBiblioteca):
     pode_receber_meta: bool = True
 
 
+class ObjetivoMidiaBiblioteca(ObjetoBiblioteca):
+    nome: str
+    indicador_codigo: str | None
+    condicao: str = "CANDIDATO"
+
+
 class RegraComunicacaoMidia(ObjetoBiblioteca):
     objetivo_comunicacao: str
     objetivos_midia: tuple[str, ...]
