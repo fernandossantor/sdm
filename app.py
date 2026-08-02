@@ -1,5 +1,6 @@
-"""Ponto de entrada da nova interface do MediAd Planner."""
+"""Ponto de entrada exclusivo do MediAd Planner."""
 
-from presentation.streamlit_app import executar
+from mediad_planner.presentation.streamlit_app import executar
+
 
 executar()
