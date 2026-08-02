@@ -1,0 +1,1 @@
+"""Protocolo público dos motores."""
