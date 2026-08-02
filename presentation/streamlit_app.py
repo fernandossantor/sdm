@@ -38,7 +38,10 @@ from presentation.composition import (
 )
 from presentation.campaign_state import iniciar_nova_campanha
 from presentation.navigation import ETAPAS_FUTURAS, NAVEGACAO_INICIAL
-from presentation.traducao_vertical import renderizar_traducao_vertical
+from presentation.traducao_presenter import (
+    AJUDAS, apresentar_consequencias, apresentar_contexto,
+    apresentar_objetivos, apresentar_revisao, apresentar_sintese,
+)
 
 MARCA = Path(__file__).parents[1] / "assets" / "Marca_nova.png"
 
@@ -874,36 +877,25 @@ def pagina_briefing() -> None:
 
 def pagina_traducao():
     _cabecalho(
-        "Etapa 03",
-        "Tradução estratégica",
-        "Transforme o briefing em problemas, objetivos e critérios de decisão.",
+        "Etapa 03", "Tradução estratégica",
+        "Veja o contexto informado, a interpretação do motor e as consequências para as próximas decisões.",
     )
-    if not st.session_state.get("campanha_id") or not st.session_state.get(
-        "briefing_id"
-    ):
+    if not st.session_state.get("campanha_id") or not st.session_state.get("briefing_id"):
         st.warning("Selecione uma campanha com briefing iniciado antes de continuar.")
         return
-    briefing = briefing_atual(
-        st.session_state, st.session_state["briefing_id"]
-    )
+    briefing = briefing_atual(st.session_state, st.session_state["briefing_id"])
     if briefing is None:
         st.error("O briefing selecionado não foi encontrado.")
         return
     if briefing.estado is not EstadoBriefing.CONCLUIDO:
         st.warning("Conclua o briefing antes de criar a tradução estratégica.")
         return
-
-    traducao = traducao_do_briefing(
-        st.session_state, st.session_state["briefing_id"]
-    )
+    traducao = traducao_do_briefing(st.session_state, st.session_state["briefing_id"])
     if traducao is None:
-        st.write(
-            "A tradução organiza os objetivos declarados e deriva objetivos "
-            "de mídia rastreáveis, sem escolher canais ou distribuir verba."
-        )
+        st.write("A tradução organiza o contexto e produz prioridades rastreáveis, sem escolher canais ou distribuir verba.")
         if st.button("Criar tradução estratégica", type="primary"):
             try:
-                traducao = caso_de_uso_traducao(st.session_state).executar(
+                caso_de_uso_traducao(st.session_state).executar(
                     briefing_id=briefing.id,
                     usuario_id=UUID(st.session_state["auth_user_id"]),
                 )
@@ -914,209 +906,178 @@ def pagina_traducao():
                 st.rerun()
         return
 
-    coluna_estado, coluna_versao, coluna_confianca = st.columns(3)
-    coluna_estado.metric("Estado", traducao.estado.value.title())
-    coluna_versao.metric("Versão", traducao.versao)
-    coluna_confianca.metric("Confiança", traducao.confianca.value.title())
-
-    bibliotecas_consultadas = {
-        item.biblioteca for item in traducao.referencias_bibliotecas
-    }
-    if (not {14, 15, 16, 17, 18}.issubset(bibliotecas_consultadas)
+    bibliotecas = {item.biblioteca for item in traducao.referencias_bibliotecas}
+    if (not {14, 15, 16, 17, 18}.issubset(bibliotecas)
             or traducao.versao_regras != VERSAO_NUCLEO):
-        st.warning(
-            "Esta versão foi produzida pelo núcleo anterior e não resolveu "
-            "todo o contexto das Bibliotecas 14–18."
-        )
-        if not traducao.intervencoes_humanas and st.button(
-            "Reprocessar com as bibliotecas atuais", type="primary"
-        ):
+        st.warning("Esta versão ainda não contém toda a memória decisória do núcleo atual.")
+        if not traducao.intervencoes_humanas and st.button("Reprocessar com o núcleo atual", type="primary"):
             try:
-                caso_de_uso_reprocessamento_traducao(
-                    st.session_state
-                ).executar(
+                caso_de_uso_reprocessamento_traducao(st.session_state).executar(
                     briefing_id=briefing.id,
                     usuario_id=UUID(st.session_state["auth_user_id"]),
                 )
             except Exception as exc:
                 st.error(f"Não foi possível reprocessar a tradução: {exc}")
             else:
-                st.success("Nova versão produzida com as bibliotecas atuais.")
+                st.success("Nova versão produzida e a anterior foi preservada.")
                 st.rerun()
 
-    efetivos = objetivos_midia_efetivos(traducao)
-    categorias_efetivas = {item.categoria for item in efetivos}
-    abas = st.tabs([
-        "Diagnóstico", "Objetivos e relações", "Contexto prioritário",
-        "Resultados e indicadores", "Critérios e tensões", "Rastreabilidade",
-    ])
-    with abas[0]:
-        st.subheader("Diagnóstico estratégico estruturado")
-        st.dataframe([{
-            "Dimensão": item.dimensao, "Valor": item.valor,
-            "Influencia": ", ".join(item.influencia_em),
-            "Origem": item.origem,
-        } for item in traducao.diagnostico],
-            use_container_width=True, hide_index=True)
-        st.info(
-            "O diagnóstico usa somente classificações declaradas no Briefing; "
-            "não transforma ausência em pontuação zero."
-        )
+    comunicacao, midia = apresentar_objetivos(traducao)
+    sintese = apresentar_sintese(traducao, midia)
+    consequencias = apresentar_consequencias(traducao, midia)
 
-    with abas[1]:
-        st.subheader("Objetivos declarados")
-        st.dataframe(
-            [
-                {"Nível": item.nivel.title(), "Objetivo": item.categoria,
-                 "Estado": item.estado}
-                for item in traducao.objetivos_declarados
-            ], use_container_width=True, hide_index=True,
-        )
-        st.subheader("Cadeia Marketing → Comunicação → Mídia")
-        st.caption("Relações Marketing → Comunicação")
-        st.caption("Relações Comunicação → Mídia")
-        if traducao.relacoes_estrategicas:
-            st.dataframe([
-                {
-                    "Origem": f"{item.origem_nivel}: {item.origem}",
-                    "Destino": f"{item.destino_nivel}: {item.destino}",
-                    "Tipo": item.tipo,
-                    "Estado": item.estado,
-                    "Justificativa": item.justificativa,
-                    "Regra": item.regra,
-                }
-                for item in traducao.relacoes_estrategicas
-            ], use_container_width=True, hide_index=True)
-        else:
-            st.info("Nenhum objetivo de mídia pôde ser derivado pelas regras atuais.")
+    st.header("1. Contexto informado")
+    st.caption("Dados trazidos do briefing. Eles são somente leitura nesta etapa e não foram substituídos pela interpretação do motor.")
+    itens_contexto = apresentar_contexto(briefing)
+    for linha in range(0, len(itens_contexto), 3):
+        colunas = st.columns(3)
+        for coluna, item in zip(colunas, itens_contexto[linha:linha + 3]):
+            with coluna.container(border=True):
+                st.markdown(f"**{item.titulo}**")
+                st.write(item.valor)
+                st.caption(f"{item.origem}. {item.explicacao}")
 
-    with abas[2]:
-        st.subheader("Escopo e vínculos contextuais")
-        st.dataframe([{
-            "Dimensão": item.dimensao, "Valor": item.valor,
-            "Prioridade": item.prioridade,
-            "Efeito a jusante": ", ".join(item.influencia_em),
-        } for item in traducao.contexto_priorizado],
-            use_container_width=True, hide_index=True)
+    st.header("2. Interpretação e prioridades")
+    st.caption("O motor preserva separadamente o informado, o padrão da biblioteca, o valor calculado, eventual ajuste e o valor efetivo.")
+    with st.container(border=True):
+        st.markdown(f"### Prioridade principal: {sintese.principal}")
+        st.write("Prioridades secundárias: " + (", ".join(sintese.secundarias) or "nenhuma adicional"))
+        st.write(f"**Tensão principal:** {sintese.tensao}")
+        st.write(f"**Confiança da tradução:** {sintese.confianca}")
+        st.caption(AJUDAS["confianca"])
 
-    with abas[3]:
-        st.subheader("Resultados e indicadores associados pelo motor")
-        st.caption("Indicadores propostos")
-        st.dataframe([
-            {"Objetivo de mídia": item.objetivo_midia,
-             "Resultado pretendido": item.resultado_pretendido,
-             "Indicador": item.indicador_nome or "a definir",
-             "Referência": item.indicador_codigo or "não disponível",
-             "Estado": item.estado_mensuracao.replace("_", " ").title()}
-            for item in traducao.resultados_indicadores
-            if item.objetivo_midia in categorias_efetivas
-        ], use_container_width=True, hide_index=True)
-        st.warning(
-            "Intensidades e pesos ainda não são calculados: o Briefing atual "
-            "não registra metas, linhas de base ou escalas suficientes."
-        )
+    marketing = [item.categoria for item in traducao.objetivos_declarados if item.nivel == "MARKETING"]
+    st.markdown("### Cadeia de decisão")
+    st.write(
+        f"**Marketing:** {', '.join(marketing) or 'Pendente'}  →  "
+        f"**Comunicação:** {', '.join(item.nome for item in comunicacao) or 'Pendente'}  →  "
+        f"**Mídia:** {', '.join(item.nome for item in midia) or 'Pendente'}"
+    )
 
-    with abas[4]:
-        st.subheader("Critérios produzidos para a arquitetura")
-        st.dataframe([{
-            "Critério": item.criterio, "Condição": item.condicao,
-            "Prioridade": item.prioridade,
-            "Limite": "sim" if item.limita_decisoes else "não",
-            "Origens": ", ".join(item.origens),
-        } for item in traducao.criterios_arquitetura],
-            use_container_width=True, hide_index=True)
-        st.subheader("Tensões e decisões requeridas")
-        if traducao.tensoes:
-            st.dataframe([
-                {"Tensão": item.tensao, "Gravidade": item.gravidade,
-                 "Evidências": ", ".join(item.evidencias),
-                 "Decisão requerida": item.decisao_requerida}
-                for item in traducao.tensoes
-            ], use_container_width=True, hide_index=True)
-        else:
-            st.info("Nenhum problema estratégico foi registrado pelo motor.")
+    def mostrar_objetivo(item):
+        titulo = f"{item.ordem}. {item.nome} · {item.prioridade} · peso efetivo {item.peso_efetivo}"
+        with st.container(border=True):
+            st.markdown(f"#### {titulo}")
+            origem, condicao, confianca = st.columns(3)
+            origem.write(f"**Origem do peso:** {item.origem_peso}")
+            condicao.write(f"**Condição:** {item.condicao}")
+            confianca.write(f"**Confiança:** {item.confianca}")
+            if item.empate_tecnico:
+                st.info("Empate técnico: a diferença ficou dentro da tolerância do motor; não há superioridade conclusiva nesta ordem.")
+            st.write(f"**Efeito esperado na Arquitetura de Mídia:** {item.efeito_arquitetura}")
+            st.caption(AJUDAS["efeito_arquitetura"])
+            with st.expander("Entender esta prioridade"):
+                for rotulo, valor, ajuda in (
+                    ("Força padrão", item.forca_padrao, "forca_padrao"),
+                    ("Pontuação contextual", item.pontuacao_contextual, "pontuacao_contextual"),
+                    ("Peso calculado", item.peso_calculado, "peso_calculado"),
+                    ("Peso ajustado", item.peso_ajustado, "peso_ajustado"),
+                    ("Peso efetivo", item.peso_efetivo, "peso_efetivo"),
+                ):
+                    st.write(f"**{rotulo}:** {valor}")
+                    st.caption(AJUDAS[ajuda])
+                st.write("**Fatores que aumentaram a pontuação**")
+                for fator in item.fatores_positivos:
+                    st.write(f"+ {fator}")
+                st.write("**Fatores que reduziram a pontuação**")
+                for fator in item.fatores_negativos:
+                    st.write(f"− {fator}")
+                st.write(f"**Explicação decisória:** {item.explicacao}")
+                st.caption(AJUDAS["condicao"])
 
-    with abas[5]:
-        st.subheader("Lacunas e ressalvas")
-        if traducao.lacunas:
-            for lacuna in traducao.lacunas:
-                st.warning(lacuna)
-        else:
-            st.success("Não há lacunas registradas nesta versão.")
+    st.markdown("### Objetivos de Comunicação interpretados")
+    if comunicacao:
+        for item in comunicacao:
+            mostrar_objetivo(item)
+    else:
+        st.warning("Nenhum objetivo de Comunicação pôde ser priorizado.")
+    st.markdown("### Objetivos de Mídia resultantes")
+    if midia:
+        for item in midia:
+            mostrar_objetivo(item)
+    else:
+        st.warning("Nenhum objetivo de Mídia pôde ser derivado.")
+
+    st.header("3. Consequências para o planejamento")
+    secoes = (
+        ("A Arquitetura de Mídia deverá priorizar", consequencias.priorizar),
+        ("Condições obrigatórias", consequencias.obrigatorias),
+        ("Elementos complementares", consequencias.complementares),
+        ("Tensões a administrar", consequencias.tensoes),
+        ("Dados ainda faltantes", consequencias.dados_faltantes),
+        ("O que não pôde ser concluído", consequencias.nao_concluido),
+        ("Decisões que permanecem humanas", consequencias.decisoes_humanas),
+    )
+    for titulo, itens in secoes:
+        with st.container(border=True):
+            st.markdown(f"**{titulo}**")
+            for item in itens:
+                st.write(f"• {item}")
+            if titulo == "Tensões a administrar":
+                st.caption(AJUDAS["tensao"])
+            if titulo == "Condições obrigatórias":
+                st.caption(AJUDAS["restricao"])
+
+    with st.expander("Ver fundamentação técnica e rastreabilidade"):
         st.write(f"**Briefing de origem:** versão {traducao.briefing_versao}")
         st.write(f"**Versão das regras:** {traducao.versao_regras}")
+        st.write(f"**Versão da composição:** {traducao.versao_composicao or 'não registrada'}")
         st.write(f"**Intervenções humanas:** {len(traducao.intervencoes_humanas)}")
         if traducao.confianca_detalhada:
-            st.write("**Fatores positivos:** " + ", ".join(
-                traducao.confianca_detalhada.fatores_positivos
-            ))
-            st.write("**Fatores redutores:** " + ", ".join(
-                traducao.confianca_detalhada.fatores_redutores
-            ))
-        st.subheader("Bibliotecas consultadas")
-        st.dataframe([
-            {"Biblioteca": item.biblioteca, "Código": item.codigo,
-             "Versão": item.versao}
-            for item in traducao.referencias_bibliotecas
-        ], use_container_width=True, hide_index=True)
-        st.subheader("Dependências declaradas")
-        st.dataframe([
-            {"Origem": item.origem, "Alvo": item.alvo,
-             "Recalcular quando": ", ".join(item.recalcular_quando)}
-            for item in traducao.dependencias_estrategicas
-        ], use_container_width=True, hide_index=True)
+            st.write("**Fatores positivos de confiança:** " + ", ".join(traducao.confianca_detalhada.fatores_positivos))
+            st.write("**Fatores redutores de confiança:** " + ", ".join(traducao.confianca_detalhada.fatores_redutores))
+        st.markdown("#### Bibliotecas e conhecimentos consultados")
+        st.dataframe([{"Biblioteca": item.biblioteca, "Código": item.codigo, "Versão": item.versao} for item in traducao.referencias_bibliotecas], use_container_width=True, hide_index=True)
+        st.markdown("#### Regras e relações aplicadas")
+        st.dataframe([{"Origem": f"{item.origem_nivel}: {item.origem}", "Destino": f"{item.destino_nivel}: {item.destino}", "Regra": item.regra, "Estado": item.estado, "Justificativa": item.justificativa} for item in traducao.relacoes_estrategicas], use_container_width=True, hide_index=True)
+        st.markdown("#### Problemas técnicos")
+        st.dataframe([{"Código": item.codigo, "Estado": item.estado, "Mensagem": item.mensagem} for item in traducao.problemas_identificados], use_container_width=True, hide_index=True)
+        st.markdown("#### Dependências")
+        st.dataframe([{"Origem": item.origem, "Alvo": item.alvo, "Recalcular quando": ", ".join(item.recalcular_quando)} for item in traducao.dependencias_estrategicas], use_container_width=True, hide_index=True)
+        st.markdown("#### Estado de mensuração")
+        st.dataframe([{"Objetivo de mídia": item.objetivo_midia, "Indicador": item.indicador_nome or "Pendente", "Código": item.indicador_codigo or "Pendente", "Estado": item.estado_mensuracao.replace("_", " ").title()} for item in traducao.resultados_indicadores], use_container_width=True, hide_index=True)
         if traducao.execucao_motor:
-            st.caption(
-                "Execução {} · política de reexecução: {}".format(
-                    traducao.execucao_motor.estado_execucao.value,
-                    traducao.execucao_motor.reexecucao.politica.value,
-                )
-            )
+            st.caption("Execução {} · política de reexecução: {}".format(traducao.execucao_motor.estado_execucao.value, traducao.execucao_motor.reexecucao.politica.value))
+
+    efetivos = objetivos_midia_efetivos(traducao)
     if not st.session_state.get("traducao_em_edicao"):
-        if st.button("Editar tradução", type="primary"):
+        if st.button("Revisar decisões", type="primary"):
             st.session_state["traducao_em_edicao"] = True
             st.rerun()
     else:
-        st.subheader("Revisar objetivos de mídia")
-        st.caption(
-            "A derivação automática será preservada. Alterações ficam "
-            "registradas como intervenção humana em uma nova versão."
-        )
+        st.subheader("Revisão humana assistida")
+        st.caption("O valor calculado e a versão anterior serão preservados. A revisão altera somente o conjunto efetivamente adotado e exige justificativa.")
         opcoes = list(objetivos_midia_disponiveis())
         with st.form("revisao_traducao"):
-            aceitas = st.multiselect(
-                "Objetivos de mídia efetivos",
-                options=opcoes,
-                default=[
-                    item.categoria for item in efetivos
-                    if item.categoria in opcoes
-                ],
-                help=(
-                    "As sugestões calculadas já aparecem selecionadas. "
-                    "Inclusões ou exclusões são registradas como intervenção."
-                ),
+            propostas = st.multiselect(
+                "Novo conjunto proposto de objetivos de mídia", options=opcoes,
+                default=[item.categoria for item in efetivos if item.categoria in opcoes],
+                help="A seleção propõe o conjunto efetivo; regras e pesos internos não podem ser editados aqui.",
             )
-            justificativa = st.text_input("Justificativa da alteração")
-            salvar_revisao = st.form_submit_button(
-                "Criar nova versão", type="primary"
+            st.dataframe(apresentar_revisao(traducao, tuple(propostas)), use_container_width=True, hide_index=True)
+            justificativa = st.text_area(
+                "Justificativa obrigatória",
+                help="Explique por que a proposta deve substituir o conjunto efetivo atual. A versão anterior será preservada.",
             )
-        if salvar_revisao:
-            try:
-                caso_de_uso_revisao_traducao(
-                    st.session_state
-                ).executar(
-                    briefing_id=briefing.id,
-                    usuario_id=UUID(st.session_state["auth_user_id"]),
-                    categorias_aceitas=tuple(aceitas),
-                    justificativa=justificativa,
-                )
-            except Exception as exc:
-                st.error(f"Não foi possível revisar a tradução: {exc}")
+            salvar = st.form_submit_button("Criar nova versão", type="primary")
+        if salvar:
+            if not justificativa.strip():
+                st.error("Informe a justificativa da revisão.")
             else:
-                st.session_state.pop("traducao_em_edicao", None)
-                st.success("Nova versão criada com intervenção rastreável.")
-                st.rerun()
-        if st.button("Cancelar edição"):
+                try:
+                    caso_de_uso_revisao_traducao(st.session_state).executar(
+                        briefing_id=briefing.id,
+                        usuario_id=UUID(st.session_state["auth_user_id"]),
+                        categorias_aceitas=tuple(propostas),
+                        justificativa=justificativa,
+                    )
+                except Exception as exc:
+                    st.error(f"Não foi possível revisar a tradução: {exc}")
+                else:
+                    st.session_state.pop("traducao_em_edicao", None)
+                    st.success("Nova versão criada; a anterior foi preservada.")
+                    st.rerun()
+        if st.button("Cancelar revisão"):
             st.session_state.pop("traducao_em_edicao", None)
             st.rerun()
 
@@ -1130,7 +1091,7 @@ PAGINAS = (
     ),
     st.Page(pagina_campanha, title=NAVEGACAO_INICIAL[1].titulo, icon="📁"),
     st.Page(pagina_briefing, title=NAVEGACAO_INICIAL[2].titulo, icon="📋"),
-    st.Page(renderizar_traducao_vertical, title="Tradução estratégica", icon="🧭"),
+    st.Page(pagina_traducao, title="Tradução estratégica", icon="🧭"),
 )
 
 

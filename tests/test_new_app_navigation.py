@@ -70,28 +70,26 @@ def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
     assert "disabled=not avaliacao.apto_para_revisao" in interface
 
 
-def test_traducao_expoe_criacao_resultado_e_edicao_versionada():
+def test_traducao_expoe_apoio_decisorio_e_revisao_versionada():
     interface = Path("presentation/streamlit_app.py").read_text()
-    assert '"Criar tradução estratégica"' in interface
-    assert '"Objetivos declarados"' in interface
-    assert '"Relações Comunicação → Mídia"' in interface
-    assert '"Editar tradução"' in interface
-    assert '"Justificativa da alteração"' in interface
-    assert '"Criar nova versão"' in interface
-    for secao in (
-        "Diagnóstico", "Objetivos e relações", "Contexto prioritário",
-        "Resultados e indicadores", "Critérios e tensões", "Rastreabilidade",
+    interface = interface[interface.index("def pagina_traducao") : interface.index("PAGINAS = (")]
+    for area in (
+        "1. Contexto informado",
+        "2. Interpretação e prioridades",
+        "3. Consequências para o planejamento",
     ):
-        assert f'"{secao}"' in interface
-    assert '"Indicadores propostos"' in interface
-    assert '"Tensões e decisões requeridas"' in interface
-    assert "não registra metas, linhas de base ou escalas suficientes" in interface
-    assert '"Bibliotecas consultadas"' in interface
-    assert '"Dependências declaradas"' in interface
-    assert "indicadores = {" not in interface
-    assert "objetivos_midia_disponiveis()" in interface
-    assert '"Objetivos de mídia efetivos"' in interface
-
+        assert f'"{area}"' in interface
+    assert '"### Cadeia de decisão"' in interface
+    assert '"Ver fundamentação técnica e rastreabilidade"' in interface
+    assert "Fatores que aumentaram a pontuação" in interface
+    assert "Fatores que reduziram a pontuação" in interface
+    assert "Efeito esperado na Arquitetura de Mídia:" in interface
+    assert '"Revisão humana assistida"' in interface
+    assert '"Novo conjunto proposto de objetivos de mídia"' in interface
+    assert '"Justificativa obrigatória"' in interface
+    assert '"Criar nova versão"' in interface
+    assert "st.tabs(" not in interface
+    assert "Intensidades e pesos ainda não são calculados" not in interface
 
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():
     estado = {
