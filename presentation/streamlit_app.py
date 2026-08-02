@@ -902,45 +902,153 @@ def pagina_traducao():
     coluna_versao.metric("Versão", traducao.versao)
     coluna_confianca.metric("Confiança", traducao.confianca.value.title())
 
-    st.subheader("Objetivos declarados")
-    st.dataframe(
-        [
-            {"Nível": item.nivel.title(), "Objetivo": item.categoria}
-            for item in traducao.objetivos_declarados
-        ],
-        use_container_width=True,
-        hide_index=True,
-    )
-    st.subheader("Objetivos de mídia derivados")
     efetivos = objetivos_midia_efetivos(traducao)
     categorias_efetivas = {item.categoria for item in efetivos}
-    if traducao.objetivos_midia_derivados:
+    conteudo = briefing.conteudo
+    abas = st.tabs([
+        "Diagnóstico", "Objetivos e relações", "Contexto prioritário",
+        "Resultados e indicadores", "Critérios e tensões", "Rastreabilidade",
+    ])
+    with abas[0]:
+        st.subheader("Diagnóstico estratégico estruturado")
+        situacao = conteudo.situacao_mercadologica
+        st.dataframe([
+            {"Dimensão": "Tendência do mercado", "Valor": situacao.get(
+                "tendencia_mercado", "não informado")},
+            {"Dimensão": "Ciclo de vida", "Valor": situacao.get(
+                "ciclo_vida", "não informado")},
+            {"Dimensão": "Pressão competitiva", "Valor": situacao.get(
+                "intensidade_competitiva", "não informado")},
+            {"Dimensão": "Relação entre objetivos", "Valor": (
+                conteudo.relacoes_objetivos[0].get("classificacao", "não definida")
+                if conteudo.relacoes_objetivos else "não definida"
+            )},
+        ], use_container_width=True, hide_index=True)
+        st.info(
+            "O diagnóstico usa somente classificações declaradas no Briefing; "
+            "não transforma ausência em pontuação zero."
+        )
+
+    with abas[1]:
+        st.subheader("Objetivos declarados")
         st.dataframe(
             [
+                {"Nível": item.nivel.title(), "Objetivo": item.categoria,
+                 "Estado": item.estado}
+                for item in traducao.objetivos_declarados
+            ], use_container_width=True, hide_index=True,
+        )
+        st.subheader("Relações Comunicação → Mídia")
+        if traducao.objetivos_midia_derivados:
+            st.dataframe([
                 {
                     "Ordem": item.ordem,
                     "Objetivo de mídia": item.categoria,
-                    "Origem": item.origem_comunicacao,
+                    "Origem de comunicação": item.origem_comunicacao,
                     "Situação": (
                         "Aceito" if item.categoria in categorias_efetivas
                         else "Rejeitado pelo planejador"
                     ),
+                    "Regra": item.regra,
                 }
                 for item in traducao.objetivos_midia_derivados
-            ],
-            use_container_width=True,
-            hide_index=True,
+            ], use_container_width=True, hide_index=True)
+        else:
+            st.info("Nenhum objetivo de mídia pôde ser derivado pelas regras atuais.")
+
+    with abas[2]:
+        st.subheader("Escopo e vínculos contextuais")
+        linhas_contexto = []
+        for dimensao, itens, campo in (
+            ("Praça", conteudo.pracas, "nome"),
+            ("Universo", conteudo.universos, "nome"),
+            ("Segmento", conteudo.segmentos, "nome"),
+            ("Público", conteudo.publicos, "nome"),
+            ("Jornada", conteudo.jornadas, "etapa"),
+        ):
+            linhas_contexto.extend(
+                {"Dimensão": dimensao, "Valor": item.get(campo, "—")}
+                for item in itens
+            )
+        st.dataframe(linhas_contexto, use_container_width=True, hide_index=True)
+        st.write(
+            f"**Período:** {conteudo.periodo.get('inicio', '—')} a "
+            f"{conteudo.periodo.get('fim', '—')}"
         )
-    else:
-        st.info("Nenhum objetivo de mídia pôde ser derivado pelas regras atuais.")
-    if traducao.lacunas:
+        natureza = conteudo.verba.get("natureza", "não informada")
+        valor = conteudo.verba.get("valor_total")
+        st.write(f"**Verba declarada:** {valor or '—'} · natureza {natureza}")
+
+    indicadores = {
+        "construir alcance": "alcance do público-alvo",
+        "ampliar cobertura": "cobertura geográfica ou populacional",
+        "gerar frequência": "frequência média",
+        "sustentar continuidade": "semanas ativas / continuidade",
+        "gerar tráfego ou resposta": "visitas, respostas ou taxa de resposta",
+        "apoiar conversão mensurável": "conversões e taxa de conversão",
+        "produzir impacto": "proxy de visibilidade ou atenção",
+    }
+    with abas[3]:
+        st.subheader("Resultados pretendidos")
+        st.dataframe([
+            {"Pretensão declarada": item.get("categoria", "—"),
+             "Origem": f"Briefing v{briefing.versao}"}
+            for item in conteudo.pretensoes
+        ], use_container_width=True, hide_index=True)
+        st.subheader("Indicadores propostos")
+        st.dataframe([
+            {"Objetivo de mídia": item.categoria,
+             "Indicador proposto": indicadores.get(item.categoria, "a definir"),
+             "Estado": "proposto; meta e linha de base pendentes"}
+            for item in efetivos
+        ], use_container_width=True, hide_index=True)
+        st.warning(
+            "Intensidades e pesos ainda não são calculados: o Briefing atual "
+            "não registra metas, linhas de base ou escalas suficientes."
+        )
+
+    with abas[4]:
+        st.subheader("Prioridades declaradas")
+        st.dataframe([
+            {"Entidade": item.get("entidade", "—"),
+             "Prioridade": item.get("nivel", "não definida")}
+            for item in conteudo.prioridades
+        ], use_container_width=True, hide_index=True)
+        st.subheader("Restrições ativas")
+        if conteudo.sem_restricoes_declaradas:
+            st.success("O Briefing declara não haver restrições conhecidas.")
+        else:
+            st.dataframe([
+                {"Categoria": item.get("categoria", "—"),
+                 "Condição": "deve limitar decisões posteriores"}
+                for item in conteudo.restricoes
+            ], use_container_width=True, hide_index=True)
+        st.subheader("Tensões e decisões requeridas")
+        tensoes = []
+        if conteudo.verba.get("natureza") == "ainda não definido":
+            tensoes.append("Verba indefinida × necessidade de priorização.")
+        if conteudo.situacao_mercadologica.get(
+            "intensidade_competitiva"
+        ) in ("alta", "muito alta"):
+            tensoes.append("Pressão competitiva elevada exige critério de resposta.")
+        if len(conteudo.objetivos_comunicacao) > 1:
+            tensoes.append("Múltiplos objetivos de comunicação exigem ordenação.")
+        if tensoes:
+            for tensao in tensoes:
+                st.warning(tensao)
+        else:
+            st.info("Nenhuma tensão explícita foi identificada pelas regras atuais.")
+
+    with abas[5]:
         st.subheader("Lacunas e ressalvas")
-        for lacuna in traducao.lacunas:
-            st.warning(lacuna)
-    st.caption(
-        f"Briefing v{traducao.briefing_versao} · Regras: "
-        f"{traducao.versao_regras}"
-    )
+        if traducao.lacunas:
+            for lacuna in traducao.lacunas:
+                st.warning(lacuna)
+        else:
+            st.success("Não há lacunas registradas nesta versão.")
+        st.write(f"**Briefing de origem:** versão {traducao.briefing_versao}")
+        st.write(f"**Versão das regras:** {traducao.versao_regras}")
+        st.write(f"**Intervenções humanas:** {len(traducao.intervencoes_humanas)}")
     if not st.session_state.get("traducao_em_edicao"):
         if st.button("Editar tradução", type="primary"):
             st.session_state["traducao_em_edicao"] = True

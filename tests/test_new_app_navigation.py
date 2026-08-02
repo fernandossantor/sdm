@@ -71,10 +71,18 @@ def test_traducao_expoe_criacao_resultado_e_edicao_versionada():
     interface = Path("presentation/streamlit_app.py").read_text()
     assert '"Criar tradução estratégica"' in interface
     assert '"Objetivos declarados"' in interface
-    assert '"Objetivos de mídia derivados"' in interface
+    assert '"Relações Comunicação → Mídia"' in interface
     assert '"Editar tradução"' in interface
     assert '"Justificativa da alteração"' in interface
     assert '"Criar nova versão"' in interface
+    for secao in (
+        "Diagnóstico", "Objetivos e relações", "Contexto prioritário",
+        "Resultados e indicadores", "Critérios e tensões", "Rastreabilidade",
+    ):
+        assert f'"{secao}"' in interface
+    assert '"Indicadores propostos"' in interface
+    assert '"Tensões e decisões requeridas"' in interface
+    assert "não registra metas, linhas de base ou escalas suficientes" in interface
 
 
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():
