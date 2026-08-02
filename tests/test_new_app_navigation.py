@@ -50,6 +50,11 @@ def test_identidade_visual_usa_novos_ativos():
     assert "st.columns([1.25, 1, 1.25])" in login
 
 
+def test_tema_usa_roxo_azulado_em_acoes_e_contornos():
+    tema = Path(".streamlit/config.toml").read_text()
+    assert 'primaryColor = "#4768CA"' in tema
+
+
 def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
     interface = Path("presentation/streamlit_app.py").read_text()
     assert '"Preencher briefing"' in interface
