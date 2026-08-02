@@ -86,6 +86,9 @@ def test_traducao_expoe_criacao_resultado_e_edicao_versionada():
     assert '"Indicadores propostos"' in interface
     assert '"Tensões e decisões requeridas"' in interface
     assert "não registra metas, linhas de base ou escalas suficientes" in interface
+    assert '"Bibliotecas consultadas"' in interface
+    assert '"Dependências declaradas"' in interface
+    assert "indicadores = {" not in interface
 
 
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():

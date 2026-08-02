@@ -992,15 +992,6 @@ def pagina_traducao():
         valor = conteudo.verba.get("valor_total")
         st.write(f"**Verba declarada:** {valor or '—'} · natureza {natureza}")
 
-    indicadores = {
-        "construir alcance": "alcance do público-alvo",
-        "ampliar cobertura": "cobertura geográfica ou populacional",
-        "gerar frequência": "frequência média",
-        "sustentar continuidade": "semanas ativas / continuidade",
-        "gerar tráfego ou resposta": "visitas, respostas ou taxa de resposta",
-        "apoiar conversão mensurável": "conversões e taxa de conversão",
-        "produzir impacto": "proxy de visibilidade ou atenção",
-    }
     with abas[3]:
         st.subheader("Resultados pretendidos")
         st.dataframe([
@@ -1011,7 +1002,8 @@ def pagina_traducao():
         st.subheader("Indicadores propostos")
         st.dataframe([
             {"Objetivo de mídia": item.categoria,
-             "Indicador proposto": indicadores.get(item.categoria, "a definir"),
+             "Indicador proposto": item.indicador_nome or "a definir",
+             "Referência": item.indicador_codigo or "não disponível",
              "Estado": "proposto; meta e linha de base pendentes"}
             for item in efetivos
         ], use_container_width=True, hide_index=True)
@@ -1037,20 +1029,14 @@ def pagina_traducao():
                 for item in conteudo.restricoes
             ], use_container_width=True, hide_index=True)
         st.subheader("Tensões e decisões requeridas")
-        tensoes = []
-        if conteudo.verba.get("natureza") == "ainda não definido":
-            tensoes.append("Verba indefinida × necessidade de priorização.")
-        if conteudo.situacao_mercadologica.get(
-            "intensidade_competitiva"
-        ) in ("alta", "muito alta"):
-            tensoes.append("Pressão competitiva elevada exige critério de resposta.")
-        if len(conteudo.objetivos_comunicacao) > 1:
-            tensoes.append("Múltiplos objetivos de comunicação exigem ordenação.")
-        if tensoes:
-            for tensao in tensoes:
-                st.warning(tensao)
+        if traducao.problemas_identificados:
+            st.dataframe([
+                {"Código": item.codigo, "Estado": item.estado,
+                 "Diagnóstico": item.mensagem}
+                for item in traducao.problemas_identificados
+            ], use_container_width=True, hide_index=True)
         else:
-            st.info("Nenhuma tensão explícita foi identificada pelas regras atuais.")
+            st.info("Nenhum problema estratégico foi registrado pelo motor.")
 
     with abas[5]:
         st.subheader("Lacunas e ressalvas")
@@ -1062,6 +1048,25 @@ def pagina_traducao():
         st.write(f"**Briefing de origem:** versão {traducao.briefing_versao}")
         st.write(f"**Versão das regras:** {traducao.versao_regras}")
         st.write(f"**Intervenções humanas:** {len(traducao.intervencoes_humanas)}")
+        st.subheader("Bibliotecas consultadas")
+        st.dataframe([
+            {"Biblioteca": item.biblioteca, "Código": item.codigo,
+             "Versão": item.versao}
+            for item in traducao.referencias_bibliotecas
+        ], use_container_width=True, hide_index=True)
+        st.subheader("Dependências declaradas")
+        st.dataframe([
+            {"Origem": item.origem, "Alvo": item.alvo,
+             "Recalcular quando": ", ".join(item.recalcular_quando)}
+            for item in traducao.dependencias_estrategicas
+        ], use_container_width=True, hide_index=True)
+        if traducao.execucao_motor:
+            st.caption(
+                "Execução {} · política de reexecução: {}".format(
+                    traducao.execucao_motor.estado_execucao.value,
+                    traducao.execucao_motor.reexecucao.politica.value,
+                )
+            )
     if not st.session_state.get("traducao_em_edicao"):
         if st.button("Editar tradução", type="primary"):
             st.session_state["traducao_em_edicao"] = True

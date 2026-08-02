@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from domain.briefing import BriefingInicial, EstadoBriefing
-from domain.contracts import Confianca
+from domain.contracts import Confianca, SaidaMotor
 
 
 class EstadoContratoEstrategico(str, Enum):
@@ -32,6 +32,31 @@ class ObjetivoMidiaDerivado(BaseModel):
     origem_comunicacao: str
     regra: str
     ordem: int
+    indicador_codigo: str | None = None
+    indicador_nome: str | None = None
+    conhecimento_aplicado: str | None = None
+    problema_atendido: str | None = None
+
+
+class ReferenciaBibliotecaAplicada(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    biblioteca: int
+    codigo: str
+    versao: str
+
+
+class ProblemaEstrategicoIdentificado(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    codigo: str
+    estado: str
+    mensagem: str
+
+
+class DependenciaEstrategica(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    origem: str
+    alvo: str
+    recalcular_quando: tuple[str, ...]
 
 
 class IntervencaoHumana(BaseModel):
@@ -62,6 +87,10 @@ class ContratoEstrategico(BaseModel):
     versao_regras: str
     criado_por: UUID
     criado_em: datetime
+    referencias_bibliotecas: tuple[ReferenciaBibliotecaAplicada, ...] = ()
+    problemas_identificados: tuple[ProblemaEstrategicoIdentificado, ...] = ()
+    dependencias_estrategicas: tuple[DependenciaEstrategica, ...] = ()
+    execucao_motor: SaidaMotor | None = None
 
 
 def objetivos_midia_efetivos(
@@ -117,20 +146,9 @@ def revisar_traducao(
     })
 
 
-MAPA_COMUNICACAO_MIDIA = {
-    "notoriedade": ("construir alcance", "produzir impacto"),
-    "conhecimento": ("construir alcance", "ampliar cobertura"),
-    "lembrança": ("gerar frequência", "sustentar continuidade"),
-    "consideração": ("gerar frequência", "ampliar cobertura"),
-    "engajamento": ("gerar tráfego ou resposta",),
-    "experimentação": ("apoiar conversão mensurável",),
-    "ação": ("gerar tráfego ou resposta", "apoiar conversão mensurável"),
-}
-
-
 def traduzir_briefing(
     briefing: BriefingInicial, *, contrato_id: UUID,
-    criado_por: UUID, criado_em: datetime,
+    criado_por: UUID, criado_em: datetime, catalogo,
 ) -> ContratoEstrategico:
     if briefing.estado is not EstadoBriefing.CONCLUIDO:
         raise ValueError("a tradução exige briefing concluído")
@@ -147,21 +165,50 @@ def traduzir_briefing(
     )
     derivados = []
     vistos = set()
+    referencias = {}
+    dependencias = []
+    objetivos_sem_regra = []
     for objetivo in briefing.conteudo.objetivos_comunicacao:
         origem = objetivo["categoria"]
-        for categoria in MAPA_COMUNICACAO_MIDIA.get(origem, ()):
+        regra = catalogo.regra_para(origem)
+        if regra is None:
+            objetivos_sem_regra.append(origem)
+            continue
+        referencias[(regra.biblioteca, regra.codigo)] = regra
+        for codigo in (regra.conhecimento_aplicado, regra.problema_atendido):
+            objeto = catalogo.objeto(codigo)
+            if objeto:
+                referencias[(objeto.biblioteca, objeto.codigo)] = objeto
+        for categoria, indicador_codigo in zip(
+            regra.objetivos_midia, regra.indicadores, strict=True
+        ):
             if categoria in vistos:
                 continue
             vistos.add(categoria)
+            indicador = catalogo.indicador(indicador_codigo)
+            if indicador:
+                referencias[(indicador.biblioteca, indicador.codigo)] = indicador
             derivados.append(ObjetivoMidiaDerivado(
                 categoria=categoria, origem_comunicacao=origem,
-                regra=f"MAPA_COMUNICACAO_MIDIA:{origem}",
+                regra=regra.codigo,
                 ordem=len(derivados) + 1,
+                indicador_codigo=indicador_codigo,
+                indicador_nome=indicador.nome if indicador else None,
+                conhecimento_aplicado=regra.conhecimento_aplicado,
+                problema_atendido=regra.problema_atendido,
+            ))
+            dependencias.append(DependenciaEstrategica(
+                origem=f"objetivo_comunicacao:{origem}",
+                alvo=f"objetivo_midia:{categoria}",
+                recalcular_quando=(
+                    "objetivo de comunicação", "público", "praça", "jornada",
+                ),
             ))
     lacunas = []
-    if not derivados:
+    if objetivos_sem_regra:
         lacunas.append(
-            "Objetivos de comunicação ainda não possuem regra de derivação versionada."
+            "Objetivos sem regra de derivação versionada: "
+            + ", ".join(objetivos_sem_regra) + "."
         )
     if not briefing.conteudo.fontes:
         lacunas.append("Fontes não informadas reduzem a confiança da tradução.")
@@ -175,6 +222,24 @@ def traduzir_briefing(
         estado=estado, objetivos_declarados=declarados,
         objetivos_midia_derivados=tuple(derivados), lacunas=tuple(lacunas),
         confianca=Confianca.MEDIA if briefing.conteudo.fontes else Confianca.BAIXA,
-        versao_regras="traducao-inicial-2026-08-02",
+        versao_regras=catalogo.versao,
         criado_por=criado_por, criado_em=criado_em,
+        referencias_bibliotecas=tuple(
+            ReferenciaBibliotecaAplicada(
+                biblioteca=item.biblioteca, codigo=item.codigo,
+                versao=item.versao,
+            ) for item in referencias.values()
+        ),
+        problemas_identificados=(
+            (ProblemaEstrategicoIdentificado(
+                codigo="B18-DERIVAR-OBJETIVO-MIDIA",
+                estado="PARCIAL" if objetivos_sem_regra else "CONCLUIDO",
+                mensagem=(
+                    "Derivação incompleta para parte dos objetivos."
+                    if objetivos_sem_regra else
+                    "Objetivos de mídia derivados com regra versionada."
+                ),
+            ),) if briefing.conteudo.objetivos_comunicacao else ()
+        ),
+        dependencias_estrategicas=tuple(dependencias),
     )

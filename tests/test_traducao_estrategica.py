@@ -9,6 +9,10 @@ from domain.traducao import (
     EstadoContratoEstrategico, objetivos_midia_efetivos,
     revisar_traducao, traduzir_briefing,
 )
+from engines.traducao_estrategica import CatalogoTraducaoInicial
+
+
+CATALOGO = CatalogoTraducaoInicial()
 
 
 def briefing_concluido(**ajustes):
@@ -32,7 +36,7 @@ def test_traducao_provisoria_preserva_origens_e_nao_escolhe_canais():
     briefing = briefing_concluido()
     contrato = traduzir_briefing(
         briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
-        criado_em=briefing.criado_em,
+        criado_em=briefing.criado_em, catalogo=CATALOGO,
     )
     assert contrato.estado is EstadoContratoEstrategico.PROVISORIO
     assert contrato.briefing_id == briefing.id
@@ -40,9 +44,12 @@ def test_traducao_provisoria_preserva_origens_e_nao_escolhe_canais():
     assert [item.categoria for item in contrato.objetivos_midia_derivados] == [
         "construir alcance", "ampliar cobertura"
     ]
-    assert contrato.objetivos_midia_derivados[0].regra == (
-        "MAPA_COMUNICACAO_MIDIA:conhecimento"
-    )
+    assert contrato.objetivos_midia_derivados[0].regra == "B15-CM-CONHECIMENTO"
+    assert contrato.objetivos_midia_derivados[0].indicador_codigo == "B15-ALCANCE"
+    assert {item.biblioteca for item in contrato.referencias_bibliotecas} == {
+        15, 17, 18
+    }
+    assert contrato.dependencias_estrategicas
     assert contrato.confianca is Confianca.BAIXA
     serializado = contrato.model_dump(mode="json")
     assert "inventarios" not in serializado
@@ -56,7 +63,7 @@ def test_sem_regra_produz_parcial_e_lacuna_sem_inventar_objetivo():
     ))
     contrato = traduzir_briefing(
         briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
-        criado_em=briefing.criado_em,
+        criado_em=briefing.criado_em, catalogo=CATALOGO,
     )
     assert contrato.estado is EstadoContratoEstrategico.PARCIAL
     assert contrato.objetivos_midia_derivados == ()
@@ -68,7 +75,7 @@ def test_rejeita_briefing_nao_concluido():
     with pytest.raises(ValueError, match="concluído"):
         traduzir_briefing(
             briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
-            criado_em=briefing.criado_em,
+            criado_em=briefing.criado_em, catalogo=CATALOGO,
         )
 
 
@@ -76,7 +83,7 @@ def test_revisao_cria_versao_e_preserva_derivacao_calculada():
     briefing = briefing_concluido()
     original = traduzir_briefing(
         briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
-        criado_em=briefing.criado_em,
+        criado_em=briefing.criado_em, catalogo=CATALOGO,
     )
     nova = revisar_traducao(
         original, contrato_id=uuid4(),
@@ -98,7 +105,7 @@ def test_revisao_exige_mudanca_e_justificativa():
     briefing = briefing_concluido()
     original = traduzir_briefing(
         briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
-        criado_em=briefing.criado_em,
+        criado_em=briefing.criado_em, catalogo=CATALOGO,
     )
     categorias = tuple(
         item.categoria for item in original.objetivos_midia_derivados

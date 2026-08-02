@@ -5,6 +5,8 @@ from .facade import (
     ModoTraducaoEstrategica,
     MotorTraducaoEstrategicaFake,
 )
+from .catalogo_inicial import CatalogoTraducaoInicial
+from .motor import MotorTraducaoEstrategica
 
 __all__ = [
     "MOTOR_TRADUCAO_ESTRATEGICA",
@@ -12,4 +14,5 @@ __all__ = [
     "EstadoContratoEstrategico",
     "ModoTraducaoEstrategica",
     "MotorTraducaoEstrategicaFake",
+    "CatalogoTraducaoInicial", "MotorTraducaoEstrategica",
 ]

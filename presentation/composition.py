@@ -24,6 +24,9 @@ from infrastructure.database.data_client import (
 from infrastructure.repositories.campanha_mediad import (
     UnidadeTrabalhoCampanhaSupabase,
 )
+from engines.traducao_estrategica import (
+    CatalogoTraducaoInicial, MotorTraducaoEstrategica,
+)
 
 __all__ = (
     "AuthService",
@@ -73,12 +76,16 @@ def traducao_do_briefing(estado, briefing_id):
 
 def caso_de_uso_traducao(estado):
     usuario_id = UUID(estado["auth_user_id"])
+    relogio = RelogioSistema()
     return CriarTraducaoEstrategica(
-        relogio=RelogioSistema(),
+        relogio=relogio,
         autorizador=AutorizadorCampanhaPorEspaco(
             usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
         ),
         repositorio=_unidade_campanha(estado),
+        motor=MotorTraducaoEstrategica(
+            relogio=relogio, catalogo=CatalogoTraducaoInicial()
+        ),
     )
 
 
