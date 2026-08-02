@@ -1,0 +1,143 @@
+{
+  "alertas": [
+    "mkt_aumento_vendas: Há dados pendentes; a pontuação deve preservar a ressalva.",
+    "mkt_crescimento: Há dados pendentes; a pontuação deve preservar a ressalva."
+  ],
+  "confianca": 20.0,
+  "explicacao_resumida": [
+    "Comunicação prioritária: com_intencao, por maior força contextual.",
+    "Objetivo de Mídia prioritário: mid_favorecer_resposta, derivado de relações versionadas.",
+    "Confiança geral: 20.00.",
+    "A saída é provisória e preserva as ressalvas registradas."
+  ],
+  "objetivos_comunicacao": [
+    {
+      "codigo": "com_intencao",
+      "condicao": "PRIORITARIA",
+      "forca_contextual": 65.44,
+      "ordem": 1,
+      "prioridade": "muito alta"
+    },
+    {
+      "codigo": "com_reducao_incerteza",
+      "condicao": "PRIORITARIA",
+      "forca_contextual": 62.88,
+      "ordem": 2,
+      "prioridade": "alta"
+    },
+    {
+      "codigo": "com_notoriedade",
+      "condicao": "COMPLEMENTAR",
+      "forca_contextual": 49.38,
+      "ordem": 3,
+      "prioridade": "média"
+    }
+  ],
+  "objetivos_midia": [
+    {
+      "adequacao_contextual": 75.09,
+      "codigo": "mid_favorecer_resposta",
+      "condicao": "PRIORITARIA",
+      "indicadores_possiveis": [
+        "Taxa de conclusão do pedido de proposta"
+      ],
+      "intensidade": "alta",
+      "nome": "Favorecer resposta",
+      "ordem": 1,
+      "peso": 0.231452,
+      "prioridade": "muito alta"
+    },
+    {
+      "adequacao_contextual": 66.89,
+      "codigo": "mid_gerar_trafego",
+      "condicao": "PRIORITARIA",
+      "indicadores_possiveis": [
+        "Visitas qualificadas"
+      ],
+      "intensidade": "alta",
+      "nome": "Gerar tráfego",
+      "ordem": 2,
+      "peso": 0.206177,
+      "prioridade": "alta"
+    },
+    {
+      "adequacao_contextual": 65.88,
+      "codigo": "mid_construir_alcance",
+      "condicao": "PRIORITARIA",
+      "indicadores_possiveis": [
+        "Alcance da campanha"
+      ],
+      "intensidade": "alta",
+      "nome": "Construir alcance",
+      "ordem": 3,
+      "peso": 0.203064,
+      "prioridade": "média"
+    },
+    {
+      "adequacao_contextual": 58.89,
+      "codigo": "mid_alcancar_publico_prioritario",
+      "condicao": "COMPLEMENTAR",
+      "indicadores_possiveis": [
+        "Alcance no público prioritário"
+      ],
+      "intensidade": "média",
+      "nome": "Alcançar públicos prioritários",
+      "ordem": 4,
+      "peso": 0.181518,
+      "prioridade": "baixa"
+    },
+    {
+      "adequacao_contextual": 57.68,
+      "codigo": "mid_ampliar_cobertura",
+      "condicao": "PRIORITARIA",
+      "indicadores_possiveis": [
+        "cobertura da campanha"
+      ],
+      "intensidade": "média",
+      "nome": "Ampliar cobertura",
+      "ordem": 5,
+      "peso": 0.177789,
+      "prioridade": "baixa"
+    }
+  ],
+  "pesos": [
+    {
+      "objetivo_midia": "mid_favorecer_resposta",
+      "peso": 0.231452
+    },
+    {
+      "objetivo_midia": "mid_gerar_trafego",
+      "peso": 0.206177
+    },
+    {
+      "objetivo_midia": "mid_construir_alcance",
+      "peso": 0.203064
+    },
+    {
+      "objetivo_midia": "mid_alcancar_publico_prioritario",
+      "peso": 0.181518
+    },
+    {
+      "objetivo_midia": "mid_ampliar_cobertura",
+      "peso": 0.177789
+    }
+  ],
+  "rastreabilidade": [
+    "briefing:campanha-canonica-lume-2026",
+    "mensurabilidade:mkt_aumento_vendas:OPERACIONALIZAVEL_COM_DADOS_PENDENTES",
+    "mensurabilidade:mkt_crescimento:OPERACIONALIZAVEL_COM_DADOS_PENDENTES",
+    "relacao:rel_com_intencao_mid_resposta@1.0",
+    "relacao:rel_com_intencao_mid_trafego@1.0",
+    "relacao:rel_com_notoriedade_mid_alcance@1.0",
+    "relacao:rel_com_intencao_mid_publico_prioritario@1.0",
+    "relacao:rel_com_notoriedade_mid_cobertura@1.0"
+  ],
+  "restricoes": [
+    "A verba total não pode ultrapassar BRL 300.000."
+  ],
+  "resultado_principal": {
+    "campanha": "campanha-canonica-lume-2026",
+    "estado": "PROVISORIO",
+    "versao": "1.0"
+  }
+}
