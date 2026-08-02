@@ -1,6 +1,7 @@
 """Casca Streamlit da nova aplicação, sem regras de domínio."""
 
 from pathlib import Path
+from datetime import date
 from uuid import UUID, uuid4
 
 import streamlit as st
@@ -551,10 +552,7 @@ def pagina_briefing() -> None:
             concluir = st.form_submit_button(
                 "Concluir briefing",
                 type="primary",
-                disabled=(
-                    not avaliacao.apto_para_revisao
-                    or (bool(avaliacao.alertas) and not reconhecidos)
-                ),
+                disabled=not avaliacao.apto_para_revisao,
             )
         if concluir:
             try:
@@ -700,11 +698,26 @@ def pagina_briefing() -> None:
                     ],
                 )
             with abas[4]:
-                inicio = st.text_input(
-                    "Data inicial pretendida", value=conteudo.periodo.get("inicio", "")
+                hoje = date.today()
+                try:
+                    inicio_atual = date.fromisoformat(
+                        conteudo.periodo.get("inicio", "")
+                    )
+                except (TypeError, ValueError):
+                    inicio_atual = hoje
+                try:
+                    fim_atual = date.fromisoformat(
+                        conteudo.periodo.get("fim", "")
+                    )
+                except (TypeError, ValueError):
+                    fim_atual = inicio_atual
+                inicio = st.date_input(
+                    "Data inicial pretendida", value=inicio_atual,
+                    format="DD/MM/YYYY",
                 )
-                fim = st.text_input(
-                    "Data final pretendida", value=conteudo.periodo.get("fim", "")
+                fim = st.date_input(
+                    "Data final pretendida", value=fim_atual,
+                    min_value=inicio, format="DD/MM/YYYY",
                 )
                 valor = st.number_input(
                     "Verba total", min_value=0.0,
@@ -816,7 +829,7 @@ def pagina_briefing() -> None:
                 publicos=tuple({"nome": i} for i in itens(publicos)),
                 jornadas=tuple({"etapa": i} for i in jornada),
                 jornada_aplicavel=jornada_aplicavel,
-                periodo={"inicio": inicio.strip(), "fim": fim.strip()},
+                periodo={"inicio": inicio.isoformat(), "fim": fim.isoformat()},
                 verba={"valor_total": valor, "moeda": "BRL", "natureza": natureza},
                 prioridades=tuple(
                     {"entidade": i, "nivel": nivel_prioridade}

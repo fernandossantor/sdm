@@ -177,6 +177,20 @@ def test_avaliacao_aprova_conteudo_minimo_e_preserva_alerta_de_verba():
     assert avaliacao.alertas == ("A verba ainda não está definida.",)
 
 
+def test_avaliacao_rejeita_periodo_invertido_ou_texto_que_nao_e_data():
+    base = conteudo()
+    invertido = base.model_copy(update={
+        "periodo": {"inicio": "2026-10-31", "fim": "2026-09-01"}
+    })
+    invalido = base.model_copy(update={
+        "periodo": {"inicio": "amanhã", "fim": "depois"}
+    })
+
+    for item in (invertido, invalido):
+        avaliacao = avaliar_briefing(item)
+        assert any("datas válidas" in texto for texto in avaliacao.pendencias)
+
+
 def test_conclusao_direta_exige_suficiencia_e_reconhecimento():
     deps = Dependencias()
     incompleto = briefing(EstadoBriefing.EM_PREENCHIMENTO)

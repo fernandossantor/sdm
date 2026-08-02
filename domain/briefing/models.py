@@ -1,6 +1,6 @@
 """Objeto contextual estruturado e versionado do Briefing de Mídia."""
 
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID
@@ -58,6 +58,13 @@ class AvaliacaoBriefing(BaseModel):
 def avaliar_briefing(conteudo: ConteudoBriefing) -> AvaliacaoBriefing:
     """Avalia suficiência mínima sem alterar declarações do usuário."""
 
+    try:
+        inicio = date.fromisoformat(str(conteudo.periodo.get("inicio", "")))
+        fim = date.fromisoformat(str(conteudo.periodo.get("fim", "")))
+        periodo_valido = fim >= inicio
+    except ValueError:
+        periodo_valido = False
+
     situacao_informada = any(
         valor not in (None, "", "não informado")
         for valor in conteudo.situacao_mercadologica.values()
@@ -79,11 +86,8 @@ def avaliar_briefing(conteudo: ConteudoBriefing) -> AvaliacaoBriefing:
             conteudo.jornada_aplicavel is False or bool(conteudo.jornadas),
             "Registre a jornada ou declare que ela não é aplicável.",
         ),
-        (
-            bool(conteudo.periodo.get("inicio"))
-            and bool(conteudo.periodo.get("fim")),
-            "Informe o período pretendido.",
-        ),
+        (periodo_valido,
+         "Informe datas válidas; a data final não pode anteceder a inicial."),
         (
             conteudo.verba.get("natureza") == "ainda não definido"
             or float(conteudo.verba.get("valor_total") or 0) > 0,

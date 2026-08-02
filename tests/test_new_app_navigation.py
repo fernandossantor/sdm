@@ -65,6 +65,9 @@ def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
     assert '"Completude do preenchimento"' in interface
     assert '"Enviar para revisão"' not in interface
     assert '"Concluir briefing"' in interface
+    assert 'st.date_input(\n                    "Data inicial pretendida"' in interface
+    assert 'st.date_input(\n                    "Data final pretendida"' in interface
+    assert "disabled=not avaliacao.apto_para_revisao" in interface
 
 
 def test_traducao_expoe_criacao_resultado_e_edicao_versionada():
