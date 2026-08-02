@@ -51,8 +51,9 @@ def test_identidade_visual_usa_novos_ativos():
 
 
 def test_tema_usa_roxo_azulado_em_acoes_e_contornos():
-    tema = Path(".streamlit/config.toml").read_text()
-    assert 'primaryColor = "#4768CA"' in tema
+    interface = Path("presentation/streamlit_app.py").read_text()
+    assert "--primary-color: #4768CA" in interface
+    assert not Path(".streamlit/config.toml").exists()
 
 
 def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
@@ -66,13 +67,14 @@ def test_fluxo_distingue_primeiro_preenchimento_de_edicao():
     assert '"Concluir briefing"' in interface
 
 
-def test_traducao_expoe_criacao_resultado_e_edicao_versionada_futura():
+def test_traducao_expoe_criacao_resultado_e_edicao_versionada():
     interface = Path("presentation/streamlit_app.py").read_text()
     assert '"Criar tradução estratégica"' in interface
     assert '"Objetivos declarados"' in interface
     assert '"Objetivos de mídia derivados"' in interface
     assert '"Editar tradução"' in interface
-    assert "disabled=True" in interface
+    assert '"Justificativa da alteração"' in interface
+    assert '"Criar nova versão"' in interface
 
 
 def test_nova_campanha_limpa_selecao_e_mantem_modo_de_criacao():

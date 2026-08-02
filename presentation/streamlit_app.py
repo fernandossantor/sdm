@@ -14,6 +14,7 @@ from application.dto import (
     TransicionarBriefingEntrada,
 )
 from domain.briefing import ConteudoBriefing, EstadoBriefing, avaliar_briefing
+from domain.traducao import objetivos_midia_efetivos
 from components import auth_gate, workspace_gate
 from components.page_config import PAGE_ICON
 from presentation.composition import (
@@ -23,6 +24,7 @@ from presentation.composition import (
     campanhas_do_espaco,
     caso_de_uso_correcao_campanha,
     caso_de_uso_traducao,
+    caso_de_uso_revisao_traducao,
     briefing_da_campanha,
     briefing_atual,
     casos_de_uso_briefing,
@@ -42,6 +44,15 @@ def _aplicar_estilo() -> None:
         <style>
         :root {
             color-scheme: light dark;
+            --primary-color: #4768CA;
+            --primary-color-rgb: 71, 104, 202;
+        }
+        button[kind="primary"] {
+            background-color: #4768CA !important;
+            border-color: #4768CA !important;
+        }
+        button:focus-visible, input:focus, textarea:focus {
+            outline-color: #4768CA !important;
         }
         .mp-eyebrow {
             color: #ffc29f; font-size: .78rem; font-weight: 700;
@@ -901,6 +912,8 @@ def pagina_traducao():
         hide_index=True,
     )
     st.subheader("Objetivos de mídia derivados")
+    efetivos = objetivos_midia_efetivos(traducao)
+    categorias_efetivas = {item.categoria for item in efetivos}
     if traducao.objetivos_midia_derivados:
         st.dataframe(
             [
@@ -908,6 +921,10 @@ def pagina_traducao():
                     "Ordem": item.ordem,
                     "Objetivo de mídia": item.categoria,
                     "Origem": item.origem_comunicacao,
+                    "Situação": (
+                        "Aceito" if item.categoria in categorias_efetivas
+                        else "Rejeitado pelo planejador"
+                    ),
                 }
                 for item in traducao.objetivos_midia_derivados
             ],
@@ -924,11 +941,48 @@ def pagina_traducao():
         f"Briefing v{traducao.briefing_versao} · Regras: "
         f"{traducao.versao_regras}"
     )
-    st.button(
-        "Editar tradução",
-        disabled=True,
-        help="A edição versionada será habilitada no próximo incremento.",
-    )
+    if not st.session_state.get("traducao_em_edicao"):
+        if st.button("Editar tradução", type="primary"):
+            st.session_state["traducao_em_edicao"] = True
+            st.rerun()
+    else:
+        st.subheader("Revisar objetivos de mídia")
+        st.caption(
+            "A derivação automática será preservada. Alterações ficam "
+            "registradas como intervenção humana em uma nova versão."
+        )
+        opcoes = [
+            item.categoria for item in traducao.objetivos_midia_derivados
+        ]
+        with st.form("revisao_traducao"):
+            aceitas = st.multiselect(
+                "Objetivos aceitos",
+                options=opcoes,
+                default=[item.categoria for item in efetivos],
+            )
+            justificativa = st.text_input("Justificativa da alteração")
+            salvar_revisao = st.form_submit_button(
+                "Criar nova versão", type="primary"
+            )
+        if salvar_revisao:
+            try:
+                caso_de_uso_revisao_traducao(
+                    st.session_state
+                ).executar(
+                    briefing_id=briefing.id,
+                    usuario_id=UUID(st.session_state["auth_user_id"]),
+                    categorias_aceitas=tuple(aceitas),
+                    justificativa=justificativa,
+                )
+            except Exception as exc:
+                st.error(f"Não foi possível revisar a tradução: {exc}")
+            else:
+                st.session_state.pop("traducao_em_edicao", None)
+                st.success("Nova versão criada com intervenção rastreável.")
+                st.rerun()
+        if st.button("Cancelar edição"):
+            st.session_state.pop("traducao_em_edicao", None)
+            st.rerun()
 
 
 PAGINAS = (

@@ -5,7 +5,10 @@ import pytest
 
 from domain.briefing import BriefingInicial, ConteudoBriefing, EstadoBriefing
 from domain.contracts import Confianca
-from domain.traducao import EstadoContratoEstrategico, traduzir_briefing
+from domain.traducao import (
+    EstadoContratoEstrategico, objetivos_midia_efetivos,
+    revisar_traducao, traduzir_briefing,
+)
 
 
 def briefing_concluido(**ajustes):
@@ -65,5 +68,50 @@ def test_rejeita_briefing_nao_concluido():
     with pytest.raises(ValueError, match="concluído"):
         traduzir_briefing(
             briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
+            criado_em=briefing.criado_em,
+        )
+
+
+def test_revisao_cria_versao_e_preserva_derivacao_calculada():
+    briefing = briefing_concluido()
+    original = traduzir_briefing(
+        briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
+        criado_em=briefing.criado_em,
+    )
+    nova = revisar_traducao(
+        original, contrato_id=uuid4(),
+        categorias_aceitas=("construir alcance",),
+        justificativa="Cobertura não é prioritária neste ciclo.",
+        criado_por=briefing.criado_por, criado_em=briefing.criado_em,
+    )
+
+    assert nova.versao == 2
+    assert nova.objetivos_midia_derivados == original.objetivos_midia_derivados
+    assert [item.categoria for item in objetivos_midia_efetivos(nova)] == [
+        "construir alcance"
+    ]
+    assert nova.intervencoes_humanas[-1].valor_calculado == "DERIVADO"
+    assert nova.intervencoes_humanas[-1].valor_efetivo == "REJEITADO"
+
+
+def test_revisao_exige_mudanca_e_justificativa():
+    briefing = briefing_concluido()
+    original = traduzir_briefing(
+        briefing, contrato_id=uuid4(), criado_por=briefing.criado_por,
+        criado_em=briefing.criado_em,
+    )
+    categorias = tuple(
+        item.categoria for item in original.objetivos_midia_derivados
+    )
+    with pytest.raises(ValueError, match="justificativa"):
+        revisar_traducao(
+            original, contrato_id=uuid4(), categorias_aceitas=(),
+            justificativa="", criado_por=briefing.criado_por,
+            criado_em=briefing.criado_em,
+        )
+    with pytest.raises(ValueError, match="não altera"):
+        revisar_traducao(
+            original, contrato_id=uuid4(), categorias_aceitas=categorias,
+            justificativa="Revisão", criado_por=briefing.criado_por,
             criado_em=briefing.criado_em,
         )

@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from domain.briefing import EstadoBriefing
-from domain.traducao import traduzir_briefing
+from domain.traducao import revisar_traducao, traduzir_briefing
 
 
 class CriarTraducaoEstrategica:
@@ -27,3 +27,27 @@ class CriarTraducaoEstrategica:
         )
         self.repositorio.salvar_traducao(contrato)
         return contrato
+
+
+class CriarNovaVersaoTraducao:
+    def __init__(self, *, relogio, autorizador, repositorio):
+        self.relogio = relogio
+        self.autorizador = autorizador
+        self.repositorio = repositorio
+
+    def executar(
+        self, *, briefing_id, usuario_id, categorias_aceitas, justificativa
+    ):
+        anterior = self.repositorio.obter_traducao_por_briefing(briefing_id)
+        if anterior is None:
+            raise LookupError("tradução não encontrada")
+        if not self.autorizador.pode_editar(usuario_id, anterior.campanha_id):
+            raise PermissionError("usuário não autorizado")
+        nova = revisar_traducao(
+            anterior, contrato_id=uuid4(),
+            categorias_aceitas=tuple(categorias_aceitas),
+            justificativa=justificativa, criado_por=usuario_id,
+            criado_em=self.relogio.agora(),
+        )
+        self.repositorio.salvar_nova_versao_traducao(anterior, nova)
+        return nova

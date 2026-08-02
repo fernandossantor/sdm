@@ -3,11 +3,11 @@ from .briefing import (
     ConcluirBriefing, CriarNovaVersaoBriefing, EditarBriefing,
     EnviarBriefingRevisao,
 )
-from .traducao import CriarTraducaoEstrategica
+from .traducao import CriarNovaVersaoTraducao, CriarTraducaoEstrategica
 
 __all__ = [
     "AbrirCampanha", "CorrigirCampanha", "IniciarBriefing",
     "EditarBriefing", "CriarNovaVersaoBriefing",
     "EnviarBriefingRevisao", "ConcluirBriefing",
-    "CriarTraducaoEstrategica",
+    "CriarTraducaoEstrategica", "CriarNovaVersaoTraducao",
 ]

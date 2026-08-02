@@ -15,7 +15,7 @@ from application.services.campanha_runtime import (
 from application.use_cases import (
     AbrirCampanha, ConcluirBriefing, CorrigirCampanha,
     CriarNovaVersaoBriefing, EditarBriefing, EnviarBriefingRevisao,
-    IniciarBriefing, CriarTraducaoEstrategica,
+    IniciarBriefing, CriarNovaVersaoTraducao, CriarTraducaoEstrategica,
 )
 from infrastructure.database.data_client import (
     bind_authenticated_client,  # noqa: F401
@@ -38,6 +38,7 @@ __all__ = (
     "casos_de_uso_briefing",
     "traducao_do_briefing",
     "caso_de_uso_traducao",
+    "caso_de_uso_revisao_traducao",
 )
 
 
@@ -73,6 +74,17 @@ def traducao_do_briefing(estado, briefing_id):
 def caso_de_uso_traducao(estado):
     usuario_id = UUID(estado["auth_user_id"])
     return CriarTraducaoEstrategica(
+        relogio=RelogioSistema(),
+        autorizador=AutorizadorCampanhaPorEspaco(
+            usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]
+        ),
+        repositorio=_unidade_campanha(estado),
+    )
+
+
+def caso_de_uso_revisao_traducao(estado):
+    usuario_id = UUID(estado["auth_user_id"])
+    return CriarNovaVersaoTraducao(
         relogio=RelogioSistema(),
         autorizador=AutorizadorCampanhaPorEspaco(
             usuario_id=usuario_id, papel_espaco=estado["espaco_papel"]

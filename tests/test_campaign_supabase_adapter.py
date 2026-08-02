@@ -49,7 +49,7 @@ class Consulta:
     def limit(self, quantidade):
         return self
 
-    def order(self, campo):
+    def order(self, campo, **opcoes):
         return self
 
     def execute(self):
@@ -259,6 +259,13 @@ def test_traducao_e_lida_por_briefing_e_salva_por_rpc():
     assert parametros["p_espaco_id"] == str(espaco_id)
     assert parametros["p_resultado"]["estado"] == "PROVISORIO"
 
+    nova = contrato.model_copy(update={"id": uuid4(), "versao": 2})
+    repositorio.salvar_nova_versao_traducao(contrato, nova)
+    nome, parametros = cliente.chamadas_rpc[-1]
+    assert nome == "versionar_traducao_estrategica_mediad"
+    assert parametros["p_traducao_anterior_id"] == str(contrato.id)
+    assert parametros["p_resultado"]["versao"] == 2
+
 
 def test_migracao_da_traducao_exige_briefing_concluido_e_rls():
     migracao = Path(
@@ -272,6 +279,11 @@ def test_migracao_da_traducao_exige_briefing_concluido_e_rls():
     assert "estado='CONCLUIDO'" in migracao
     assert "pode_editar_espaco" in migracao
     assert "drop table" in rollback
+    versionamento = Path(
+        "supabase/migrations/20260802023000_versiona_traducao_estrategica.sql"
+    ).read_text()
+    assert "for update" in versionamento
+    assert "set estado='SUPERADO'" in versionamento
 
 
 def test_migracao_e_nova_reversivel_e_protegida_por_rls():

@@ -252,7 +252,8 @@ class UnidadeTrabalhoCampanhaSupabase:
         resposta = (
             self.cliente.table("traducoes_estrategicas_mediad")
             .select("*").eq("briefing_id", str(briefing_id))
-            .eq("espaco_id", str(self.espaco_id)).limit(1).execute()
+            .eq("espaco_id", str(self.espaco_id))
+            .order("versao", desc=True).limit(1).execute()
         )
         if not resposta.data:
             return None
@@ -266,6 +267,18 @@ class UnidadeTrabalhoCampanhaSupabase:
             "p_resultado": contrato.model_dump(mode="json"),
             "p_usuario_id": str(contrato.criado_por),
             "p_instante": contrato.criado_em.isoformat(),
+        }).execute()
+
+    def salvar_nova_versao_traducao(
+        self, anterior: ContratoEstrategico, nova: ContratoEstrategico
+    ) -> None:
+        self.cliente.rpc("versionar_traducao_estrategica_mediad", {
+            "p_traducao_anterior_id": str(anterior.id),
+            "p_nova_traducao_id": str(nova.id),
+            "p_espaco_id": str(self.espaco_id),
+            "p_resultado": nova.model_dump(mode="json"),
+            "p_usuario_id": str(nova.criado_por),
+            "p_instante": nova.criado_em.isoformat(),
         }).execute()
 
     def iniciar_briefing(self, campanha: Campanha, briefing: BriefingInicial) -> None:
