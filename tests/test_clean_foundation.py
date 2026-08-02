@@ -53,3 +53,15 @@ def test_fundacao_nova_existe():
         "mediad_planner/presentation",
     ):
         assert (RAIZ / caminho).exists(), caminho
+
+
+def test_documentacao_ativa_nao_mistura_legado():
+    encontrados = {item.name for item in (RAIZ / "docs").iterdir()}
+    permitidos = {"README.md", "new_app"}
+    assert encontrados == permitidos, encontrados
+
+
+def test_assets_contem_somente_identidade_visual_vigente():
+    encontrados = {item.name for item in (RAIZ / "assets").iterdir()}
+    permitidos = {"Marca_nova.png", "favicon2.png"}
+    assert encontrados == permitidos, encontrados
