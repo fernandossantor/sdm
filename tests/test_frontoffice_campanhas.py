@@ -59,6 +59,29 @@ def test_interface_contem_acoes_e_aviso_temporario() -> None:
         assert texto in fonte
 
 
+def test_abertura_usa_rotulos_e_ajudas_administrativas_precisas() -> None:
+    fonte = ARQUIVOS[0].read_text(encoding="utf-8")
+    for texto in (
+        "Nome da Campanha",
+        "Marca (opcional)",
+        "Produto ou Serviço (opcional)",
+        "Planejador Responsável",
+        "Equipe da Campanha (opcional)",
+        "Observação inicial (opcional)",
+        "Use um nome que permita identificar esta iniciativa",
+        "Nesta versão temporária, informe o nome do responsável.",
+        "Informe um nome por linha.",
+        "Dados mercadológicos e estratégicos devem ser informados no Briefing.",
+    ):
+        assert texto in fonte
+    for antigo in (
+        'st.text_input("Nome")',
+        'st.text_input("Marca opcional")',
+        'st.text_input("Produto ou Serviço opcional")',
+    ):
+        assert antigo not in fonte
+
+
 def test_interface_nao_contem_motores_formulas_ou_sql() -> None:
     fonte = ARQUIVOS[0].read_text(encoding="utf-8").casefold()
     termos_proibidos = (

@@ -12,7 +12,12 @@ from mediad_planner.application.ports.repositorio_campanhas import (
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
 )
-from mediad_planner.application.use_cases.briefings import AbrirBriefingCampanha
+from mediad_planner.application.use_cases.briefings import (
+    AbrirBriefingCampanha,
+    AdicionarRegistroSituacaoMercadologica,
+    ListarAspectosSituacaoMercadologica,
+    RemoverRegistroSituacaoMercadologica,
+)
 
 
 def construir_aplicacao_briefings(
@@ -29,4 +34,18 @@ def construir_aplicacao_briefings(
         relogio=relogio,
         gerador_uuid=gerador_uuid,
     )
-    return AplicacaoBriefings(abrir)
+    return AplicacaoBriefings(
+        abrir=abrir,
+        listar_aspectos=ListarAspectosSituacaoMercadologica(),
+        adicionar=AdicionarRegistroSituacaoMercadologica(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+            gerador_uuid=gerador_uuid,
+        ),
+        remover=RemoverRegistroSituacaoMercadologica(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+        ),
+    )

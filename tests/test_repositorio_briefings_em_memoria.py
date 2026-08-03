@@ -82,3 +82,22 @@ def test_rejeita_mudancas_estruturais_e_regressao_temporal() -> None:
         )
     with pytest.raises(ValueError):
         repositorio.salvar(replace(briefing, id_espaco_trabalho=UUID(int=8)))
+    with pytest.raises(ValueError, match="contexto"):
+        repositorio.salvar(
+            replace(
+                briefing,
+                contexto_herdado=replace(
+                    briefing.contexto_herdado,
+                    nome_campanha="Outra",
+                ),
+            )
+        )
+    with pytest.raises(ValueError, match="criado_por"):
+        repositorio.salvar(replace(briefing, criado_por=UUID(int=99)))
+    with pytest.raises(ValueError, match="criado_em"):
+        repositorio.salvar(
+            replace(
+                briefing,
+                criado_em=AGORA - timedelta(seconds=1),
+            )
+        )

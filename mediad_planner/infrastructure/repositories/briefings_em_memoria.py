@@ -2,6 +2,7 @@ from threading import RLock
 from uuid import UUID
 
 from mediad_planner.domain.briefing.entidades import Briefing
+from mediad_planner.domain.briefing.enums import EstadoBriefing
 
 
 class RepositorioBriefingsEmMemoria:
@@ -25,8 +26,24 @@ class RepositorioBriefingsEmMemoria:
                     raise ValueError("Briefing não pode mudar de espaço")
                 if existente.numero_versao != briefing.numero_versao:
                     raise ValueError("numero_versao atual não pode ser alterado")
+                if existente.contexto_herdado != briefing.contexto_herdado:
+                    raise ValueError("contexto herdado não pode ser alterado")
+                if existente.criado_por != briefing.criado_por:
+                    raise ValueError("criado_por não pode ser alterado")
+                if existente.criado_em != briefing.criado_em:
+                    raise ValueError("criado_em não pode ser alterado")
                 if briefing.atualizado_em < existente.atualizado_em:
                     raise ValueError("atualizado_em não pode regredir")
+                if (
+                    existente.estado is EstadoBriefing.EM_PREENCHIMENTO
+                    and briefing.estado is EstadoBriefing.RASCUNHO
+                ):
+                    raise ValueError("estado não pode retornar a RASCUNHO")
+            if briefing.estado not in (
+                EstadoBriefing.RASCUNHO,
+                EstadoBriefing.EM_PREENCHIMENTO,
+            ):
+                raise ValueError("estado ainda não suportado")
             self._briefings[chave] = briefing
 
     def obter_por_campanha(

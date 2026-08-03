@@ -1,9 +1,13 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from uuid import UUID
 
 from mediad_planner.domain.briefing.contexto import ContextoHerdadoBriefing
 from mediad_planner.domain.briefing.enums import EstadoBriefing
+from mediad_planner.domain.briefing.situacao_mercadologica import (
+    RegistroSituacaoMercadologica,
+    SituacaoMercadologicaCompetitiva,
+)
 
 
 def _validar_uuid(valor: object, campo: str) -> None:
@@ -24,6 +28,7 @@ class Briefing:
     numero_versao: int
     estado: EstadoBriefing
     contexto_herdado: ContextoHerdadoBriefing
+    situacao_mercadologica: SituacaoMercadologicaCompetitiva
     criado_por: UUID
     criado_em: datetime
     atualizado_por: UUID
@@ -42,6 +47,11 @@ class Briefing:
             raise ValueError("numero_versao deve ser inteiro positivo")
         if self.contexto_herdado is None:
             raise ValueError("contexto_herdado é obrigatório")
+        if not isinstance(
+            self.situacao_mercadologica,
+            SituacaoMercadologicaCompetitiva,
+        ):
+            raise TypeError("situacao_mercadologica inválida")
         _validar_fuso(self.criado_em, "criado_em")
         _validar_fuso(self.atualizado_em, "atualizado_em")
         if self.atualizado_em < self.criado_em:
@@ -67,8 +77,50 @@ class Briefing:
             numero_versao=1,
             estado=EstadoBriefing.RASCUNHO,
             contexto_herdado=contexto_herdado,
+            situacao_mercadologica=SituacaoMercadologicaCompetitiva(registros=()),
             criado_por=criado_por,
             criado_em=criado_em,
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def _validar_alteracao(self, atualizado_por: UUID, atualizado_em: datetime) -> None:
+        if self.estado not in (
+            EstadoBriefing.RASCUNHO,
+            EstadoBriefing.EM_PREENCHIMENTO,
+        ):
+            raise ValueError("Briefing não permite alteração neste estado")
+        _validar_uuid(atualizado_por, "atualizado_por")
+        _validar_fuso(atualizado_em, "atualizado_em")
+        if atualizado_em < self.atualizado_em:
+            raise ValueError("atualizado_em não pode regredir")
+
+    def adicionar_registro_situacao(
+        self,
+        registro: RegistroSituacaoMercadologica,
+        atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            situacao_mercadologica=self.situacao_mercadologica.adicionar(registro),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def remover_registro_situacao(
+        self,
+        id_registro: UUID,
+        atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            situacao_mercadologica=self.situacao_mercadologica.remover(id_registro),
             atualizado_por=atualizado_por,
             atualizado_em=atualizado_em,
         )

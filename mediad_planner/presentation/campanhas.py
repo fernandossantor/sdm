@@ -100,17 +100,49 @@ def apresentar_campanhas(
 
     with st.form("abertura-campanha", clear_on_submit=True):
         st.subheader("Identificação")
-        nome = st.text_input("Nome")
+        nome = st.text_input(
+            "Nome da Campanha",
+            help=(
+                "Use um nome que permita identificar esta iniciativa no "
+                "histórico de planejamento."
+            ),
+            placeholder="Ex.: Lançamento Linha Verão 2027",
+        )
         anunciante = st.text_input("Anunciante")
-        marca = st.text_input("Marca opcional")
-        produto_servico = st.text_input("Produto ou Serviço opcional")
+        marca = st.text_input("Marca (opcional)")
+        produto_servico = st.text_input("Produto ou Serviço (opcional)")
 
         st.subheader("Responsáveis")
-        planejador = st.text_input("Planejador Responsável")
-        equipe = st.text_area("Equipe da Campanha", help="Um nome por linha.")
+        planejador = st.text_input(
+            "Planejador Responsável",
+            help=(
+                "Nesta versão temporária, informe o nome do responsável. "
+                "Quando a autenticação for integrada, este campo será "
+                "preenchido pelo usuário conectado."
+            ),
+        )
+        equipe = st.text_area(
+            "Equipe da Campanha (opcional)",
+            help=(
+                "Informe um nome por linha. A seleção de membros cadastrados "
+                "será integrada ao cadastro de usuários do espaço de trabalho."
+            ),
+        )
 
         st.subheader("Organização")
-        observacao = st.text_area("Observação Inicial")
+        observacao = st.text_area(
+            "Observação inicial (opcional)",
+            help=(
+                "Registre informações administrativas ou de organização da "
+                "abertura. "
+                "Dados mercadológicos e estratégicos devem ser informados no Briefing."
+            ),
+            placeholder=(
+                "Ex.: demanda recebida pela diretoria; responsáveis ainda "
+                "em "
+                "definição."
+            ),
+        )
 
         cancelar = st.form_submit_button("Cancelar")
         salvar = st.form_submit_button("Salvar como Rascunho")

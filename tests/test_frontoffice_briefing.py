@@ -111,7 +111,7 @@ def test_fluxo_minimo_abre_briefing() -> None:
     aplicativo.run(timeout=5)
 
     campos = {campo.label: campo for campo in aplicativo.text_input}
-    campos["Nome"].set_value("Campanha AppTest")
+    campos["Nome da Campanha"].set_value("Campanha AppTest")
     campos["Anunciante"].set_value("Anunciante AppTest")
     campos["Planejador Responsável"].set_value("Planejadora AppTest")
     botao = next(
