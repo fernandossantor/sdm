@@ -102,6 +102,27 @@ def _criar_briefing(aplicativo: AppTest) -> None:
         for item in aplicativo.button
         if item.label == "Criar Campanha e iniciar Briefing"
     ).click()
+    for chave in (
+        "campanha-nome",
+        "campanha-anunciante",
+        "campanha-marca",
+        "campanha-produto-servico",
+        "campanha-planejador",
+        "campanha-equipe",
+        "campanha-observacao",
+    ):
+        aplicativo.session_state[chave] = ""
+    aplicativo.run(timeout=5)
+    next(
+        item for item in aplicativo.button
+        if item.label == "Continuar no Briefing"
+    ).click()
+    for chave in (
+        "campanha-nome", "campanha-anunciante", "campanha-marca",
+        "campanha-produto-servico", "campanha-planejador",
+        "campanha-equipe", "campanha-observacao",
+    ):
+        aplicativo.session_state[chave] = ""
     aplicativo.run(timeout=5)
 
 

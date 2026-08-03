@@ -8,6 +8,9 @@ from mediad_planner.application.dto.campanha import (
 from mediad_planner.application.services.aplicacao_campanhas import (
     AplicacaoCampanhas,
 )
+from mediad_planner.application.services.aplicacao_espaco_trabalho import (
+    AplicacaoEspacoTrabalho,
+)
 
 
 def _rotulo_situacao(valor: str) -> str:
@@ -58,7 +61,6 @@ def _criar_entrada(
 
 
 def _apresentar_campanha(
-    aplicacao: AplicacaoCampanhas,
     campanha: CampanhaResumo,
 ) -> UUID | None:
     with st.container(border=True):
@@ -75,22 +77,17 @@ def _apresentar_campanha(
             st.write(f"**Produto ou Serviço:** {campanha.produto_servico}")
         st.write(f"**Planejador:** {campanha.planejador_responsavel}")
         st.write(f"**Criada em:** {campanha.criado_em:%d/%m/%Y %H:%M %Z}")
-        if campanha.situacao == "RASCUNHO" and campanha.etapa_atual == "ABERTURA":
-            if st.button("Iniciar Briefing", key=f"briefing-{campanha.id_campanha}"):
-                try:
-                    aplicacao.iniciar_briefing(campanha.id_campanha)
-                except (LookupError, PermissionError, ValueError) as erro:
-                    st.error(str(erro))
-                else:
-                    return campanha.id_campanha
-        if campanha.situacao == "EM_ANDAMENTO" and campanha.etapa_atual == "BRIEFING":
-            if st.button("Abrir Briefing", key=f"abrir-{campanha.id_campanha}"):
-                return campanha.id_campanha
+        if st.button(
+            "Abrir espaço de trabalho",
+            key=f"abrir-{campanha.id_campanha}",
+        ):
+            return campanha.id_campanha
     return None
 
 
 def apresentar_campanhas(
     aplicacao: AplicacaoCampanhas,
+    aplicacao_espaco_trabalho: AplicacaoEspacoTrabalho,
 ) -> UUID | None:
     st.header("Campanhas")
     st.warning(
@@ -102,19 +99,24 @@ def apresentar_campanhas(
         st.subheader("Identificação")
         nome = st.text_input(
             "Nome da Campanha",
+            key="campanha-nome",
             help=(
                 "Use um nome que permita identificar esta iniciativa no "
                 "histórico de planejamento."
             ),
             placeholder="Ex.: Lançamento Linha Verão 2027",
         )
-        anunciante = st.text_input("Anunciante")
-        marca = st.text_input("Marca (opcional)")
-        produto_servico = st.text_input("Produto ou Serviço (opcional)")
+        anunciante = st.text_input("Anunciante", key="campanha-anunciante")
+        marca = st.text_input("Marca (opcional)", key="campanha-marca")
+        produto_servico = st.text_input(
+            "Produto ou Serviço (opcional)",
+            key="campanha-produto-servico",
+        )
 
         st.subheader("Responsáveis")
         planejador = st.text_input(
             "Planejador Responsável",
+            key="campanha-planejador",
             help=(
                 "Nesta versão temporária, informe o nome do responsável. "
                 "Quando a autenticação for integrada, este campo será "
@@ -123,6 +125,7 @@ def apresentar_campanhas(
         )
         equipe = st.text_area(
             "Equipe da Campanha (opcional)",
+            key="campanha-equipe",
             help=(
                 "Informe um nome por linha. A seleção de membros cadastrados "
                 "será integrada ao cadastro de usuários do espaço de trabalho."
@@ -132,6 +135,7 @@ def apresentar_campanhas(
         st.subheader("Organização")
         observacao = st.text_area(
             "Observação inicial (opcional)",
+            key="campanha-observacao",
             help=(
                 "Registre informações administrativas ou de organização da "
                 "abertura. "
@@ -168,6 +172,18 @@ def apresentar_campanhas(
         else:
             st.success(f"Campanha {criada.codigo} criada com sucesso.")
             if criar_e_iniciar:
+                try:
+                    aplicacao_espaco_trabalho.preparar_briefing(
+                        criada.id_campanha
+                    )
+                except (LookupError, PermissionError, ValueError) as erro:
+                    st.error(
+                        "A Campanha foi criada, mas não foi possível "
+                        f"preparar o Briefing: {erro}"
+                    )
+                else:
+                    return criada.id_campanha
+            else:
                 return criada.id_campanha
     elif cancelar:
         st.info("Abertura cancelada. Nenhuma Campanha foi criada.")
@@ -182,7 +198,7 @@ def apresentar_campanhas(
         st.info("Nenhuma Campanha criada nesta execução.")
         return None
     for campanha in campanhas:
-        selecionada = _apresentar_campanha(aplicacao, campanha)
+        selecionada = _apresentar_campanha(campanha)
         if selecionada is not None:
             return selecionada
     return None

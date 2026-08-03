@@ -32,6 +32,14 @@ def test_frontoffice_depende_somente_do_caso_de_uso() -> None:
     )
 
     assert caso_de_uso in modulos_absolutos
+    chamadas = tuple(
+        no
+        for no in ast.walk(arvore)
+        if isinstance(no, ast.Call)
+        and isinstance(no.func, ast.Name)
+        and no.func.id == "obter_diagnostico_fundacao"
+    )
+    assert len(chamadas) == 1
     assert imports_relativos == []
     for modulo in modulos_absolutos:
         assert not modulo.startswith(prefixos_proibidos)

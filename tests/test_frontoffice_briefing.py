@@ -17,6 +17,19 @@ CAMADAS_PROIBIDAS = (
 )
 
 
+def _preservar_estado_do_formulario(aplicativo: AppTest) -> None:
+    for chave in (
+        "campanha-nome",
+        "campanha-anunciante",
+        "campanha-marca",
+        "campanha-produto-servico",
+        "campanha-planejador",
+        "campanha-equipe",
+        "campanha-observacao",
+    ):
+        aplicativo.session_state[chave] = ""
+
+
 def modulos_importados(caminho: Path) -> tuple[str, ...]:
     arvore = ast.parse(caminho.read_text(encoding="utf-8"))
     modulos: list[str] = []
@@ -54,12 +67,15 @@ def test_navegacao_e_contexto_estao_presentes() -> None:
     briefings = ARQUIVOS_APRESENTACAO[1].read_text(encoding="utf-8")
     controlador = ARQUIVOS_APRESENTACAO[2].read_text(encoding="utf-8")
 
-    assert "Abrir Briefing" in campanhas
-    assert "Voltar às Campanhas" in briefings
-    assert "id_campanha_briefing_ativa" in controlador
+    assert "Abrir espaço de trabalho" in campanhas
+    assert "Voltar às Campanhas" not in briefings
+    assert "id_campanha_ativa" in controlador
+    assert "modulo_campanha_ativo" in controlador
+    assert "pagina_global_ativa" in controlador
     assert "Estes dados são herdados da Campanha" in briefings
-    assert "não são redefinidos no Briefing." in briefings
-    assert "A estrutura do Briefing está disponível." in briefings
+    assert "não são redefinidos no " in briefings
+    assert '"Briefing."' in briefings
+    assert "A estrutura do Briefing está disponível." not in briefings
 
     subetapas = (
         "1. Situação mercadológica e competitiva",
@@ -121,6 +137,12 @@ def test_fluxo_minimo_abre_briefing() -> None:
     botao.click()
 
     aplicativo.run(timeout=5)
+    next(
+        item for item in aplicativo.button
+        if item.label == "Continuar no Briefing"
+    ).click()
+    _preservar_estado_do_formulario(aplicativo)
+    aplicativo.run(timeout=5)
 
     assert not aplicativo.exception
     conteudo = " ".join(
@@ -140,3 +162,14 @@ def test_fluxo_minimo_abre_briefing() -> None:
     }
     assert metricas["Versão"] == "1"
     assert metricas["Estado"] == "Rascunho"
+    expanders = {item.label for item in aplicativo.expander}
+    assert {
+        "Contexto herdado da Campanha",
+        "Estrutura do Briefing",
+        "Registros salvos (0)",
+    } <= expanders
+    entradas = {item.label for item in aplicativo.text_input}
+    areas = {item.label for item in aplicativo.text_area}
+    assert "Fonte dos dados (opcional)" in entradas
+    assert "Período de referência (opcional)" in entradas
+    assert "Observação complementar (opcional)" in areas

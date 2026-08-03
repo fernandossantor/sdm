@@ -8,6 +8,19 @@ RAIZ = Path(__file__).resolve().parents[1]
 APRESENTACAO = RAIZ / "mediad_planner/presentation/briefings.py"
 
 
+def _preservar_formulario(aplicativo: AppTest) -> None:
+    for chave in (
+        "campanha-nome",
+        "campanha-anunciante",
+        "campanha-marca",
+        "campanha-produto-servico",
+        "campanha-planejador",
+        "campanha-equipe",
+        "campanha-observacao",
+    ):
+        aplicativo.session_state[chave] = ""
+
+
 def test_frontoffice_nao_importa_camadas_proibidas() -> None:
     arvore = ast.parse(APRESENTACAO.read_text(encoding="utf-8"))
     proibidos = (
@@ -37,8 +50,7 @@ def test_interface_contem_formulario_e_separacao_epistemologica() -> None:
     )
     for texto in textos:
         assert texto in conteudo
-    assert "apenas organiza as declarações" in conteudo
-    assert "não produz interpretação estratégica" in conteudo
+    assert "declarações sem produzir interpretação estratégica" in conteudo
     assert "listar_aspectos_situacao" in conteudo
     assert ".codigo" in conteudo
     assert "lower()" not in conteudo
@@ -63,6 +75,12 @@ def test_apptest_salva_registro_quantitativo() -> None:
         botao for botao in aplicativo.button
         if botao.label == "Criar Campanha e iniciar Briefing"
     ).click()
+    aplicativo.run(timeout=5)
+    next(
+        item for item in aplicativo.button
+        if item.label == "Continuar no Briefing"
+    ).click()
+    _preservar_formulario(aplicativo)
     aplicativo.run(timeout=5)
 
     next(
@@ -128,6 +146,12 @@ def test_apptest_aspecto_personalizado_nao_salva_controle_visual() -> None:
         botao for botao in aplicativo.button
         if botao.label == "Criar Campanha e iniciar Briefing"
     ).click()
+    aplicativo.run(timeout=5)
+    next(
+        item for item in aplicativo.button
+        if item.label == "Continuar no Briefing"
+    ).click()
+    _preservar_formulario(aplicativo)
     aplicativo.run(timeout=5)
     next(
         item for item in aplicativo.selectbox if item.label == "Aspecto observado"

@@ -27,11 +27,11 @@ def _rotulo_estado(valor: str) -> str:
 
 
 def _apresentar_contexto(briefing: BriefingResumo) -> None:
-    st.subheader("Contexto herdado da Campanha")
-    st.info(
-        "Estes dados são herdados da Campanha e não são redefinidos no Briefing."
-    )
-    with st.container(border=True):
+    with st.expander("Contexto herdado da Campanha", expanded=False):
+        st.caption(
+            "Estes dados são herdados da Campanha e não são redefinidos no "
+            "Briefing."
+        )
         st.write(f"**Código da Campanha:** {briefing.codigo_campanha}")
         st.write(f"**Nome da Campanha:** {briefing.nome_campanha}")
         st.write(f"**Anunciante:** {briefing.anunciante}")
@@ -57,7 +57,6 @@ ROTULOS_NATUREZAS = (
 
 
 def _apresentar_subetapas(briefing: BriefingResumo) -> None:
-    st.subheader("Estrutura progressiva")
     subetapas = (
         "3. Praça e universo",
         "4. Segmentos e públicos",
@@ -69,22 +68,19 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
     estado_situacao = (
         "Em preenchimento" if briefing.registros_situacao else "Não iniciada"
     )
-    st.write(
-        "**1. Situação mercadológica e competitiva** — "
-        f"{estado_situacao}"
-    )
     estado_objetivos = (
         "Em preenchimento"
         if briefing.objetivos_marketing or briefing.objetivos_comunicacao
         else "Não iniciada"
     )
-    st.write(f"**2. Objetivos declarados** — {estado_objetivos}")
-    for subetapa in subetapas:
-        st.write(f"**{subetapa}** — Não iniciada")
-    st.info(
-        "A estrutura do Briefing está disponível. O conteúdo metodológico será "
-        "implementado incrementalmente."
-    )
+    with st.expander("Estrutura do Briefing", expanded=False):
+        st.write(
+            "**1. Situação mercadológica e competitiva** — "
+            f"{estado_situacao}"
+        )
+        st.write(f"**2. Objetivos declarados** — {estado_objetivos}")
+        for subetapa in subetapas:
+            st.write(f"**{subetapa}** — Não iniciada")
 
 
 def _formulario_situacao(
@@ -92,10 +88,10 @@ def _formulario_situacao(
     id_campanha: UUID,
 ) -> None:
     st.subheader("Situação mercadológica e competitiva")
-    st.write(
+    st.caption(
         "Registre fatos, indicadores e condições informadas sobre o anunciante, "
-        "o mercado, a categoria e a concorrência. Nesta etapa, o sistema "
-        "apenas organiza as declarações e não produz interpretação estratégica."
+        "o mercado, a categoria e a concorrência. O sistema organiza as "
+        "declarações sem produzir interpretação estratégica."
     )
     mapa_escopos = dict(ROTULOS_ESCOPOS)
     rotulo_escopo = st.selectbox("Escopo", tuple(mapa_escopos))
@@ -211,20 +207,28 @@ def _formulario_situacao(
             st.rerun()
 
 
+def _possui_texto(valor: str | None) -> bool:
+    return bool(valor and valor.strip())
+
+
 def _detalhar_registro(registro: RegistroSituacaoResumo) -> None:
     st.write(f"**{registro.aspecto}**")
-    if registro.entidade_referencia:
+    if _possui_texto(registro.entidade_referencia):
         st.write(f"Concorrente relacionado: {registro.entidade_referencia}")
     if registro.valor_quantitativo is not None:
-        st.write(f"{registro.valor_quantitativo} {registro.unidade}")
-    if registro.valor_qualitativo:
-        st.caption("Qualitativo")
+        if _possui_texto(registro.unidade):
+            st.write(
+                f"{registro.valor_quantitativo} {registro.unidade.strip()}"
+            )
+        else:
+            st.write(registro.valor_quantitativo)
+    if _possui_texto(registro.valor_qualitativo):
         st.write(registro.valor_qualitativo)
-    if registro.fonte:
+    if _possui_texto(registro.fonte):
         st.write(f"Fonte dos dados: {registro.fonte}")
-    if registro.periodo_referencia:
+    if _possui_texto(registro.periodo_referencia):
         st.write(f"Período de referência: {registro.periodo_referencia}")
-    if registro.observacao:
+    if _possui_texto(registro.observacao):
         st.write(f"Observação: {registro.observacao}")
 
 
@@ -233,49 +237,62 @@ def _apresentar_registros(
     id_campanha: UUID,
     briefing: BriefingResumo,
 ) -> None:
-    st.subheader("Registros salvos")
-    for rotulo, escopo in ROTULOS_ESCOPOS:
-        registros = tuple(
-            item for item in briefing.registros_situacao if item.escopo == escopo
-        )
-        if not registros:
-            continue
-        st.markdown(f"#### {rotulo}")
-        for registro in registros:
-            with st.container(border=True):
-                _detalhar_registro(registro)
-                if st.button(
-                    "Remover registro",
-                    key=f"remover_{registro.id_registro}",
-                ):
-                    try:
-                        aplicacao.remover_registro_situacao(
-                            id_campanha,
-                            registro.id_registro,
-                        )
-                    except (LookupError, PermissionError, ValueError) as erro:
-                        st.error(str(erro))
-                    else:
-                        st.rerun()
+    quantidade = len(briefing.registros_situacao)
+    with st.expander(
+        f"Registros salvos ({quantidade})",
+        expanded=False,
+    ):
+        if quantidade == 0:
+            st.write("Nenhum registro salvo nesta subetapa.")
+        for rotulo, escopo in ROTULOS_ESCOPOS:
+            registros = tuple(
+                item
+                for item in briefing.registros_situacao
+                if item.escopo == escopo
+            )
+            if not registros:
+                continue
+            st.markdown(f"#### {rotulo}")
+            for registro in registros:
+                with st.container(border=True):
+                    _detalhar_registro(registro)
+                    if st.button(
+                        "Remover registro",
+                        key=f"remover_{registro.id_registro}",
+                    ):
+                        try:
+                            aplicacao.remover_registro_situacao(
+                                id_campanha,
+                                registro.id_registro,
+                            )
+                        except (LookupError, PermissionError, ValueError) as erro:
+                            st.error(str(erro))
+                        else:
+                            st.rerun()
 
 
 def apresentar_briefing(
     aplicacao: AplicacaoBriefings,
     id_campanha: UUID,
-) -> bool:
-    if st.button("Voltar às Campanhas"):
-        return True
+) -> None:
     try:
         briefing = aplicacao.abrir_briefing(id_campanha)
     except (LookupError, PermissionError, ValueError) as erro:
         st.error(str(erro))
-        return False
+        return
 
     st.header("Briefing de Mídia")
     st.subheader(f"[{briefing.codigo_campanha}] {briefing.nome_campanha}")
     versao, estado = st.columns(2)
     versao.metric("Versão", briefing.numero_versao)
     estado.metric("Estado", _rotulo_estado(briefing.estado))
+    contexto_resumido = f"Anunciante: {briefing.anunciante}"
+    if briefing.marca:
+        contexto_resumido += f" · Marca: {briefing.marca}"
+    contexto_resumido += f" · Planejador: {briefing.planejador_responsavel}"
+    st.caption(contexto_resumido)
+    if briefing.produto_servico:
+        st.caption(f"Produto ou Serviço: {briefing.produto_servico}")
     _apresentar_contexto(briefing)
     _apresentar_subetapas(briefing)
     subetapa = st.radio(
@@ -291,4 +308,3 @@ def apresentar_briefing(
         _apresentar_registros(aplicacao, id_campanha, briefing)
     else:
         apresentar_objetivos_declarados(aplicacao, id_campanha, briefing)
-    return False

@@ -52,7 +52,7 @@ def test_interface_contem_acoes_e_aviso_temporario() -> None:
         "Cancelar",
         "Salvar como Rascunho",
         "Criar Campanha e iniciar Briefing",
-        "Iniciar Briefing",
+        "Abrir espaço de trabalho",
         "Persistência temporária em memória.",
         "perdidas quando o servidor é reiniciado.",
     ):
@@ -103,8 +103,14 @@ def _e_chamada_expander(no: ast.AST) -> bool:
         isinstance(no, ast.Call)
         and isinstance(no.func, ast.Attribute)
         and no.func.attr == "expander"
-        and isinstance(no.func.value, ast.Name)
-        and no.func.value.id == "st"
+        and (
+            isinstance(no.func.value, ast.Name)
+            and no.func.value.id == "st"
+            or isinstance(no.func.value, ast.Attribute)
+            and isinstance(no.func.value.value, ast.Name)
+            and no.func.value.value.id == "st"
+            and no.func.value.attr == "sidebar"
+        )
     )
 
 
@@ -137,14 +143,66 @@ class _DetectorExpanderAninhado(ast.NodeVisitor):
 
 def test_streamlit_app_nao_possui_expander_aninhado() -> None:
     fonte = ARQUIVOS[1].read_text(encoding="utf-8")
+    navegacao = (
+        RAIZ / "mediad_planner/presentation/navegacao_global.py"
+    ).read_text(encoding="utf-8")
     detector = _DetectorExpanderAninhado()
-    detector.visit(ast.parse(fonte))
+    detector.visit(ast.parse(navegacao))
     assert detector.aninhado is False
-    assert "Estado da fundação" in detector.rotulos
-    assert "Detalhes técnicos" in fonte
+    assert "Sistema: operacional" in navegacao
+    assert "Detalhes técnicos" not in navegacao
+    assert "Versão do contrato" not in navegacao
+    assert "st.metric" not in navegacao
 
 
 def test_app_renderiza_sem_excecoes() -> None:
     app = AppTest.from_file(str(RAIZ / "app.py"))
     app.run(timeout=3)
     assert not app.exception
+
+
+def test_preparacao_do_briefing_pos_criacao_tem_tratamento_especifico() -> None:
+    fonte = ARQUIVOS[0].read_text(encoding="utf-8")
+    arvore = ast.parse(fonte)
+    chamadas = [
+        no
+        for no in ast.walk(arvore)
+        if isinstance(no, ast.Call)
+        and isinstance(no.func, ast.Attribute)
+        and no.func.attr == "preparar_briefing"
+    ]
+    assert len(chamadas) == 1
+    chamada = chamadas[0]
+    tratamentos = []
+    for tentativa in ast.walk(arvore):
+        if not isinstance(tentativa, ast.Try):
+            continue
+        if not any(descendente is chamada for descendente in ast.walk(tentativa)):
+            continue
+        nomes_tratados = {
+            elemento.id
+            for tratador in tentativa.handlers
+            if isinstance(tratador.type, ast.Tuple)
+            for elemento in tratador.type.elts
+            if isinstance(elemento, ast.Name)
+        }
+        tratamentos.append(nomes_tratados)
+    assert {"LookupError", "PermissionError", "ValueError"} in tratamentos
+    mensagens_erro = [
+        "".join(
+            parte.value
+            for parte in ast.walk(no.args[0])
+            if isinstance(parte, ast.Constant)
+            and isinstance(parte.value, str)
+        )
+        for no in ast.walk(arvore)
+        if isinstance(no, ast.Call)
+        and isinstance(no.func, ast.Attribute)
+        and no.func.attr == "error"
+        and no.args
+    ]
+    assert any(
+        "A Campanha foi criada, mas não foi possível preparar o Briefing"
+        in mensagem
+        for mensagem in mensagens_erro
+    )

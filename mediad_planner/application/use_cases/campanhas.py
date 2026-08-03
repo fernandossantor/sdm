@@ -10,6 +10,7 @@ from mediad_planner.application.dto.campanha import (
 from mediad_planner.application.ports.repositorio_campanhas import (
     RepositorioCampanhas,
 )
+from mediad_planner.application.mappers.campanha import resumir_campanha
 from mediad_planner.domain.campanha.codigo import gerar_codigo_campanha
 from mediad_planner.domain.campanha.entidades import Campanha
 from mediad_planner.domain.campanha.vinculos import (
@@ -29,33 +30,6 @@ def _validar_permissao_de_autoria(contexto: ContextoAcessoCampanhas) -> None:
     papeis_autorizados = (PapelAcesso.PROPRIETARIO, PapelAcesso.EDITOR)
     if contexto.papel not in papeis_autorizados:
         raise PermissionError("Papel sem permissão para alterar Campanhas")
-
-
-def _resumir(campanha: Campanha) -> CampanhaResumo:
-    referencia = campanha.marca or campanha.anunciante
-    identificacao = (
-        f"[{campanha.codigo.valor}] {campanha.nome} — {referencia.nome_snapshot}"
-    )
-    return CampanhaResumo(
-        id_campanha=campanha.id_campanha,
-        codigo=campanha.codigo.valor,
-        nome=campanha.nome,
-        anunciante=campanha.anunciante.nome_snapshot,
-        marca=campanha.marca.nome_snapshot if campanha.marca else None,
-        produto_servico=(
-            campanha.produto_servico.nome_snapshot
-            if campanha.produto_servico
-            else None
-        ),
-        planejador_responsavel=campanha.planejador_responsavel.nome_snapshot,
-        equipe=tuple(item.nome_snapshot for item in campanha.equipe),
-        observacao_inicial=campanha.observacao_inicial,
-        situacao=campanha.situacao.value,
-        etapa_atual=campanha.etapa_atual.value,
-        criado_em=campanha.criado_em,
-        atualizado_em=campanha.atualizado_em,
-        identificacao_completa=identificacao,
-    )
 
 
 def _nomes_equipe_unicos(nomes: tuple[str, ...]) -> tuple[str, ...]:
@@ -136,7 +110,7 @@ class CriarCampanha:
                 atualizado_em=agora,
             )
         self._repositorio.salvar(campanha)
-        return _resumir(campanha)
+        return resumir_campanha(campanha)
 
 
 class IniciarBriefingCampanha:
@@ -163,7 +137,7 @@ class IniciarBriefingCampanha:
             atualizado_em=self._relogio(),
         )
         self._repositorio.salvar(campanha_atualizada)
-        return _resumir(campanha_atualizada)
+        return resumir_campanha(campanha_atualizada)
 
 
 class ListarCampanhas:
@@ -184,4 +158,4 @@ class ListarCampanhas:
         if self._contexto.papel not in papeis_autorizados:
             raise PermissionError("Papel sem permissão para listar Campanhas")
         campanhas = self._repositorio.listar(self._contexto.id_espaco_trabalho)
-        return tuple(_resumir(campanha) for campanha in campanhas)
+        return tuple(resumir_campanha(campanha) for campanha in campanhas)
