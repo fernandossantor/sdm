@@ -8,6 +8,11 @@ import pytest
 from mediad_planner.domain.briefing.contexto import ContextoHerdadoBriefing
 from mediad_planner.domain.briefing.entidades import Briefing
 from mediad_planner.domain.briefing.enums import EstadoBriefing
+from mediad_planner.domain.briefing.objetivos_declarados import (
+    ObjetivoComunicacaoDeclarado,
+    ObjetivoMarketingDeclarado,
+    ObjetivosDeclarados,
+)
 from mediad_planner.domain.briefing.situacao_mercadologica import (
     EscopoSituacaoMercadologica,
     NaturezaRegistroSituacao,
@@ -116,6 +121,7 @@ def test_briefing_valida_contexto_datas_versao_e_uuids() -> None:
             estado=EstadoBriefing.RASCUNHO,
                 contexto_herdado=contexto(),
                 situacao_mercadologica=SituacaoMercadologicaCompetitiva(()),
+            objetivos_declarados=ObjetivosDeclarados((), ()),
             criado_por=UUID(int=4),
             criado_em=AGORA,
             atualizado_por=UUID(int=4),
@@ -163,5 +169,64 @@ def test_registro_altera_estado_e_remocao_nao_retorna_a_rascunho() -> None:
         alterado.adicionar_registro_situacao(
             registro,
             atualizado_por=UUID(int=93),
+            atualizado_em=AGORA,
+        )
+
+
+def test_objetivos_no_agregado_preservam_contexto_situacao_e_estado() -> None:
+    inicial = briefing()
+    marketing = ObjetivoMarketingDeclarado(
+        id_objetivo=UUID(int=201),
+        codigo_objetivo="marketing_crescimento",
+        objetivo="Crescimento",
+        dimensoes_composto=(),
+        prioridade_declarada=5,
+        intensidade_declarada=4,
+        justificativa=None,
+    )
+    instante = AGORA + timedelta(seconds=1)
+    com_marketing = inicial.adicionar_objetivo_marketing(
+        marketing,
+        atualizado_por=UUID(int=202),
+        atualizado_em=instante,
+    )
+    comunicacao = ObjetivoComunicacaoDeclarado(
+        id_objetivo=UUID(int=203),
+        codigo_objetivo="comunicacao_notoriedade",
+        objetivo="Notoriedade",
+        ids_objetivos_marketing_relacionados=(marketing.id_objetivo,),
+        prioridade_declarada=4,
+        intensidade_declarada=3,
+        justificativa=None,
+    )
+    completo = com_marketing.adicionar_objetivo_comunicacao(
+        comunicacao,
+        atualizado_por=UUID(int=204),
+        atualizado_em=instante,
+    )
+    sem_comunicacao = completo.remover_objetivo_comunicacao(
+        comunicacao.id_objetivo,
+        atualizado_por=UUID(int=205),
+        atualizado_em=instante,
+    )
+    removido = sem_comunicacao.remover_objetivo_marketing(
+        marketing.id_objetivo,
+        atualizado_por=UUID(int=206),
+        atualizado_em=instante,
+    )
+
+    assert inicial.objetivos_declarados.marketing == ()
+    assert completo.estado is EstadoBriefing.EM_PREENCHIMENTO
+    assert completo.numero_versao == inicial.numero_versao
+    assert completo.contexto_herdado == inicial.contexto_herdado
+    assert completo.situacao_mercadologica == inicial.situacao_mercadologica
+    assert completo.criado_em == inicial.criado_em
+    assert completo.atualizado_por == UUID(int=204)
+    assert removido.estado is EstadoBriefing.EM_PREENCHIMENTO
+    assert removido.objetivos_declarados == ObjetivosDeclarados((), ())
+    with pytest.raises(ValueError, match="regredir"):
+        completo.remover_objetivo_comunicacao(
+            comunicacao.id_objetivo,
+            atualizado_por=UUID(int=207),
             atualizado_em=AGORA,
         )

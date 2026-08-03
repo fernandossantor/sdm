@@ -8,8 +8,8 @@ from mediad_planner.application.dto.briefing import (
     AspectoSituacaoResumo,
     BriefingResumo,
     ContextoAcessoBriefings,
-    RegistroSituacaoResumo,
 )
+from mediad_planner.application.mappers.briefing import resumir_briefing
 from mediad_planner.application.ports.repositorio_briefings import (
     RepositorioBriefings,
 )
@@ -30,51 +30,6 @@ from mediad_planner.domain.common.enums import PapelAcesso
 
 Relogio = Callable[[], datetime]
 GeradorUUID = Callable[[], UUID]
-
-
-def _resumir(briefing: Briefing) -> BriefingResumo:
-    contexto = briefing.contexto_herdado
-    registros = tuple(
-        RegistroSituacaoResumo(
-            id_registro=registro.id_registro,
-            escopo=registro.escopo.value,
-            codigo_aspecto=registro.codigo_aspecto,
-            aspecto=registro.aspecto,
-            entidade_referencia=registro.entidade_referencia,
-            natureza=registro.natureza.value,
-            valor_quantitativo=(
-                format(registro.valor_quantitativo, "f")
-                if registro.valor_quantitativo is not None
-                else None
-            ),
-            unidade=registro.unidade,
-            valor_qualitativo=registro.valor_qualitativo,
-            fonte=registro.fonte,
-            periodo_referencia=registro.periodo_referencia,
-            observacao=registro.observacao,
-        )
-        for registro in briefing.situacao_mercadologica.registros
-    )
-    return BriefingResumo(
-        id_briefing=briefing.id_briefing,
-        id_campanha=briefing.id_campanha,
-        numero_versao=briefing.numero_versao,
-        estado=briefing.estado.value,
-        codigo_campanha=contexto.codigo_campanha.valor,
-        nome_campanha=contexto.nome_campanha,
-        anunciante=contexto.anunciante.nome_snapshot,
-        marca=contexto.marca.nome_snapshot if contexto.marca else None,
-        produto_servico=(
-            contexto.produto_servico.nome_snapshot
-            if contexto.produto_servico
-            else None
-        ),
-        planejador_responsavel=contexto.planejador_responsavel.nome_snapshot,
-        equipe=tuple(item.nome_snapshot for item in contexto.equipe),
-        criado_em=briefing.criado_em,
-        atualizado_em=briefing.atualizado_em,
-        registros_situacao=registros,
-    )
 
 
 def _validar_autoria(contexto: ContextoAcessoBriefings) -> None:
@@ -135,7 +90,7 @@ class AbrirBriefingCampanha:
             id_campanha,
         )
         if existente is not None:
-            return _resumir(existente)
+            return resumir_briefing(existente)
         if self._contexto.papel is PapelAcesso.LEITOR:
             raise PermissionError("Leitor não pode criar a versão inicial do Briefing")
 
@@ -160,7 +115,7 @@ class AbrirBriefingCampanha:
             atualizado_em=agora,
         )
         self._repositorio_briefings.salvar(briefing)
-        return _resumir(briefing)
+        return resumir_briefing(briefing)
 
 
 class ListarAspectosSituacaoMercadologica:
@@ -257,7 +212,7 @@ class AdicionarRegistroSituacaoMercadologica:
             atualizado_em=self._relogio(),
         )
         self._repositorio.salvar(atualizado)
-        return _resumir(atualizado)
+        return resumir_briefing(atualizado)
 
 
 class RemoverRegistroSituacaoMercadologica:
@@ -284,4 +239,4 @@ class RemoverRegistroSituacaoMercadologica:
             atualizado_em=self._relogio(),
         )
         self._repositorio.salvar(atualizado)
-        return _resumir(atualizado)
+        return resumir_briefing(atualizado)

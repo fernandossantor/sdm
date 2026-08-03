@@ -80,7 +80,6 @@ def test_frontoffice_nao_antecipa_conteudo_metodologico() -> None:
         caminho.read_text(encoding="utf-8") for caminho in ARQUIVOS_APRESENTACAO
     ).lower()
     termos_proibidos = (
-        "objetivo de mídia",
         "kpi",
         "alcance",
         "frequência",

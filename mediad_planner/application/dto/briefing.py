@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from mediad_planner.application.dto.objetivos_declarados import (
+    ObjetivoComunicacaoResumo,
+    ObjetivoMarketingResumo,
+)
 from mediad_planner.domain.common.enums import PapelAcesso
 
 
@@ -74,6 +78,8 @@ class BriefingResumo:
     criado_em: datetime
     atualizado_em: datetime
     registros_situacao: tuple[RegistroSituacaoResumo, ...]
+    objetivos_marketing: tuple[ObjetivoMarketingResumo, ...]
+    objetivos_comunicacao: tuple[ObjetivoComunicacaoResumo, ...]
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "equipe", tuple(self.equipe))
@@ -81,4 +87,14 @@ class BriefingResumo:
             self,
             "registros_situacao",
             tuple(self.registros_situacao),
+        )
+        object.__setattr__(
+            self,
+            "objetivos_marketing",
+            tuple(self.objetivos_marketing),
+        )
+        object.__setattr__(
+            self,
+            "objetivos_comunicacao",
+            tuple(self.objetivos_comunicacao),
         )

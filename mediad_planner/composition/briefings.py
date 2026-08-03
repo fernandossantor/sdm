@@ -12,6 +12,15 @@ from mediad_planner.application.ports.repositorio_campanhas import (
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
 )
+from mediad_planner.application.use_cases.objetivos_declarados import (
+    AdicionarObjetivoComunicacao,
+    AdicionarObjetivoMarketing,
+    ListarDimensoesCompostoMarketing,
+    ListarObjetivosComunicacaoDeclarados,
+    ListarObjetivosMarketingDeclarados,
+    RemoverObjetivoComunicacao,
+    RemoverObjetivoMarketing,
+)
 from mediad_planner.application.use_cases.briefings import (
     AbrirBriefingCampanha,
     AdicionarRegistroSituacaoMercadologica,
@@ -44,6 +53,31 @@ def construir_aplicacao_briefings(
             gerador_uuid=gerador_uuid,
         ),
         remover=RemoverRegistroSituacaoMercadologica(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+        ),
+        listar_marketing=ListarObjetivosMarketingDeclarados(),
+        listar_comunicacao=ListarObjetivosComunicacaoDeclarados(),
+        listar_dimensoes_composto=ListarDimensoesCompostoMarketing(),
+        adicionar_marketing=AdicionarObjetivoMarketing(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+            gerador_uuid=gerador_uuid,
+        ),
+        adicionar_comunicacao=AdicionarObjetivoComunicacao(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+            gerador_uuid=gerador_uuid,
+        ),
+        remover_marketing=RemoverObjetivoMarketing(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+        ),
+        remover_comunicacao=RemoverObjetivoComunicacao(
             repositorio=repositorio_briefings,
             contexto_acesso=contexto,
             relogio=relogio,

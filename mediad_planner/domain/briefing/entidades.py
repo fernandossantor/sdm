@@ -4,6 +4,11 @@ from uuid import UUID
 
 from mediad_planner.domain.briefing.contexto import ContextoHerdadoBriefing
 from mediad_planner.domain.briefing.enums import EstadoBriefing
+from mediad_planner.domain.briefing.objetivos_declarados import (
+    ObjetivoComunicacaoDeclarado,
+    ObjetivoMarketingDeclarado,
+    ObjetivosDeclarados,
+)
 from mediad_planner.domain.briefing.situacao_mercadologica import (
     RegistroSituacaoMercadologica,
     SituacaoMercadologicaCompetitiva,
@@ -29,6 +34,7 @@ class Briefing:
     estado: EstadoBriefing
     contexto_herdado: ContextoHerdadoBriefing
     situacao_mercadologica: SituacaoMercadologicaCompetitiva
+    objetivos_declarados: ObjetivosDeclarados
     criado_por: UUID
     criado_em: datetime
     atualizado_por: UUID
@@ -52,6 +58,8 @@ class Briefing:
             SituacaoMercadologicaCompetitiva,
         ):
             raise TypeError("situacao_mercadologica inválida")
+        if not isinstance(self.objetivos_declarados, ObjetivosDeclarados):
+            raise TypeError("objetivos_declarados inválidos")
         _validar_fuso(self.criado_em, "criado_em")
         _validar_fuso(self.atualizado_em, "atualizado_em")
         if self.atualizado_em < self.criado_em:
@@ -78,6 +86,7 @@ class Briefing:
             estado=EstadoBriefing.RASCUNHO,
             contexto_herdado=contexto_herdado,
             situacao_mercadologica=SituacaoMercadologicaCompetitiva(registros=()),
+            objetivos_declarados=ObjetivosDeclarados(marketing=(), comunicacao=()),
             criado_por=criado_por,
             criado_em=criado_em,
             atualizado_por=atualizado_por,
@@ -106,6 +115,66 @@ class Briefing:
             self,
             estado=EstadoBriefing.EM_PREENCHIMENTO,
             situacao_mercadologica=self.situacao_mercadologica.adicionar(registro),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def adicionar_objetivo_marketing(
+        self,
+        objetivo: ObjetivoMarketingDeclarado,
+        atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            objetivos_declarados=self.objetivos_declarados.adicionar_marketing(objetivo),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def adicionar_objetivo_comunicacao(
+        self,
+        objetivo: ObjetivoComunicacaoDeclarado,
+        atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            objetivos_declarados=self.objetivos_declarados.adicionar_comunicacao(objetivo),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def remover_objetivo_marketing(
+        self,
+        id_objetivo: UUID,
+        atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            objetivos_declarados=self.objetivos_declarados.remover_marketing(id_objetivo),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def remover_objetivo_comunicacao(
+        self,
+        id_objetivo: UUID,
+        atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            objetivos_declarados=self.objetivos_declarados.remover_comunicacao(id_objetivo),
             atualizado_por=atualizado_por,
             atualizado_em=atualizado_em,
         )

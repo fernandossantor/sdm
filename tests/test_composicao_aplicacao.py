@@ -6,6 +6,10 @@ from mediad_planner.application.dto.briefing import (
     AdicionarRegistroSituacaoEntrada,
 )
 from mediad_planner.application.dto.campanha import CriarCampanhaEntrada
+from mediad_planner.application.dto.objetivos_declarados import (
+    AdicionarObjetivoComunicacaoEntrada,
+    AdicionarObjetivoMarketingEntrada,
+)
 from mediad_planner.composition.ambiente import (
     construir_ambiente_aplicacao_em_memoria,
 )
@@ -53,8 +57,39 @@ def test_ambiente_compartilha_campanhas_com_briefings() -> None:
             observacao=None,
         ),
     )
+    marketing = ambiente.briefings.adicionar_objetivo_marketing(
+        campanha.id_campanha,
+        AdicionarObjetivoMarketingEntrada(
+            codigo_objetivo="marketing_crescimento",
+            objetivo="Crescimento",
+            dimensoes_composto=("PRODUTO",),
+            prioridade_declarada=5,
+            intensidade_declarada=4,
+            justificativa=None,
+        ),
+    ).objetivos_marketing[0]
+    ambiente.briefings.adicionar_objetivo_comunicacao(
+        campanha.id_campanha,
+        AdicionarObjetivoComunicacaoEntrada(
+            codigo_objetivo="comunicacao_notoriedade",
+            objetivo="Notoriedade",
+            ids_objetivos_marketing_relacionados=(marketing.id_objetivo,),
+            prioridade_declarada=4,
+            intensidade_declarada=3,
+            justificativa=None,
+        ),
+    )
     reaberto = ambiente.briefings.abrir_briefing(campanha.id_campanha)
 
+    assert reaberto.registros_situacao == alterado.registros_situacao
+    assert reaberto.objetivos_marketing == (marketing,)
+    assert reaberto.objetivos_marketing[0].rotulos_dimensoes_composto == (
+        "Produto",
+    )
+    assert (
+        reaberto.objetivos_comunicacao[0].ids_objetivos_marketing_relacionados
+        == (marketing.id_objetivo,)
+    )
     assert alterado.estado == "EM_PREENCHIMENTO"
     assert reaberto.registros_situacao == alterado.registros_situacao
 

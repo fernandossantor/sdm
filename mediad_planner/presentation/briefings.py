@@ -10,6 +10,9 @@ from mediad_planner.application.dto.briefing import (
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
 )
+from mediad_planner.presentation.objetivos_declarados import (
+    apresentar_objetivos_declarados,
+)
 
 
 def _rotulo_estado(valor: str) -> str:
@@ -56,7 +59,6 @@ ROTULOS_NATUREZAS = (
 def _apresentar_subetapas(briefing: BriefingResumo) -> None:
     st.subheader("Estrutura progressiva")
     subetapas = (
-        "2. Objetivos declarados",
         "3. Praça e universo",
         "4. Segmentos e públicos",
         "5. Jornada",
@@ -71,6 +73,12 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
         "**1. Situação mercadológica e competitiva** — "
         f"{estado_situacao}"
     )
+    estado_objetivos = (
+        "Em preenchimento"
+        if briefing.objetivos_marketing or briefing.objetivos_comunicacao
+        else "Não iniciada"
+    )
+    st.write(f"**2. Objetivos declarados** — {estado_objetivos}")
     for subetapa in subetapas:
         st.write(f"**{subetapa}** — Não iniciada")
     st.info(
@@ -270,6 +278,17 @@ def apresentar_briefing(
     estado.metric("Estado", _rotulo_estado(briefing.estado))
     _apresentar_contexto(briefing)
     _apresentar_subetapas(briefing)
-    _formulario_situacao(aplicacao, id_campanha)
-    _apresentar_registros(aplicacao, id_campanha, briefing)
+    subetapa = st.radio(
+        "Subetapa em preenchimento",
+        (
+            "Situação mercadológica e competitiva",
+            "Objetivos declarados",
+        ),
+        horizontal=True,
+    )
+    if subetapa == "Situação mercadológica e competitiva":
+        _formulario_situacao(aplicacao, id_campanha)
+        _apresentar_registros(aplicacao, id_campanha, briefing)
+    else:
+        apresentar_objetivos_declarados(aplicacao, id_campanha, briefing)
     return False
