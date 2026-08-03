@@ -34,7 +34,6 @@ def test_diretorios_operacionais_legados_nao_estao_na_raiz():
         "infrastructure",
         "pages",
         "presentation",
-        "scripts",
         "database",
         "data",
         "src",
@@ -64,4 +63,21 @@ def test_documentacao_ativa_nao_mistura_legado():
 def test_assets_contem_somente_identidade_visual_vigente():
     encontrados = {item.name for item in (RAIZ / "assets").iterdir()}
     permitidos = {"Marca_nova.png", "favicon2.png"}
+    assert encontrados == permitidos, encontrados
+
+def test_scripts_contem_somente_utilitarios_autorizados():
+    diretorio = RAIZ / "scripts"
+    assert diretorio.is_dir()
+
+    encontrados = {
+        item.name
+        for item in diretorio.iterdir()
+        if item.name != "__pycache__"
+    }
+
+    permitidos = {
+        "__init__.py",
+        "gerar_snapshot_dtb_2025.py",
+    }
+
     assert encontrados == permitidos, encontrados

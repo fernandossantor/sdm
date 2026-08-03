@@ -10,6 +10,9 @@ from mediad_planner.application.dto.briefing import (
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
 )
+from mediad_planner.application.services.aplicacao_catalogo_territorial import (
+    AplicacaoCatalogoTerritorial,
+)
 from mediad_planner.presentation.objetivos_declarados import (
     apresentar_objetivos_declarados,
 )
@@ -279,6 +282,7 @@ def _apresentar_registros(
 
 def apresentar_briefing(
     aplicacao: AplicacaoBriefings,
+    aplicacao_catalogo: AplicacaoCatalogoTerritorial,
     id_campanha: UUID,
 ) -> None:
     try:
@@ -316,4 +320,9 @@ def apresentar_briefing(
     elif subetapa == "Objetivos declarados":
         apresentar_objetivos_declarados(aplicacao, id_campanha, briefing)
     else:
-        apresentar_praca_universo(aplicacao, id_campanha, briefing)
+        apresentar_praca_universo(
+            aplicacao,
+            aplicacao_catalogo,
+            id_campanha,
+            briefing,
+        )

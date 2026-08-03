@@ -126,6 +126,7 @@ def executar() -> None:
         troca = apresentar_espaco_trabalho(
             ambiente.espaco_trabalho,
             ambiente.briefings,
+            ambiente.catalogo_territorial,
             resumo,
             modulo_ativo or "VISAO_GERAL",
         )

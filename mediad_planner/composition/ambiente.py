@@ -10,6 +10,9 @@ from mediad_planner.application.dto.espaco_trabalho import (
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
 )
+from mediad_planner.application.services.aplicacao_catalogo_territorial import (
+    AplicacaoCatalogoTerritorial,
+)
 from mediad_planner.application.services.aplicacao_campanhas import (
     AplicacaoCampanhas,
 )
@@ -23,6 +26,9 @@ from mediad_planner.application.use_cases.campanhas import (
 )
 from mediad_planner.application.use_cases.briefings import AbrirBriefingCampanha
 from mediad_planner.composition.briefings import construir_aplicacao_briefings
+from mediad_planner.composition.catalogo_territorial import (
+    construir_aplicacao_catalogo_territorial,
+)
 from mediad_planner.composition.espaco_trabalho import (
     construir_aplicacao_espaco_trabalho,
 )
@@ -40,6 +46,7 @@ class AmbienteAplicacao:
     campanhas: AplicacaoCampanhas
     briefings: AplicacaoBriefings
     espaco_trabalho: AplicacaoEspacoTrabalho
+    catalogo_territorial: AplicacaoCatalogoTerritorial
 
 
 def construir_ambiente_aplicacao_em_memoria() -> AmbienteAplicacao:
@@ -105,4 +112,5 @@ def construir_ambiente_aplicacao_em_memoria() -> AmbienteAplicacao:
         campanhas=campanhas,
         briefings=briefings,
         espaco_trabalho=espaco_trabalho,
+        catalogo_territorial=construir_aplicacao_catalogo_territorial(),
     )

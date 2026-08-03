@@ -9,8 +9,14 @@ from mediad_planner.application.dto.praca_universo import (
     PracaResumo,
     UniversoResumo,
 )
+from mediad_planner.application.ports.catalogo_territorial import (
+    CatalogoTerritorialIndisponivel,
+)
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
+)
+from mediad_planner.application.services.aplicacao_catalogo_territorial import (
+    AplicacaoCatalogoTerritorial,
 )
 
 
@@ -52,43 +58,76 @@ def _selecionar_unidade(
     return definicao.codigo, definicao.rotulo
 
 
-def _formulario_praca(
+def _campos_complementares_praca(
     aplicacao: AplicacaoBriefings,
-    id_campanha: UUID,
-) -> None:
-    tipos = aplicacao.listar_tipos_praca()
-    rotulos_tipos = tuple(item.rotulo for item in tipos)
-    rotulo_tipo = st.selectbox("Tipo territorial", rotulos_tipos)
-    tipo = next(item for item in tipos if item.rotulo == rotulo_tipo)
-    st.caption(tipo.descricao)
-    nome = st.text_input(
-        "Nome da Praça",
-        placeholder=(
-            "Ex.: São Borja; Rio Grande do Sul; Bairro Centro; "
-            "Fronteira Oeste."
-        ),
+    *,
+    chave: str,
+    fonte_inicial: str = "",
+) -> tuple[str, str | None, str | None, str, str, str, str]:
+    abrangencia = st.text_area(
+        "Descrição da abrangência (opcional)",
+        key=f"abrangencia_{chave}",
     )
-    codigo_oficial = st.text_input("Código oficial (opcional)")
-    abrangencia = st.text_area("Descrição da abrangência (opcional)")
     valor = st.text_input(
         "População territorial de referência (opcional)",
+        help="Informe apenas o valor numérico e use ponto como separador decimal.",
+        key=f"populacao_{chave}",
+    )
+    codigo_unidade, unidade = _selecionar_unidade(aplicacao, chave, True)
+    fonte = st.text_input(
+        "Fonte (opcional)",
+        value=fonte_inicial,
+        key=f"fonte_{chave}",
         help=(
-            "Informe apenas o valor numérico e use ponto como separador decimal."
+            "A fonte identifica a origem territorial. Caso informe população de "
+            "outra base, complemente a descrição da fonte."
         ),
     )
-    codigo_unidade, unidade = _selecionar_unidade(aplicacao, "praca", True)
-    fonte = st.text_input("Fonte (opcional)", key="fonte_praca")
     data_referencia = st.text_input(
         "Data ou período de referência (opcional)",
-        key="data_praca",
+        key=f"data_{chave}",
     )
     observacao = st.text_area(
         "Observação complementar (opcional)",
-        key="observacao_praca",
+        key=f"observacao_{chave}",
     )
-    if st.button("Adicionar Praça"):
+    return (
+        abrangencia,
+        codigo_unidade,
+        unidade,
+        valor,
+        fonte,
+        data_referencia,
+        observacao,
+    )
+
+
+def _salvar_praca(
+    aplicacao: AplicacaoBriefings,
+    id_campanha: UUID,
+    *,
+    tipo: str,
+    nome: str,
+    codigo_oficial: str | None,
+    chave: str,
+    fonte_inicial: str = "",
+) -> None:
+    (
+        abrangencia,
+        codigo_unidade,
+        unidade,
+        valor,
+        fonte,
+        data_referencia,
+        observacao,
+    ) = _campos_complementares_praca(
+        aplicacao,
+        chave=chave,
+        fonte_inicial=fonte_inicial,
+    )
+    if st.button("Adicionar Praça", key=f"adicionar_praca_{chave}"):
         entrada = AdicionarPracaEntrada(
-            tipo=tipo.codigo,
+            tipo=tipo,
             nome=nome,
             codigo_oficial=codigo_oficial,
             abrangencia=abrangencia,
@@ -106,6 +145,130 @@ def _formulario_praca(
         else:
             st.success("Praça adicionada.")
             st.rerun()
+
+
+def _formulario_praca_manual(
+    aplicacao: AplicacaoBriefings,
+    id_campanha: UUID,
+) -> None:
+    tipos = aplicacao.listar_tipos_praca()
+    rotulos_tipos = tuple(item.rotulo for item in tipos)
+    rotulo_tipo = st.selectbox("Tipo territorial", rotulos_tipos)
+    tipo = next(item for item in tipos if item.rotulo == rotulo_tipo)
+    st.caption(tipo.descricao)
+    nome = st.text_input(
+        "Nome da Praça",
+        placeholder=(
+            "Ex.: São Borja; Rio Grande do Sul; Bairro Centro; "
+            "Fronteira Oeste."
+        ),
+    )
+    codigo_oficial = st.text_input("Código oficial (opcional)")
+    _salvar_praca(
+        aplicacao,
+        id_campanha,
+        tipo=tipo.codigo,
+        nome=nome,
+        codigo_oficial=codigo_oficial,
+        chave="praca",
+    )
+
+
+def _formulario_praca_ibge(
+    aplicacao: AplicacaoBriefings,
+    aplicacao_catalogo: AplicacaoCatalogoTerritorial,
+    id_campanha: UUID,
+) -> bool:
+    try:
+        estados = aplicacao_catalogo.listar_estados()
+    except CatalogoTerritorialIndisponivel:
+        return False
+    if not estados:
+        st.warning("Nenhuma Unidade da Federação foi encontrada no catálogo.")
+        return True
+    estados_por_codigo = {item.codigo: item for item in estados}
+    recorte = st.radio(
+        "Recorte territorial oficial",
+        ("Unidade da Federação", "Município"),
+        horizontal=True,
+    )
+    codigo_estado = st.selectbox(
+        "Unidade da Federação",
+        tuple(estados_por_codigo),
+        format_func=lambda codigo: (
+            f"{estados_por_codigo[codigo].nome} — "
+            f"{estados_por_codigo[codigo].sigla}"
+        ),
+    )
+    estado = estados_por_codigo[codigo_estado]
+    tipo = "ESTADO_UF"
+    nome = estado.nome
+    codigo_oficial = estado.codigo
+    rotulo_tipo = "Estado ou unidade federativa"
+    resumo_adicional = f"Sigla: {estado.sigla}"
+    if recorte == "Município":
+        try:
+            municipios = aplicacao_catalogo.listar_municipios(codigo_estado)
+        except CatalogoTerritorialIndisponivel:
+            return False
+        if not municipios:
+            st.warning("Nenhum Município foi encontrado para a UF selecionada.")
+            return True
+        municipios_por_codigo = {item.codigo: item for item in municipios}
+        codigo_municipio = st.selectbox(
+            "Município",
+            tuple(municipios_por_codigo),
+            format_func=lambda codigo: (
+                f"{municipios_por_codigo[codigo].nome} — {estado.sigla}"
+            ),
+        )
+        municipio = municipios_por_codigo[codigo_municipio]
+        tipo = "MUNICIPIO"
+        nome = municipio.nome
+        codigo_oficial = municipio.codigo
+        rotulo_tipo = "Município"
+        resumo_adicional = f"UF: {estado.nome} — {estado.sigla}"
+    st.write(f"Tipo territorial: {rotulo_tipo}")
+    st.write(f"Nome oficial: {nome}")
+    st.write(resumo_adicional)
+    st.write(f"Código IBGE: {codigo_oficial}")
+    st.caption(
+        "A identificação territorial é preenchida a partir do snapshot oficial "
+        "da DTB 2025. A população não é importada automaticamente."
+    )
+    _salvar_praca(
+        aplicacao,
+        id_campanha,
+        tipo=tipo,
+        nome=nome,
+        codigo_oficial=codigo_oficial,
+        chave="ibge",
+        fonte_inicial="IBGE — Divisão Territorial Brasileira 2025",
+    )
+    return True
+
+
+def _formulario_praca(
+    aplicacao: AplicacaoBriefings,
+    aplicacao_catalogo: AplicacaoCatalogoTerritorial,
+    id_campanha: UUID,
+) -> None:
+    origem = st.radio(
+        "Origem dos dados territoriais",
+        ("Catálogo oficial do IBGE — DTB 2025", "Preenchimento manual"),
+        index=1,
+        horizontal=True,
+    )
+    if origem == "Preenchimento manual":
+        _formulario_praca_manual(aplicacao, id_campanha)
+        return
+    if _formulario_praca_ibge(aplicacao, aplicacao_catalogo, id_campanha):
+        return
+    st.error(
+        "Não foi possível carregar o catálogo territorial oficial. "
+        "O preenchimento manual continua disponível."
+    )
+    _formulario_praca_manual(aplicacao, id_campanha)
 
 
 def _detalhar_praca(praca: PracaResumo) -> None:
@@ -265,6 +428,7 @@ def _listar_universos(
 
 def apresentar_praca_universo(
     aplicacao: AplicacaoBriefings,
+    aplicacao_catalogo: AplicacaoCatalogoTerritorial,
     id_campanha: UUID,
     briefing: BriefingResumo,
 ) -> None:
@@ -279,7 +443,7 @@ def apresentar_praca_universo(
     )
     aba_pracas, aba_universos = st.tabs(("Praças", "Universos"))
     with aba_pracas:
-        _formulario_praca(aplicacao, id_campanha)
+        _formulario_praca(aplicacao, aplicacao_catalogo, id_campanha)
         _listar_pracas(aplicacao, id_campanha, briefing)
     with aba_universos:
         _formulario_universo(aplicacao, id_campanha, briefing)

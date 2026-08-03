@@ -6,6 +6,9 @@ from mediad_planner.application.dto.espaco_trabalho import (
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
 )
+from mediad_planner.application.services.aplicacao_catalogo_territorial import (
+    AplicacaoCatalogoTerritorial,
+)
 from mediad_planner.application.services.aplicacao_espaco_trabalho import (
     AplicacaoEspacoTrabalho,
 )
@@ -18,6 +21,7 @@ from mediad_planner.presentation.visao_geral_campanha import (
 def apresentar_espaco_trabalho(
     aplicacao_espaco_trabalho: AplicacaoEspacoTrabalho,
     aplicacao_briefings: AplicacaoBriefings,
+    aplicacao_catalogo_territorial: AplicacaoCatalogoTerritorial,
     resumo: EspacoTrabalhoCampanhaResumo,
     modulo_ativo: str,
 ) -> str | None:
@@ -31,7 +35,11 @@ def apresentar_espaco_trabalho(
             return "BRIEFING"
         return None
     if modulo_ativo == "BRIEFING":
-        apresentar_briefing(aplicacao_briefings, campanha.id_campanha)
+        apresentar_briefing(
+            aplicacao_briefings,
+            aplicacao_catalogo_territorial,
+            campanha.id_campanha,
+        )
         return None
     st.warning("Módulo indisponível nesta etapa.")
     return None

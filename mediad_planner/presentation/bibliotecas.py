@@ -7,6 +7,13 @@ def apresentar_bibliotecas() -> None:
         "As bibliotecas armazenarão referências reutilizáveis e versionadas "
         "para as Campanhas e os motores."
     )
+    with st.container(border=True):
+        st.subheader("Catálogo territorial oficial")
+        st.write("Fonte: IBGE — Divisão Territorial Brasileira 2025")
+        st.write("Base: snapshot local versionado da DTB 2025")
+        st.write("Cobertura atual: Unidades da Federação e Municípios")
+        st.write("Atualização: controlada por nova edição oficial")
+        st.write("Fallback: preenchimento manual")
     for rotulo in (
         "Inventários de mídia",
         "Catálogos mestres",
