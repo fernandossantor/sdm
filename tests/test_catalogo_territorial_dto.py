@@ -5,6 +5,8 @@ import pytest
 from mediad_planner.application.dto.catalogo_territorial import (
     EstadoCatalogoResumo,
     MunicipioCatalogoResumo,
+    RegiaoGeograficaImediataCatalogoResumo,
+    RegiaoGeograficaIntermediariaCatalogoResumo,
 )
 
 
@@ -59,3 +61,51 @@ def test_municipio_normaliza_e_valida_codigos() -> None:
             MunicipioCatalogoResumo(codigo, "São Borja", "43")
     with pytest.raises(ValueError, match="Código de UF inválido"):
         MunicipioCatalogoResumo("4318002", "São Borja", "RS")
+
+
+def test_dto_intermediario_normaliza_e_e_congelado() -> None:
+    regiao = RegiaoGeograficaIntermediariaCatalogoResumo(
+        "4304", " Uruguaiana ", "43"
+    )
+    assert regiao.nome == "Uruguaiana"
+    with pytest.raises(FrozenInstanceError):
+        regiao.nome = "Outro"  # type: ignore[misc]
+
+
+@pytest.mark.parametrize("codigo", ["430", "43045", "ABCD", 4304])
+def test_dto_intermediario_rejeita_codigo_invalido(codigo: object) -> None:
+    with pytest.raises(ValueError, match="Intermediária inválido"):
+        RegiaoGeograficaIntermediariaCatalogoResumo(
+            codigo, "Uruguaiana", "43"  # type: ignore[arg-type]
+        )
+
+
+def test_dto_intermediario_rejeita_nome_e_uf_invalidos() -> None:
+    with pytest.raises(ValueError, match="Nome inválido"):
+        RegiaoGeograficaIntermediariaCatalogoResumo("4304", " ", "43")
+    with pytest.raises(ValueError, match="Código de UF inválido"):
+        RegiaoGeograficaIntermediariaCatalogoResumo("4304", "Uruguaiana", "RS")
+
+
+def test_dto_imediato_normaliza_e_e_congelado() -> None:
+    regiao = RegiaoGeograficaImediataCatalogoResumo(
+        "430017", " São Borja ", "43", "4304"
+    )
+    assert regiao.nome == "São Borja"
+    with pytest.raises(FrozenInstanceError):
+        regiao.nome = "Outro"  # type: ignore[misc]
+
+
+@pytest.mark.parametrize("codigo", ["43017", "4300017", "ABC017", 430017])
+def test_dto_imediato_rejeita_codigo_invalido(codigo: object) -> None:
+    with pytest.raises(ValueError, match="Imediata inválido"):
+        RegiaoGeograficaImediataCatalogoResumo(
+            codigo, "São Borja", "43", "4304"  # type: ignore[arg-type]
+        )
+
+
+def test_dto_imediato_valida_intermediaria() -> None:
+    with pytest.raises(ValueError, match="Intermediária inválido"):
+        RegiaoGeograficaImediataCatalogoResumo(
+            "430017", "São Borja", "43", "430"
+        )

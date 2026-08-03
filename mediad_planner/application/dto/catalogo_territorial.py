@@ -66,3 +66,69 @@ class MunicipioCatalogoResumo:
             "codigo_estado",
             _validar_codigo(self.codigo_estado, 2, "Código de UF inválido"),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class RegiaoGeograficaIntermediariaCatalogoResumo:
+    codigo: str
+    nome: str
+    codigo_estado: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "codigo",
+            _validar_codigo(
+                self.codigo,
+                4,
+                "Código de Região Geográfica Intermediária inválido",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "nome",
+            _normalizar_texto(self.nome, "Nome inválido"),
+        )
+        object.__setattr__(
+            self,
+            "codigo_estado",
+            _validar_codigo(self.codigo_estado, 2, "Código de UF inválido"),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class RegiaoGeograficaImediataCatalogoResumo:
+    codigo: str
+    nome: str
+    codigo_estado: str
+    codigo_regiao_intermediaria: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "codigo",
+            _validar_codigo(
+                self.codigo,
+                6,
+                "Código de Região Geográfica Imediata inválido",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "nome",
+            _normalizar_texto(self.nome, "Nome inválido"),
+        )
+        object.__setattr__(
+            self,
+            "codigo_estado",
+            _validar_codigo(self.codigo_estado, 2, "Código de UF inválido"),
+        )
+        object.__setattr__(
+            self,
+            "codigo_regiao_intermediaria",
+            _validar_codigo(
+                self.codigo_regiao_intermediaria,
+                4,
+                "Código de Região Geográfica Intermediária inválido",
+            ),
+        )

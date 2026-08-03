@@ -20,6 +20,10 @@ def _dados() -> dict[str, object]:
         }],
         "municipios": [{
             "codigo": "4318002", "nome": "São Borja", "codigo_estado": "43",
+            "codigo_regiao_intermediaria": "4304",
+            "nome_regiao_intermediaria": "Uruguaiana",
+            "codigo_regiao_imediata": "430017",
+            "nome_regiao_imediata": "São Borja",
         }],
     }
 
@@ -80,3 +84,41 @@ def test_arquivo_ausente_json_e_utf8_invalidos(tmp_path: Path) -> None:
     for caminho in caminhos:
         with pytest.raises(CatalogoTerritorialIndisponivel):
             CatalogoTerritorialLocal(caminho).listar_estados()
+
+
+def test_regioes_sao_criadas_agrupadas_e_reutilizadas(tmp_path: Path) -> None:
+    caminho = tmp_path / "snapshot.json"
+    _gravar(caminho, _dados())
+    catalogo = CatalogoTerritorialLocal(caminho)
+    intermediarias = catalogo.listar_regioes_intermediarias("43")
+    imediatas = catalogo.listar_regioes_imediatas("4304")
+    assert [(item.codigo, item.nome) for item in intermediarias] == [
+        ("4304", "Uruguaiana")
+    ]
+    assert [(item.codigo, item.nome) for item in imediatas] == [
+        ("430017", "São Borja")
+    ]
+    assert catalogo.listar_regioes_intermediarias("99") == ()
+    assert catalogo.listar_regioes_imediatas("9999") == ()
+    assert catalogo.listar_regioes_intermediarias("43") is intermediarias
+
+
+@pytest.mark.parametrize(
+    "campo",
+    [
+        "codigo_regiao_intermediaria",
+        "nome_regiao_intermediaria",
+        "codigo_regiao_imediata",
+        "nome_regiao_imediata",
+    ],
+)
+def test_campo_regional_ausente_invalida_snapshot(
+    tmp_path: Path,
+    campo: str,
+) -> None:
+    dados = _dados()
+    del dados["municipios"][0][campo]  # type: ignore[index]
+    caminho = tmp_path / "snapshot.json"
+    _gravar(caminho, dados)
+    with pytest.raises(CatalogoTerritorialIndisponivel):
+        CatalogoTerritorialLocal(caminho).listar_estados()

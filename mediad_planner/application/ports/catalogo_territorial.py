@@ -3,6 +3,8 @@ from typing import Protocol, runtime_checkable
 from mediad_planner.application.dto.catalogo_territorial import (
     EstadoCatalogoResumo,
     MunicipioCatalogoResumo,
+    RegiaoGeograficaImediataCatalogoResumo,
+    RegiaoGeograficaIntermediariaCatalogoResumo,
 )
 
 
@@ -18,3 +20,16 @@ class CatalogoTerritorial(Protocol):
         self,
         codigo_estado: str,
     ) -> tuple[MunicipioCatalogoResumo, ...]: ...
+
+
+@runtime_checkable
+class CatalogoRegioesGeograficas(Protocol):
+    def listar_regioes_intermediarias(
+        self,
+        codigo_estado: str,
+    ) -> tuple[RegiaoGeograficaIntermediariaCatalogoResumo, ...]: ...
+
+    def listar_regioes_imediatas(
+        self,
+        codigo_regiao_intermediaria: str,
+    ) -> tuple[RegiaoGeograficaImediataCatalogoResumo, ...]: ...
