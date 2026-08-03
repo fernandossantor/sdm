@@ -1,0 +1,9 @@
+from enum import Enum
+
+
+class EstadoBriefing(str, Enum):
+    RASCUNHO = "RASCUNHO"
+    EM_PREENCHIMENTO = "EM_PREENCHIMENTO"
+    EM_REVISAO = "EM_REVISAO"
+    CONCLUIDO = "CONCLUIDO"
+    SUBSTITUIDO = "SUBSTITUIDO"

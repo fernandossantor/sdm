@@ -1,18 +1,30 @@
 """Casca mínima da reconstrução limpa do MediAd Planner."""
 
 from pathlib import Path
+from uuid import UUID
 
 import streamlit as st
 
 from mediad_planner.application.use_cases.obter_diagnostico_fundacao import (
     obter_diagnostico_fundacao,
 )
+from mediad_planner.composition.ambiente import (
+    AmbienteAplicacao,
+    construir_ambiente_aplicacao_em_memoria,
+)
+from mediad_planner.presentation.briefings import apresentar_briefing
 from mediad_planner.presentation.campanhas import apresentar_campanhas
 
 
 RAIZ = Path(__file__).resolve().parents[2]
 MARCA = RAIZ / "assets" / "Marca_nova.png"
 FAVICON = RAIZ / "assets" / "favicon2.png"
+CHAVE_CAMPANHA_ATIVA = "id_campanha_briefing_ativa"
+
+
+@st.cache_resource
+def _obter_ambiente() -> AmbienteAplicacao:
+    return construir_ambiente_aplicacao_em_memoria()
 
 
 def executar() -> None:
@@ -28,7 +40,18 @@ def executar() -> None:
 
     st.title("MediAd Planner")
     st.subheader("Reconstrução limpa do planejamento híbrido de mídia")
-    apresentar_campanhas()
+    ambiente = _obter_ambiente()
+    id_ativo = st.session_state.get(CHAVE_CAMPANHA_ATIVA)
+    if id_ativo is None:
+        id_selecionado = apresentar_campanhas(ambiente.campanhas)
+        if id_selecionado is not None:
+            st.session_state[CHAVE_CAMPANHA_ATIVA] = str(id_selecionado)
+            st.rerun()
+    else:
+        voltar = apresentar_briefing(ambiente.briefings, UUID(id_ativo))
+        if voltar:
+            st.session_state.pop(CHAVE_CAMPANHA_ATIVA, None)
+            st.rerun()
 
     diagnostico = obter_diagnostico_fundacao()
     with st.expander("Estado da fundação"):

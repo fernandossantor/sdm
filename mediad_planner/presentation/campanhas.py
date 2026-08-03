@@ -1,4 +1,5 @@
 import streamlit as st
+from uuid import UUID
 
 from mediad_planner.application.dto.campanha import (
     CampanhaResumo,
@@ -7,14 +8,6 @@ from mediad_planner.application.dto.campanha import (
 from mediad_planner.application.services.aplicacao_campanhas import (
     AplicacaoCampanhas,
 )
-from mediad_planner.composition.campanhas import (
-    construir_aplicacao_campanhas_em_memoria,
-)
-
-
-@st.cache_resource
-def _obter_aplicacao() -> AplicacaoCampanhas:
-    return construir_aplicacao_campanhas_em_memoria()
 
 
 def _rotulo_situacao(valor: str) -> str:
@@ -67,7 +60,7 @@ def _criar_entrada(
 def _apresentar_campanha(
     aplicacao: AplicacaoCampanhas,
     campanha: CampanhaResumo,
-) -> None:
+) -> UUID | None:
     with st.container(border=True):
         st.subheader(campanha.identificacao_completa)
         codigo, situacao, etapa = st.columns(3)
@@ -89,11 +82,16 @@ def _apresentar_campanha(
                 except (LookupError, PermissionError, ValueError) as erro:
                     st.error(str(erro))
                 else:
-                    st.rerun()
+                    return campanha.id_campanha
+        if campanha.situacao == "EM_ANDAMENTO" and campanha.etapa_atual == "BRIEFING":
+            if st.button("Abrir Briefing", key=f"abrir-{campanha.id_campanha}"):
+                return campanha.id_campanha
+    return None
 
 
-def apresentar_campanhas() -> None:
-    aplicacao = _obter_aplicacao()
+def apresentar_campanhas(
+    aplicacao: AplicacaoCampanhas,
+) -> UUID | None:
     st.header("Campanhas")
     st.warning(
         "Persistência temporária em memória. As Campanhas desta etapa são "
@@ -137,6 +135,8 @@ def apresentar_campanhas() -> None:
             st.error(str(erro))
         else:
             st.success(f"Campanha {criada.codigo} criada com sucesso.")
+            if criar_e_iniciar:
+                return criada.id_campanha
     elif cancelar:
         st.info("Abertura cancelada. Nenhuma Campanha foi criada.")
 
@@ -145,9 +145,12 @@ def apresentar_campanhas() -> None:
         campanhas = aplicacao.listar_campanhas()
     except PermissionError as erro:
         st.error(str(erro))
-        return
+        return None
     if not campanhas:
         st.info("Nenhuma Campanha criada nesta execução.")
-        return
+        return None
     for campanha in campanhas:
-        _apresentar_campanha(aplicacao, campanha)
+        selecionada = _apresentar_campanha(aplicacao, campanha)
+        if selecionada is not None:
+            return selecionada
+    return None

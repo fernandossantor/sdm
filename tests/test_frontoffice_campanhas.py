@@ -42,7 +42,8 @@ def test_frontoffice_importa_aplicacao_ou_composicao_autorizada() -> None:
     assert any(
         modulo.startswith("mediad_planner.application") for modulo in modulos
     )
-    assert "mediad_planner.composition.campanhas" in modulos
+    modulos_controlador = _modulos_importados(ARQUIVOS[1])
+    assert "mediad_planner.composition.ambiente" in modulos_controlador
 
 
 def test_interface_contem_acoes_e_aviso_temporario() -> None:
