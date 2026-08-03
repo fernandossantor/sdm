@@ -166,3 +166,49 @@ def test_remocoes_inexistentes_possuem_mensagens_controladas() -> None:
         estrutura.remover_praca(UUID(int=999))
     with pytest.raises(LookupError, match="Universo não encontrado"):
         estrutura.remover_universo(UUID(int=999))
+
+
+def test_tipos_de_regioes_geograficas_sao_explicitos_e_regiao_permanece() -> None:
+    codigos = {item.value for item in TipoPracaTerritorial}
+    assert "REGIAO" in codigos
+    assert "REGIAO_GEOGRAFICA_INTERMEDIARIA" in codigos
+    assert "REGIAO_GEOGRAFICA_IMEDIATA" in codigos
+    definicoes = {
+        item.codigo: item for item in listar_tipos_praca_territorial()
+    }
+    assert definicoes[
+        TipoPracaTerritorial.REGIAO_GEOGRAFICA_INTERMEDIARIA
+    ].rotulo == "Região Geográfica Intermediária"
+    assert definicoes[
+        TipoPracaTerritorial.REGIAO_GEOGRAFICA_IMEDIATA
+    ].rotulo == "Região Geográfica Imediata"
+
+
+def test_pracas_regionais_preservam_codigos_textuais() -> None:
+    from uuid import uuid4
+
+    comuns = {
+        "codigo_unidade_populacional": None,
+        "unidade_populacional": None,
+        "valor_populacao_referencia": None,
+        "abrangencia": None,
+        "fonte": None,
+        "data_referencia": None,
+        "observacao": None,
+    }
+    intermediaria = PracaDeclarada(
+        id_praca=uuid4(),
+        tipo=TipoPracaTerritorial.REGIAO_GEOGRAFICA_INTERMEDIARIA,
+        nome="Uruguaiana",
+        codigo_oficial="4304",
+        **comuns,
+    )
+    imediata = PracaDeclarada(
+        id_praca=uuid4(),
+        tipo=TipoPracaTerritorial.REGIAO_GEOGRAFICA_IMEDIATA,
+        nome="São Borja",
+        codigo_oficial="430017",
+        **comuns,
+    )
+    assert intermediaria.codigo_oficial == "4304"
+    assert imediata.codigo_oficial == "430017"

@@ -189,7 +189,12 @@ def _formulario_praca_ibge(
     estados_por_codigo = {item.codigo: item for item in estados}
     recorte = st.radio(
         "Recorte territorial oficial",
-        ("Unidade da Federação", "Município"),
+        (
+            "Unidade da Federação",
+            "Região Geográfica Intermediária",
+            "Região Geográfica Imediata",
+            "Município",
+        ),
         horizontal=True,
     )
     codigo_estado = st.selectbox(
@@ -205,8 +210,70 @@ def _formulario_praca_ibge(
     nome = estado.nome
     codigo_oficial = estado.codigo
     rotulo_tipo = "Estado ou unidade federativa"
-    resumo_adicional = f"Sigla: {estado.sigla}"
-    if recorte == "Município":
+    resumos_adicionais = (f"Sigla: {estado.sigla}",)
+    if recorte in (
+        "Região Geográfica Intermediária",
+        "Região Geográfica Imediata",
+    ):
+        try:
+            intermediarias = aplicacao_catalogo.listar_regioes_intermediarias(
+                codigo_estado
+            )
+        except CatalogoTerritorialIndisponivel:
+            return False
+        if not intermediarias:
+            st.warning(
+                "Nenhuma Região Geográfica Intermediária foi encontrada "
+                "para a UF selecionada."
+            )
+            return True
+        intermediarias_por_codigo = {
+            item.codigo: item for item in intermediarias
+        }
+        codigo_intermediaria = st.selectbox(
+            "Região Geográfica Intermediária",
+            tuple(intermediarias_por_codigo),
+            format_func=lambda codigo: (
+                f"{intermediarias_por_codigo[codigo].nome} — {estado.sigla}"
+            ),
+        )
+        intermediaria = intermediarias_por_codigo[codigo_intermediaria]
+        tipo = "REGIAO_GEOGRAFICA_INTERMEDIARIA"
+        nome = intermediaria.nome
+        codigo_oficial = intermediaria.codigo
+        rotulo_tipo = "Região Geográfica Intermediária"
+        resumos_adicionais = (f"UF: {estado.nome} — {estado.sigla}",)
+        if recorte == "Região Geográfica Imediata":
+            try:
+                imediatas = aplicacao_catalogo.listar_regioes_imediatas(
+                    codigo_intermediaria
+                )
+            except CatalogoTerritorialIndisponivel:
+                return False
+            if not imediatas:
+                st.warning(
+                    "Nenhuma Região Geográfica Imediata foi encontrada para "
+                    "a Região Intermediária selecionada."
+                )
+                return True
+            imediatas_por_codigo = {item.codigo: item for item in imediatas}
+            codigo_imediata = st.selectbox(
+                "Região Geográfica Imediata",
+                tuple(imediatas_por_codigo),
+                format_func=lambda codigo: (
+                    f"{imediatas_por_codigo[codigo].nome} — {estado.sigla}"
+                ),
+            )
+            imediata = imediatas_por_codigo[codigo_imediata]
+            tipo = "REGIAO_GEOGRAFICA_IMEDIATA"
+            nome = imediata.nome
+            codigo_oficial = imediata.codigo
+            rotulo_tipo = "Região Geográfica Imediata"
+            resumos_adicionais = (
+                f"Região Intermediária: {intermediaria.nome}",
+                f"UF: {estado.nome} — {estado.sigla}",
+            )
+    elif recorte == "Município":
         try:
             municipios = aplicacao_catalogo.listar_municipios(codigo_estado)
         except CatalogoTerritorialIndisponivel:
@@ -227,10 +294,11 @@ def _formulario_praca_ibge(
         nome = municipio.nome
         codigo_oficial = municipio.codigo
         rotulo_tipo = "Município"
-        resumo_adicional = f"UF: {estado.nome} — {estado.sigla}"
+        resumos_adicionais = (f"UF: {estado.nome} — {estado.sigla}",)
     st.write(f"Tipo territorial: {rotulo_tipo}")
     st.write(f"Nome oficial: {nome}")
-    st.write(resumo_adicional)
+    for resumo in resumos_adicionais:
+        st.write(resumo)
     st.write(f"Código IBGE: {codigo_oficial}")
     st.caption(
         "A identificação territorial é preenchida a partir do snapshot oficial "

@@ -34,6 +34,10 @@ class TipoPracaTerritorial(str, Enum):
     PAIS = "PAIS"
     REGIAO = "REGIAO"
     ESTADO_UF = "ESTADO_UF"
+    REGIAO_GEOGRAFICA_INTERMEDIARIA = (
+        "REGIAO_GEOGRAFICA_INTERMEDIARIA"
+    )
+    REGIAO_GEOGRAFICA_IMEDIATA = "REGIAO_GEOGRAFICA_IMEDIATA"
     REGIAO_METROPOLITANA = "REGIAO_METROPOLITANA"
     MUNICIPIO = "MUNICIPIO"
     DISTRITO = "DISTRITO"
@@ -83,6 +87,16 @@ _TIPOS_PRACA = (
         TipoPracaTerritorial.ESTADO_UF,
         "Estado ou unidade federativa",
         "Estado ou unidade federativa.",
+    ),
+    DefinicaoTipoPracaTerritorial(
+        TipoPracaTerritorial.REGIAO_GEOGRAFICA_INTERMEDIARIA,
+        "Região Geográfica Intermediária",
+        "Divisão regional oficial intermediária do IBGE.",
+    ),
+    DefinicaoTipoPracaTerritorial(
+        TipoPracaTerritorial.REGIAO_GEOGRAFICA_IMEDIATA,
+        "Região Geográfica Imediata",
+        "Divisão regional oficial imediata do IBGE.",
     ),
     DefinicaoTipoPracaTerritorial(
         TipoPracaTerritorial.REGIAO_METROPOLITANA,

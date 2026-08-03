@@ -224,3 +224,13 @@ def test_leitor_e_administrador_falham_antes_do_repositorio(
     ):
         caso.executar(UUID(int=4), _entrada_praca())
     assert repositorio.consultas == 0
+
+
+def test_listagem_expoe_tipos_regionais_com_rotulos_canonicos() -> None:
+    tipos = {item.codigo: item for item in ListarTiposPracaTerritorial().executar()}
+    assert tipos[
+        "REGIAO_GEOGRAFICA_INTERMEDIARIA"
+    ].rotulo == "Região Geográfica Intermediária"
+    assert tipos[
+        "REGIAO_GEOGRAFICA_IMEDIATA"
+    ].rotulo == "Região Geográfica Imediata"
