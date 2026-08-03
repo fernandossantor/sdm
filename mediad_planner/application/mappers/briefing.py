@@ -6,9 +6,14 @@ from mediad_planner.application.dto.objetivos_declarados import (
     ObjetivoComunicacaoResumo,
     ObjetivoMarketingResumo,
 )
+from mediad_planner.application.dto.praca_universo import PracaResumo, UniversoResumo
 from mediad_planner.domain.briefing.entidades import Briefing
 from mediad_planner.domain.briefing.objetivos_declarados import (
     listar_dimensoes_composto_marketing,
+)
+from mediad_planner.domain.briefing.praca_universo import (
+    listar_tipos_praca_territorial,
+    listar_unidades_populacionais,
 )
 
 
@@ -71,6 +76,67 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         )
         for item in briefing.objetivos_declarados.comunicacao
     )
+    rotulos_tipos = {
+        definicao.codigo: definicao.rotulo
+        for definicao in listar_tipos_praca_territorial()
+    }
+    rotulos_unidades = {
+        definicao.codigo: definicao.rotulo
+        for definicao in listar_unidades_populacionais()
+    }
+    pracas = tuple(
+        PracaResumo(
+            id_praca=item.id_praca,
+            tipo=item.tipo.value,
+            rotulo_tipo=rotulos_tipos[item.tipo],
+            nome=item.nome,
+            codigo_oficial=item.codigo_oficial,
+            abrangencia=item.abrangencia,
+            valor_populacao_referencia=(
+                format(item.valor_populacao_referencia, "f")
+                if item.valor_populacao_referencia is not None else None
+            ),
+            codigo_unidade_populacional=item.codigo_unidade_populacional,
+            unidade_populacional=(
+                rotulos_unidades[item.codigo_unidade_populacional]
+                if item.codigo_unidade_populacional is not None
+                else item.unidade_populacional
+            ),
+            fonte=item.fonte,
+            data_referencia=item.data_referencia,
+            observacao=item.observacao,
+        )
+        for item in briefing.estrutura_territorial_populacional.pracas
+    )
+    pracas_por_id = {item.id_praca: item for item in pracas}
+    universos = tuple(
+        UniversoResumo(
+            id_universo=item.id_universo,
+            nome=item.nome,
+            definicao=item.definicao,
+            ids_pracas=item.ids_pracas,
+            rotulos_pracas=tuple(
+                _rotulo_praca(pracas_por_id[id_praca])
+                for id_praca in item.ids_pracas
+            ),
+            valor_populacional=(
+                format(item.valor_populacional, "f")
+                if item.valor_populacional is not None else None
+            ),
+            codigo_unidade=item.codigo_unidade,
+            unidade=(
+                rotulos_unidades[item.codigo_unidade]
+                if item.codigo_unidade is not None
+                else item.unidade
+            ),
+            fonte=item.fonte,
+            data_referencia=item.data_referencia,
+            criterios_inclusao=item.criterios_inclusao,
+            criterios_exclusao=item.criterios_exclusao,
+            observacao=item.observacao,
+        )
+        for item in briefing.estrutura_territorial_populacional.universos
+    )
     return BriefingResumo(
         id_briefing=briefing.id_briefing,
         id_campanha=briefing.id_campanha,
@@ -92,4 +158,13 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         registros_situacao=registros,
         objetivos_marketing=objetivos_marketing,
         objetivos_comunicacao=objetivos_comunicacao,
+        pracas=pracas,
+        universos=universos,
     )
+
+
+def _rotulo_praca(praca: PracaResumo) -> str:
+    rotulo = f"[{praca.rotulo_tipo}] {praca.nome}"
+    if praca.codigo_oficial:
+        rotulo += f" — {praca.codigo_oficial}"
+    return rotulo

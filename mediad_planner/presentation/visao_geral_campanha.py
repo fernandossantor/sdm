@@ -104,6 +104,8 @@ def apresentar_visao_geral_campanha(
                 "**Objetivos de Comunicação:** "
                 f"{len(briefing.objetivos_comunicacao)}"
             )
+            st.write(f"**Praças:** {len(briefing.pracas)}")
+            st.write(f"**Universos:** {len(briefing.universos)}")
             if st.button(
                 "Continuar no Briefing",
                 key="continuar-briefing-visao-geral",

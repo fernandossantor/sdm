@@ -6,6 +6,7 @@ from mediad_planner.application.dto.objetivos_declarados import (
     ObjetivoComunicacaoResumo,
     ObjetivoMarketingResumo,
 )
+from mediad_planner.application.dto.praca_universo import PracaResumo, UniversoResumo
 from mediad_planner.domain.common.enums import PapelAcesso
 
 
@@ -80,6 +81,8 @@ class BriefingResumo:
     registros_situacao: tuple[RegistroSituacaoResumo, ...]
     objetivos_marketing: tuple[ObjetivoMarketingResumo, ...]
     objetivos_comunicacao: tuple[ObjetivoComunicacaoResumo, ...]
+    pracas: tuple[PracaResumo, ...]
+    universos: tuple[UniversoResumo, ...]
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "equipe", tuple(self.equipe))
@@ -98,3 +101,5 @@ class BriefingResumo:
             "objetivos_comunicacao",
             tuple(self.objetivos_comunicacao),
         )
+        object.__setattr__(self, "pracas", tuple(self.pracas))
+        object.__setattr__(self, "universos", tuple(self.universos))

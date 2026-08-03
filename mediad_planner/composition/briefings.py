@@ -27,6 +27,14 @@ from mediad_planner.application.use_cases.briefings import (
     ListarAspectosSituacaoMercadologica,
     RemoverRegistroSituacaoMercadologica,
 )
+from mediad_planner.application.use_cases.praca_universo import (
+    AdicionarPraca,
+    AdicionarUniverso,
+    ListarTiposPracaTerritorial,
+    ListarUnidadesPopulacionais,
+    RemoverPraca,
+    RemoverUniverso,
+)
 
 
 def construir_aplicacao_briefings(
@@ -78,6 +86,30 @@ def construir_aplicacao_briefings(
             relogio=relogio,
         ),
         remover_comunicacao=RemoverObjetivoComunicacao(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+        ),
+        listar_tipos_praca=ListarTiposPracaTerritorial(),
+        listar_unidades_populacionais=ListarUnidadesPopulacionais(),
+        adicionar_praca=AdicionarPraca(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+            gerador_uuid=gerador_uuid,
+        ),
+        remover_praca=RemoverPraca(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+        ),
+        adicionar_universo=AdicionarUniverso(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+            gerador_uuid=gerador_uuid,
+        ),
+        remover_universo=RemoverUniverso(
             repositorio=repositorio_briefings,
             contexto_acesso=contexto,
             relogio=relogio,

@@ -13,6 +13,7 @@ from mediad_planner.application.services.aplicacao_briefings import (
 from mediad_planner.presentation.objetivos_declarados import (
     apresentar_objetivos_declarados,
 )
+from mediad_planner.presentation.praca_universo import apresentar_praca_universo
 
 
 def _rotulo_estado(valor: str) -> str:
@@ -58,7 +59,6 @@ ROTULOS_NATUREZAS = (
 
 def _apresentar_subetapas(briefing: BriefingResumo) -> None:
     subetapas = (
-        "3. Praça e universo",
         "4. Segmentos e públicos",
         "5. Jornada",
         "6. Período e verba",
@@ -73,12 +73,18 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
         if briefing.objetivos_marketing or briefing.objetivos_comunicacao
         else "Não iniciada"
     )
+    estado_praca_universo = (
+        "Em preenchimento"
+        if briefing.pracas or briefing.universos
+        else "Não iniciada"
+    )
     with st.expander("Estrutura do Briefing", expanded=False):
         st.write(
             "**1. Situação mercadológica e competitiva** — "
             f"{estado_situacao}"
         )
         st.write(f"**2. Objetivos declarados** — {estado_objetivos}")
+        st.write(f"**3. Praça e universo** — {estado_praca_universo}")
         for subetapa in subetapas:
             st.write(f"**{subetapa}** — Não iniciada")
 
@@ -300,11 +306,14 @@ def apresentar_briefing(
         (
             "Situação mercadológica e competitiva",
             "Objetivos declarados",
+            "Praça e universo",
         ),
         horizontal=True,
     )
     if subetapa == "Situação mercadológica e competitiva":
         _formulario_situacao(aplicacao, id_campanha)
         _apresentar_registros(aplicacao, id_campanha, briefing)
-    else:
+    elif subetapa == "Objetivos declarados":
         apresentar_objetivos_declarados(aplicacao, id_campanha, briefing)
+    else:
+        apresentar_praca_universo(aplicacao, id_campanha, briefing)

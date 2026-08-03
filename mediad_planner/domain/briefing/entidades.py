@@ -13,6 +13,11 @@ from mediad_planner.domain.briefing.situacao_mercadologica import (
     RegistroSituacaoMercadologica,
     SituacaoMercadologicaCompetitiva,
 )
+from mediad_planner.domain.briefing.praca_universo import (
+    EstruturaTerritorialPopulacional,
+    PracaDeclarada,
+    UniversoDeclarado,
+)
 
 
 def _validar_uuid(valor: object, campo: str) -> None:
@@ -35,6 +40,7 @@ class Briefing:
     contexto_herdado: ContextoHerdadoBriefing
     situacao_mercadologica: SituacaoMercadologicaCompetitiva
     objetivos_declarados: ObjetivosDeclarados
+    estrutura_territorial_populacional: EstruturaTerritorialPopulacional
     criado_por: UUID
     criado_em: datetime
     atualizado_por: UUID
@@ -60,6 +66,11 @@ class Briefing:
             raise TypeError("situacao_mercadologica inválida")
         if not isinstance(self.objetivos_declarados, ObjetivosDeclarados):
             raise TypeError("objetivos_declarados inválidos")
+        if not isinstance(
+            self.estrutura_territorial_populacional,
+            EstruturaTerritorialPopulacional,
+        ):
+            raise TypeError("estrutura_territorial_populacional inválida")
         _validar_fuso(self.criado_em, "criado_em")
         _validar_fuso(self.atualizado_em, "atualizado_em")
         if self.atualizado_em < self.criado_em:
@@ -87,6 +98,10 @@ class Briefing:
             contexto_herdado=contexto_herdado,
             situacao_mercadologica=SituacaoMercadologicaCompetitiva(registros=()),
             objetivos_declarados=ObjetivosDeclarados(marketing=(), comunicacao=()),
+            estrutura_territorial_populacional=EstruturaTerritorialPopulacional(
+                pracas=(),
+                universos=(),
+            ),
             criado_por=criado_por,
             criado_em=criado_em,
             atualizado_por=atualizado_por,
@@ -190,6 +205,62 @@ class Briefing:
             self,
             estado=EstadoBriefing.EM_PREENCHIMENTO,
             situacao_mercadologica=self.situacao_mercadologica.remover(id_registro),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def adicionar_praca(
+        self, praca: PracaDeclarada, atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            estrutura_territorial_populacional=(
+                self.estrutura_territorial_populacional.adicionar_praca(praca)
+            ),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def remover_praca(
+        self, id_praca: UUID, atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            estrutura_territorial_populacional=(
+                self.estrutura_territorial_populacional.remover_praca(id_praca)
+            ),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def adicionar_universo(
+        self, universo: UniversoDeclarado, atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            estrutura_territorial_populacional=(
+                self.estrutura_territorial_populacional.adicionar_universo(universo)
+            ),
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def remover_universo(
+        self, id_universo: UUID, atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            estrutura_territorial_populacional=(
+                self.estrutura_territorial_populacional.remover_universo(id_universo)
+            ),
             atualizado_por=atualizado_por,
             atualizado_em=atualizado_em,
         )

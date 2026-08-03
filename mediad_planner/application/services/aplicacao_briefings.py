@@ -11,6 +11,12 @@ from mediad_planner.application.dto.objetivos_declarados import (
     DefinicaoObjetivoResumo,
     DimensaoCompostoMarketingResumo,
 )
+from mediad_planner.application.dto.praca_universo import (
+    AdicionarPracaEntrada,
+    AdicionarUniversoEntrada,
+    DefinicaoTipoPracaResumo,
+    DefinicaoUnidadePopulacionalResumo,
+)
 from mediad_planner.application.use_cases.objetivos_declarados import (
     AdicionarObjetivoComunicacao,
     AdicionarObjetivoMarketing,
@@ -25,6 +31,14 @@ from mediad_planner.application.use_cases.briefings import (
     AdicionarRegistroSituacaoMercadologica,
     ListarAspectosSituacaoMercadologica,
     RemoverRegistroSituacaoMercadologica,
+)
+from mediad_planner.application.use_cases.praca_universo import (
+    AdicionarPraca,
+    AdicionarUniverso,
+    ListarTiposPracaTerritorial,
+    ListarUnidadesPopulacionais,
+    RemoverPraca,
+    RemoverUniverso,
 )
 
 
@@ -42,6 +56,12 @@ class AplicacaoBriefings:
         adicionar_comunicacao: AdicionarObjetivoComunicacao,
         remover_marketing: RemoverObjetivoMarketing,
         remover_comunicacao: RemoverObjetivoComunicacao,
+        listar_tipos_praca: ListarTiposPracaTerritorial,
+        listar_unidades_populacionais: ListarUnidadesPopulacionais,
+        adicionar_praca: AdicionarPraca,
+        remover_praca: RemoverPraca,
+        adicionar_universo: AdicionarUniverso,
+        remover_universo: RemoverUniverso,
     ) -> None:
         self._abrir = abrir
         self._listar_aspectos = listar_aspectos
@@ -54,6 +74,12 @@ class AplicacaoBriefings:
         self._adicionar_comunicacao = adicionar_comunicacao
         self._remover_marketing = remover_marketing
         self._remover_comunicacao = remover_comunicacao
+        self._listar_tipos_praca = listar_tipos_praca
+        self._listar_unidades_populacionais = listar_unidades_populacionais
+        self._adicionar_praca = adicionar_praca
+        self._remover_praca = remover_praca
+        self._adicionar_universo = adicionar_universo
+        self._remover_universo = remover_universo
 
     def abrir_briefing(self, id_campanha: UUID) -> BriefingResumo:
         return self._abrir.executar(id_campanha)
@@ -116,3 +142,39 @@ class AplicacaoBriefings:
         id_objetivo: UUID,
     ) -> BriefingResumo:
         return self._remover_comunicacao.executar(id_campanha, id_objetivo)
+
+    def listar_tipos_praca(self) -> tuple[DefinicaoTipoPracaResumo, ...]:
+        return self._listar_tipos_praca.executar()
+
+    def listar_unidades_populacionais(
+        self,
+    ) -> tuple[DefinicaoUnidadePopulacionalResumo, ...]:
+        return self._listar_unidades_populacionais.executar()
+
+    def adicionar_praca(
+        self,
+        id_campanha: UUID,
+        entrada: AdicionarPracaEntrada,
+    ) -> BriefingResumo:
+        return self._adicionar_praca.executar(id_campanha, entrada)
+
+    def remover_praca(
+        self,
+        id_campanha: UUID,
+        id_praca: UUID,
+    ) -> BriefingResumo:
+        return self._remover_praca.executar(id_campanha, id_praca)
+
+    def adicionar_universo(
+        self,
+        id_campanha: UUID,
+        entrada: AdicionarUniversoEntrada,
+    ) -> BriefingResumo:
+        return self._adicionar_universo.executar(id_campanha, entrada)
+
+    def remover_universo(
+        self,
+        id_campanha: UUID,
+        id_universo: UUID,
+    ) -> BriefingResumo:
+        return self._remover_universo.executar(id_campanha, id_universo)

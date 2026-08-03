@@ -13,6 +13,9 @@ from mediad_planner.domain.briefing.objetivos_declarados import (
     ObjetivoMarketingDeclarado,
     ObjetivosDeclarados,
 )
+from mediad_planner.domain.briefing.praca_universo import (
+    EstruturaTerritorialPopulacional,
+)
 from mediad_planner.domain.briefing.situacao_mercadologica import (
     EscopoSituacaoMercadologica,
     NaturezaRegistroSituacao,
@@ -121,7 +124,10 @@ def test_briefing_valida_contexto_datas_versao_e_uuids() -> None:
             estado=EstadoBriefing.RASCUNHO,
                 contexto_herdado=contexto(),
                 situacao_mercadologica=SituacaoMercadologicaCompetitiva(()),
-            objetivos_declarados=ObjetivosDeclarados((), ()),
+                objetivos_declarados=ObjetivosDeclarados((), ()),
+                estrutura_territorial_populacional=(
+                    EstruturaTerritorialPopulacional((), ())
+                ),
             criado_por=UUID(int=4),
             criado_em=AGORA,
             atualizado_por=UUID(int=4),
