@@ -17,6 +17,40 @@ from mediad_planner.application.dto.praca_universo import (
     DefinicaoTipoPracaResumo,
     DefinicaoUnidadePopulacionalResumo,
 )
+from mediad_planner.application.dto.criterios_segmentacao import (
+    DefinicaoCriterioSegmentacaoResumo,
+    DefinirCriteriosSegmentacaoEntrada,
+)
+from mediad_planner.application.use_cases.criterios_segmentacao import (
+    DefinirCriteriosSegmentacao,
+    ListarCriteriosSegmentacao,
+)
+from mediad_planner.application.dto.segmentos import SalvarSegmentoEntrada
+from mediad_planner.application.use_cases.segmentos import (
+    AdicionarSegmento,
+    EditarSegmento,
+    RemoverSegmento,
+)
+from mediad_planner.application.dto.publicos import SalvarPublicoEntrada
+from mediad_planner.application.use_cases.publicos import (
+    AdicionarPublico,
+    EditarPublico,
+    RemoverPublico,
+)
+from mediad_planner.application.dto.jornada import (
+    CategoriaEtapaJornadaResumo,
+    SalvarEtapaJornadaEntrada,
+    SalvarJornadaEntrada,
+)
+from mediad_planner.application.use_cases.jornada import (
+    AdicionarEtapaJornada,
+    AdicionarJornada,
+    EditarEtapaJornada,
+    EditarJornada,
+    ListarCategoriasEtapaJornada,
+    RemoverEtapaJornada,
+    RemoverJornada,
+)
 from mediad_planner.application.use_cases.objetivos_declarados import (
     AdicionarObjetivoComunicacao,
     AdicionarObjetivoMarketing,
@@ -62,6 +96,21 @@ class AplicacaoBriefings:
         remover_praca: RemoverPraca,
         adicionar_universo: AdicionarUniverso,
         remover_universo: RemoverUniverso,
+        listar_criterios_segmentacao: ListarCriteriosSegmentacao,
+        definir_criterios_segmentacao: DefinirCriteriosSegmentacao,
+        adicionar_segmento: AdicionarSegmento,
+        editar_segmento: EditarSegmento,
+        remover_segmento: RemoverSegmento,
+        adicionar_publico: AdicionarPublico,
+        editar_publico: EditarPublico,
+        remover_publico: RemoverPublico,
+        listar_categorias_etapa: ListarCategoriasEtapaJornada,
+        adicionar_jornada: AdicionarJornada,
+        editar_jornada: EditarJornada,
+        remover_jornada: RemoverJornada,
+        adicionar_etapa_jornada: AdicionarEtapaJornada,
+        editar_etapa_jornada: EditarEtapaJornada,
+        remover_etapa_jornada: RemoverEtapaJornada,
     ) -> None:
         self._abrir = abrir
         self._listar_aspectos = listar_aspectos
@@ -80,6 +129,21 @@ class AplicacaoBriefings:
         self._remover_praca = remover_praca
         self._adicionar_universo = adicionar_universo
         self._remover_universo = remover_universo
+        self._listar_criterios_segmentacao = listar_criterios_segmentacao
+        self._definir_criterios_segmentacao = definir_criterios_segmentacao
+        self._adicionar_segmento = adicionar_segmento
+        self._editar_segmento = editar_segmento
+        self._remover_segmento = remover_segmento
+        self._adicionar_publico = adicionar_publico
+        self._editar_publico = editar_publico
+        self._remover_publico = remover_publico
+        self._listar_categorias_etapa = listar_categorias_etapa
+        self._adicionar_jornada = adicionar_jornada
+        self._editar_jornada = editar_jornada
+        self._remover_jornada = remover_jornada
+        self._adicionar_etapa_jornada = adicionar_etapa_jornada
+        self._editar_etapa_jornada = editar_etapa_jornada
+        self._remover_etapa_jornada = remover_etapa_jornada
 
     def abrir_briefing(self, id_campanha: UUID) -> BriefingResumo:
         return self._abrir.executar(id_campanha)
@@ -178,3 +242,84 @@ class AplicacaoBriefings:
         id_universo: UUID,
     ) -> BriefingResumo:
         return self._remover_universo.executar(id_campanha, id_universo)
+
+    def listar_criterios_segmentacao(
+        self,
+    ) -> tuple[DefinicaoCriterioSegmentacaoResumo, ...]:
+        return self._listar_criterios_segmentacao.executar()
+
+    def definir_criterios_segmentacao(
+        self,
+        id_campanha: UUID,
+        entrada: DefinirCriteriosSegmentacaoEntrada,
+    ) -> BriefingResumo:
+        return self._definir_criterios_segmentacao.executar(id_campanha, entrada)
+
+    def adicionar_segmento(
+        self, id_campanha: UUID, entrada: SalvarSegmentoEntrada,
+    ) -> BriefingResumo:
+        return self._adicionar_segmento.executar(id_campanha, entrada)
+
+    def editar_segmento(
+        self, id_campanha: UUID, id_segmento: UUID, entrada: SalvarSegmentoEntrada,
+    ) -> BriefingResumo:
+        return self._editar_segmento.executar(id_campanha, id_segmento, entrada)
+
+    def remover_segmento(
+        self, id_campanha: UUID, id_segmento: UUID,
+    ) -> BriefingResumo:
+        return self._remover_segmento.executar(id_campanha, id_segmento)
+
+    def adicionar_publico(
+        self, id_campanha: UUID, entrada: SalvarPublicoEntrada,
+    ) -> BriefingResumo:
+        return self._adicionar_publico.executar(id_campanha, entrada)
+
+    def editar_publico(
+        self, id_campanha: UUID, id_publico: UUID, entrada: SalvarPublicoEntrada,
+    ) -> BriefingResumo:
+        return self._editar_publico.executar(id_campanha, id_publico, entrada)
+
+    def remover_publico(
+        self, id_campanha: UUID, id_publico: UUID,
+    ) -> BriefingResumo:
+        return self._remover_publico.executar(id_campanha, id_publico)
+
+    def listar_categorias_etapa_jornada(
+        self,
+    ) -> tuple[CategoriaEtapaJornadaResumo, ...]:
+        return self._listar_categorias_etapa.executar()
+
+    def adicionar_jornada(
+        self, id_campanha: UUID, entrada: SalvarJornadaEntrada,
+    ) -> BriefingResumo:
+        return self._adicionar_jornada.executar(id_campanha, entrada)
+
+    def editar_jornada(
+        self, id_campanha: UUID, id_jornada: UUID, entrada: SalvarJornadaEntrada,
+    ) -> BriefingResumo:
+        return self._editar_jornada.executar(id_campanha, id_jornada, entrada)
+
+    def remover_jornada(
+        self, id_campanha: UUID, id_jornada: UUID,
+    ) -> BriefingResumo:
+        return self._remover_jornada.executar(id_campanha, id_jornada)
+
+    def adicionar_etapa_jornada(
+        self, id_campanha: UUID, id_jornada: UUID,
+        entrada: SalvarEtapaJornadaEntrada,
+    ) -> BriefingResumo:
+        return self._adicionar_etapa_jornada.executar(id_campanha, id_jornada, entrada)
+
+    def editar_etapa_jornada(
+        self, id_campanha: UUID, id_jornada: UUID, id_etapa: UUID,
+        entrada: SalvarEtapaJornadaEntrada,
+    ) -> BriefingResumo:
+        return self._editar_etapa_jornada.executar(
+            id_campanha, id_jornada, id_etapa, entrada
+        )
+
+    def remover_etapa_jornada(
+        self, id_campanha: UUID, id_jornada: UUID, id_etapa: UUID,
+    ) -> BriefingResumo:
+        return self._remover_etapa_jornada.executar(id_campanha, id_jornada, id_etapa)

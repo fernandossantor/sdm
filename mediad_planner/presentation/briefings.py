@@ -17,6 +17,11 @@ from mediad_planner.presentation.objetivos_declarados import (
     apresentar_objetivos_declarados,
 )
 from mediad_planner.presentation.praca_universo import apresentar_praca_universo
+from mediad_planner.presentation.criterios_segmentacao import (
+    apresentar_criterios_segmentacao,
+)
+from mediad_planner.presentation.segmentos import apresentar_segmentos
+from mediad_planner.presentation.jornada import apresentar_jornada
 
 
 def _rotulo_estado(valor: str) -> str:
@@ -62,7 +67,6 @@ ROTULOS_NATUREZAS = (
 
 def _apresentar_subetapas(briefing: BriefingResumo) -> None:
     subetapas = (
-        "4. Segmentos e públicos",
         "5. Jornada",
         "6. Período e verba",
         "7. Prioridades, restrições e pretensões",
@@ -88,6 +92,11 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
         )
         st.write(f"**2. Objetivos declarados** — {estado_objetivos}")
         st.write(f"**3. Praça e universo** — {estado_praca_universo}")
+        estado_criterios = (
+            "Em preenchimento"
+            if briefing.criterios_segmentacao else "Não iniciada"
+        )
+        st.write(f"**4. Segmentos e públicos** — {estado_criterios}")
         for subetapa in subetapas:
             st.write(f"**{subetapa}** — Não iniciada")
 
@@ -311,6 +320,9 @@ def apresentar_briefing(
             "Situação mercadológica e competitiva",
             "Objetivos declarados",
             "Praça e universo",
+            "Critérios de segmentação",
+            "Segmentos e públicos",
+            "Jornada",
         ),
         horizontal=True,
     )
@@ -319,10 +331,16 @@ def apresentar_briefing(
         _apresentar_registros(aplicacao, id_campanha, briefing)
     elif subetapa == "Objetivos declarados":
         apresentar_objetivos_declarados(aplicacao, id_campanha, briefing)
-    else:
+    elif subetapa == "Praça e universo":
         apresentar_praca_universo(
             aplicacao,
             aplicacao_catalogo,
             id_campanha,
             briefing,
         )
+    elif subetapa == "Critérios de segmentação":
+        apresentar_criterios_segmentacao(aplicacao, id_campanha, briefing)
+    elif subetapa == "Segmentos e públicos":
+        apresentar_segmentos(aplicacao, id_campanha, briefing)
+    else:
+        apresentar_jornada(aplicacao, id_campanha, briefing)

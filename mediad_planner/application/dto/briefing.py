@@ -7,6 +7,9 @@ from mediad_planner.application.dto.objetivos_declarados import (
     ObjetivoMarketingResumo,
 )
 from mediad_planner.application.dto.praca_universo import PracaResumo, UniversoResumo
+from mediad_planner.application.dto.segmentos import SegmentoResumo
+from mediad_planner.application.dto.publicos import PublicoResumo
+from mediad_planner.application.dto.jornada import JornadaResumo
 from mediad_planner.domain.common.enums import PapelAcesso
 
 
@@ -83,6 +86,10 @@ class BriefingResumo:
     objetivos_comunicacao: tuple[ObjetivoComunicacaoResumo, ...]
     pracas: tuple[PracaResumo, ...]
     universos: tuple[UniversoResumo, ...]
+    criterios_segmentacao: tuple[str, ...] = ()
+    segmentos: tuple[SegmentoResumo, ...] = ()
+    publicos: tuple[PublicoResumo, ...] = ()
+    jornadas: tuple[JornadaResumo, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "equipe", tuple(self.equipe))
@@ -103,3 +110,9 @@ class BriefingResumo:
         )
         object.__setattr__(self, "pracas", tuple(self.pracas))
         object.__setattr__(self, "universos", tuple(self.universos))
+        object.__setattr__(
+            self, "criterios_segmentacao", tuple(self.criterios_segmentacao)
+        )
+        object.__setattr__(self, "segmentos", tuple(self.segmentos))
+        object.__setattr__(self, "publicos", tuple(self.publicos))
+        object.__setattr__(self, "jornadas", tuple(self.jornadas))

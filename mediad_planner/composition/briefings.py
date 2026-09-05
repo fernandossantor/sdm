@@ -35,6 +35,29 @@ from mediad_planner.application.use_cases.praca_universo import (
     RemoverPraca,
     RemoverUniverso,
 )
+from mediad_planner.application.use_cases.criterios_segmentacao import (
+    DefinirCriteriosSegmentacao,
+    ListarCriteriosSegmentacao,
+)
+from mediad_planner.application.use_cases.segmentos import (
+    AdicionarSegmento,
+    EditarSegmento,
+    RemoverSegmento,
+)
+from mediad_planner.application.use_cases.publicos import (
+    AdicionarPublico,
+    EditarPublico,
+    RemoverPublico,
+)
+from mediad_planner.application.use_cases.jornada import (
+    AdicionarEtapaJornada,
+    AdicionarJornada,
+    EditarEtapaJornada,
+    EditarJornada,
+    ListarCategoriasEtapaJornada,
+    RemoverEtapaJornada,
+    RemoverJornada,
+)
 
 
 def construir_aplicacao_briefings(
@@ -113,5 +136,44 @@ def construir_aplicacao_briefings(
             repositorio=repositorio_briefings,
             contexto_acesso=contexto,
             relogio=relogio,
+        ),
+        listar_criterios_segmentacao=ListarCriteriosSegmentacao(),
+        definir_criterios_segmentacao=DefinirCriteriosSegmentacao(
+            repositorio=repositorio_briefings,
+            contexto_acesso=contexto,
+            relogio=relogio,
+        ),
+        adicionar_segmento=AdicionarSegmento(
+            repositorio_briefings, contexto, relogio, gerador_uuid
+        ),
+        editar_segmento=EditarSegmento(
+            repositorio_briefings, contexto, relogio
+        ),
+        remover_segmento=RemoverSegmento(
+            repositorio_briefings, contexto, relogio
+        ),
+        adicionar_publico=AdicionarPublico(
+            repositorio_briefings, contexto, relogio, gerador_uuid
+        ),
+        editar_publico=EditarPublico(
+            repositorio_briefings, contexto, relogio
+        ),
+        remover_publico=RemoverPublico(
+            repositorio_briefings, contexto, relogio
+        ),
+        listar_categorias_etapa=ListarCategoriasEtapaJornada(),
+        adicionar_jornada=AdicionarJornada(
+            repositorio_briefings, contexto, relogio, gerador_uuid
+        ),
+        editar_jornada=EditarJornada(repositorio_briefings, contexto, relogio),
+        remover_jornada=RemoverJornada(repositorio_briefings, contexto, relogio),
+        adicionar_etapa_jornada=AdicionarEtapaJornada(
+            repositorio_briefings, contexto, relogio, gerador_uuid
+        ),
+        editar_etapa_jornada=EditarEtapaJornada(
+            repositorio_briefings, contexto, relogio
+        ),
+        remover_etapa_jornada=RemoverEtapaJornada(
+            repositorio_briefings, contexto, relogio
         ),
     )

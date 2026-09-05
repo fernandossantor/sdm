@@ -390,7 +390,14 @@ def _formulario_universo(
     if not briefing.pracas:
         st.info("Cadastre ao menos uma Praça antes de criar um Universo.")
         return
-    pracas_por_id = {item.id_praca: item for item in briefing.pracas}
+    pracas_por_id = {str(item.id_praca): item for item in briefing.pracas}
+    rotulos_por_id = {
+        id_praca: _rotulo_praca(praca)
+        for id_praca, praca in pracas_por_id.items()
+    }
+    ids_por_rotulo = {
+        rotulo: id_praca for id_praca, rotulo in rotulos_por_id.items()
+    }
     nome = st.text_input("Nome do Universo")
     definicao = st.text_area(
         "Definição",
@@ -402,7 +409,7 @@ def _formulario_universo(
     ids_pracas = st.multiselect(
         "Praças relacionadas",
         options=tuple(pracas_por_id),
-        format_func=lambda id_praca: _rotulo_praca(pracas_por_id[id_praca]),
+        format_func=lambda id_praca: rotulos_por_id.get(id_praca, id_praca),
     )
     valor = st.text_input(
         "Tamanho estimado do Universo (opcional)",
@@ -426,7 +433,10 @@ def _formulario_universo(
         entrada = AdicionarUniversoEntrada(
             nome=nome,
             definicao=definicao,
-            ids_pracas=tuple(ids_pracas),
+            ids_pracas=tuple(
+                UUID(ids_por_rotulo.get(id_praca, id_praca))
+                for id_praca in ids_pracas
+            ),
             valor_populacional=valor,
             codigo_unidade=codigo_unidade,
             unidade=unidade or "",

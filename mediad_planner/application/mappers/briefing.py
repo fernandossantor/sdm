@@ -7,6 +7,10 @@ from mediad_planner.application.dto.objetivos_declarados import (
     ObjetivoMarketingResumo,
 )
 from mediad_planner.application.dto.praca_universo import PracaResumo, UniversoResumo
+from mediad_planner.application.dto.segmentos import SegmentoResumo
+from mediad_planner.application.dto.publicos import PublicoResumo
+from mediad_planner.application.dto.jornada import EtapaJornadaResumo, JornadaResumo
+from mediad_planner.domain.briefing.jornada import ROTULOS_ETAPAS
 from mediad_planner.domain.briefing.entidades import Briefing
 from mediad_planner.domain.briefing.objetivos_declarados import (
     listar_dimensoes_composto_marketing,
@@ -14,6 +18,7 @@ from mediad_planner.domain.briefing.objetivos_declarados import (
 from mediad_planner.domain.briefing.praca_universo import (
     listar_tipos_praca_territorial,
     listar_unidades_populacionais,
+    listar_criterios_segmentacao,
 )
 
 
@@ -137,6 +142,115 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         )
         for item in briefing.estrutura_territorial_populacional.universos
     )
+    universos_por_id = {
+        item.id_universo: item
+        for item in briefing.estrutura_territorial_populacional.universos
+    }
+    rotulos_criterios = {
+        item.codigo: item.rotulo for item in listar_criterios_segmentacao()
+    }
+    segmentos = tuple(
+        SegmentoResumo(
+            id_segmento=item.id_segmento,
+            id_universo_origem=item.id_universo_origem,
+            nome_universo_origem=universos_por_id[item.id_universo_origem].nome,
+            ids_pracas=item.ids_pracas,
+            rotulos_pracas=tuple(
+                _rotulo_praca(pracas_por_id[id_praca])
+                for id_praca in item.ids_pracas
+            ),
+            criterios_aplicados=tuple(
+                criterio.value for criterio in item.criterios_aplicados
+            ),
+            rotulos_criterios=tuple(
+                rotulos_criterios[criterio] for criterio in item.criterios_aplicados
+            ),
+            definicao=item.definicao,
+            tamanho_estimado=(
+                format(item.tamanho_estimado, "f")
+                if item.tamanho_estimado is not None else None
+            ),
+            unidade=universos_por_id[item.id_universo_origem].unidade,
+            fonte=item.fonte,
+            data_referencia=item.data_referencia,
+        )
+        for item in briefing.estrutura_territorial_populacional.segmentos
+    )
+    segmentos_por_id = {
+        item.id_segmento: item
+        for item in briefing.estrutura_territorial_populacional.segmentos
+    }
+    publicos = tuple(
+        PublicoResumo(
+            id_publico=item.id_publico,
+            nome=item.nome,
+            ids_segmentos_origem=item.ids_segmentos_origem,
+            definicoes_segmentos_origem=tuple(
+                segmentos_por_id[id_segmento].definicao
+                for id_segmento in item.ids_segmentos_origem
+            ),
+            ids_pracas=item.ids_pracas,
+            rotulos_pracas=tuple(
+                _rotulo_praca(pracas_por_id[id_praca])
+                for id_praca in item.ids_pracas
+            ),
+            prioridade=item.prioridade,
+            intensidade_importancia=item.intensidade_importancia,
+            tamanho_estimado=(
+                format(item.tamanho_estimado, "f")
+                if item.tamanho_estimado is not None else None
+            ),
+            papel_declarado=item.papel_declarado,
+            justificativa=item.justificativa,
+        )
+        for item in briefing.estrutura_territorial_populacional.publicos
+    )
+    nomes_publicos = {
+        item.id_publico: item.nome or f"Público {str(item.id_publico)[:8]}"
+        for item in briefing.estrutura_territorial_populacional.publicos
+    }
+    nomes_objetivos = {
+        item.id_objetivo: item.objetivo
+        for item in briefing.objetivos_declarados.comunicacao
+    }
+    jornadas = tuple(
+        JornadaResumo(
+            id_jornada=item.id_jornada,
+            nome=item.nome,
+            descricao=item.descricao,
+            ids_publicos=item.ids_publicos,
+            nomes_publicos=tuple(nomes_publicos[id_publico] for id_publico in item.ids_publicos),
+            referencia_modelo=item.referencia_modelo,
+            adaptada_localmente=item.adaptada_localmente,
+            etapas=tuple(
+                EtapaJornadaResumo(
+                    id_etapa=etapa.id_etapa,
+                    categoria=etapa.categoria.value,
+                    rotulo_categoria=ROTULOS_ETAPAS[etapa.categoria],
+                    ordem=etapa.ordem,
+                    existe=etapa.existe,
+                    relevancia=etapa.relevancia,
+                    intensidade=etapa.intensidade,
+                    prioridade=etapa.prioridade,
+                    ids_publicos=etapa.ids_publicos,
+                    nomes_publicos=tuple(nomes_publicos[id_publico] for id_publico in etapa.ids_publicos),
+                    ids_objetivos_comunicacao=etapa.ids_objetivos_comunicacao,
+                    nomes_objetivos_comunicacao=tuple(
+                        nomes_objetivos[id_objetivo]
+                        for id_objetivo in etapa.ids_objetivos_comunicacao
+                    ),
+                    situacao_atual=etapa.situacao_atual,
+                    situacao_pretendida=etapa.situacao_pretendida,
+                    observacao=etapa.observacao,
+                )
+                for etapa in sorted(
+                    item.etapas,
+                    key=lambda etapa: (etapa.ordem is None, etapa.ordem or 0),
+                )
+            ),
+        )
+        for item in briefing.jornadas
+    )
     return BriefingResumo(
         id_briefing=briefing.id_briefing,
         id_campanha=briefing.id_campanha,
@@ -160,6 +274,16 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         objetivos_comunicacao=objetivos_comunicacao,
         pracas=pracas,
         universos=universos,
+        criterios_segmentacao=tuple(
+            item.value
+            for item in (
+                briefing.estrutura_territorial_populacional
+                .criterios_segmentacao
+            )
+        ),
+        segmentos=segmentos,
+        publicos=publicos,
+        jornadas=jornadas,
     )
 
 
