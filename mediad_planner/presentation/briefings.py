@@ -22,6 +22,8 @@ from mediad_planner.presentation.criterios_segmentacao import (
 )
 from mediad_planner.presentation.segmentos import apresentar_segmentos
 from mediad_planner.presentation.jornada import apresentar_jornada
+from mediad_planner.presentation.periodo_verba import apresentar_periodo_verba
+from mediad_planner.presentation.condicoes_declaradas import apresentar_condicoes_declaradas
 
 
 def _rotulo_estado(valor: str) -> str:
@@ -68,7 +70,6 @@ ROTULOS_NATUREZAS = (
 def _apresentar_subetapas(briefing: BriefingResumo) -> None:
     subetapas = (
         "5. Jornada",
-        "6. Período e verba",
         "7. Prioridades, restrições e pretensões",
         "8. Revisão do Briefing",
     )
@@ -97,6 +98,10 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
             if briefing.criterios_segmentacao else "Não iniciada"
         )
         st.write(f"**4. Segmentos e públicos** — {estado_criterios}")
+        estado_periodo_verba = (
+            "Em preenchimento" if briefing.periodo_verba else "Não iniciada"
+        )
+        st.write(f"**6. Período e verba** — {estado_periodo_verba}")
         for subetapa in subetapas:
             st.write(f"**{subetapa}** — Não iniciada")
 
@@ -323,6 +328,8 @@ def apresentar_briefing(
             "Critérios de segmentação",
             "Segmentos e públicos",
             "Jornada",
+            "Período e verba",
+            "Prioridades, restrições e pretensões",
         ),
         horizontal=True,
     )
@@ -342,5 +349,9 @@ def apresentar_briefing(
         apresentar_criterios_segmentacao(aplicacao, id_campanha, briefing)
     elif subetapa == "Segmentos e públicos":
         apresentar_segmentos(aplicacao, id_campanha, briefing)
-    else:
+    elif subetapa == "Jornada":
         apresentar_jornada(aplicacao, id_campanha, briefing)
+    elif subetapa == "Período e verba":
+        apresentar_periodo_verba(aplicacao, id_campanha, briefing)
+    else:
+        apresentar_condicoes_declaradas(aplicacao, id_campanha, briefing)

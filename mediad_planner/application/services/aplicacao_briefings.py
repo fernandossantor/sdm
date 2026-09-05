@@ -51,6 +51,21 @@ from mediad_planner.application.use_cases.jornada import (
     RemoverEtapaJornada,
     RemoverJornada,
 )
+from mediad_planner.application.dto.periodo_verba import (
+    NaturezaLimiteVerbaResumo,
+    SalvarPeriodoVerbaEntrada,
+)
+from mediad_planner.application.use_cases.periodo_verba import (
+    DefinirPeriodoVerba,
+    ListarNaturezasLimiteVerba,
+)
+from mediad_planner.application.dto.condicoes_declaradas import (
+    DefinicaoCategoriaResumo,
+    SalvarPretensaoEntrada,
+    SalvarPrioridadeEntrada,
+    SalvarRestricaoEntrada,
+)
+from mediad_planner.application.use_cases.condicoes_declaradas import GerenciarCondicoesDeclaradas
 from mediad_planner.application.use_cases.objetivos_declarados import (
     AdicionarObjetivoComunicacao,
     AdicionarObjetivoMarketing,
@@ -111,6 +126,9 @@ class AplicacaoBriefings:
         adicionar_etapa_jornada: AdicionarEtapaJornada,
         editar_etapa_jornada: EditarEtapaJornada,
         remover_etapa_jornada: RemoverEtapaJornada,
+        listar_naturezas_limite_verba: ListarNaturezasLimiteVerba,
+        definir_periodo_verba: DefinirPeriodoVerba,
+        gerenciar_condicoes: GerenciarCondicoesDeclaradas,
     ) -> None:
         self._abrir = abrir
         self._listar_aspectos = listar_aspectos
@@ -144,6 +162,9 @@ class AplicacaoBriefings:
         self._adicionar_etapa_jornada = adicionar_etapa_jornada
         self._editar_etapa_jornada = editar_etapa_jornada
         self._remover_etapa_jornada = remover_etapa_jornada
+        self._listar_naturezas_limite_verba = listar_naturezas_limite_verba
+        self._definir_periodo_verba = definir_periodo_verba
+        self._gerenciar_condicoes = gerenciar_condicoes
 
     def abrir_briefing(self, id_campanha: UUID) -> BriefingResumo:
         return self._abrir.executar(id_campanha)
@@ -323,3 +344,37 @@ class AplicacaoBriefings:
         self, id_campanha: UUID, id_jornada: UUID, id_etapa: UUID,
     ) -> BriefingResumo:
         return self._remover_etapa_jornada.executar(id_campanha, id_jornada, id_etapa)
+
+    def listar_naturezas_limite_verba(
+        self,
+    ) -> tuple[NaturezaLimiteVerbaResumo, ...]:
+        return self._listar_naturezas_limite_verba.executar()
+
+    def definir_periodo_verba(
+        self, id_campanha: UUID, entrada: SalvarPeriodoVerbaEntrada,
+    ) -> BriefingResumo:
+        return self._definir_periodo_verba.executar(id_campanha, entrada)
+
+    def listar_categorias_restricao(self) -> tuple[DefinicaoCategoriaResumo, ...]:
+        return self._gerenciar_condicoes.listar_restricoes()
+
+    def listar_categorias_pretensao(self) -> tuple[DefinicaoCategoriaResumo, ...]:
+        return self._gerenciar_condicoes.listar_pretensoes()
+
+    def salvar_prioridade(self, id_campanha, entrada: SalvarPrioridadeEntrada, identificador=None):
+        return self._gerenciar_condicoes.salvar_prioridade(id_campanha, entrada, identificador)
+
+    def remover_prioridade(self, id_campanha, identificador):
+        return self._gerenciar_condicoes.remover_prioridade(id_campanha, identificador)
+
+    def salvar_restricao(self, id_campanha, entrada: SalvarRestricaoEntrada, identificador=None):
+        return self._gerenciar_condicoes.salvar_restricao(id_campanha, entrada, identificador)
+
+    def remover_restricao(self, id_campanha, identificador):
+        return self._gerenciar_condicoes.remover_restricao(id_campanha, identificador)
+
+    def salvar_pretensao(self, id_campanha, entrada: SalvarPretensaoEntrada, identificador=None):
+        return self._gerenciar_condicoes.salvar_pretensao(id_campanha, entrada, identificador)
+
+    def remover_pretensao(self, id_campanha, identificador):
+        return self._gerenciar_condicoes.remover_pretensao(id_campanha, identificador)

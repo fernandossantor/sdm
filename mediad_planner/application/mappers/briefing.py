@@ -10,7 +10,22 @@ from mediad_planner.application.dto.praca_universo import PracaResumo, UniversoR
 from mediad_planner.application.dto.segmentos import SegmentoResumo
 from mediad_planner.application.dto.publicos import PublicoResumo
 from mediad_planner.application.dto.jornada import EtapaJornadaResumo, JornadaResumo
+from mediad_planner.application.dto.periodo_verba import (
+    IntervaloDeclaradoResumo,
+    PeriodoVerbaResumo,
+)
 from mediad_planner.domain.briefing.jornada import ROTULOS_ETAPAS
+from mediad_planner.domain.briefing.periodo_verba import ROTULOS_NATUREZA_LIMITE
+from mediad_planner.application.dto.condicoes_declaradas import (
+    PretensaoResumo,
+    PrioridadeResumo,
+    RestricaoResumo,
+)
+from mediad_planner.domain.briefing.condicoes_declaradas import (
+    ROTULOS_PRETENSOES,
+    ROTULOS_RESTRICOES,
+    TipoEntidadePrioridade,
+)
 from mediad_planner.domain.briefing.entidades import Briefing
 from mediad_planner.domain.briefing.objetivos_declarados import (
     listar_dimensoes_composto_marketing,
@@ -251,6 +266,75 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         )
         for item in briefing.jornadas
     )
+    periodo_verba = None
+    if briefing.contexto_periodo_verba is not None:
+        contexto_periodo = briefing.contexto_periodo_verba
+        periodo = contexto_periodo.periodo
+        verba = contexto_periodo.verba
+        resumir_intervalos = lambda itens: tuple(
+            IntervaloDeclaradoResumo(
+                item.data_inicial.isoformat(), item.data_final.isoformat(), item.descricao
+            )
+            for item in itens
+        )
+        periodo_verba = PeriodoVerbaResumo(
+            data_inicial=periodo.data_inicial.isoformat() if periodo.data_inicial else None,
+            data_final=periodo.data_final.isoformat() if periodo.data_final else None,
+            duracao=periodo.duracao,
+            datas_criticas=tuple(item.isoformat() for item in periodo.datas_criticas),
+            sazonalidades=periodo.sazonalidades,
+            eventos_condicionantes=periodo.eventos_condicionantes,
+            periodos_obrigatorios=resumir_intervalos(periodo.periodos_obrigatorios),
+            periodos_vedados=resumir_intervalos(periodo.periodos_vedados),
+            observacao_periodo=periodo.observacao,
+            valor_total=format(verba.valor_total, "f") if verba.valor_total is not None else None,
+            moeda=verba.moeda,
+            natureza_limite=verba.natureza_limite.value,
+            rotulo_natureza_limite=ROTULOS_NATUREZA_LIMITE[verba.natureza_limite],
+            margem_flexibilidade=verba.margem_flexibilidade,
+            valor_minimo=format(verba.valor_minimo, "f") if verba.valor_minimo is not None else None,
+            valor_maximo=format(verba.valor_maximo, "f") if verba.valor_maximo is not None else None,
+            parcela_comprometida=(format(verba.parcela_comprometida, "f") if verba.parcela_comprometida is not None else None),
+            observacao_verba=verba.observacao,
+            diagnosticos=contexto_periodo.diagnosticos(),
+        )
+    rotulos_prioridade = {
+        (TipoEntidadePrioridade.PRACA, item.id_praca): item.nome for item in pracas
+    }
+    rotulos_prioridade.update({
+        (TipoEntidadePrioridade.SEGMENTO, item.id_segmento): item.definicao
+        for item in segmentos
+    })
+    rotulos_prioridade[(TipoEntidadePrioridade.PERIODO, None)] = "Período pretendido"
+    prioridades_contextuais = tuple(
+        PrioridadeResumo(
+            item.id_prioridade, item.tipo_entidade.value, item.id_entidade,
+            rotulos_prioridade[(item.tipo_entidade, item.id_entidade)],
+            item.prioridade, item.ordem, item.justificativa,
+        ) for item in briefing.prioridades_contextuais
+    )
+    restricoes = tuple(
+        RestricaoResumo(
+            item.id_restricao, item.categoria.value, ROTULOS_RESTRICOES[item.categoria],
+            item.descricao, item.entidade_afetada, item.intensidade, item.prioridade,
+            item.origem, item.justificativa, item.documento_fonte, item.observacao,
+            item.diagnosticos(),
+        ) for item in briefing.restricoes
+    )
+    nomes_etapas = {
+        etapa.id_etapa: etapa.rotulo_categoria
+        for jornada in jornadas for etapa in jornada.etapas
+    }
+    pretensoes = tuple(
+        PretensaoResumo(
+            item.id_pretensao, item.categoria.value, ROTULOS_PRETENSOES[item.categoria],
+            item.descricao_controlada, item.prioridade, item.intensidade,
+            item.id_publico, nomes_publicos.get(item.id_publico),
+            item.id_praca, pracas_por_id[item.id_praca].nome if item.id_praca else None,
+            item.id_etapa_jornada, nomes_etapas.get(item.id_etapa_jornada),
+            item.periodo_associado, item.flexibilidade_declarada, item.justificativa,
+        ) for item in briefing.pretensoes
+    )
     return BriefingResumo(
         id_briefing=briefing.id_briefing,
         id_campanha=briefing.id_campanha,
@@ -284,6 +368,10 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         segmentos=segmentos,
         publicos=publicos,
         jornadas=jornadas,
+        periodo_verba=periodo_verba,
+        prioridades_contextuais=prioridades_contextuais,
+        restricoes=restricoes,
+        pretensoes=pretensoes,
     )
 
 

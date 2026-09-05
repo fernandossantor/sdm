@@ -10,6 +10,12 @@ from mediad_planner.application.dto.praca_universo import PracaResumo, UniversoR
 from mediad_planner.application.dto.segmentos import SegmentoResumo
 from mediad_planner.application.dto.publicos import PublicoResumo
 from mediad_planner.application.dto.jornada import JornadaResumo
+from mediad_planner.application.dto.periodo_verba import PeriodoVerbaResumo
+from mediad_planner.application.dto.condicoes_declaradas import (
+    PretensaoResumo,
+    PrioridadeResumo,
+    RestricaoResumo,
+)
 from mediad_planner.domain.common.enums import PapelAcesso
 
 
@@ -90,6 +96,10 @@ class BriefingResumo:
     segmentos: tuple[SegmentoResumo, ...] = ()
     publicos: tuple[PublicoResumo, ...] = ()
     jornadas: tuple[JornadaResumo, ...] = ()
+    periodo_verba: PeriodoVerbaResumo | None = None
+    prioridades_contextuais: tuple[PrioridadeResumo, ...] = ()
+    restricoes: tuple[RestricaoResumo, ...] = ()
+    pretensoes: tuple[PretensaoResumo, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "equipe", tuple(self.equipe))
@@ -116,3 +126,6 @@ class BriefingResumo:
         object.__setattr__(self, "segmentos", tuple(self.segmentos))
         object.__setattr__(self, "publicos", tuple(self.publicos))
         object.__setattr__(self, "jornadas", tuple(self.jornadas))
+        object.__setattr__(self, "prioridades_contextuais", tuple(self.prioridades_contextuais))
+        object.__setattr__(self, "restricoes", tuple(self.restricoes))
+        object.__setattr__(self, "pretensoes", tuple(self.pretensoes))

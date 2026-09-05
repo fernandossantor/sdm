@@ -58,6 +58,11 @@ from mediad_planner.application.use_cases.jornada import (
     RemoverEtapaJornada,
     RemoverJornada,
 )
+from mediad_planner.application.use_cases.periodo_verba import (
+    DefinirPeriodoVerba,
+    ListarNaturezasLimiteVerba,
+)
+from mediad_planner.application.use_cases.condicoes_declaradas import GerenciarCondicoesDeclaradas
 
 
 def construir_aplicacao_briefings(
@@ -175,5 +180,12 @@ def construir_aplicacao_briefings(
         ),
         remover_etapa_jornada=RemoverEtapaJornada(
             repositorio_briefings, contexto, relogio
+        ),
+        listar_naturezas_limite_verba=ListarNaturezasLimiteVerba(),
+        definir_periodo_verba=DefinirPeriodoVerba(
+            repositorio_briefings, contexto, relogio
+        ),
+        gerenciar_condicoes=GerenciarCondicoesDeclaradas(
+            repositorio_briefings, contexto, relogio, gerador_uuid
         ),
     )

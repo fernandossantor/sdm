@@ -8,6 +8,13 @@ from mediad_planner.domain.briefing.jornada import (
     EtapaJornadaDeclarada,
     JornadaDeclarada,
 )
+from mediad_planner.domain.briefing.periodo_verba import ContextoPeriodoVerba
+from mediad_planner.domain.briefing.condicoes_declaradas import (
+    PretensaoDeclarada,
+    PrioridadeContextual,
+    RestricaoDeclarada,
+    TipoEntidadePrioridade,
+)
 from mediad_planner.domain.briefing.objetivos_declarados import (
     ObjetivoComunicacaoDeclarado,
     ObjetivoMarketingDeclarado,
@@ -53,6 +60,10 @@ class Briefing:
     atualizado_por: UUID
     atualizado_em: datetime
     jornadas: tuple[JornadaDeclarada, ...] = ()
+    contexto_periodo_verba: ContextoPeriodoVerba | None = None
+    prioridades_contextuais: tuple[PrioridadeContextual, ...] = ()
+    restricoes: tuple[RestricaoDeclarada, ...] = ()
+    pretensoes: tuple[PretensaoDeclarada, ...] = ()
 
     def __post_init__(self) -> None:
         for campo in (
@@ -104,6 +115,50 @@ class Briefing:
         ):
             raise ValueError("Objetivo de Comunicação da Etapa não existe")
         object.__setattr__(self, "jornadas", jornadas)
+        if self.contexto_periodo_verba is not None and not isinstance(
+            self.contexto_periodo_verba, ContextoPeriodoVerba
+        ):
+            raise TypeError("contexto_periodo_verba inválido")
+        prioridades = tuple(self.prioridades_contextuais)
+        restricoes = tuple(self.restricoes)
+        pretensoes = tuple(self.pretensoes)
+        if any(not isinstance(item, PrioridadeContextual) for item in prioridades):
+            raise TypeError("prioridades_contextuais contém item inválido")
+        if any(not isinstance(item, RestricaoDeclarada) for item in restricoes):
+            raise TypeError("restricoes contém item inválido")
+        if any(not isinstance(item, PretensaoDeclarada) for item in pretensoes):
+            raise TypeError("pretensoes contém item inválido")
+        alvos = tuple((item.tipo_entidade, item.id_entidade) for item in prioridades)
+        if len(alvos) != len(set(alvos)):
+            raise ValueError("Entidade possui prioridade contextual duplicada")
+        ids_pracas = {
+            item.id_praca for item in self.estrutura_territorial_populacional.pracas
+        }
+        ids_segmentos = {
+            item.id_segmento for item in self.estrutura_territorial_populacional.segmentos
+        }
+        ids_etapas = {
+            etapa.id_etapa for jornada in jornadas for etapa in jornada.etapas
+        }
+        for item in prioridades:
+            if item.tipo_entidade is TipoEntidadePrioridade.PRACA and item.id_entidade not in ids_pracas:
+                raise ValueError("Praça priorizada não existe")
+            if item.tipo_entidade is TipoEntidadePrioridade.SEGMENTO and item.id_entidade not in ids_segmentos:
+                raise ValueError("Segmento priorizado não existe")
+            if item.tipo_entidade is TipoEntidadePrioridade.PERIODO and self.contexto_periodo_verba is None:
+                raise ValueError("Período priorizado não existe")
+        for item in pretensoes:
+            if item.id_publico is not None and item.id_publico not in ids_publicos:
+                raise ValueError("Público da Pretensão não existe")
+            if item.id_praca is not None and item.id_praca not in ids_pracas:
+                raise ValueError("Praça da Pretensão não existe")
+            if item.id_etapa_jornada is not None and item.id_etapa_jornada not in ids_etapas:
+                raise ValueError("Etapa da Pretensão não existe")
+            if item.periodo_associado and self.contexto_periodo_verba is None:
+                raise ValueError("Período da Pretensão não existe")
+        object.__setattr__(self, "prioridades_contextuais", prioridades)
+        object.__setattr__(self, "restricoes", restricoes)
+        object.__setattr__(self, "pretensoes", pretensoes)
 
     @classmethod
     def criar_versao_inicial(
@@ -473,3 +528,69 @@ class Briefing:
         return self.editar_jornada(
             jornada.remover_etapa(id_etapa), atualizado_por, atualizado_em
         )
+
+    def definir_contexto_periodo_verba(
+        self, contexto: ContextoPeriodoVerba, atualizado_por: UUID,
+        atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        if not isinstance(contexto, ContextoPeriodoVerba):
+            raise TypeError("contexto inválido")
+        return replace(
+            self, estado=EstadoBriefing.EM_PREENCHIMENTO,
+            contexto_periodo_verba=contexto, atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
+    def _salvar_item(
+        self, campo: str, item: object, id_campo: str, editar: bool,
+        atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        atuais = tuple(getattr(self, campo))
+        identificador = getattr(item, id_campo)
+        existe = any(getattr(atual, id_campo) == identificador for atual in atuais)
+        if editar and not existe:
+            raise LookupError("Registro não encontrado")
+        if not editar and existe:
+            raise ValueError("Identificador duplicado")
+        novos = tuple(
+            item if getattr(atual, id_campo) == identificador else atual
+            for atual in atuais
+        ) if editar else atuais + (item,)
+        return replace(
+            self, estado=EstadoBriefing.EM_PREENCHIMENTO, **{campo: novos},
+            atualizado_por=atualizado_por, atualizado_em=atualizado_em,
+        )
+
+    def _remover_item(
+        self, campo: str, identificador: UUID, id_campo: str,
+        atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        atuais = tuple(getattr(self, campo))
+        if not any(getattr(item, id_campo) == identificador for item in atuais):
+            raise LookupError("Registro não encontrado")
+        return replace(
+            self, estado=EstadoBriefing.EM_PREENCHIMENTO,
+            **{campo: tuple(item for item in atuais if getattr(item, id_campo) != identificador)},
+            atualizado_por=atualizado_por, atualizado_em=atualizado_em,
+        )
+
+    def salvar_prioridade(self, item, editar, atualizado_por, atualizado_em):
+        return self._salvar_item("prioridades_contextuais", item, "id_prioridade", editar, atualizado_por, atualizado_em)
+
+    def remover_prioridade(self, identificador, atualizado_por, atualizado_em):
+        return self._remover_item("prioridades_contextuais", identificador, "id_prioridade", atualizado_por, atualizado_em)
+
+    def salvar_restricao(self, item, editar, atualizado_por, atualizado_em):
+        return self._salvar_item("restricoes", item, "id_restricao", editar, atualizado_por, atualizado_em)
+
+    def remover_restricao(self, identificador, atualizado_por, atualizado_em):
+        return self._remover_item("restricoes", identificador, "id_restricao", atualizado_por, atualizado_em)
+
+    def salvar_pretensao(self, item, editar, atualizado_por, atualizado_em):
+        return self._salvar_item("pretensoes", item, "id_pretensao", editar, atualizado_por, atualizado_em)
+
+    def remover_pretensao(self, identificador, atualizado_por, atualizado_em):
+        return self._remover_item("pretensoes", identificador, "id_pretensao", atualizado_por, atualizado_em)
