@@ -27,6 +27,8 @@ from mediad_planner.domain.briefing.condicoes_declaradas import (
     TipoEntidadePrioridade,
 )
 from mediad_planner.domain.briefing.entidades import Briefing
+from mediad_planner.domain.briefing.revisao import avaliar_briefing
+from mediad_planner.application.dto.revisao_briefing import ApontamentoRevisaoResumo
 from mediad_planner.domain.briefing.objetivos_declarados import (
     listar_dimensoes_composto_marketing,
 )
@@ -372,6 +374,12 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         prioridades_contextuais=prioridades_contextuais,
         restricoes=restricoes,
         pretensoes=pretensoes,
+        apontamentos_revisao=tuple(
+            ApontamentoRevisaoResumo(
+                item.subetapa, item.mensagem, item.referencia_normativa, item.id_entidade,
+            )
+            for item in avaliar_briefing(briefing)
+        ),
     )
 
 

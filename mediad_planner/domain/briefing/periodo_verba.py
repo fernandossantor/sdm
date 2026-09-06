@@ -125,7 +125,7 @@ class ContextoPeriodoVerba:
                 if item.data_inicial < periodo.data_inicial or item.data_final > periodo.data_final:
                     alertas.append("Período obrigatório fora do intervalo principal.")
                     break
-        if verba.valor_total is None:
+        if verba.valor_total is None and verba.natureza_limite is not NaturezaLimiteVerba.AINDA_NAO_DEFINIDO:
             alertas.append("Verba ausente.")
         if any(valor is not None for valor in (verba.valor_total, verba.valor_minimo, verba.valor_maximo, verba.parcela_comprometida)) and not verba.moeda:
             alertas.append("Moeda ausente.")

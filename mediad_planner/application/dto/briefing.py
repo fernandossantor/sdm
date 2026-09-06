@@ -17,6 +17,7 @@ from mediad_planner.application.dto.condicoes_declaradas import (
     RestricaoResumo,
 )
 from mediad_planner.domain.common.enums import PapelAcesso
+from mediad_planner.application.dto.revisao_briefing import ApontamentoRevisaoResumo
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,6 +101,7 @@ class BriefingResumo:
     prioridades_contextuais: tuple[PrioridadeResumo, ...] = ()
     restricoes: tuple[RestricaoResumo, ...] = ()
     pretensoes: tuple[PretensaoResumo, ...] = ()
+    apontamentos_revisao: tuple[ApontamentoRevisaoResumo, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "equipe", tuple(self.equipe))
@@ -129,3 +131,4 @@ class BriefingResumo:
         object.__setattr__(self, "prioridades_contextuais", tuple(self.prioridades_contextuais))
         object.__setattr__(self, "restricoes", tuple(self.restricoes))
         object.__setattr__(self, "pretensoes", tuple(self.pretensoes))
+        object.__setattr__(self, "apontamentos_revisao", tuple(self.apontamentos_revisao))

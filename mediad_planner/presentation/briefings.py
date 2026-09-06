@@ -24,6 +24,7 @@ from mediad_planner.presentation.segmentos import apresentar_segmentos
 from mediad_planner.presentation.jornada import apresentar_jornada
 from mediad_planner.presentation.periodo_verba import apresentar_periodo_verba
 from mediad_planner.presentation.condicoes_declaradas import apresentar_condicoes_declaradas
+from mediad_planner.presentation.revisao_briefing import apresentar_revisao_briefing
 
 
 def _rotulo_estado(valor: str) -> str:
@@ -111,7 +112,7 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
             "**7. Prioridades, restrições e pretensões** — "
             f"{estado_condicoes}"
         )
-        st.write("**8. Revisão do Briefing** — Não iniciada")
+        st.write("**8. Revisão do Briefing** — Avaliação parcial disponível")
 
 
 def _formulario_situacao(
@@ -338,6 +339,7 @@ def apresentar_briefing(
             "Jornada",
             "Período e verba",
             "Prioridades, restrições e pretensões",
+            "Revisão do Briefing",
         ),
         horizontal=True,
     )
@@ -361,5 +363,7 @@ def apresentar_briefing(
         apresentar_jornada(aplicacao, id_campanha, briefing)
     elif subetapa == "Período e verba":
         apresentar_periodo_verba(aplicacao, id_campanha, briefing)
-    else:
+    elif subetapa == "Prioridades, restrições e pretensões":
         apresentar_condicoes_declaradas(aplicacao, id_campanha, briefing)
+    else:
+        apresentar_revisao_briefing(briefing)

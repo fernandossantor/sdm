@@ -46,3 +46,39 @@ Existem diretórios locais residuais fora da estrutura ativa. Não consultar, re
 5. Definir a próxima entrega pequena com escopo, arquivos, critérios de aceite e testes explícitos, mantendo as regras de `AGENTS.md`.
 
 O usuário solicitou uma pausa com checkpoint. Não iniciar nova implementação a partir deste registro sem retomada do trabalho.
+
+## Retomada — 06/09/2026
+
+Retomada autorizada pelo usuário. Esta seção atualiza o registro operacional acima e continua sem força normativa.
+
+- Confirmado que o remoto estava em `ccd2a01`. A consulta ao GitHub não retornou execução de CI para a entrega anterior; Streamlit ainda não confirmado.
+- Commit local `ae23b21`: resumo de progresso em ordem e estados derivados dos registros de Jornada e Condições declaradas; teste estrutural passou a admitir especificamente este checkpoint. Validação em cópia limpa: 368 testes aprovados.
+
+### Entrega: revisão parcial do Briefing
+
+Base normativa: `02_BRIEFING.md`, seções 7.5, 8.4, 9.7, 10.4, 11–12, 14.4, 16, 17 e 20, respeitando a precedência do documento 30.
+
+Escopo: disponibilizar a subetapa Revisão do Briefing com avaliação somente de leitura, recalculada a partir dos dados salvos. Aponta domínios ausentes, fontes e referências temporais ausentes, praça sem universo, comunicação sem vínculo a marketing, prioridades ausentes entre múltiplos públicos e jornada sem vínculo ao público ou ao objetivo de comunicação. A ausência de jornada solicita verificar aplicabilidade; não a presume obrigatória. Reutiliza os diagnósticos locais de período, verba e restrições. Verba explicitamente ainda não definida passa a ser distinguida de verba ausente, conforme a seção 20.
+
+Arquivos afetados:
+
+- `mediad_planner/domain/briefing/revisao.py` e `periodo_verba.py`;
+- `mediad_planner/application/dto/revisao_briefing.py`, `dto/briefing.py` e `mappers/briefing.py`;
+- `mediad_planner/presentation/revisao_briefing.py` e `briefings.py`;
+- `tests/test_revisao_briefing.py`, `test_frontoffice_revisao_briefing.py` e `test_periodo_verba.py`;
+- este checkpoint operacional.
+
+Critérios de aceite: revisão acessível pela navegação, mensagens ligadas à subetapa e entidade, referência normativa no DTO, alertas recalculados após edição, preservação das declarações e do estado, distinção entre zero/ausência/verba ainda não definida e indicação explícita de avaliação parcial. Nenhuma transição de estado ou autorização de conclusão foi acrescentada.
+
+Validação: **379 testes aprovados** em cópia limpa dos arquivos da entrega; compilação de `app.py`, `mediad_planner` e `tests` aprovada; `git diff --cached --check` aprovado. Na pasta original, a execução anterior aos dois últimos testes teve 376 aprovações e somente a falha estrutural por diretório residual `application`. Entrega preparada para commit local; envio ao GitHub e publicação não realizados nesta retomada.
+
+### Pendências confirmadas pela revisão
+
+- A avaliação ainda não cobre integralmente coerência, suficiência e relações cruzadas da seção 16; ausência de apontamentos não certifica conclusão.
+- Falta registrar declaração explícita de inexistência de restrições e aplicabilidade da jornada.
+- Faltam reconhecimento explícito de pendências relevantes, submissão à revisão, conclusão e transição para Tradução Estratégica.
+- Faltam histórico e comparação entre versões e preservação dos metadados de alteração previstos na seção 18.
+- Algumas incoerências territoriais são rejeitadas na entrada atual; revisar esse comportamento à luz das validações sem bloqueio indevido antes de certificar a conclusão.
+- Próxima entrega sugerida: declaração de inexistência de restrições, com coexistência/edição coerente dos registros e testes próprios, antes de ampliar o fluxo de conclusão.
+
+Os resíduos locais e `supabase/` continuam preservados e fora da entrega. Não foram consultados nem reutilizados.

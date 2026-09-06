@@ -89,15 +89,16 @@ def test_rejeita_formato_invalido(mudancas, mensagem) -> None:
         ambiente.briefings.definir_periodo_verba(campanha, _entrada(**mudancas))
 
 
-def test_sinaliza_verba_e_duracao_ausentes() -> None:
+@pytest.mark.parametrize("natureza", ("AINDA_NAO_DEFINIDO", "ESTIMADO"))
+def test_distingue_verba_ausente_de_declaracao_ainda_nao_definida(natureza) -> None:
     ambiente, campanha = _preparar()
     resumo = ambiente.briefings.definir_periodo_verba(campanha, _entrada(
         data_inicial=None, data_final=None, duracao=None, datas_criticas=(),
         sazonalidades=("Alta temporada",), valor_total=None, moeda=None,
         valor_minimo=None, valor_maximo=None, parcela_comprometida=None,
-        margem_flexibilidade=None, natureza_limite="AINDA_NAO_DEFINIDO",
+        margem_flexibilidade=None, natureza_limite=natureza,
         periodos_obrigatorios=(),
     ))
     assert "Duração ausente quando as datas não estão definidas." in resumo.periodo_verba.diagnosticos
     assert "Sazonalidade informada sem correspondência temporal." in resumo.periodo_verba.diagnosticos
-    assert "Verba ausente." in resumo.periodo_verba.diagnosticos
+    assert ("Verba ausente." in resumo.periodo_verba.diagnosticos) is (natureza == "ESTIMADO")
