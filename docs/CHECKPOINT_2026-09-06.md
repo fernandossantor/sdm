@@ -6,7 +6,8 @@ Registro operacional de continuidade, sem força normativa. A única fonte norma
 
 - Branch: `main`.
 - Última entrega de código: `fa4c978`.
-- Cinco commits locais desde `ccd2a01`, antes deste checkpoint; nenhum deles foi enviado ao GitHub nesta retomada.
+- Os cinco commits de implementação e o checkpoint inicial `a9da400` foram enviados à `main` do GitHub; push de `ccd2a01` até `a9da400` confirmado.
+- Este registro foi atualizado após o envio para servir como novo checkpoint de encerramento, preservando o histórico anterior.
 - CI remoto e revisão publicada no Streamlit continuam sem confirmação. Não afirmar que houve publicação.
 
 ## Entregas concluídas
@@ -37,7 +38,7 @@ Há diretórios residuais locais fora da estrutura ativa. A verificação de aus
 ## Pendências e retomada
 
 1. Conferir `git status -sb` e os commits locais/remotos antes de alterações ou envio.
-2. Enviar os commits ao GitHub quando solicitado e verificar o CI; confirmar separadamente qual revisão está publicada no Streamlit.
+2. Verificar o CI da revisão final enviada e confirmar separadamente qual revisão está publicada no Streamlit.
 3. Próxima entrega funcional sugerida: ampliar os diagnósticos objetivos de prioridades iguais e justificativas de máximas para objetivos declarados e Públicos, conforme a seção 13.3 de `02_BRIEFING.md`.
 4. Manter explícito o recorte atual: ordenação avaliada para múltiplas etapas de máxima prioridade (5), por Jornada. Isso não certifica cobertura integral das seções 10.4 e 13.3.
 5. Permanecem pendentes avaliação completa de coerência e suficiência, reconhecimento explícito de alertas, histórico/comparação de versões, conclusão do Briefing e transição para Tradução Estratégica.
