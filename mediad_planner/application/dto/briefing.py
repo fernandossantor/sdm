@@ -102,6 +102,7 @@ class BriefingResumo:
     restricoes: tuple[RestricaoResumo, ...] = ()
     pretensoes: tuple[PretensaoResumo, ...] = ()
     apontamentos_revisao: tuple[ApontamentoRevisaoResumo, ...] = ()
+    restricoes_inexistentes_declaradas: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "equipe", tuple(self.equipe))

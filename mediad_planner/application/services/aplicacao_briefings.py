@@ -60,6 +60,7 @@ from mediad_planner.application.use_cases.periodo_verba import (
     ListarNaturezasLimiteVerba,
 )
 from mediad_planner.application.dto.condicoes_declaradas import (
+    DefinirInexistenciaRestricoesEntrada,
     DefinicaoCategoriaResumo,
     SalvarPretensaoEntrada,
     SalvarPrioridadeEntrada,
@@ -372,6 +373,11 @@ class AplicacaoBriefings:
 
     def remover_restricao(self, id_campanha, identificador):
         return self._gerenciar_condicoes.remover_restricao(id_campanha, identificador)
+
+    def definir_inexistencia_restricoes(
+        self, id_campanha: UUID, entrada: DefinirInexistenciaRestricoesEntrada,
+    ) -> BriefingResumo:
+        return self._gerenciar_condicoes.definir_inexistencia_restricoes(id_campanha, entrada)
 
     def salvar_pretensao(self, id_campanha, entrada: SalvarPretensaoEntrada, identificador=None):
         return self._gerenciar_condicoes.salvar_pretensao(id_campanha, entrada, identificador)

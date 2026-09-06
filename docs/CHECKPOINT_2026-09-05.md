@@ -82,3 +82,25 @@ Validação: **379 testes aprovados** em cópia limpa dos arquivos da entrega; c
 - Próxima entrega sugerida: declaração de inexistência de restrições, com coexistência/edição coerente dos registros e testes próprios, antes de ampliar o fluxo de conclusão.
 
 Os resíduos locais e `supabase/` continuam preservados e fora da entrega. Não foram consultados nem reutilizados.
+
+### Continuação: declaração de inexistência de restrições
+
+Continuação autorizada pelo usuário após a entrega da revisão parcial, commit local `131eb32`.
+
+Base normativa: `02_BRIEFING.md`, seções 16, 17, 19 e 20. Implementada declaração explícita e reversível de inexistência de restrições, distinta da ausência de registros. A declaração integra o resumo do Briefing, o progresso da subetapa e a revisão. Declarar e retirar mantêm o Briefing em preenchimento e atualizam os metadados de edição existentes.
+
+Escolha de interface e integridade para esta entrega: declaração de inexistência e registros de restrição não coexistem. A tentativa conflitante é recusada sem alterar os dados salvos. O usuário pode retirar explicitamente a declaração para cadastrar restrições; havendo registros, deve revisá-los antes de declarar inexistência. Remover o último registro mantém a situação não declarada. Isso não classifica tecnicamente restrições nem amplia os critérios de conclusão.
+
+Arquivos afetados:
+
+- `mediad_planner/domain/briefing/entidades.py` e `revisao.py`;
+- `mediad_planner/application/dto/briefing.py`, `dto/condicoes_declaradas.py`, `mappers/briefing.py`, `use_cases/condicoes_declaradas.py` e `services/aplicacao_briefings.py`;
+- `mediad_planner/presentation/briefings.py`, `condicoes_declaradas.py` e `revisao_briefing.py`;
+- `tests/test_inexistencia_restricoes.py` e `test_frontoffice_inexistencia_restricoes.py`;
+- este checkpoint operacional.
+
+Critérios de aceite: declaração e retirada explícitas; reabertura preserva o valor; revisão elimina apenas a lacuna de restrições ao declarar e a restaura ao retirar; progresso considera a declaração; conflitos preservam dados; somente os papéis de edição já autorizados alteram a declaração; isolamento por espaço e campanha; validação de estado, autor, data e booleano estrito. Testes de interface cobrem navegação, declaração, retirada, restrição existente e remoção do último registro.
+
+Esta entrega resolve a pendência de declaração de inexistência registrada acima. Permanecem as demais lacunas da avaliação completa, histórico/versionamento, reconhecimento de pendências e conclusão. Próxima entrega sugerida: declaração da aplicabilidade da jornada por público, observando as seções 10.4 e 20, antes de implementar a conclusão do Briefing.
+
+Validação: **406 testes aprovados** em cópia limpa dos arquivos da entrega; compilação de `app.py`, `mediad_planner` e `tests` e `git diff --cached --check` aprovados. Os resíduos locais continuam fora da entrega. Envio ao GitHub e publicação no Streamlit não realizados nesta continuação.

@@ -93,7 +93,7 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             registrar("Período e verba", mensagem, "11–12")
 
     condicoes = "Prioridades, restrições e pretensões"
-    if not briefing.restricoes:
+    if not briefing.restricoes and not briefing.restricoes_inexistentes_declaradas:
         registrar(condicoes, "Nenhuma restrição registrada; a ausência de registros não declara inexistência de restrições.", "20")
     for item in briefing.restricoes:
         for mensagem in item.diagnosticos():

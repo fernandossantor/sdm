@@ -373,6 +373,7 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
         periodo_verba=periodo_verba,
         prioridades_contextuais=prioridades_contextuais,
         restricoes=restricoes,
+        restricoes_inexistentes_declaradas=briefing.restricoes_inexistentes_declaradas,
         pretensoes=pretensoes,
         apontamentos_revisao=tuple(
             ApontamentoRevisaoResumo(

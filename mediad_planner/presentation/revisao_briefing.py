@@ -11,10 +11,12 @@ def apresentar_revisao_briefing(briefing: BriefingResumo) -> None:
     )
     st.info(
         "Esta revisão é parcial. A avaliação completa de coerência e suficiência, "
-        "a declaração de inexistência de restrições, a confirmação da aplicabilidade "
-        "da jornada e o reconhecimento de pendências ainda estão em desenvolvimento. "
+        "a confirmação da aplicabilidade da jornada e o reconhecimento de pendências "
+        "ainda estão em desenvolvimento. "
         "A conclusão do Briefing ainda não está disponível."
     )
+    if briefing.restricoes_inexistentes_declaradas:
+        st.write("**Declaração do usuário:** não há restrições para esta campanha.")
     if not briefing.apontamentos_revisao:
         st.write(
             "Nenhum apontamento nas verificações disponíveis. "

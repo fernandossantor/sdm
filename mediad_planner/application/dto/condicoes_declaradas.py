@@ -42,6 +42,11 @@ class SalvarRestricaoEntrada:
 
 
 @dataclass(frozen=True, slots=True)
+class DefinirInexistenciaRestricoesEntrada:
+    declarada: bool
+
+
+@dataclass(frozen=True, slots=True)
 class RestricaoResumo:
     id_restricao: UUID
     categoria: str

@@ -105,7 +105,10 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
         st.write(f"**6. Período e verba** — {estado_periodo_verba}")
         estado_condicoes = (
             "Em preenchimento"
-            if briefing.prioridades_contextuais or briefing.restricoes or briefing.pretensoes
+            if (
+                briefing.prioridades_contextuais or briefing.restricoes
+                or briefing.pretensoes or briefing.restricoes_inexistentes_declaradas
+            )
             else "Não iniciada"
         )
         st.write(

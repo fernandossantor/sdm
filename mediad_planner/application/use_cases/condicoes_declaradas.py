@@ -2,6 +2,7 @@ from uuid import UUID
 
 from mediad_planner.application.dto.briefing import BriefingResumo, ContextoAcessoBriefings
 from mediad_planner.application.dto.condicoes_declaradas import (
+    DefinirInexistenciaRestricoesEntrada,
     DefinicaoCategoriaResumo,
     SalvarPretensaoEntrada,
     SalvarPrioridadeEntrada,
@@ -93,6 +94,14 @@ class GerenciarCondicoesDeclaradas:
         briefing = self._briefing(id_campanha)
         return self._salvar(briefing.remover_restricao(
             identificador, self._contexto.id_usuario, self._relogio()
+        ))
+
+    def definir_inexistencia_restricoes(
+        self, id_campanha: UUID, entrada: DefinirInexistenciaRestricoesEntrada,
+    ) -> BriefingResumo:
+        briefing = self._briefing(id_campanha)
+        return self._salvar(briefing.definir_inexistencia_restricoes(
+            entrada.declarada, self._contexto.id_usuario, self._relogio(),
         ))
 
     def salvar_pretensao(

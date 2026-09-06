@@ -64,6 +64,7 @@ class Briefing:
     prioridades_contextuais: tuple[PrioridadeContextual, ...] = ()
     restricoes: tuple[RestricaoDeclarada, ...] = ()
     pretensoes: tuple[PretensaoDeclarada, ...] = ()
+    restricoes_inexistentes_declaradas: bool = False
 
     def __post_init__(self) -> None:
         for campo in (
@@ -122,6 +123,13 @@ class Briefing:
         prioridades = tuple(self.prioridades_contextuais)
         restricoes = tuple(self.restricoes)
         pretensoes = tuple(self.pretensoes)
+        if type(self.restricoes_inexistentes_declaradas) is not bool:
+            raise TypeError("restricoes_inexistentes_declaradas deve ser booleano")
+        if self.restricoes_inexistentes_declaradas and restricoes:
+            raise ValueError(
+                "A declaração de inexistência não pode coexistir com restrições registradas. "
+                "Revise os registros ou retire a declaração antes de salvar."
+            )
         if any(not isinstance(item, PrioridadeContextual) for item in prioridades):
             raise TypeError("prioridades_contextuais contém item inválido")
         if any(not isinstance(item, RestricaoDeclarada) for item in restricoes):
@@ -585,6 +593,18 @@ class Briefing:
 
     def salvar_restricao(self, item, editar, atualizado_por, atualizado_em):
         return self._salvar_item("restricoes", item, "id_restricao", editar, atualizado_por, atualizado_em)
+
+    def definir_inexistencia_restricoes(
+        self, declarada: bool, atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            restricoes_inexistentes_declaradas=declarada,
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
 
     def remover_restricao(self, identificador, atualizado_por, atualizado_em):
         return self._remover_item("restricoes", identificador, "id_restricao", atualizado_por, atualizado_em)

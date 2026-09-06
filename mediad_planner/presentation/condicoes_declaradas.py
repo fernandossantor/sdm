@@ -4,6 +4,7 @@ import streamlit as st
 
 from mediad_planner.application.dto.briefing import BriefingResumo
 from mediad_planner.application.dto.condicoes_declaradas import (
+    DefinirInexistenciaRestricoesEntrada,
     SalvarPretensaoEntrada,
     SalvarPrioridadeEntrada,
     SalvarRestricaoEntrada,
@@ -76,6 +77,34 @@ def _aba_prioridades(aplicacao, id_campanha, briefing):
 
 
 def _aba_restricoes(aplicacao, id_campanha, briefing):
+    if briefing.restricoes_inexistentes_declaradas:
+        st.write("**Declaração salva:** não há restrições para esta campanha.")
+        st.caption("Para cadastrar uma restrição, retire a declaração de inexistência.")
+        if st.button("Retirar declaração de inexistência de restrições"):
+            try:
+                aplicacao.definir_inexistencia_restricoes(
+                    id_campanha, DefinirInexistenciaRestricoesEntrada(False),
+                )
+            except ERROS as erro:
+                st.error(str(erro))
+            else:
+                st.session_state.pop(CHAVE_RESTRICAO, None)
+                st.rerun()
+        return
+    if briefing.restricoes:
+        st.caption("Há restrições registradas. Revise esses registros antes de declarar inexistência.")
+    else:
+        st.caption("Nenhuma restrição registrada. Declare explicitamente se não houver restrições.")
+    if st.button("Declarar inexistência de restrições", disabled=bool(briefing.restricoes)):
+        try:
+            aplicacao.definir_inexistencia_restricoes(
+                id_campanha, DefinirInexistenciaRestricoesEntrada(True),
+            )
+        except ERROS as erro:
+            st.error(str(erro))
+        else:
+            st.session_state.pop(CHAVE_RESTRICAO, None)
+            st.rerun()
     categorias = {item.rotulo: item.codigo for item in aplicacao.listar_categorias_restricao()}
     codigos = {codigo: rotulo for rotulo, codigo in categorias.items()}
     id_edicao = st.session_state.get(CHAVE_RESTRICAO)
