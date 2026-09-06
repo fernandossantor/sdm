@@ -227,9 +227,9 @@ def apresentar_jornada(
     id_etapa = st.session_state.get(CHAVE_ETAPA_EDICAO)
     etapa = next((item for item in jornada.etapas if str(item.id_etapa) == id_etapa), None)
     _formulario_etapa(aplicacao, id_campanha, briefing, jornada, etapa)
-    prioritarias = [item for item in jornada.etapas if item.prioridade == 5]
-    if len(prioritarias) > 1 and any(item.ordem is None for item in prioritarias):
-        st.warning("Há múltiplas Etapas prioritárias sem ordenação explícita.")
+    for item in briefing.apontamentos_revisao:
+        if item.subetapa == "Jornada" and item.id_entidade == jornada.id_jornada:
+            st.warning(item.mensagem)
     with st.expander(f"Etapas salvas ({len(jornada.etapas)})", expanded=False):
         for item in jornada.etapas:
             st.write(f"**{item.ordem or 'Sem ordem'} · {item.rotulo_categoria}**")

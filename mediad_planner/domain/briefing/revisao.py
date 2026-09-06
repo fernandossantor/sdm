@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from mediad_planner.domain.briefing.entidades import Briefing
+from mediad_planner.domain.briefing.condicoes_declaradas import TipoEntidadePrioridade
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +87,14 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             )
             registrar("Jornada", f"{item.nome or 'Público'}: {motivo}", "10.4", item.id_publico)
     for jornada in briefing.jornadas:
+        prioritarias = tuple(etapa for etapa in jornada.etapas if etapa.prioridade == 5)
+        if len(prioritarias) > 1 and any(etapa.ordem is None for etapa in prioritarias):
+            registrar(
+                "Jornada",
+                f"{jornada.nome}: há múltiplas etapas de máxima prioridade (5) "
+                "sem ordenação explícita para todas elas.",
+                "10.4", jornada.id_jornada,
+            )
         for etapa in jornada.etapas:
             if not etapa.ids_objetivos_comunicacao:
                 registrar("Jornada", f"{jornada.nome}, etapa {etapa.categoria.value.lower()}: sem relação com objetivo de comunicação.", "10.4", etapa.id_etapa)
@@ -98,6 +107,33 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             registrar("Período e verba", mensagem, "11–12")
 
     condicoes = "Prioridades, restrições e pretensões"
+    prioridades = briefing.prioridades_contextuais
+    if len(prioridades) > 1 and len({item.prioridade for item in prioridades}) == 1:
+        registrar(
+            condicoes,
+            "Todas as prioridades contextuais estão marcadas com o mesmo valor; "
+            "a escala não distingue a importância declarada desses itens.",
+            "13.3",
+        )
+    maximas = tuple(item for item in prioridades if item.prioridade == 5)
+    if len(maximas) > 1:
+        rotulos = {
+            (TipoEntidadePrioridade.PRACA, item.id_praca): f"Praça {item.nome}"
+            for item in estrutura.pracas
+        }
+        rotulos.update({
+            (TipoEntidadePrioridade.SEGMENTO, item.id_segmento): f"Segmento {item.definicao}"
+            for item in estrutura.segmentos
+        })
+        rotulos[(TipoEntidadePrioridade.PERIODO, None)] = "Período pretendido"
+        for item in maximas:
+            if not item.justificativa:
+                registrar(
+                    condicoes,
+                    f"{rotulos[(item.tipo_entidade, item.id_entidade)]}: "
+                    "prioridade máxima sem justificativa entre múltiplas prioridades máximas.",
+                    "13.3", item.id_prioridade,
+                )
     if not briefing.restricoes and not briefing.restricoes_inexistentes_declaradas:
         registrar(condicoes, "Nenhuma restrição registrada; a ausência de registros não declara inexistência de restrições.", "20")
     for item in briefing.restricoes:

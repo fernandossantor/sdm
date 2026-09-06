@@ -61,12 +61,13 @@ def _aba_prioridades(aplicacao, id_campanha, briefing):
             else:
                 st.session_state.pop(CHAVE_PRIORIDADE, None)
                 st.rerun()
-    valores = [item.prioridade for item in briefing.prioridades_contextuais]
-    if len(valores) > 1 and len(set(valores)) == 1:
-        st.warning("Todos os itens estão marcados com a mesma prioridade.")
-    if sum(item.prioridade == 5 and not item.justificativa for item in briefing.prioridades_contextuais) > 1:
-        st.warning("Há múltiplas prioridades máximas sem justificativa.")
-    with st.expander(f"Prioridades contextuais salvas ({len(valores)})", expanded=False):
+    for item in briefing.apontamentos_revisao:
+        if (
+            item.subetapa == "Prioridades, restrições e pretensões"
+            and item.referencia_normativa == "02_BRIEFING.md § 13.3"
+        ):
+            st.warning(item.mensagem)
+    with st.expander(f"Prioridades contextuais salvas ({len(briefing.prioridades_contextuais)})", expanded=False):
         for item in briefing.prioridades_contextuais:
             st.write(f"**{item.rotulo_entidade}** — prioridade {item.prioridade}")
             editar, remover = st.columns(2)

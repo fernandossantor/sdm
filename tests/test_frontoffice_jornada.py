@@ -14,7 +14,6 @@ def test_interface_expoe_campos_acoes_e_alertas_normativos() -> None:
         "Relevância da Etapa", "Intensidade da Etapa", "Prioridade da Etapa",
         "Situação atual", "Situação pretendida", "Objetivos de Comunicação",
         "Pontos de contato não pertencem ao Briefing",
-        "múltiplas Etapas prioritárias sem ordenação",
     ):
         assert texto in fonte
 

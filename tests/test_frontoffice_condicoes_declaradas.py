@@ -15,8 +15,6 @@ def test_interface_expoe_crud_campos_e_alertas() -> None:
         "Categoria da Pretensão", "Público associado", "Praça associada",
         "Etapa da Jornada associada", "Flexibilidade declarada",
         "Criar Pretensão", "Editar Pretensão", "Remover Pretensão",
-        "Todos os itens estão marcados com a mesma prioridade",
-        "múltiplas prioridades máximas sem justificativa",
         "classificação técnica e as decisões de mídia pertencem às etapas posteriores",
     ):
         assert texto in fonte

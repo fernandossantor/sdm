@@ -129,3 +129,23 @@ Critérios de aceite: três valores distintos por Público; reabertura e ediçã
 Esta entrega resolve a pendência de aplicabilidade da Jornada. Permanecem avaliação completa de coerência e suficiência, reconhecimento explícito de pendências, versionamento/histórico e conclusão. Próxima entrega sugerida: revisar e ampliar os diagnósticos objetivos de prioridades e ordenação previstos nas seções 10.4 e 13.3, preservando a fronteira com interpretações estratégicas.
 
 Validação: **428 testes aprovados** em cópia limpa dos arquivos da entrega; compilação de `app.py`, `mediad_planner` e `tests` e `git diff --cached --check` aprovados. Resíduos locais preservados e fora da entrega. Envio ao GitHub e publicação no Streamlit não realizados nesta continuação.
+
+### Continuação: diagnósticos de prioridades contextuais e ordenação
+
+Continuação autorizada pelo usuário após a aplicabilidade da Jornada, commit local `cba9d3e`.
+
+Base normativa: `02_BRIEFING.md`, seções 10.4, 13.3, 16 e 17. Os três diagnósticos antes calculados nas telas agora são produzidos pelo domínio e transportados pelo resumo existente à revisão consolidada e às subetapas:
+
+- todas as prioridades contextuais com o mesmo valor, quando houver mais de um item;
+- múltiplas prioridades contextuais máximas com justificativa ausente, identificando cada item sem justificativa; corrigido o caso em que somente uma entre as máximas está sem justificativa;
+- múltiplas etapas de máxima prioridade (5) na mesma Jornada, com ordenação ausente em ao menos uma delas, identificando a Jornada.
+
+Mantido o recorte já usado pela interface para etapas de máxima prioridade (5). Esta entrega não define novos limiares para o termo “prioritária” nem certifica cobertura integral das seções 10.4 e 13.3. As prioridades contextuais são avaliadas no conjunto já exibido nessa aba. Diagnósticos de conflito com intensidade e de relações estratégicas continuam pendentes.
+
+Arquivos afetados: `mediad_planner/domain/briefing/revisao.py`; `mediad_planner/presentation/condicoes_declaradas.py` e `jornada.py`; `tests/test_diagnosticos_prioridades.py`, `test_frontoffice_diagnosticos_prioridades.py`, `test_frontoffice_condicoes_declaradas.py` e `test_frontoffice_jornada.py`; este checkpoint operacional.
+
+Critérios de aceite: mesmas mensagens nas subetapas e revisão, sem duplicar cálculos na apresentação; referências normativas e identificação de entidade preservadas; nenhum alerta coletivo para item único; justificativa ausente identificada mesmo quando as demais máximas estão justificadas; ordenação avaliada por Jornada; alertas recalculados após edição, justificativa e remoção; declarações e metadados preservados pela avaliação. Os testes de presença de texto nas telas foram substituídos, para esses alertas, por testes de comportamento da interface.
+
+Próxima entrega sugerida: avaliar o mesmo diagnóstico de prioridades iguais e justificativas de máximas nos demais conjuntos que já possuem esses campos, especialmente objetivos declarados e Públicos, observando a seção 13.3. Conclusão, histórico/versionamento e reconhecimento de pendências continuam não implementados.
+
+Validação: **448 testes aprovados** em cópia limpa dos arquivos da entrega; compilação de `app.py`, `mediad_planner` e `tests` e `git diff --cached --check` aprovados. Resíduos locais preservados. Envio ao GitHub e publicação no Streamlit não realizados nesta continuação.
