@@ -31,3 +31,4 @@ class PublicoResumo:
     tamanho_estimado: str | None
     papel_declarado: str | None
     justificativa: str | None
+    jornada_aplicavel: bool | None = None

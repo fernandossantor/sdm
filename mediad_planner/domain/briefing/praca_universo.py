@@ -332,10 +332,13 @@ class PublicoDeclarado:
     tamanho_estimado: Decimal | None
     papel_declarado: str | None
     justificativa: str | None
+    jornada_aplicavel: bool | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.id_publico, UUID):
             raise TypeError("id_publico deve ser UUID")
+        if self.jornada_aplicavel is not None and type(self.jornada_aplicavel) is not bool:
+            raise TypeError("jornada_aplicavel deve ser booleano ou None")
         segmentos = tuple(self.ids_segmentos_origem)
         pracas = tuple(self.ids_pracas)
         if not segmentos:

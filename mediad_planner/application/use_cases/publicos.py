@@ -1,3 +1,4 @@
+from dataclasses import replace
 from uuid import UUID
 
 from mediad_planner.application.dto.briefing import BriefingResumo, ContextoAcessoBriefings
@@ -69,8 +70,14 @@ class EditarPublico(_SalvarPublico):
     ) -> BriefingResumo:
         _validar_autoria(self._contexto)
         briefing = _obter_briefing(self._repositorio, self._contexto, id_campanha)
+        atual = next((
+            item for item in briefing.estrutura_territorial_populacional.publicos
+            if item.id_publico == id_publico
+        ), None)
+        if atual is None:
+            raise LookupError("Público não encontrado")
         atualizado = briefing.editar_publico(
-            self._publico(id_publico, entrada),
+            replace(self._publico(id_publico, entrada), jornada_aplicavel=atual.jornada_aplicavel),
             self._contexto.id_usuario,
             self._relogio(),
         )

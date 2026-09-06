@@ -38,11 +38,13 @@ from mediad_planner.application.use_cases.publicos import (
     RemoverPublico,
 )
 from mediad_planner.application.dto.jornada import (
+    DefinirAplicabilidadeJornadaEntrada,
     CategoriaEtapaJornadaResumo,
     SalvarEtapaJornadaEntrada,
     SalvarJornadaEntrada,
 )
 from mediad_planner.application.use_cases.jornada import (
+    DefinirAplicabilidadeJornada,
     AdicionarEtapaJornada,
     AdicionarJornada,
     EditarEtapaJornada,
@@ -130,6 +132,7 @@ class AplicacaoBriefings:
         listar_naturezas_limite_verba: ListarNaturezasLimiteVerba,
         definir_periodo_verba: DefinirPeriodoVerba,
         gerenciar_condicoes: GerenciarCondicoesDeclaradas,
+        definir_aplicabilidade_jornada: DefinirAplicabilidadeJornada,
     ) -> None:
         self._abrir = abrir
         self._listar_aspectos = listar_aspectos
@@ -166,6 +169,12 @@ class AplicacaoBriefings:
         self._listar_naturezas_limite_verba = listar_naturezas_limite_verba
         self._definir_periodo_verba = definir_periodo_verba
         self._gerenciar_condicoes = gerenciar_condicoes
+        self._definir_aplicabilidade_jornada = definir_aplicabilidade_jornada
+
+    def definir_aplicabilidade_jornada(
+        self, id_campanha: UUID, entrada: DefinirAplicabilidadeJornadaEntrada,
+    ) -> BriefingResumo:
+        return self._definir_aplicabilidade_jornada.executar(id_campanha, entrada)
 
     def abrir_briefing(self, id_campanha: UUID) -> BriefingResumo:
         return self._abrir.executar(id_campanha)

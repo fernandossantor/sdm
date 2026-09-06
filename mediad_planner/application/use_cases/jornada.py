@@ -2,6 +2,7 @@ from uuid import UUID
 
 from mediad_planner.application.dto.briefing import BriefingResumo, ContextoAcessoBriefings
 from mediad_planner.application.dto.jornada import (
+    DefinirAplicabilidadeJornadaEntrada,
     CategoriaEtapaJornadaResumo,
     SalvarEtapaJornadaEntrada,
     SalvarJornadaEntrada,
@@ -53,6 +54,16 @@ class AdicionarJornada(_Base):
         )
         return self._salvar(briefing.adicionar_jornada(
             jornada, self._contexto.id_usuario, self._relogio()
+        ))
+
+
+class DefinirAplicabilidadeJornada(_Base):
+    def executar(
+        self, id_campanha: UUID, entrada: DefinirAplicabilidadeJornadaEntrada,
+    ) -> BriefingResumo:
+        briefing = self._briefing(id_campanha)
+        return self._salvar(briefing.definir_aplicabilidade_jornada(
+            entrada.id_publico, entrada.aplicavel, self._contexto.id_usuario, self._relogio(),
         ))
 
 

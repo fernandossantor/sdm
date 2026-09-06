@@ -107,6 +107,15 @@ class Briefing:
         }
         if any(not set(item.ids_publicos) <= ids_publicos for item in jornadas):
             raise ValueError("Público da Jornada não existe no Briefing")
+        nao_aplicaveis = {
+            item.id_publico for item in self.estrutura_territorial_populacional.publicos
+            if item.jornada_aplicavel is False
+        }
+        if any(nao_aplicaveis.intersection(item.ids_publicos) for item in jornadas):
+            raise ValueError(
+                "Público com Jornada não aplicável não pode ter Jornada vinculada. "
+                "Revise os vínculos ou a declaração de aplicabilidade."
+            )
         ids_objetivos = {
             item.id_objetivo for item in self.objetivos_declarados.comunicacao
         }
@@ -481,6 +490,21 @@ class Briefing:
             self, estado=EstadoBriefing.EM_PREENCHIMENTO,
             jornadas=self.jornadas + (jornada,), atualizado_por=atualizado_por,
             atualizado_em=atualizado_em,
+        )
+
+    def definir_aplicabilidade_jornada(
+        self, id_publico: UUID, aplicavel: bool | None,
+        atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        publico = next((
+            item for item in self.estrutura_territorial_populacional.publicos
+            if item.id_publico == id_publico
+        ), None)
+        if publico is None:
+            raise LookupError("Público não encontrado")
+        return self.editar_publico(
+            replace(publico, jornada_aplicavel=aplicavel), atualizado_por, atualizado_em,
         )
 
     def editar_jornada(

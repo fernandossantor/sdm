@@ -10,13 +10,17 @@ def apresentar_revisao_briefing(briefing: BriefingResumo) -> None:
         "As declarações permanecem disponíveis nas respectivas subetapas."
     )
     st.info(
-        "Esta revisão é parcial. A avaliação completa de coerência e suficiência, "
-        "a confirmação da aplicabilidade da jornada e o reconhecimento de pendências "
+        "Esta revisão é parcial. A avaliação completa de coerência e suficiência "
+        "e o reconhecimento de pendências "
         "ainda estão em desenvolvimento. "
         "A conclusão do Briefing ainda não está disponível."
     )
     if briefing.restricoes_inexistentes_declaradas:
         st.write("**Declaração do usuário:** não há restrições para esta campanha.")
+    for publico in briefing.publicos:
+        if publico.jornada_aplicavel is not None:
+            rotulo = "aplicável" if publico.jornada_aplicavel else "não aplicável"
+            st.write(f"**Declaração do usuário:** Jornada {rotulo} para {publico.nome or 'Público sem nome'}.")
     if not briefing.apontamentos_revisao:
         st.write(
             "Nenhum apontamento nas verificações disponíveis. "

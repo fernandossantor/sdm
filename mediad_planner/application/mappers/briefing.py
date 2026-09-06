@@ -219,6 +219,7 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
             ),
             papel_declarado=item.papel_declarado,
             justificativa=item.justificativa,
+            jornada_aplicavel=item.jornada_aplicavel,
         )
         for item in briefing.estrutura_territorial_populacional.publicos
     )

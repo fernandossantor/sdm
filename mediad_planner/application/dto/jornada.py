@@ -3,6 +3,12 @@ from uuid import UUID
 
 
 @dataclass(frozen=True, slots=True)
+class DefinirAplicabilidadeJornadaEntrada:
+    id_publico: UUID
+    aplicavel: bool | None
+
+
+@dataclass(frozen=True, slots=True)
 class CategoriaEtapaJornadaResumo:
     codigo: str
     rotulo: str

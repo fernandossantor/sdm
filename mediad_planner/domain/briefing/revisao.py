@@ -78,8 +78,13 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
 
     publicos_com_jornada = {id_publico for item in briefing.jornadas for id_publico in item.ids_publicos}
     for item in estrutura.publicos:
-        if item.id_publico not in publicos_com_jornada:
-            registrar("Jornada", f"{item.nome or 'Público'}: sem jornada vinculada; verificar se a jornada é aplicável.", "10.4", item.id_publico)
+        if item.id_publico not in publicos_com_jornada and item.jornada_aplicavel is not False:
+            motivo = (
+                "jornada declarada aplicável, mas ainda sem vínculo."
+                if item.jornada_aplicavel is True
+                else "sem jornada vinculada; verificar se a jornada é aplicável."
+            )
+            registrar("Jornada", f"{item.nome or 'Público'}: {motivo}", "10.4", item.id_publico)
     for jornada in briefing.jornadas:
         for etapa in jornada.etapas:
             if not etapa.ids_objetivos_comunicacao:

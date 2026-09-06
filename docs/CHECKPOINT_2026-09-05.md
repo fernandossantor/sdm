@@ -104,3 +104,28 @@ Critérios de aceite: declaração e retirada explícitas; reabertura preserva o
 Esta entrega resolve a pendência de declaração de inexistência registrada acima. Permanecem as demais lacunas da avaliação completa, histórico/versionamento, reconhecimento de pendências e conclusão. Próxima entrega sugerida: declaração da aplicabilidade da jornada por público, observando as seções 10.4 e 20, antes de implementar a conclusão do Briefing.
 
 Validação: **406 testes aprovados** em cópia limpa dos arquivos da entrega; compilação de `app.py`, `mediad_planner` e `tests` e `git diff --cached --check` aprovados. Os resíduos locais continuam fora da entrega. Envio ao GitHub e publicação no Streamlit não realizados nesta continuação.
+
+### Continuação: aplicabilidade da Jornada por Público
+
+Continuação autorizada pelo usuário após a declaração de inexistência de restrições, commit local `3820c2b`.
+
+Base normativa: `02_BRIEFING.md`, seções 10.4, 16, 17 e 20. A aplicabilidade é uma declaração por Público, com três possibilidades: não informada, aplicável ou não aplicável. A interface permite salvar e retirar a declaração. Não informada continua como valor ausente; a existência de uma Jornada vinculada não preenche a declaração automaticamente.
+
+A revisão distingue Público sem Jornada cuja aplicabilidade ainda precisa ser verificada, Público com Jornada declarada aplicável ainda sem vínculo e Público para o qual a Jornada foi declarada não aplicável. Apenas neste último caso a declaração dispensa o apontamento de Jornada ausente. A declaração também aparece separadamente na revisão e conta no progresso da subetapa.
+
+Escolha de integridade desta entrega: não aplicável e Jornada vinculada ao mesmo Público não coexistem; conflitos solicitam revisar vínculos ou declaração e preservam os dados salvos. Jornadas podem continuar compartilhadas entre Públicos. Editar outros dados do Público preserva a aplicabilidade; remover a Jornada não altera a declaração; remover um Público sem vínculos remove junto sua declaração, sem deixar referência órfã.
+
+Arquivos afetados:
+
+- `mediad_planner/domain/briefing/praca_universo.py`, `entidades.py` e `revisao.py`;
+- `mediad_planner/application/dto/jornada.py`, `dto/publicos.py`, `mappers/briefing.py`, `use_cases/jornada.py`, `use_cases/publicos.py` e `services/aplicacao_briefings.py`;
+- `mediad_planner/composition/briefings.py`;
+- `mediad_planner/presentation/jornada.py`, `briefings.py` e `revisao_briefing.py`;
+- `tests/test_aplicabilidade_jornada.py` e `test_frontoffice_aplicabilidade_jornada.py`;
+- este checkpoint operacional.
+
+Critérios de aceite: três valores distintos por Público; reabertura e edição preservam a declaração; revisão e progresso refletem o valor salvo; conflitos na criação/edição de Jornadas e na declaração preservam vínculos; permissões de edição, isolamento de espaço/campanha/público e validações de estado, autor e data respeitados. Testes de interface incluem troca entre Públicos, retirada da declaração, filtro de Públicos disponíveis e rejeição de declaração conflitante.
+
+Esta entrega resolve a pendência de aplicabilidade da Jornada. Permanecem avaliação completa de coerência e suficiência, reconhecimento explícito de pendências, versionamento/histórico e conclusão. Próxima entrega sugerida: revisar e ampliar os diagnósticos objetivos de prioridades e ordenação previstos nas seções 10.4 e 13.3, preservando a fronteira com interpretações estratégicas.
+
+Validação: **428 testes aprovados** em cópia limpa dos arquivos da entrega; compilação de `app.py`, `mediad_planner` e `tests` e `git diff --cached --check` aprovados. Resíduos locais preservados e fora da entrega. Envio ao GitHub e publicação no Streamlit não realizados nesta continuação.

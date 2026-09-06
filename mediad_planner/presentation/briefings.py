@@ -96,7 +96,9 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
         )
         st.write(f"**4. Segmentos e públicos** — {estado_criterios}")
         estado_jornada = (
-            "Em preenchimento" if briefing.jornadas else "Não iniciada"
+            "Em preenchimento"
+            if briefing.jornadas or any(item.jornada_aplicavel is not None for item in briefing.publicos)
+            else "Não iniciada"
         )
         st.write(f"**5. Jornada** — {estado_jornada}")
         estado_periodo_verba = (

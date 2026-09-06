@@ -50,6 +50,7 @@ from mediad_planner.application.use_cases.publicos import (
     RemoverPublico,
 )
 from mediad_planner.application.use_cases.jornada import (
+    DefinirAplicabilidadeJornada,
     AdicionarEtapaJornada,
     AdicionarJornada,
     EditarEtapaJornada,
@@ -80,6 +81,9 @@ def construir_aplicacao_briefings(
         gerador_uuid=gerador_uuid,
     )
     return AplicacaoBriefings(
+        definir_aplicabilidade_jornada=DefinirAplicabilidadeJornada(
+            repositorio_briefings, contexto, relogio,
+        ),
         abrir=abrir,
         listar_aspectos=ListarAspectosSituacaoMercadologica(),
         adicionar=AdicionarRegistroSituacaoMercadologica(

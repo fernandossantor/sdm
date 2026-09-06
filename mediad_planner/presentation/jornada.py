@@ -4,6 +4,7 @@ import streamlit as st
 
 from mediad_planner.application.dto.briefing import BriefingResumo
 from mediad_planner.application.dto.jornada import (
+    DefinirAplicabilidadeJornadaEntrada,
     EtapaJornadaResumo,
     JornadaResumo,
     SalvarEtapaJornadaEntrada,
@@ -23,7 +24,13 @@ def _rotulo_publico(item) -> str:
 
 
 def _formulario_jornada(aplicacao, id_campanha, briefing, jornada) -> None:
-    publicos = {_rotulo_publico(item): item for item in briefing.publicos}
+    publicos = {
+        _rotulo_publico(item): item for item in briefing.publicos
+        if item.jornada_aplicavel is not False
+    }
+    if not publicos:
+        st.info("A Jornada foi declarada não aplicável para todos os Públicos. Revise a declaração para cadastrar uma Jornada.")
+        return
     rotulos_por_id = {item.id_publico: rotulo for rotulo, item in publicos.items()}
     padrao = (
         tuple(rotulos_por_id[item] for item in jornada.ids_publicos)
@@ -63,6 +70,30 @@ def _formulario_jornada(aplicacao, id_campanha, briefing, jornada) -> None:
             st.error(str(erro))
         else:
             st.session_state.pop(CHAVE_JORNADA_EDICAO, None)
+            st.rerun()
+
+
+def _apresentar_aplicabilidade(aplicacao, id_campanha, briefing) -> None:
+    st.caption("Informe se a Jornada é aplicável a cada Público. Não informada mantém a avaliação pendente quando não há Jornada vinculada.")
+    publicos = {_rotulo_publico(item): item for item in briefing.publicos}
+    rotulo = st.selectbox("Público para declarar aplicabilidade", tuple(publicos))
+    publico = publicos[rotulo]
+    opcoes = {"Não informada": None, "Aplicável": True, "Não aplicável": False}
+    estado_atual = next(nome for nome, valor in opcoes.items() if valor is publico.jornada_aplicavel)
+    st.write(f"**Aplicabilidade salva para {rotulo}:** {estado_atual}")
+    aplicabilidade = st.selectbox(
+        "Aplicabilidade da Jornada", tuple(opcoes), index=tuple(opcoes).index(estado_atual),
+        key=f"aplicabilidade_{id_campanha}_{publico.id_publico}_{estado_atual}",
+    )
+    st.caption("Para declarar não aplicável, revise os vínculos de Jornada existentes. Escolha Não informada para retirar a declaração.")
+    if st.button("Salvar aplicabilidade da Jornada"):
+        try:
+            aplicacao.definir_aplicabilidade_jornada(
+                id_campanha, DefinirAplicabilidadeJornadaEntrada(publico.id_publico, opcoes[aplicabilidade]),
+            )
+        except ERROS as erro:
+            st.error(str(erro))
+        else:
             st.rerun()
 
 
@@ -163,15 +194,16 @@ def apresentar_jornada(
     if not briefing.publicos:
         st.info("Cadastre ao menos um Público antes de criar uma Jornada.")
         return
+    _apresentar_aplicabilidade(aplicacao, id_campanha, briefing)
     id_edicao = st.session_state.get(CHAVE_JORNADA_EDICAO)
     jornada_edicao = next(
         (item for item in briefing.jornadas if str(item.id_jornada) == id_edicao), None
     )
     _formulario_jornada(aplicacao, id_campanha, briefing, jornada_edicao)
-    ids_com_jornada = {id_publico for item in briefing.jornadas for id_publico in item.ids_publicos}
-    sem_jornada = [item for item in briefing.publicos if item.id_publico not in ids_com_jornada]
-    if sem_jornada:
-        st.warning("Há Público sem Jornada associada; confirme se a Jornada é necessária.")
+    ids_publicos = {item.id_publico for item in briefing.publicos}
+    for item in briefing.apontamentos_revisao:
+        if item.subetapa == "Jornada" and item.id_entidade in ids_publicos:
+            st.warning(item.mensagem)
     with st.expander(f"Jornadas salvas ({len(briefing.jornadas)})", expanded=False):
         for item in briefing.jornadas:
             st.write(f"**{item.nome}** — {', '.join(item.nomes_publicos)}")
