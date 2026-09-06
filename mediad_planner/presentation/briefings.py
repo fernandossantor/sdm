@@ -68,11 +68,6 @@ ROTULOS_NATUREZAS = (
 
 
 def _apresentar_subetapas(briefing: BriefingResumo) -> None:
-    subetapas = (
-        "5. Jornada",
-        "7. Prioridades, restrições e pretensões",
-        "8. Revisão do Briefing",
-    )
     estado_situacao = (
         "Em preenchimento" if briefing.registros_situacao else "Não iniciada"
     )
@@ -95,15 +90,28 @@ def _apresentar_subetapas(briefing: BriefingResumo) -> None:
         st.write(f"**3. Praça e universo** — {estado_praca_universo}")
         estado_criterios = (
             "Em preenchimento"
-            if briefing.criterios_segmentacao else "Não iniciada"
+            if briefing.criterios_segmentacao or briefing.segmentos or briefing.publicos
+            else "Não iniciada"
         )
         st.write(f"**4. Segmentos e públicos** — {estado_criterios}")
+        estado_jornada = (
+            "Em preenchimento" if briefing.jornadas else "Não iniciada"
+        )
+        st.write(f"**5. Jornada** — {estado_jornada}")
         estado_periodo_verba = (
             "Em preenchimento" if briefing.periodo_verba else "Não iniciada"
         )
         st.write(f"**6. Período e verba** — {estado_periodo_verba}")
-        for subetapa in subetapas:
-            st.write(f"**{subetapa}** — Não iniciada")
+        estado_condicoes = (
+            "Em preenchimento"
+            if briefing.prioridades_contextuais or briefing.restricoes or briefing.pretensoes
+            else "Não iniciada"
+        )
+        st.write(
+            "**7. Prioridades, restrições e pretensões** — "
+            f"{estado_condicoes}"
+        )
+        st.write("**8. Revisão do Briefing** — Não iniciada")
 
 
 def _formulario_situacao(

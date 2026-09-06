@@ -56,7 +56,8 @@ def test_fundacao_nova_existe():
 
 def test_documentacao_ativa_nao_mistura_legado():
     encontrados = {item.name for item in (RAIZ / "docs").iterdir()}
-    permitidos = {"README.md", "new_app"}
+    # Registro operacional de continuidade, sem força normativa.
+    permitidos = {"README.md", "new_app", "CHECKPOINT_2026-09-05.md"}
     assert encontrados == permitidos, encontrados
 
 
