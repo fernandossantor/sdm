@@ -42,3 +42,26 @@ Há resíduos locais fora da estrutura ativa. A suíte completa foi executada em
 5. Permanecem pendentes reconhecimento explícito de alertas, histórico/comparação de versões, conclusão do Briefing e transição para Tradução Estratégica. Revisar também as incoerências territoriais atualmente rejeitadas na entrada à luz das validações sem bloqueio indevido.
 
 O usuário solicitou pausa com novo checkpoint. Não iniciar nova implementação funcional sem retomada do trabalho.
+
+## Retomada — 12/09/2026
+
+- Retomada solicitada pelo usuário. Os três commits locais até `75e1b6b` foram enviados à `main` no GitHub.
+- CI de `75e1b6b` aprovado: https://github.com/fernandossantor/sdm/actions/runs/34717800573. O log confirma **538 testes aprovados** e compilação de `app.py`, `mediad_planner` e `tests` aprovada.
+- Nenhuma nova implementação funcional nesta retomada. O §13.3 exige diagnósticos para entidades prioritárias, mas não define um limiar numérico. Foi solicitada ao usuário a definição do recorte antes de implementar esses apontamentos.
+- A revisão publicada no Streamlit continua sem confirmação; endereço e configuração de deploy foram solicitados ao usuário.
+- Escopo desta entrega: atualização deste checkpoint operacional. Aceite: envio anterior e CI comprovados, pendências preservadas e diff sem erros de whitespace. Verificação estrutural de documentação aprovada em cópia limpa dos arquivos rastreados (**1 teste**); `git diff --check` aprovado.
+- `supabase/` permanece não rastreado, sem consulta ao conteúdo ou alterações.
+
+## Entrega da retomada — vínculos de entidades prioritárias
+
+- O usuário definiu explicitamente **4 e 5** como recorte para os dois novos diagnósticos do §13.3. A definição foi incorporada a `docs/new_app/02_BRIEFING.md`, mantendo a fonte normativa única.
+- Público de prioridade alta (4) ou muito alta (5) sem vínculo explícito com Objetivo de Marketing ou Comunicação gera aviso. Qualquer objetivo vinculado atende à relação, independentemente de sua prioridade. Relação por praça comum ou por outro objetivo não cria vínculo implícito.
+- Objetivos de Marketing e Comunicação com prioridade 4 ou 5 recebem avisos separados para falta de Público e falta de Praça. Salvar ou retirar um vínculo recalcula os apontamentos; os avisos não impedem salvar e não alteram as declarações.
+- Os apontamentos são calculados no domínio e chegam às subetapas de Objetivos e Públicos e à Revisão pela infraestrutura existente. A revisão permanece parcial e a persistência continua em memória.
+- Arquivos afetados: `docs/new_app/02_BRIEFING.md`, `mediad_planner/domain/briefing/revisao.py`, `tests/test_diagnosticos_prioridades.py`, `tests/test_diagnosticos_vinculos_prioritarios.py`, `tests/test_frontoffice_diagnosticos_vinculos.py` e este checkpoint.
+- Aceite: prioridades 4 e 5 avaliadas; prioridades 1–3 e ausência não geram os novos avisos; vínculos explícitos respeitam identidades; recálculo após salvar/retirar vínculos, editar prioridade do Público e remover Objetivo; avisos consistentes nas subetapas e na revisão; avaliação somente de leitura.
+- Validação: **612 testes aprovados** em cópia limpa da entrega (**74 novos testes**); compilação de `app.py`, `mediad_planner` e `tests` aprovada. Os testes anteriores de igualdade/máximas passaram a verificar especificamente essas mensagens, permitindo coexistência dos novos diagnósticos.
+- Limite adicional verificado: a aplicação ainda não oferece edição da prioridade dos Objetivos já cadastrados. O recorte dos Objetivos foi testado no domínio em todos os valores existentes; não foi criado fluxo de edição nesta entrega.
+- O serviço de assinatura recusou o commit com `403 | Author is invalid`, inclusive após conferir a identidade autenticada. O usuário autorizou explicitamente criar apenas este commit sem assinatura, enviar e verificar o CI, preservando a configuração de assinatura do repositório.
+- Este registro acompanha a entrega preparada para envio. O resultado do CI da revisão enviada deve ser consultado no GitHub; o CI aprovado de `75e1b6b` não valida este código novo.
+- Próximos passos após envio e CI: confirmar separadamente o deploy no Streamlit. Continuam pendentes os demais diagnósticos do §13.3, reconhecimento de alertas, histórico/comparação de versões, conclusão e transição do Briefing. A regra de ordenação da Jornada permanece restrita às múltiplas máximas (5). A falha de assinatura permanece pendente para futuros commits.

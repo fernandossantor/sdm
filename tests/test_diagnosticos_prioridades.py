@@ -185,7 +185,7 @@ def test_nao_combina_marketing_comunicacao_e_publicos():
         objetivos_declarados=replace(marketing.objetivos_declarados,
                                     comunicacao=(replace(comunicacao.objetivos_declarados.comunicacao[0], id_objetivo=UUID(int=500)),)),
         estrutura_territorial_populacional=publico.estrutura_territorial_populacional)
-    assert not any(a.referencia_normativa.endswith("13.3") for a in avaliar_briefing(original))
+    assert not any("mesmo valor" in a.mensagem or "sem justificativa" in a.mensagem for a in avaliar_briefing(original))
 
 
 def test_publicos_recalculam_apos_justificativa_prioridade_e_remocao():
@@ -201,6 +201,6 @@ def test_publicos_recalculam_apos_justificativa_prioridade_e_remocao():
     assert [a.id_entidade for a in resumo.apontamentos_revisao if "sem justificativa" in a.mensagem] == [segundo.id_publico]
     resumo = ambiente.briefings.editar_publico(campanha, segundo.id_publico,
         _entrada((segmentos[1],), (pracas[1],), prioridade=4, justificativa=None))
-    assert not any(a.referencia_normativa.endswith("13.3") for a in resumo.apontamentos_revisao)
+    assert not any("mesmo valor" in a.mensagem or "sem justificativa" in a.mensagem for a in resumo.apontamentos_revisao)
     resumo = ambiente.briefings.remover_publico(campanha, segundo.id_publico)
-    assert not any(a.referencia_normativa.endswith("13.3") for a in resumo.apontamentos_revisao)
+    assert not any("mesmo valor" in a.mensagem or "sem justificativa" in a.mensagem for a in resumo.apontamentos_revisao)

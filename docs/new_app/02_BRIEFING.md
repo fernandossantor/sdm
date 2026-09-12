@@ -722,6 +722,10 @@ O aplicativo deve sinalizar:
 - objetivo prioritário sem público ou praça relacionado;
 - pretensão prioritária incompatível com restrição rígida.
 
+Para os diagnósticos de público prioritário sem objetivo relacionado e de objetivo
+prioritário sem público ou praça relacionado, consideram-se prioritários os valores
+alta (4) e muito alta (5). Recorte definido pelo usuário em 12/09/2026.
+
 ---
 
 ## 14. Restrições

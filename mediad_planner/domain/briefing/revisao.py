@@ -55,6 +55,33 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             registrar("Objetivos declarados", f"{item.objetivo}: sem relação explícita com objetivo de marketing.", "8.4", item.id_objetivo)
 
     estrutura = briefing.estrutura_territorial_populacional
+    objetivos_combinados = objetivos.marketing + objetivos.comunicacao
+    publicos_com_objetivo = {
+        id_publico
+        for item in objetivos_combinados
+        for id_publico in item.ids_publicos_relacionados
+    }
+    for item in objetivos_combinados:
+        if item.prioridade_declarada in (4, 5):
+            for referencias, rotulo in (
+                (item.ids_publicos_relacionados, "público"),
+                (item.ids_pracas_relacionadas, "praça"),
+            ):
+                if not referencias:
+                    registrar(
+                        "Objetivos declarados",
+                        f"{item.objetivo}: objetivo prioritário "
+                        f"(prioridade {item.prioridade_declarada}) sem {rotulo} relacionado.",
+                        "13.3", item.id_objetivo,
+                    )
+    for item in estrutura.publicos:
+        if item.prioridade in (4, 5) and item.id_publico not in publicos_com_objetivo:
+            registrar(
+                "Segmentos e públicos",
+                f"{item.nome or 'Público'}: público prioritário "
+                f"(prioridade {item.prioridade}) sem objetivo relacionado.",
+                "13.3", item.id_publico,
+            )
     _avaliar_prioridades_declaradas(tuple(
         (item.id_publico, item.nome or "Público", item.prioridade, item.justificativa)
         for item in estrutura.publicos
