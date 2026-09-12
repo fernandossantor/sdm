@@ -45,3 +45,26 @@ Há diretórios residuais locais fora da estrutura ativa. A verificação de aus
 6. Revisar as incoerências territoriais atualmente rejeitadas na entrada à luz das validações sem bloqueio indevido antes de certificar a conclusão.
 
 O usuário solicitou commit e novo checkpoint. Nenhuma nova implementação funcional faz parte deste encerramento.
+
+## Retomada — 12/09/2026: prioridades de objetivos e públicos
+
+Retomada autorizada pelo usuário. Confirmados `main` local/remota em `aceb960` e CI aprovado dessa revisão: https://github.com/fernandossantor/sdm/actions/runs/34055062384. A revisão publicada no Streamlit permanece sem confirmação.
+
+Entrega baseada em `02_BRIEFING.md`, seções 8.2–8.4 e 13.1–13.3: diagnósticos de prioridades iguais e múltiplas máximas sem justificativa ampliados para Objetivos de Marketing, Objetivos de Comunicação e Públicos. Cada conjunto é avaliado separadamente. Máxima corresponde a 5 na escala existente. Igualdade exige mais de um item e prioridade informada em todos; ausência continua como lacuna, sem ser convertida em valor. Havendo múltiplas máximas, cada item sem justificativa é identificado, inclusive quando os demais estão justificados.
+
+Os diagnósticos são calculados no domínio e chegam às subetapas e à revisão pelo resumo existente. A avaliação permanece somente de leitura e parcial, sem alterar declarações, metadados, permissões ou estados.
+
+Arquivos afetados:
+
+- `mediad_planner/domain/briefing/revisao.py`;
+- `mediad_planner/presentation/objetivos_declarados.py` e `segmentos.py`;
+- `tests/test_diagnosticos_prioridades.py` e `test_frontoffice_diagnosticos_prioridades.py`;
+- este checkpoint operacional.
+
+Critérios de aceite verificados: conjuntos independentes; nenhum alerta coletivo para conjunto vazio ou item único; ausência distinta de igualdade; identificação das justificativas ausentes com referência normativa e entidade; preservação dos dados pela avaliação; mesmos avisos na subetapa e revisão; recálculo após remoção nos três conjuntos e após edição de prioridade/justificativa de Públicos.
+
+Validação: **483 testes aprovados** em cópia limpa dos arquivos rastreados com as alterações desta entrega; compilação de `app.py`, `mediad_planner` e `tests` aprovada; `git diff --check` aprovado. Foram acrescentados 35 testes. Os testes de interface completam a renderização após a remoção, cujo `st.rerun` pode deixar elementos anteriores no resultado intermediário do AppTest.
+
+Continuam pendentes os demais diagnósticos da seção 13.3, avaliação completa de coerência/suficiência, reconhecimento de alertas, histórico/versionamento e conclusão/transição do Briefing. Próximo recorte sugerido: confrontar os vínculos de objetivos com Públicos e Praças com as seções 8.2–8.3, antes de implementar diagnósticos que dependam desses vínculos.
+
+`supabase/` e resíduos locais permanecem preservados e fora da entrega. Nenhum conteúdo legado foi consultado ou reutilizado. Esta retomada prepara commit local; não inclui envio ao GitHub nem confirmação de publicação no Streamlit.

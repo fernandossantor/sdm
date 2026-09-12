@@ -38,6 +38,14 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             registrar(situacao, f"{item.aspecto}: período de referência não informado.", "7.5", item.id_registro)
 
     objetivos = briefing.objetivos_declarados
+    for itens, rotulo in (
+        (objetivos.marketing, "Objetivos de Marketing"),
+        (objetivos.comunicacao, "Objetivos de Comunicação"),
+    ):
+        _avaliar_prioridades_declaradas(tuple(
+            (item.id_objetivo, item.objetivo, item.prioridade_declarada, item.justificativa)
+            for item in itens
+        ), rotulo, "Objetivos declarados", registrar)
     if not objetivos.marketing:
         registrar("Objetivos declarados", "Nenhum objetivo de marketing registrado.", "20")
     if not objetivos.comunicacao:
@@ -47,6 +55,10 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             registrar("Objetivos declarados", f"{item.objetivo}: sem relação explícita com objetivo de marketing.", "8.4", item.id_objetivo)
 
     estrutura = briefing.estrutura_territorial_populacional
+    _avaliar_prioridades_declaradas(tuple(
+        (item.id_publico, item.nome or "Público", item.prioridade, item.justificativa)
+        for item in estrutura.publicos
+    ), "Públicos", "Segmentos e públicos", registrar)
     if not estrutura.pracas:
         registrar("Praça e universo", "Nenhuma praça registrada.", "20")
     if not estrutura.universos:
@@ -142,3 +154,25 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
     if not briefing.pretensoes:
         registrar(condicoes, "Nenhuma pretensão declarada registrada.", "20")
     return tuple(apontamentos)
+
+
+def _avaliar_prioridades_declaradas(itens, rotulo, subetapa, registrar):
+    """Compara um conjunto declarado; ausência não é valor da escala."""
+    if len(itens) > 1 and all(item[2] is not None for item in itens):
+        if len({item[2] for item in itens}) == 1:
+            registrar(
+                subetapa,
+                f"{rotulo}: todos os itens estão marcados com o mesmo valor de prioridade; "
+                "a escala não distingue a importância declarada desses itens.",
+                "13.3",
+            )
+    maximas = tuple(item for item in itens if item[2] == 5)
+    if len(maximas) > 1:
+        for id_entidade, nome, _, justificativa in maximas:
+            if not justificativa:
+                registrar(
+                    subetapa,
+                    f"{rotulo} — {nome}: prioridade máxima sem justificativa "
+                    "entre múltiplas prioridades máximas.",
+                    "13.3", id_entidade,
+                )

@@ -293,6 +293,12 @@ def apresentar_objetivos_declarados(
         "Elas não são pesos calculados pelos motores."
     )
     aba_marketing, aba_comunicacao = st.tabs(("Marketing", "Comunicação"))
+    for item in briefing.apontamentos_revisao:
+        if (
+            item.subetapa == "Objetivos declarados"
+            and item.referencia_normativa == "02_BRIEFING.md § 13.3"
+        ):
+            st.warning(item.mensagem)
     with aba_marketing:
         _formulario_marketing(aplicacao, id_campanha)
         _listar_marketing(aplicacao, id_campanha, briefing)

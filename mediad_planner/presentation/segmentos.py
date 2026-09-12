@@ -276,6 +276,12 @@ def _listar_publicos(
         item.prioridade is None for item in briefing.publicos
     ):
         st.warning("Há múltiplos Públicos e ao menos um está sem prioridade.")
+    for item in briefing.apontamentos_revisao:
+        if (
+            item.subetapa == "Segmentos e públicos"
+            and item.referencia_normativa == "02_BRIEFING.md § 13.3"
+        ):
+            st.warning(item.mensagem)
     with st.expander(f"Públicos salvos ({len(briefing.publicos)})", expanded=False):
         if not briefing.publicos:
             st.write("Nenhum Público cadastrado.")
