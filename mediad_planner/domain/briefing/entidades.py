@@ -151,6 +151,11 @@ class Briefing:
         ids_pracas = {
             item.id_praca for item in self.estrutura_territorial_populacional.pracas
         }
+        for item in self.objetivos_declarados.marketing + self.objetivos_declarados.comunicacao:
+            if not set(item.ids_publicos_relacionados) <= ids_publicos:
+                raise ValueError("Público relacionado ao Objetivo não existe no Briefing")
+            if not set(item.ids_pracas_relacionadas) <= ids_pracas:
+                raise ValueError("Praça relacionada ao Objetivo não existe no Briefing")
         ids_segmentos = {
             item.id_segmento for item in self.estrutura_territorial_populacional.segmentos
         }
@@ -265,6 +270,21 @@ class Briefing:
             atualizado_em=atualizado_em,
         )
 
+    def definir_vinculos_objetivo(
+        self, id_objetivo: UUID, ids_publicos: tuple[UUID, ...],
+        ids_pracas: tuple[UUID, ...], atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            objetivos_declarados=self.objetivos_declarados.definir_vinculos(
+                id_objetivo, ids_publicos, ids_pracas,
+            ),
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
     def remover_objetivo_marketing(
         self,
         id_objetivo: UUID,
@@ -328,6 +348,9 @@ class Briefing:
         self, id_praca: UUID, atualizado_por: UUID, atualizado_em: datetime,
     ) -> "Briefing":
         self._validar_alteracao(atualizado_por, atualizado_em)
+        if any(id_praca in item.ids_pracas_relacionadas
+               for item in self.objetivos_declarados.marketing + self.objetivos_declarados.comunicacao):
+            raise ValueError("Praça vinculada a Objetivo não pode ser removida. Retire o vínculo no Objetivo antes de remover.")
         return replace(
             self,
             estado=EstadoBriefing.EM_PREENCHIMENTO,
@@ -469,6 +492,9 @@ class Briefing:
         self, id_publico: UUID, atualizado_por: UUID, atualizado_em: datetime,
     ) -> "Briefing":
         self._validar_alteracao(atualizado_por, atualizado_em)
+        if any(id_publico in item.ids_publicos_relacionados
+               for item in self.objetivos_declarados.marketing + self.objetivos_declarados.comunicacao):
+            raise ValueError("Público vinculado a Objetivo não pode ser removido. Retire o vínculo no Objetivo antes de remover.")
         if any(id_publico in item.ids_publicos for item in self.jornadas):
             raise ValueError("Público vinculado a Jornada não pode ser removido")
         return replace(

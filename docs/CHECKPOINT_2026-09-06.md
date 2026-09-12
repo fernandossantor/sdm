@@ -68,3 +68,30 @@ Validação: **483 testes aprovados** em cópia limpa dos arquivos rastreados co
 Continuam pendentes os demais diagnósticos da seção 13.3, avaliação completa de coerência/suficiência, reconhecimento de alertas, histórico/versionamento e conclusão/transição do Briefing. Próximo recorte sugerido: confrontar os vínculos de objetivos com Públicos e Praças com as seções 8.2–8.3, antes de implementar diagnósticos que dependam desses vínculos.
 
 `supabase/` e resíduos locais permanecem preservados e fora da entrega. Nenhum conteúdo legado foi consultado ou reutilizado. Esta retomada prepara commit local; não inclui envio ao GitHub nem confirmação de publicação no Streamlit.
+
+## Continuação — 12/09/2026: vínculos dos Objetivos com Públicos e Praças
+
+Continuação autorizada pelo usuário após o commit local `ef975ef`. Conferido que a revisão remota permanecia em `aceb960` antes desta implementação.
+
+Base normativa: `02_BRIEFING.md`, seções 8.2, 8.3 e 17, respeitando a precedência do documento 30. A entrega permite salvar, substituir e retirar Públicos e Praças relacionados a cada Objetivo de Marketing ou Comunicação já cadastrado. Os vínculos são opcionais, usam identidades do Briefing atual e aparecem na lista dos objetivos salvos. Os seletores distinguem Públicos com nomes iguais e explicam a diferença entre Praça territorial e a dimensão Praça do composto de Marketing.
+
+Recorte de interface: o usuário cria o objetivo pelo formulário existente e pode retornar ao objetivo salvo para preencher os vínculos, inclusive depois de cadastrar Praças e Públicos nas subetapas seguintes. As seleções só são aplicadas ao salvar o formulário de vínculos. Desmarcar e salvar retira explicitamente as referências. Vincular um Público não preenche automaticamente suas Praças no Objetivo nem transfere vínculos entre Marketing e Comunicação.
+
+Integridade: IDs precisam existir no mesmo Briefing, ser UUIDs e não se repetir na mesma coleção. A tentativa de remover Público ou Praça ainda relacionado a Objetivo é recusada, com orientação para retirar o vínculo; os dados salvos são preservados. Remover um Objetivo remove suas próprias referências, preservando os Públicos e Praças. A edição de um Público preserva o vínculo por identidade. Permanecem os controles existentes de papel, espaço, campanha, estado, autor e data. As alterações mantêm o Briefing em preenchimento e atualizam os metadados de edição existentes.
+
+Arquivos afetados:
+
+- `mediad_planner/domain/briefing/objetivos_declarados.py` e `entidades.py`;
+- `mediad_planner/application/dto/objetivos_declarados.py`, `use_cases/objetivos_declarados.py`, `mappers/briefing.py` e `services/aplicacao_briefings.py`;
+- `mediad_planner/composition/briefings.py`;
+- `mediad_planner/presentation/objetivos_declarados.py`;
+- `tests/test_vinculos_objetivos.py` e `test_frontoffice_vinculos_objetivos.py`;
+- este checkpoint operacional.
+
+Critérios de aceite verificados: vínculos opcionais e múltiplos nos dois tipos de Objetivo; salvamento, alteração, retirada e reabertura pelo repositório em memória existente; preservação dos demais campos e do outro Objetivo; escolhas não salvas distintas dos dados declarados; isolamento de referências, inclusive quando a entidade existe em outra Campanha; permissões de edição, estados, autoria e data; rejeição de duplicatas, IDs inválidos e referências inexistentes; proteção contra remoções que deixariam vínculos órfãos; manutenção dos vínculos após editar Público.
+
+Validação: **538 testes aprovados** em cópia limpa dos arquivos preparados para a entrega, incluindo **55 novos testes**; compilação de `app.py`, `mediad_planner` e `tests` aprovada; `git diff --cached --check` aprovado. A persistência utilizada continua sendo a infraestrutura em memória existente; esta entrega não acrescenta tabelas ou migrações.
+
+Os diagnósticos de ausência desses vínculos ainda não foram acrescentados. Próximo recorte sugerido: avaliar os apontamentos de Público prioritário sem Objetivo e Objetivo prioritário sem Público ou Praça da seção 13.3, explicitando o recorte de prioridade antes de implementar. Permanecem as lacunas de avaliação completa, reconhecimento de alertas, histórico/versionamento e conclusão/transição. A entrega não certifica completude dos Objetivos declarados nem do Briefing.
+
+Esta continuação prepara um novo commit local. Não houve envio ao GitHub ou confirmação da revisão publicada no Streamlit. `supabase/` e resíduos locais continuam preservados, sem consulta ou reutilização de legado e fora da entrega.

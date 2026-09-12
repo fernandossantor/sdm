@@ -20,6 +20,7 @@ from mediad_planner.application.use_cases.objetivos_declarados import (
     ListarObjetivosMarketingDeclarados,
     RemoverObjetivoComunicacao,
     RemoverObjetivoMarketing,
+    DefinirVinculosObjetivo,
 )
 from mediad_planner.application.use_cases.briefings import (
     AbrirBriefingCampanha,
@@ -98,6 +99,9 @@ def construir_aplicacao_briefings(
             relogio=relogio,
         ),
         listar_marketing=ListarObjetivosMarketingDeclarados(),
+        definir_vinculos_objetivo=DefinirVinculosObjetivo(
+            repositorio_briefings, contexto, relogio,
+        ),
         listar_comunicacao=ListarObjetivosComunicacaoDeclarados(),
         listar_dimensoes_composto=ListarDimensoesCompostoMarketing(),
         adicionar_marketing=AdicionarObjetivoMarketing(

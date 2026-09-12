@@ -10,6 +10,7 @@ from mediad_planner.application.dto.objetivos_declarados import (
     AdicionarObjetivoMarketingEntrada,
     DefinicaoObjetivoResumo,
     DimensaoCompostoMarketingResumo,
+    DefinirVinculosObjetivoEntrada,
 )
 from mediad_planner.application.dto.praca_universo import (
     AdicionarPracaEntrada,
@@ -77,6 +78,7 @@ from mediad_planner.application.use_cases.objetivos_declarados import (
     ListarObjetivosMarketingDeclarados,
     RemoverObjetivoComunicacao,
     RemoverObjetivoMarketing,
+    DefinirVinculosObjetivo,
 )
 from mediad_planner.application.use_cases.briefings import (
     AbrirBriefingCampanha,
@@ -133,6 +135,7 @@ class AplicacaoBriefings:
         definir_periodo_verba: DefinirPeriodoVerba,
         gerenciar_condicoes: GerenciarCondicoesDeclaradas,
         definir_aplicabilidade_jornada: DefinirAplicabilidadeJornada,
+        definir_vinculos_objetivo: DefinirVinculosObjetivo,
     ) -> None:
         self._abrir = abrir
         self._listar_aspectos = listar_aspectos
@@ -170,6 +173,12 @@ class AplicacaoBriefings:
         self._definir_periodo_verba = definir_periodo_verba
         self._gerenciar_condicoes = gerenciar_condicoes
         self._definir_aplicabilidade_jornada = definir_aplicabilidade_jornada
+        self._definir_vinculos_objetivo = definir_vinculos_objetivo
+
+    def definir_vinculos_objetivo(
+        self, id_campanha: UUID, entrada: DefinirVinculosObjetivoEntrada,
+    ) -> BriefingResumo:
+        return self._definir_vinculos_objetivo.executar(id_campanha, entrada)
 
     def definir_aplicabilidade_jornada(
         self, id_campanha: UUID, entrada: DefinirAplicabilidadeJornadaEntrada,

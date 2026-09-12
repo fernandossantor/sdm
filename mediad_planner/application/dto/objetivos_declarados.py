@@ -60,8 +60,12 @@ class ObjetivoMarketingResumo:
     prioridade_declarada: int
     intensidade_declarada: int
     justificativa: str | None
+    ids_publicos_relacionados: tuple[UUID, ...] = ()
+    ids_pracas_relacionadas: tuple[UUID, ...] = ()
 
     def __post_init__(self) -> None:
+        for campo in ("ids_publicos_relacionados", "ids_pracas_relacionadas"):
+            object.__setattr__(self, campo, tuple(getattr(self, campo)))
         object.__setattr__(
             self,
             "dimensoes_composto",
@@ -83,10 +87,25 @@ class ObjetivoComunicacaoResumo:
     prioridade_declarada: int
     intensidade_declarada: int
     justificativa: str | None
+    ids_publicos_relacionados: tuple[UUID, ...] = ()
+    ids_pracas_relacionadas: tuple[UUID, ...] = ()
 
     def __post_init__(self) -> None:
+        for campo in ("ids_publicos_relacionados", "ids_pracas_relacionadas"):
+            object.__setattr__(self, campo, tuple(getattr(self, campo)))
         object.__setattr__(
             self,
             "ids_objetivos_marketing_relacionados",
             tuple(self.ids_objetivos_marketing_relacionados),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class DefinirVinculosObjetivoEntrada:
+    id_objetivo: UUID
+    ids_publicos_relacionados: tuple[UUID, ...]
+    ids_pracas_relacionadas: tuple[UUID, ...]
+
+    def __post_init__(self) -> None:
+        for campo in ("ids_publicos_relacionados", "ids_pracas_relacionadas"):
+            object.__setattr__(self, campo, tuple(getattr(self, campo)))

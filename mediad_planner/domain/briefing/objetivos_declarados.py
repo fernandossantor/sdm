@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 from uuid import UUID
 
@@ -34,6 +34,15 @@ def _normalizar_opcional(valor: str | None) -> str | None:
 def _validar_escala(valor: object, campo: str) -> None:
     if type(valor) is not int or not 1 <= valor <= 5:
         raise ValueError(f"{campo} deve ser inteiro entre 1 e 5")
+
+
+def _normalizar_ids_relacionados(valores: tuple[UUID, ...], campo: str) -> tuple[UUID, ...]:
+    ids = tuple(valores)
+    if any(not isinstance(item, UUID) for item in ids):
+        raise TypeError(f"{campo} deve conter UUIDs")
+    if len(ids) != len(set(ids)):
+        raise ValueError(f"{campo} possui duplicatas")
+    return ids
 
 
 @dataclass(frozen=True, slots=True)
@@ -274,6 +283,8 @@ class ObjetivoMarketingDeclarado:
     prioridade_declarada: int
     intensidade_declarada: int
     justificativa: str | None
+    ids_publicos_relacionados: tuple[UUID, ...] = ()
+    ids_pracas_relacionadas: tuple[UUID, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.id_objetivo, UUID):
@@ -294,6 +305,8 @@ class ObjetivoMarketingDeclarado:
         _validar_escala(self.prioridade_declarada, "prioridade_declarada")
         _validar_escala(self.intensidade_declarada, "intensidade_declarada")
         object.__setattr__(self, "justificativa", _normalizar_opcional(self.justificativa))
+        for campo in ("ids_publicos_relacionados", "ids_pracas_relacionadas"):
+            object.__setattr__(self, campo, _normalizar_ids_relacionados(getattr(self, campo), campo))
 
 
 @dataclass(frozen=True, slots=True)
@@ -305,6 +318,8 @@ class ObjetivoComunicacaoDeclarado:
     prioridade_declarada: int
     intensidade_declarada: int
     justificativa: str | None
+    ids_publicos_relacionados: tuple[UUID, ...] = ()
+    ids_pracas_relacionadas: tuple[UUID, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.id_objetivo, UUID):
@@ -325,12 +340,33 @@ class ObjetivoComunicacaoDeclarado:
         _validar_escala(self.prioridade_declarada, "prioridade_declarada")
         _validar_escala(self.intensidade_declarada, "intensidade_declarada")
         object.__setattr__(self, "justificativa", _normalizar_opcional(self.justificativa))
+        for campo in ("ids_publicos_relacionados", "ids_pracas_relacionadas"):
+            object.__setattr__(self, campo, _normalizar_ids_relacionados(getattr(self, campo), campo))
 
 
 @dataclass(frozen=True, slots=True)
 class ObjetivosDeclarados:
     marketing: tuple[ObjetivoMarketingDeclarado, ...]
     comunicacao: tuple[ObjetivoComunicacaoDeclarado, ...]
+
+    def definir_vinculos(
+        self, id_objetivo: UUID, ids_publicos: tuple[UUID, ...],
+        ids_pracas: tuple[UUID, ...],
+    ) -> "ObjetivosDeclarados":
+        if not isinstance(id_objetivo, UUID):
+            raise TypeError("id_objetivo deve ser UUID")
+        objetivo = next((item for item in self.marketing + self.comunicacao
+                         if item.id_objetivo == id_objetivo), None)
+        if objetivo is None:
+            raise LookupError("Objetivo não encontrado no Briefing")
+        atualizado = replace(objetivo, ids_publicos_relacionados=ids_publicos,
+                             ids_pracas_relacionadas=ids_pracas)
+        return ObjetivosDeclarados(
+            marketing=tuple(atualizado if item.id_objetivo == id_objetivo else item
+                            for item in self.marketing),
+            comunicacao=tuple(atualizado if item.id_objetivo == id_objetivo else item
+                              for item in self.comunicacao),
+        )
 
     def __post_init__(self) -> None:
         marketing = tuple(self.marketing)

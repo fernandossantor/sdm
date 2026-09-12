@@ -6,6 +6,9 @@ from mediad_planner.application.dto.briefing import BriefingResumo
 from mediad_planner.application.dto.objetivos_declarados import (
     AdicionarObjetivoComunicacaoEntrada,
     AdicionarObjetivoMarketingEntrada,
+    DefinirVinculosObjetivoEntrada,
+    ObjetivoComunicacaoResumo,
+    ObjetivoMarketingResumo,
 )
 from mediad_planner.application.services.aplicacao_briefings import (
     AplicacaoBriefings,
@@ -23,6 +26,62 @@ ESCALA = (
 
 def _valor_escala(rotulo: str) -> int:
     return int(rotulo.split(" ", 1)[0])
+
+
+def _vinculos_objetivo(
+    aplicacao: AplicacaoBriefings,
+    id_campanha: UUID,
+    briefing: BriefingResumo,
+    objetivo: ObjetivoMarketingResumo | ObjetivoComunicacaoResumo,
+) -> None:
+    publicos = {
+        item.id_publico: f"{indice}. {item.nome or 'Público sem nome'}"
+        for indice, item in enumerate(briefing.publicos, 1)
+    }
+    pracas = {
+        item.id_praca: f"{indice}. [{item.rotulo_tipo}] {item.nome}"
+        for indice, item in enumerate(briefing.pracas, 1)
+    }
+    st.write("Públicos relacionados: " + (
+        ", ".join(publicos[item] for item in objetivo.ids_publicos_relacionados)
+        or "Nenhum vínculo declarado."
+    ))
+    st.write("Praças relacionadas: " + (
+        ", ".join(pracas[item] for item in objetivo.ids_pracas_relacionadas)
+        or "Nenhum vínculo declarado."
+    ))
+    with st.expander("Alterar Públicos e Praças relacionados"):
+        st.caption(
+            "Selecione os vínculos declarados para este objetivo. "
+            "Para retirar um vínculo, desmarque a opção e salve. "
+            "Praça aqui é o território da campanha."
+        )
+        if not publicos:
+            st.info("Cadastre Públicos na subetapa Segmentos e públicos para vinculá-los.")
+        if not pracas:
+            st.info("Cadastre Praças na subetapa Praça e universo para vinculá-las.")
+        chave = f"vinculos_objetivo_{id_campanha}_{objetivo.id_objetivo}"
+        with st.form(chave):
+            selecionados_publicos = st.multiselect(
+                "Públicos relacionados (opcional)", tuple(publicos),
+                default=objetivo.ids_publicos_relacionados,
+                format_func=publicos.__getitem__, key=f"{chave}_publicos",
+            )
+            selecionadas_pracas = st.multiselect(
+                "Praças relacionadas (opcional)", tuple(pracas),
+                default=objetivo.ids_pracas_relacionadas,
+                format_func=pracas.__getitem__, key=f"{chave}_pracas",
+            )
+            salvar = st.form_submit_button("Salvar vínculos do Objetivo")
+        if salvar:
+            try:
+                aplicacao.definir_vinculos_objetivo(id_campanha, DefinirVinculosObjetivoEntrada(
+                    objetivo.id_objetivo, tuple(selecionados_publicos), tuple(selecionadas_pracas),
+                ))
+            except (LookupError, PermissionError, TypeError, ValueError) as erro:
+                st.error(str(erro))
+            else:
+                st.rerun()
 
 
 def _formulario_marketing(
@@ -122,6 +181,7 @@ def _listar_marketing(
                 )
             if objetivo.justificativa:
                 st.write(f"Justificativa: {objetivo.justificativa}")
+            _vinculos_objetivo(aplicacao, id_campanha, briefing, objetivo)
             if st.button(
                 "Remover Objetivo de Marketing",
                 key=f"remover_marketing_{objetivo.id_objetivo}",
@@ -262,6 +322,7 @@ def _listar_comunicacao(
                 st.write("Sem vínculo explícito com Objetivo de Marketing.")
             if objetivo.justificativa:
                 st.write(f"Justificativa: {objetivo.justificativa}")
+            _vinculos_objetivo(aplicacao, id_campanha, briefing, objetivo)
             if st.button(
                 "Remover Objetivo de Comunicação",
                 key=f"remover_comunicacao_{objetivo.id_objetivo}",

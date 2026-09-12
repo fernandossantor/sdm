@@ -78,6 +78,8 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
                 rotulos_dimensoes[dimensao]
                 for dimensao in item.dimensoes_composto
             ),
+            ids_publicos_relacionados=item.ids_publicos_relacionados,
+            ids_pracas_relacionadas=item.ids_pracas_relacionadas,
             prioridade_declarada=item.prioridade_declarada,
             intensidade_declarada=item.intensidade_declarada,
             justificativa=item.justificativa,
@@ -92,6 +94,8 @@ def resumir_briefing(briefing: Briefing) -> BriefingResumo:
             ids_objetivos_marketing_relacionados=(
                 item.ids_objetivos_marketing_relacionados
             ),
+            ids_publicos_relacionados=item.ids_publicos_relacionados,
+            ids_pracas_relacionadas=item.ids_pracas_relacionadas,
             prioridade_declarada=item.prioridade_declarada,
             intensidade_declarada=item.intensidade_declarada,
             justificativa=item.justificativa,
