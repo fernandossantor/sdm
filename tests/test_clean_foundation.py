@@ -60,6 +60,7 @@ def test_documentacao_ativa_nao_mistura_legado():
     permitidos = {
         "README.md", "new_app",
         "CHECKPOINT_2026-09-05.md", "CHECKPOINT_2026-09-06.md",
+        "CHECKPOINT_2026-09-12.md",
     }
     assert encontrados == permitidos, encontrados
 
