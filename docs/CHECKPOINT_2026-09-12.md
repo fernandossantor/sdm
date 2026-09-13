@@ -65,3 +65,22 @@ O usuário solicitou pausa com novo checkpoint. Não iniciar nova implementaçã
 - O serviço de assinatura recusou o commit com `403 | Author is invalid`, inclusive após conferir a identidade autenticada. O usuário autorizou explicitamente criar apenas este commit sem assinatura, enviar e verificar o CI, preservando a configuração de assinatura do repositório.
 - Este registro acompanha a entrega preparada para envio. O resultado do CI da revisão enviada deve ser consultado no GitHub; o CI aprovado de `75e1b6b` não valida este código novo.
 - Próximos passos após envio e CI: confirmar separadamente o deploy no Streamlit. Continuam pendentes os demais diagnósticos do §13.3, reconhecimento de alertas, histórico/comparação de versões, conclusão e transição do Briefing. A regra de ordenação da Jornada permanece restrita às múltiplas máximas (5). A falha de assinatura permanece pendente para futuros commits.
+
+## Conferência da retomada — 13/09/2026
+
+- A `main` local e a `main` remota apontam para `9f1cf03d69edee2ea524fe8ec769f7091156d22d`; não há envio pendente da última entrega.
+- CI dessa revisão aprovado: https://github.com/fernandossantor/sdm/actions/runs/34718434964. Log conferido: **612 testes aprovados** e etapa de compilação de `app.py`, `mediad_planner` e `tests` aprovada.
+- Escopo desta retomada: conferir a entrega anterior e atualizar somente este registro operacional. Aceite: revisão remota e CI identificados, sem atribuir ao CI confirmação do deploy.
+- A publicação no Streamlit continua sem confirmação; falta o endereço do aplicativo e a configuração de origem do deploy para verificar essa pendência.
+- `supabase/` permanece não rastreado, sem consulta ao conteúdo ou alterações. As pendências funcionais e a limitação de persistência em memória registradas acima permanecem vigentes.
+- Endereço de homologação informado pelo usuário: https://sdm-homologacao.streamlit.app/. A consulta HTTP com cookies recebeu resposta **200**, mas apenas a página de carregamento que exige JavaScript. Isso não confirma a execução da aplicação nem o commit publicado. A branch e a revisão do deploy continuam sem comprovação.
+
+## Entrega — prioridades de Restrições e Pretensões — 13/09/2026
+
+- O usuário confirmou a configuração da homologação: repositório `fernandossantor/sdm`, branch `main`, entrada `app.py`. A revisão efetivamente carregada pelo Streamlit ainda não foi verificada.
+- Escopo funcional: estender os diagnósticos existentes de prioridades iguais e múltiplas máximas sem justificativa aos conjuntos de Restrições e Pretensões, separadamente, conforme `02_BRIEFING.md` §§13.1–13.3, 14.3 e 15.3. Máxima continua sendo 5; prioridade 4 não é máxima.
+- Os avisos do §13.3 ficam acima das abas da subetapa de condições e também aparecem na Revisão, calculados uma única vez no domínio. Declarações e salvamento permanecem preservados.
+- Arquivos afetados: `mediad_planner/domain/briefing/revisao.py`, `mediad_planner/presentation/condicoes_declaradas.py`, `tests/test_diagnosticos_prioridades_condicoes.py` e este checkpoint.
+- Aceite verificado: conjuntos vazios e unitários sem alertas de comparação; igualdade em prioridades não máximas; múltiplas máximas com justificativas ausentes, parciais e completas; identificação por UUID; rótulo canônico ou descrição da pretensão; independência entre conjuntos; avaliação somente de leitura; recálculo após justificar, alterar prioridade, remover e reabrir; mesma mensagem na subetapa e na revisão.
+- Validação: **635 testes aprovados** em cópia limpa da entrega (**23 novos testes**), compilação de `app.py`, `mediad_planner` e `tests` aprovada e `git diff --check` sem erros.
+- Permanecem pendentes os diagnósticos interpretativos de conflito prioridade/intensidade e pretensão/restrição, reconhecimento explícito de alertas, histórico/comparação de versões, conclusão e transição. A persistência continua em memória. Nenhuma migração ou alteração de biblioteca foi criada.

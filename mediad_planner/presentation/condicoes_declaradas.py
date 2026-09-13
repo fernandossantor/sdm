@@ -61,12 +61,6 @@ def _aba_prioridades(aplicacao, id_campanha, briefing):
             else:
                 st.session_state.pop(CHAVE_PRIORIDADE, None)
                 st.rerun()
-    for item in briefing.apontamentos_revisao:
-        if (
-            item.subetapa == "Prioridades, restrições e pretensões"
-            and item.referencia_normativa == "02_BRIEFING.md § 13.3"
-        ):
-            st.warning(item.mensagem)
     with st.expander(f"Prioridades contextuais salvas ({len(briefing.prioridades_contextuais)})", expanded=False):
         for item in briefing.prioridades_contextuais:
             st.write(f"**{item.rotulo_entidade}** — prioridade {item.prioridade}")
@@ -187,6 +181,12 @@ def _aba_pretensoes(aplicacao, id_campanha, briefing):
 def apresentar_condicoes_declaradas(aplicacao: AplicacaoBriefings, id_campanha: UUID, briefing: BriefingResumo) -> None:
     st.subheader("Prioridades, Restrições e Pretensões")
     st.caption("Registre declarações do usuário. A classificação técnica e as decisões de mídia pertencem às etapas posteriores.")
+    for item in briefing.apontamentos_revisao:
+        if (
+            item.subetapa == "Prioridades, restrições e pretensões"
+            and item.referencia_normativa == "02_BRIEFING.md § 13.3"
+        ):
+            st.warning(item.mensagem)
     prioridades, restricoes, pretensoes = st.tabs(("Prioridades", "Restrições", "Pretensões"))
     with prioridades: _aba_prioridades(aplicacao, id_campanha, briefing)
     with restricoes: _aba_restricoes(aplicacao, id_campanha, briefing)

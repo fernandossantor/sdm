@@ -8,7 +8,9 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from mediad_planner.domain.briefing.entidades import Briefing
-from mediad_planner.domain.briefing.condicoes_declaradas import TipoEntidadePrioridade
+from mediad_planner.domain.briefing.condicoes_declaradas import (
+    ROTULOS_PRETENSOES, TipoEntidadePrioridade,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -146,6 +148,15 @@ def avaliar_briefing(briefing: Briefing) -> tuple[ApontamentoRevisao, ...]:
             registrar("Período e verba", mensagem, "11–12")
 
     condicoes = "Prioridades, restrições e pretensões"
+    _avaliar_prioridades_declaradas(tuple(
+        (item.id_restricao, item.descricao, item.prioridade, item.justificativa)
+        for item in briefing.restricoes
+    ), "Restrições", condicoes, registrar)
+    _avaliar_prioridades_declaradas(tuple(
+        (item.id_pretensao, item.descricao_controlada or ROTULOS_PRETENSOES[item.categoria],
+         item.prioridade, item.justificativa)
+        for item in briefing.pretensoes
+    ), "Pretensões", condicoes, registrar)
     prioridades = briefing.prioridades_contextuais
     if len(prioridades) > 1 and len({item.prioridade for item in prioridades}) == 1:
         registrar(
