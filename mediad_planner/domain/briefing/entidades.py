@@ -270,6 +270,21 @@ class Briefing:
             atualizado_em=atualizado_em,
         )
 
+    def editar_prioridade_objetivo(
+        self, id_objetivo: UUID, prioridade: int, intensidade: int,
+        justificativa: str | None, atualizado_por: UUID, atualizado_em: datetime,
+    ) -> "Briefing":
+        self._validar_alteracao(atualizado_por, atualizado_em)
+        return replace(
+            self,
+            objetivos_declarados=self.objetivos_declarados.editar_prioridade(
+                id_objetivo, prioridade, intensidade, justificativa,
+            ),
+            estado=EstadoBriefing.EM_PREENCHIMENTO,
+            atualizado_por=atualizado_por,
+            atualizado_em=atualizado_em,
+        )
+
     def definir_vinculos_objetivo(
         self, id_objetivo: UUID, ids_publicos: tuple[UUID, ...],
         ids_pracas: tuple[UUID, ...], atualizado_por: UUID, atualizado_em: datetime,

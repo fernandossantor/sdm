@@ -349,6 +349,25 @@ class ObjetivosDeclarados:
     marketing: tuple[ObjetivoMarketingDeclarado, ...]
     comunicacao: tuple[ObjetivoComunicacaoDeclarado, ...]
 
+    def editar_prioridade(
+        self, id_objetivo: UUID, prioridade: int, intensidade: int,
+        justificativa: str | None,
+    ) -> "ObjetivosDeclarados":
+        if not isinstance(id_objetivo, UUID):
+            raise TypeError("id_objetivo deve ser UUID")
+        objetivo = next((item for item in self.marketing + self.comunicacao
+                         if item.id_objetivo == id_objetivo), None)
+        if objetivo is None:
+            raise LookupError("Objetivo não encontrado no Briefing")
+        atualizado = replace(objetivo, prioridade_declarada=prioridade,
+                             intensidade_declarada=intensidade, justificativa=justificativa)
+        return ObjetivosDeclarados(
+            marketing=tuple(atualizado if item.id_objetivo == id_objetivo else item
+                            for item in self.marketing),
+            comunicacao=tuple(atualizado if item.id_objetivo == id_objetivo else item
+                              for item in self.comunicacao),
+        )
+
     def definir_vinculos(
         self, id_objetivo: UUID, ids_publicos: tuple[UUID, ...],
         ids_pracas: tuple[UUID, ...],

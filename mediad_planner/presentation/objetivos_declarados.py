@@ -7,6 +7,7 @@ from mediad_planner.application.dto.objetivos_declarados import (
     AdicionarObjetivoComunicacaoEntrada,
     AdicionarObjetivoMarketingEntrada,
     DefinirVinculosObjetivoEntrada,
+    EditarPrioridadeObjetivoEntrada,
     ObjetivoComunicacaoResumo,
     ObjetivoMarketingResumo,
 )
@@ -26,6 +27,37 @@ ESCALA = (
 
 def _valor_escala(rotulo: str) -> int:
     return int(rotulo.split(" ", 1)[0])
+
+
+def _editar_prioridade_objetivo(aplicacao, id_campanha, objetivo) -> None:
+    chave = f"prioridade_objetivo_{id_campanha}_{objetivo.id_objetivo}"
+    with st.expander("Alterar prioridade, intensidade e justificativa"):
+        with st.form(chave):
+            prioridade = st.selectbox(
+                "Prioridade declarada", ESCALA,
+                index=objetivo.prioridade_declarada - 1, key=f"{chave}_prioridade",
+                help="Importância relativa atribuída pelo usuário.",
+            )
+            intensidade = st.selectbox(
+                "Intensidade declarada", ESCALA,
+                index=objetivo.intensidade_declarada - 1, key=f"{chave}_intensidade",
+                help="Força ou ambição declarada para o objetivo.",
+            )
+            justificativa = st.text_area(
+                "Justificativa do Objetivo (opcional)",
+                value=objetivo.justificativa or "", key=f"{chave}_justificativa",
+            )
+            salvar = st.form_submit_button("Salvar prioridade do Objetivo")
+        if salvar:
+            try:
+                aplicacao.editar_prioridade_objetivo(id_campanha, EditarPrioridadeObjetivoEntrada(
+                    objetivo.id_objetivo, _valor_escala(prioridade),
+                    _valor_escala(intensidade), justificativa,
+                ))
+            except (LookupError, PermissionError, TypeError, ValueError) as erro:
+                st.error(str(erro))
+            else:
+                st.rerun()
 
 
 def _vinculos_objetivo(
@@ -181,6 +213,7 @@ def _listar_marketing(
                 )
             if objetivo.justificativa:
                 st.write(f"Justificativa: {objetivo.justificativa}")
+            _editar_prioridade_objetivo(aplicacao, id_campanha, objetivo)
             _vinculos_objetivo(aplicacao, id_campanha, briefing, objetivo)
             if st.button(
                 "Remover Objetivo de Marketing",
@@ -322,6 +355,7 @@ def _listar_comunicacao(
                 st.write("Sem vínculo explícito com Objetivo de Marketing.")
             if objetivo.justificativa:
                 st.write(f"Justificativa: {objetivo.justificativa}")
+            _editar_prioridade_objetivo(aplicacao, id_campanha, objetivo)
             _vinculos_objetivo(aplicacao, id_campanha, briefing, objetivo)
             if st.button(
                 "Remover Objetivo de Comunicação",

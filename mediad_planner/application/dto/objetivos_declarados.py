@@ -109,3 +109,11 @@ class DefinirVinculosObjetivoEntrada:
     def __post_init__(self) -> None:
         for campo in ("ids_publicos_relacionados", "ids_pracas_relacionadas"):
             object.__setattr__(self, campo, tuple(getattr(self, campo)))
+
+
+@dataclass(frozen=True, slots=True)
+class EditarPrioridadeObjetivoEntrada:
+    id_objetivo: UUID
+    prioridade_declarada: int
+    intensidade_declarada: int
+    justificativa: str | None
