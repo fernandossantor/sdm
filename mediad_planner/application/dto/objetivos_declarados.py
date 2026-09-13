@@ -117,3 +117,12 @@ class EditarPrioridadeObjetivoEntrada:
     prioridade_declarada: int
     intensidade_declarada: int
     justificativa: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class DefinirRelacoesMarketingEntrada:
+    id_objetivo_comunicacao: UUID
+    ids_objetivos_marketing: tuple[UUID, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "ids_objetivos_marketing", tuple(self.ids_objetivos_marketing))

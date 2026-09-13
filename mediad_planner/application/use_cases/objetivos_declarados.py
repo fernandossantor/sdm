@@ -12,6 +12,7 @@ from mediad_planner.application.dto.objetivos_declarados import (
     DefinicaoObjetivoResumo,
     DimensaoCompostoMarketingResumo,
     DefinirVinculosObjetivoEntrada,
+    DefinirRelacoesMarketingEntrada,
     EditarPrioridadeObjetivoEntrada,
 )
 from mediad_planner.application.ports.repositorio_briefings import (
@@ -323,6 +324,28 @@ class EditarPrioridadeObjetivo:
         atualizado = briefing.editar_prioridade_objetivo(
             entrada.id_objetivo, entrada.prioridade_declarada,
             entrada.intensidade_declarada, entrada.justificativa,
+            self._contexto.id_usuario, self._relogio(),
+        )
+        self._repositorio.salvar(atualizado)
+        return resumir_briefing(atualizado)
+
+
+class DefinirRelacoesMarketing:
+    def __init__(
+        self, repositorio: RepositorioBriefings, contexto_acesso: ContextoAcessoBriefings,
+        relogio: Relogio,
+    ) -> None:
+        self._repositorio = repositorio
+        self._contexto = contexto_acesso
+        self._relogio = relogio
+
+    def executar(
+        self, id_campanha: UUID, entrada: DefinirRelacoesMarketingEntrada,
+    ) -> BriefingResumo:
+        _validar_autoria(self._contexto)
+        briefing = _obter_briefing(self._repositorio, self._contexto, id_campanha)
+        atualizado = briefing.definir_relacoes_marketing(
+            entrada.id_objetivo_comunicacao, entrada.ids_objetivos_marketing,
             self._contexto.id_usuario, self._relogio(),
         )
         self._repositorio.salvar(atualizado)

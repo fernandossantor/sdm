@@ -11,6 +11,7 @@ from mediad_planner.application.dto.objetivos_declarados import (
     DefinicaoObjetivoResumo,
     DimensaoCompostoMarketingResumo,
     DefinirVinculosObjetivoEntrada,
+    DefinirRelacoesMarketingEntrada,
     EditarPrioridadeObjetivoEntrada,
 )
 from mediad_planner.application.dto.praca_universo import (
@@ -80,6 +81,7 @@ from mediad_planner.application.use_cases.objetivos_declarados import (
     RemoverObjetivoComunicacao,
     RemoverObjetivoMarketing,
     DefinirVinculosObjetivo,
+    DefinirRelacoesMarketing,
     EditarPrioridadeObjetivo,
 )
 from mediad_planner.application.use_cases.briefings import (
@@ -138,6 +140,7 @@ class AplicacaoBriefings:
         gerenciar_condicoes: GerenciarCondicoesDeclaradas,
         definir_aplicabilidade_jornada: DefinirAplicabilidadeJornada,
         definir_vinculos_objetivo: DefinirVinculosObjetivo,
+        definir_relacoes_marketing: DefinirRelacoesMarketing,
         editar_prioridade_objetivo: EditarPrioridadeObjetivo,
     ) -> None:
         self._abrir = abrir
@@ -177,7 +180,13 @@ class AplicacaoBriefings:
         self._gerenciar_condicoes = gerenciar_condicoes
         self._definir_aplicabilidade_jornada = definir_aplicabilidade_jornada
         self._definir_vinculos_objetivo = definir_vinculos_objetivo
+        self._definir_relacoes_marketing = definir_relacoes_marketing
         self._editar_prioridade_objetivo = editar_prioridade_objetivo
+
+    def definir_relacoes_marketing(
+        self, id_campanha: UUID, entrada: DefinirRelacoesMarketingEntrada,
+    ) -> BriefingResumo:
+        return self._definir_relacoes_marketing.executar(id_campanha, entrada)
 
     def editar_prioridade_objetivo(
         self, id_campanha: UUID, entrada: EditarPrioridadeObjetivoEntrada,

@@ -7,6 +7,7 @@ from mediad_planner.application.dto.objetivos_declarados import (
     AdicionarObjetivoComunicacaoEntrada,
     AdicionarObjetivoMarketingEntrada,
     DefinirVinculosObjetivoEntrada,
+    DefinirRelacoesMarketingEntrada,
     EditarPrioridadeObjetivoEntrada,
     ObjetivoComunicacaoResumo,
     ObjetivoMarketingResumo,
@@ -321,6 +322,32 @@ def _formulario_comunicacao(
             st.rerun()
 
 
+def _relacoes_marketing(aplicacao, id_campanha, briefing, objetivo) -> None:
+    opcoes = {item.id_objetivo: f"{indice}. {item.objetivo}"
+              for indice, item in enumerate(briefing.objetivos_marketing, 1)}
+    chave = f"relacoes_marketing_{id_campanha}_{objetivo.id_objetivo}"
+    with st.expander("Alterar Objetivos de Marketing relacionados"):
+        st.caption("Selecione as relações declaradas. Para retirar uma relação, desmarque e salve.")
+        if not opcoes:
+            st.info("Cadastre Objetivos de Marketing para relacioná-los a este objetivo.")
+        with st.form(chave):
+            selecionados = st.multiselect(
+                "Objetivos de Marketing relacionados (opcional)", tuple(opcoes),
+                default=objetivo.ids_objetivos_marketing_relacionados,
+                format_func=opcoes.__getitem__, key=f"{chave}_objetivos",
+            )
+            salvar = st.form_submit_button("Salvar relações com Marketing")
+        if salvar:
+            try:
+                aplicacao.definir_relacoes_marketing(id_campanha, DefinirRelacoesMarketingEntrada(
+                    objetivo.id_objetivo, tuple(selecionados),
+                ))
+            except (LookupError, PermissionError, TypeError, ValueError) as erro:
+                st.error(str(erro))
+            else:
+                st.rerun()
+
+
 def _listar_comunicacao(
     aplicacao: AplicacaoBriefings,
     id_campanha: UUID,
@@ -370,6 +397,8 @@ def _listar_comunicacao(
                     st.error(str(erro))
                 else:
                     st.rerun()
+
+            _relacoes_marketing(aplicacao, id_campanha, briefing, objetivo)
 
 
 def apresentar_objetivos_declarados(
